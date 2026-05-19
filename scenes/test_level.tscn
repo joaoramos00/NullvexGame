@@ -1,0 +1,29 @@
+[gd_scene load_steps=5 format=3 uid="uid://test_level"]
+
+[ext_resource type="PackedScene" uid="uid://character_base" path="res://characters/base/character_base.tscn" id="1_char"]
+[ext_resource type="Script" path="res://scenes/test_level.gd" id="2_script"]
+
+[sub_resource type="WorldBoundaryShape2D" id="WorldBoundaryShape2D_1"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_1"]
+size = Vector2(200, 20)
+
+[node name="TestLevel" type="Node2D"]
+script = ExtResource("2_script")
+
+[node name="CharacterBase" parent="." instance=ExtResource("1_char")]
+position = Vector2(200, 400)
+
+[node name="Floor" type="StaticBody2D" parent="."]
+position = Vector2(960, 500)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Floor"]
+shape = SubResource("WorldBoundaryShape2D_1")
+
+[node name="Platform" type="StaticBody2D" parent="."]
+position = Vector2(500, 350)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Platform"]
+shape = SubResource("RectangleShape2D_1")
+
+[node name="Camera2D" type="Camera2D" parent="."]
