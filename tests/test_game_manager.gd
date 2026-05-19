@@ -1,8 +1,8 @@
-extends SceneTree
+extends Node
 
-func _init() -> void:
+func _ready() -> void:
     run_tests()
-    quit()
+    get_tree().quit()
 
 func run_tests() -> void:
     test_initial_state()
