@@ -45,11 +45,12 @@ static func get_charge_level(timer: float) -> int:
     return 1
 
 func _fire(level: int) -> void:
+    assert(level >= 1 and level <= 3, "charge level deve ser 1, 2 ou 3")
     var bullet: ZaelBullet = _BULLET_SCENE.instantiate()
     bullet.damage = BULLET_DAMAGE[level]
     bullet.direction = 1.0 if facing_right else -1.0
     bullet.scale = BULLET_SCALE[level]
-    get_parent().add_child(bullet)
+    get_parent().add_child(bullet)  # sibling, não filho — evita herdar scale.x flip do Zael
     bullet.global_position = _bullet_spawn.global_position
 
 func _notification(what: int) -> void:
