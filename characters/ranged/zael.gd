@@ -26,6 +26,8 @@ func _physics_process(delta: float) -> void:
     _handle_shooting(delta)
 
 func _handle_shooting(delta: float) -> void:
+    if is_dead:
+        return
     if Input.is_action_just_pressed("attack"):
         _is_charging = true
     if _is_charging:
@@ -49,3 +51,8 @@ func _fire(level: int) -> void:
     bullet.scale = BULLET_SCALE[level]
     get_parent().add_child(bullet)
     bullet.global_position = _bullet_spawn.global_position
+
+func _notification(what: int) -> void:
+    if what == NOTIFICATION_APPLICATION_FOCUS_OUT:
+        _is_charging = false
+        _charge_timer = 0.0
