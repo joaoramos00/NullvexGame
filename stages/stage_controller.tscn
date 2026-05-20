@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://stage_controller"]
+
+[ext_resource type="Script" path="res://stages/stage_controller.gd" id="1_script"]
+
+[node name="StageController" type="Node"]
+script = ExtResource("1_script")
