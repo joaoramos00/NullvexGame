@@ -1,0 +1,7 @@
+[gd_scene format=3 uid="uid://zara"]
+
+[ext_resource type="PackedScene" uid="uid://character_base" path="res://characters/base/character_base.tscn" id="1_base"]
+[ext_resource type="Script" path="res://characters/melee/zara.gd" id="2_zara"]
+
+[node name="Zara" instance=ExtResource("1_base")]
+script = ExtResource("2_zara")

@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://test_zara"]
+
+[ext_resource type="Script" path="res://tests/test_zara.gd" id="1_script"]
+
+[node name="TestZara" type="Node"]
+script = ExtResource("1_script")
