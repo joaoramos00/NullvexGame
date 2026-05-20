@@ -5,3 +5,7 @@
 
 [node name="Zara" instance=ExtResource("1_base")]
 script = ExtResource("2_zara")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+position = Vector2(0, -24)
+scale = Vector2(2, 2)
