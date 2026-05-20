@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3 uid="uid://test_level"]
+[gd_scene load_steps=13 format=3 uid="uid://test_level"]
 
 [ext_resource type="PackedScene" uid="uid://0ael" path="res://characters/ranged/zael.tscn" id="1_char"]
 [ext_resource type="Script" path="res://scenes/test_level.gd" id="2_script"]
@@ -6,6 +6,9 @@
 [ext_resource type="PackedScene" uid="uid://stage_controller" path="res://stages/stage_controller.tscn" id="4_sc"]
 [ext_resource type="PackedScene" uid="uid://checkpoint" path="res://stages/checkpoint.tscn" id="5_cp"]
 [ext_resource type="PackedScene" uid="uid://collectible" path="res://stages/collectible.tscn" id="6_col"]
+[ext_resource type="PackedScene" uid="uid://hud" path="res://ui/hud.tscn" id="7_hud"]
+[ext_resource type="PackedScene" uid="uid://pause_menu" path="res://ui/pause_menu.tscn" id="8_pause"]
+[ext_resource type="PackedScene" uid="uid://game_over" path="res://ui/game_over.tscn" id="9_gameover"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_floor"]
 size = Vector2(3000, 40)
@@ -50,6 +53,12 @@ position = Vector2(560, 460)
 position = Vector2(640, 460)
 collectible_type = 1
 subtank_index = 0
+
+[node name="HUD" parent="." instance=ExtResource("7_hud")]
+
+[node name="PauseMenu" parent="." instance=ExtResource("8_pause")]
+
+[node name="GameOver" parent="." instance=ExtResource("9_gameover")]
 
 [node name="Camera2D" type="Camera2D" parent="."]
 position = Vector2(960, 450)

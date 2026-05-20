@@ -5,6 +5,7 @@ signal max_hp_changed(max_hp: int)
 signal stage_completed(stage_id: int)
 signal ability_unlocked(ability_id: String)
 signal character_changed(character: String)
+signal game_over
 
 const SAVE_PATH := "user://savegame.json"
 const DEFAULT_LIVES := 3
@@ -105,6 +106,8 @@ func has_full_armor() -> bool:
 func lose_life() -> void:
     lives -= 1
     lives_changed.emit(lives)
+    if lives <= 0:
+        game_over.emit()
 
 func add_life() -> void:
     lives += 1

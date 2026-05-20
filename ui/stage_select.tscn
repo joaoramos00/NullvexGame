@@ -1,0 +1,222 @@
+[gd_scene format=3 uid="uid://stage_select"]
+
+[ext_resource type="Script" path="res://ui/stage_select.gd" id="1_script"]
+
+[node name="StageSelect" type="Control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource("1_script")
+
+[node name="Background" type="ColorRect" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.06, 0.06, 0.1, 1)
+
+[node name="TitleLabel" type="Label" parent="."]
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -200.0
+offset_top = 30.0
+offset_right = 200.0
+offset_bottom = 70.0
+text = "SELECT STAGE"
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 32
+
+[node name="Grid" type="GridContainer" parent="."]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -420.0
+offset_top = -200.0
+offset_right = 420.0
+offset_bottom = 220.0
+columns = 4
+theme_override_constants/h_separation = 16
+theme_override_constants/v_separation = 16
+
+[node name="Card1" type="PanelContainer" parent="Grid"]
+custom_minimum_size = Vector2(190, 120)
+
+[node name="VBox" type="VBoxContainer" parent="Grid/Card1"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="NameLabel" type="Label" parent="Grid/Card1/VBox"]
+layout_mode = 2
+text = "Ignarath"
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 18
+
+[node name="ThemeLabel" type="Label" parent="Grid/Card1/VBox"]
+layout_mode = 2
+text = "Fire"
+horizontal_alignment = 1
+
+[node name="SelectButton" type="Button" parent="Grid/Card1/VBox"]
+layout_mode = 2
+text = "SELECT"
+
+[node name="Card2" type="PanelContainer" parent="Grid"]
+custom_minimum_size = Vector2(190, 120)
+
+[node name="VBox" type="VBoxContainer" parent="Grid/Card2"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="NameLabel" type="Label" parent="Grid/Card2/VBox"]
+layout_mode = 2
+text = "Cryovex"
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 18
+
+[node name="ThemeLabel" type="Label" parent="Grid/Card2/VBox"]
+layout_mode = 2
+text = "Ice"
+horizontal_alignment = 1
+
+[node name="SelectButton" type="Button" parent="Grid/Card2/VBox"]
+layout_mode = 2
+text = "SELECT"
+
+[node name="Card3" type="PanelContainer" parent="Grid"]
+custom_minimum_size = Vector2(190, 120)
+
+[node name="VBox" type="VBoxContainer" parent="Grid/Card3"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="NameLabel" type="Label" parent="Grid/Card3/VBox"]
+layout_mode = 2
+text = "Voltrix"
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 18
+
+[node name="ThemeLabel" type="Label" parent="Grid/Card3/VBox"]
+layout_mode = 2
+text = "Lightning"
+horizontal_alignment = 1
+
+[node name="SelectButton" type="Button" parent="Grid/Card3/VBox"]
+layout_mode = 2
+text = "SELECT"
+
+[node name="Card4" type="PanelContainer" parent="Grid"]
+custom_minimum_size = Vector2(190, 120)
+
+[node name="VBox" type="VBoxContainer" parent="Grid/Card4"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="NameLabel" type="Label" parent="Grid/Card4/VBox"]
+layout_mode = 2
+text = "Gravitus"
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 18
+
+[node name="ThemeLabel" type="Label" parent="Grid/Card4/VBox"]
+layout_mode = 2
+text = "Gravity"
+horizontal_alignment = 1
+
+[node name="SelectButton" type="Button" parent="Grid/Card4/VBox"]
+layout_mode = 2
+text = "SELECT"
+
+[node name="Card5" type="PanelContainer" parent="Grid"]
+custom_minimum_size = Vector2(190, 120)
+
+[node name="VBox" type="VBoxContainer" parent="Grid/Card5"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="NameLabel" type="Label" parent="Grid/Card5/VBox"]
+layout_mode = 2
+text = "Galerix"
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 18
+
+[node name="ThemeLabel" type="Label" parent="Grid/Card5/VBox"]
+layout_mode = 2
+text = "Wind"
+horizontal_alignment = 1
+
+[node name="SelectButton" type="Button" parent="Grid/Card5/VBox"]
+layout_mode = 2
+text = "SELECT"
+
+[node name="Card6" type="PanelContainer" parent="Grid"]
+custom_minimum_size = Vector2(190, 120)
+
+[node name="VBox" type="VBoxContainer" parent="Grid/Card6"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="NameLabel" type="Label" parent="Grid/Card6/VBox"]
+layout_mode = 2
+text = "Umbraex"
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 18
+
+[node name="ThemeLabel" type="Label" parent="Grid/Card6/VBox"]
+layout_mode = 2
+text = "Shadow"
+horizontal_alignment = 1
+
+[node name="SelectButton" type="Button" parent="Grid/Card6/VBox"]
+layout_mode = 2
+text = "SELECT"
+
+[node name="Card7" type="PanelContainer" parent="Grid"]
+custom_minimum_size = Vector2(190, 120)
+
+[node name="VBox" type="VBoxContainer" parent="Grid/Card7"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="NameLabel" type="Label" parent="Grid/Card7/VBox"]
+layout_mode = 2
+text = "Luxar"
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 18
+
+[node name="ThemeLabel" type="Label" parent="Grid/Card7/VBox"]
+layout_mode = 2
+text = "Light"
+horizontal_alignment = 1
+
+[node name="SelectButton" type="Button" parent="Grid/Card7/VBox"]
+layout_mode = 2
+text = "SELECT"
+
+[node name="Card8" type="PanelContainer" parent="Grid"]
+custom_minimum_size = Vector2(190, 120)
+
+[node name="VBox" type="VBoxContainer" parent="Grid/Card8"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="NameLabel" type="Label" parent="Grid/Card8/VBox"]
+layout_mode = 2
+text = "Terragor"
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 18
+
+[node name="ThemeLabel" type="Label" parent="Grid/Card8/VBox"]
+layout_mode = 2
+text = "Earth"
+horizontal_alignment = 1
+
+[node name="SelectButton" type="Button" parent="Grid/Card8/VBox"]
+layout_mode = 2
+text = "SELECT"
+
+[node name="BackButton" type="Button" parent="."]
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -60.0
+offset_top = 540.0
+offset_right = 60.0
+offset_bottom = 570.0
+text = "< Back"
