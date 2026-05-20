@@ -119,10 +119,8 @@ func _start_dash() -> void:
 func _update_facing() -> void:
     if velocity.x > 0.0:
         facing_right = true
-        scale.x = 1.0
     elif velocity.x < 0.0:
         facing_right = false
-        scale.x = -1.0
 
 func take_damage(amount: int, _source_id: String = "") -> void:
     if is_invincible or is_dead:
