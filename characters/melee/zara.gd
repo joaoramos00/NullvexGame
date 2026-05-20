@@ -10,7 +10,6 @@ const _HITBOX_SCENE := preload("res://characters/melee/zara_hitbox.tscn")
 const _FRAME_W := 48
 const _FRAME_H := 48
 const _ROW_RIGHT := 2  # RPG Maker MZ row 2 = facing right
-const _ROW_FRONT := 0  # row 0 = facing down (used for attack)
 
 var _combo_step: int = 0
 var _combo_timer: float = 0.0
@@ -28,8 +27,7 @@ func _setup_sprite_frames() -> void:
     var tex := load("res://characters/melee/ZaraAndando.png") as Texture2D
     var fw := _FRAME_W
     var fh := _FRAME_H
-    var ry := _ROW_RIGHT * fh   # y = 96
-    var ry_atk := _ROW_FRONT * fh  # y = 0
+    var ry := _ROW_RIGHT * fh  # y = 96
 
     frames.add_animation("idle")
     frames.set_animation_loop("idle", true)
@@ -53,16 +51,18 @@ func _setup_sprite_frames() -> void:
     frames.set_animation_speed("jump", 1.0)
     var jump_at := AtlasTexture.new()
     jump_at.atlas = tex
-    jump_at.region = Rect2(fw, 3 * fh, fw, fh)  # row 3 middle frame
+    jump_at.region = Rect2(fw, 3 * fh, fw, fh)
     frames.add_frame("jump", jump_at)
 
+    # attack — row 2 (lateral) at 12 FPS, non-looping
+    # frames in order [2,0,1] gives a "swing forward then back" feel
     frames.add_animation("attack")
     frames.set_animation_loop("attack", false)
     frames.set_animation_speed("attack", 12.0)
-    for i in 3:
+    for i in [2, 0, 1]:
         var at := AtlasTexture.new()
         at.atlas = tex
-        at.region = Rect2(i * fw, ry_atk, fw, fh)
+        at.region = Rect2(i * fw, ry, fw, fh)
         frames.add_frame("attack", at)
 
     _sprite.sprite_frames = frames
@@ -76,10 +76,11 @@ func _physics_process(delta: float) -> void:
     _update_animation()
 
 func _update_animation() -> void:
+    _sprite.flip_h = not facing_right
     if not is_on_floor():
         _sprite.play("jump")
     elif _sprite.animation == "attack" and _sprite.is_playing():
-        pass  # let attack finish
+        pass
     elif velocity.x != 0.0:
         _sprite.play("walk")
     else:

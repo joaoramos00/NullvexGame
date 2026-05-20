@@ -18,11 +18,13 @@ const _FRAME_W := 48
 const _FRAME_H := 48
 const _ROW_RIGHT := 2  # RPG Maker MZ row 2 = facing right
 
+# bullet spawn offset from character center
+const _SPAWN_OFFSET := Vector2(30.0, -10.0)
+
 var _charge_timer: float = 0.0
 var _is_charging: bool = false
 
 @onready var _sprite: AnimatedSprite2D = $AnimatedSprite2D
-@onready var _bullet_spawn: Marker2D = $BulletSpawn
 
 func _ready() -> void:
     super._ready()
@@ -58,9 +60,10 @@ func _setup_sprite_frames() -> void:
     frames.set_animation_speed("jump", 1.0)
     var jump_at := AtlasTexture.new()
     jump_at.atlas = walk_tex
-    jump_at.region = Rect2(fw, 3 * fh, fw, fh)  # row 3 (up-facing) middle frame
+    jump_at.region = Rect2(fw, 3 * fh, fw, fh)
     frames.add_frame("jump", jump_at)
 
+    # shoot uses ZaelLutando row 2 (right-facing) of first slot
     frames.add_animation("shoot")
     frames.set_animation_loop("shoot", false)
     frames.set_animation_speed("shoot", 12.0)
@@ -93,10 +96,11 @@ func _handle_shooting(delta: float) -> void:
         _charge_timer = 0.0
 
 func _update_animation() -> void:
+    _sprite.flip_h = not facing_right
     if not is_on_floor():
         _sprite.play("jump")
     elif _sprite.animation == "shoot" and _sprite.is_playing():
-        pass  # let shoot finish
+        pass
     elif velocity.x != 0.0:
         _sprite.play("walk")
     else:
@@ -119,7 +123,8 @@ func _fire(level: int) -> void:
     bullet.scale = BULLET_SCALE[level]
     bullet.source_id = GameManager.zael_selected_shot
     get_parent().add_child(bullet)
-    bullet.global_position = _bullet_spawn.global_position
+    var offset_x := _SPAWN_OFFSET.x if facing_right else -_SPAWN_OFFSET.x
+    bullet.global_position = global_position + Vector2(offset_x, _SPAWN_OFFSET.y)
 
 func _notification(what: int) -> void:
     if what == NOTIFICATION_APPLICATION_FOCUS_OUT:
