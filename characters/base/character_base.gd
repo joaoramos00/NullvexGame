@@ -34,6 +34,7 @@ var _dash_direction: float = 1.0
 
 func _ready() -> void:
     current_hp = max_hp
+    queue_redraw()
 
 func _physics_process(delta: float) -> void:
     if is_dead:

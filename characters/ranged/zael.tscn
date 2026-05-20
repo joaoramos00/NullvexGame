@@ -1,10 +1,16 @@
-[gd_scene format=3 uid="uid://0ael"]
+[gd_scene load_steps=4 format=3 uid="uid://0ael"]
 
 [ext_resource type="PackedScene" uid="uid://character_base" path="res://characters/base/character_base.tscn" id="1_base"]
 [ext_resource type="Script" path="res://characters/ranged/zael.gd" id="2_zael"]
+[ext_resource type="Texture2D" path="res://characters/ranged/Zael_stand.png" id="3_texture"]
 
 [node name="Zael" instance=ExtResource("1_base")]
 script = ExtResource("2_zael")
+
+[node name="Sprite2D" parent="."]
+scale = Vector2(0.15, 0.15)
+offset = Vector2(0, -150)
+texture = ExtResource("3_texture")
 
 [node name="BulletSpawn" type="Marker2D" parent="."]
 position = Vector2(30, -10)
