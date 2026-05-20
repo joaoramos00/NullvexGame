@@ -74,6 +74,7 @@ func _setup_sprite_frames() -> void:
     frames.add_frame("shoot", shoot_at)
 
     _sprite.sprite_frames = frames
+    _sprite.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
     _sprite.play("idle")
 
 func _physics_process(delta: float) -> void:
@@ -96,10 +97,12 @@ func _handle_shooting(delta: float) -> void:
         _charge_timer = 0.0
 
 func _update_animation() -> void:
-    _sprite.flip_h = not facing_right
+    var shooting := _sprite.animation == "shoot" and _sprite.is_playing()
+    if not shooting:
+        _sprite.flip_h = not facing_right
     if not is_on_floor():
         _sprite.play("jump")
-    elif _sprite.animation == "shoot" and _sprite.is_playing():
+    elif shooting:
         pass
     elif velocity.x != 0.0:
         _sprite.play("walk")
