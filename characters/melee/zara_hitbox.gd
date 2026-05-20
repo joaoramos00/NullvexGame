@@ -4,6 +4,7 @@ class_name ZaraHitbox
 const ATTACK_DURATION := 0.15
 
 var damage: int = 8
+var _hit_bodies: Array[Node] = []
 
 func _ready() -> void:
 	body_entered.connect(_on_body_entered)
@@ -15,5 +16,9 @@ func _ready() -> void:
 func _draw() -> void:
 	draw_rect(Rect2(-14, -16, 28, 32), Color(1.0, 0.2, 0.2, 0.4))
 
-func _on_body_entered(_body: Node) -> void:
-	pass  # damage handled in Plan 04 when enemies exist
+func _on_body_entered(body: Node) -> void:
+	if body in _hit_bodies:
+		return
+	_hit_bodies.append(body)
+	if body.has_method("take_damage"):
+		body.take_damage(damage)

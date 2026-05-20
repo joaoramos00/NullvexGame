@@ -1,7 +1,8 @@
-[gd_scene load_steps=5 format=3 uid="uid://test_level"]
+[gd_scene load_steps=6 format=3 uid="uid://test_level"]
 
-[ext_resource type="PackedScene" uid="uid://zael" path="res://characters/ranged/zael.tscn" id="1_char"]
+[ext_resource type="PackedScene" uid="uid://0ara" path="res://characters/melee/zara.tscn" id="1_char"]
 [ext_resource type="Script" path="res://scenes/test_level.gd" id="2_script"]
+[ext_resource type="PackedScene" uid="uid://enemy_base" path="res://characters/enemies/enemy_base.tscn" id="3_enemy"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_floor"]
 size = Vector2(3000, 40)
@@ -12,8 +13,11 @@ size = Vector2(200, 20)
 [node name="TestLevel" type="Node2D"]
 script = ExtResource("2_script")
 
-[node name="Zael" parent="." instance=ExtResource("1_char")]
+[node name="Zara" parent="." instance=ExtResource("1_char")]
 position = Vector2(400, 380)
+
+[node name="Enemy" parent="." instance=ExtResource("3_enemy")]
+position = Vector2(800, 380)
 
 [node name="Floor" type="StaticBody2D" parent="."]
 position = Vector2(960, 520)

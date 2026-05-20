@@ -17,6 +17,8 @@ func _physics_process(delta: float) -> void:
 func _draw() -> void:
     draw_circle(Vector2.ZERO, 6.0, Color.YELLOW)
 
-func _on_body_entered(_body: Node) -> void:
+func _on_body_entered(body: Node) -> void:
+    if body.has_method("take_damage"):
+        body.take_damage(damage)
     $Timer.stop()
     queue_free()
