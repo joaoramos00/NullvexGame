@@ -17,6 +17,8 @@ func _ready() -> void:
         _sfx_pool.append(p)
 
 func play_bgm(stream: AudioStream, fade_in: float = 0.5) -> void:
+    if stream == null:
+        return
     if _music_player.playing:
         await _fade_out_music(fade_in * 0.5)
     _music_player.stream = stream
@@ -31,6 +33,8 @@ func stop_bgm(fade_out: float = 0.5) -> void:
     _music_player.stop()
 
 func play_sfx(stream: AudioStream) -> void:
+    if stream == null:
+        return
     for player in _sfx_pool:
         if not player.playing:
             player.stream = stream

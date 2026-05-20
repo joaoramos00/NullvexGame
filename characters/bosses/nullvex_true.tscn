@@ -1,0 +1,14 @@
+[gd_scene format=3 uid="uid://nullvex_true"]
+
+[ext_resource type="PackedScene" uid="uid://boss_base" path="res://characters/bosses/boss_base.tscn" id="1_base"]
+[ext_resource type="Script" path="res://characters/bosses/nullvex_true.gd" id="2_script"]
+
+[node name="NullvexTrue" instance=ExtResource("1_base")]
+script = ExtResource("2_script")
+boss_id = "nullvex_true"
+weakness_id = ""
+ability_id = "nullvex_true"
+stage_id = 11
+max_hp = 600
+boss_color = Color(0.0, 0.0, 0.6, 1)
+phase2_threshold = 0.67

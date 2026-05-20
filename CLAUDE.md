@@ -26,30 +26,29 @@ Jogo de plataforma e ação 2D inspirado em Mega Man X4. IP original. Dois perso
 
 ## Estado Atual
 
-### Plano 01 — Fundação ✅ (completo)
-
-| Arquivo | Descrição |
-|---------|-----------|
-| `project.godot` | Config do projeto: 1080p, pixel filter, input map, autoloads |
-| `autoloads/game_manager.gd` | Estado persistente, unlocks, save/load JSON |
-| `autoloads/stage_manager.gd` | Fase atual, checkpoints, spawn |
-| `autoloads/audio_manager.gd` | BGM com fade, pool de 8 SFX players |
-| `characters/base/character_base.gd` | Movimento, pulo duplo, dash, HP, dano, invencibilidade |
-| `characters/base/character_base.tscn` | Cena base com CollisionShape2D + Sprite2D |
-| `scenes/test_level.tscn` | Cena de teste manual de movimento |
-
-### Planos Pendentes
+### Planos Completos
 
 | Plano | Conteúdo |
 |-------|----------|
-| **Plan 02** ← próximo | Zael — 5 tipos de tiro, sistema de carga |
-| Plan 03 | Zara — 5 armas, sistema de combo (2 golpes + finisher) |
-| Plan 04 | Sistema de combate — Hitbox/Hurtbox, inimigos base |
-| Plan 05 | Sistema de fases — carregamento, checkpoints, vidas, StageController |
-| Plan 06 | Colectáveis — corações, sub-tanks, armaduras, armas/tiros |
-| Plan 07 | Bosses — base, 8 bosses com fraquezas, Nullvex |
-| Plan 08 | UI/Menus — HUD, pausa, stage select, title screen |
-| Plan 09 | Save/Load final + fluxo completo de jogo |
+| Plan 01 ✅ | Fundação — project.godot, autoloads, CharacterBase, test_level |
+| Plan 02 ✅ | Zael — 5 tipos de tiro (Single/Spread/Rapid/Laser/Cannon), sistema de carga |
+| Plan 03 ✅ | Zara — 5 armas, sistema de combo (2 golpes + finisher) |
+| Plan 04 ✅ | Sistema de combate — Hitbox/Hurtbox, EnemyBase, inimigos base |
+| Plan 05 ✅ | Sistema de fases — StageController, Checkpoint, vidas, respawn |
+| Plan 06 ✅ | Colectáveis — corações, sub-tanks, armaduras, armas/tiros |
+| Plan 07 ✅ | Bosses — BossBase + 8 bosses elementais com fraquezas |
+| Plan 08 ✅ | UI/Menus — HUD, PauseMenu, GameOver, StageSelect, TitleScreen |
+| Plan 09 ✅ | Save/Load final + fluxo completo de jogo |
+| Plan 10 ✅ | Boss AI — fase, attack timer, BossProjectile, gravity_scale, 8 scripts únicos |
+| Plan 11 ✅ | Stage Scenes — stage_scene.gd + 8 cenas (stages 01-08) com plataformas e colectáveis |
+| Plan 12 ✅ | Fases Finais — Stage 00 (intro+GoalZone), Stage 09 (gauntlet 8 bosses+walls), Stages 10-11 (Nullvex + NullvexTrue 3 fases), stage_complete routing |
+| Plan 13 ✅ | Inimigos nas fases — EnemyBase (grunt) + EnemyFlyer em stages 01-08 (4 grunts + 1 flyer por fase) |
+| Plan 14 ✅ | Polimento — contact damage (ContactZone Area2D), hit flash (branco 0.1s), death_effect.tscn (círculo expansivo), flicker de invencibilidade do player |
+| Plan 15 ✅ | Audio — AudioLibrary autoload (null streams), play_bgm nas 3 cenas base, play_sfx em jump/shoot/attack/damage/death/collectible |
+
+### Planos Pendentes
+
+Nenhum plano pendente. Desenvolvimento principal concluído.
 
 ---
 
@@ -58,9 +57,11 @@ Jogo de plataforma e ação 2D inspirado em Mega Man X4. IP original. Dois perso
 - **Autoloads** comunicam exclusivamente via sinais — sem chamadas diretas entre sistemas
 - **GameManager** — estado persistente (lives, max_hp, unlocks, armaduras, save/load)
 - **StageManager** — fase atual, checkpoints, posição de spawn
-- **AudioManager** — BGM fade, pool SFX
+- **AudioManager** — BGM fade, pool SFX; `play_bgm(null)` and `play_sfx(null)` are safe no-ops
+- **AudioLibrary** — all audio stream slots (`@export var bgm_*/sfx_*`); assign real files in editor
 - **CharacterBase** — HP in-game (inicia com `GameManager.max_hp`), morre emitindo `died`
-- Um **StageController** (Plan 05) vai conectar `CharacterBase.died` ao `GameManager.lose_life()`
+- **StageController** conecta `CharacterBase.died` ao `GameManager.lose_life()` via property setter (suporta spawn dinâmico)
+- **stage_scene.gd** — script base compartilhado pelas 8 cenas de fase; spawna Zael ou Zara conforme `GameManager.active_character`; desenha terreno automaticamente via `_draw()`
 
 ---
 

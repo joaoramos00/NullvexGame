@@ -1,8 +1,10 @@
 [gd_scene format=3 uid="uid://ignarath"]
 
 [ext_resource type="PackedScene" uid="uid://boss_base" path="res://characters/bosses/boss_base.tscn" id="1_base"]
+[ext_resource type="Script" path="res://characters/bosses/ignarath.gd" id="2_script"]
 
 [node name="Ignarath" instance=ExtResource("1_base")]
+script = ExtResource("2_script")
 boss_id = "ignarath"
 weakness_id = "galerix"
 ability_id = "ignarath"

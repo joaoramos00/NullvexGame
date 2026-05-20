@@ -40,6 +40,7 @@ static func next_combo_step(step: int) -> int:
 	return (step + 1) % 3
 
 func _strike() -> void:
+	AudioManager.play_sfx(AudioLibrary.sfx_attack)
 	var strike_num := _combo_step + 1
 	_combo_step = strike_num % 3
 	_combo_timer = 0.0

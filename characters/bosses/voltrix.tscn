@@ -1,8 +1,10 @@
 [gd_scene format=3 uid="uid://voltrix"]
 
 [ext_resource type="PackedScene" uid="uid://boss_base" path="res://characters/bosses/boss_base.tscn" id="1_base"]
+[ext_resource type="Script" path="res://characters/bosses/voltrix.gd" id="2_script"]
 
 [node name="Voltrix" instance=ExtResource("1_base")]
+script = ExtResource("2_script")
 boss_id = "voltrix"
 weakness_id = "terragor"
 ability_id = "voltrix"

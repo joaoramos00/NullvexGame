@@ -1,0 +1,448 @@
+# NullvexGame — Art Brief
+
+**Para o artista.** Este documento cobre todos os assets visuais necessários para o jogo.
+
+---
+
+## 1. Visão Geral
+
+Jogo de plataforma e ação 2D inspirado em Mega Man X4. IP original.
+Dois personagens jogáveis (Zael e Zara), 12 fases, 8 bosses elementais, vilão final Nullvex.
+
+**Estilo:** HD Pixel Art — sprites desenhados em pixel art de alta resolução (não retro/8-bit). Referências: Shovel Knight, Blasphemous, Hollow Knight (para a qualidade), mas com a estrutura visual de Mega Man X4 (fases coloridas, inimigos temáticos, bosses expressivos).
+
+**Resolução nativa:** 1920 × 1080
+
+**Recomendação de resolução de sprite:** trabalhar em múltiplos de 4px. Sprites de personagem entre 80–120px de altura (display final após scale). Bosses entre 120–200px de altura.
+
+---
+
+## 2. Paleta Geral
+
+Cada personagem/boss tem uma paleta própria (ver seções abaixo). Regras gerais:
+
+- **Contornos:** linha escura (não preta pura — use variações do tom base saturado escuro)
+- **Shading:** mínimo 3 tons por cor base (sombra, base, highlight)
+- **Fundo dos sprites:** transparente (PNG com alpha)
+
+---
+
+## 3. Personagens Jogáveis
+
+### 3.1 Zael (Personagem Ranged)
+
+**Conceito:** Jovem combatente de longo alcance. Armadura azul-metálica futurista, silhueta ágil. Visualmente remete a Zero/X de Mega Man, mas com identidade própria.
+
+**Paleta sugerida:**
+- Armadura: azul royal `#1E5BCC` + highlight `#4D8EFF` + sombra `#0D2F6E`
+- Undersuit/visor: cinza escuro `#2A2A2A` + amarelo-dourado `#FFD700` para detalhes
+- Pele (rosto): tom médio neutro
+
+**Silhueta:** esguio, canhão no braço direito (variável por tipo de tiro), capacete com visor, botas de amortecimento. Cerca de 90px de altura.
+
+**Referência existente:** `characters/ranged/Zael_stand.png` (sprite criado pelo designer — usar como base de proporções).
+
+#### Animações necessárias — Zael
+
+| Estado | Frames | Loop? | Notas |
+|--------|--------|-------|-------|
+| Idle | 4–6 | Sim | Leve respiração/oscilação |
+| Run | 6–8 | Sim | Corrida lateral |
+| Jump (subida) | 2–3 | Não | |
+| Jump (queda) | 2–3 | Não | |
+| Land | 2 | Não | Pouso com impacto |
+| Dash | 3–4 | Não | Rastro de velocidade |
+| Shoot (lv1) | 2 | Não | Tiro fraco, rápido |
+| Shoot (lv2) | 3 | Não | Tiro médio |
+| Shoot (lv3) | 4 | Não | Tiro carregado, efeito de energia |
+| Take damage | 3 | Não | Recuo + flash |
+| Death | 6–8 | Não | Explosão em partículas estilo MMX |
+| Wall slide | 2 | Sim | Deslizando na parede |
+| Double jump | 3 | Não | |
+
+#### Armaduras de Zael (variações visuais)
+Cada peça de armadura adiciona um elemento visual à sprite base:
+
+| Peça | Visual |
+|------|--------|
+| Capacete | Antenas/sensores no capacete; visor ampliado com HUD |
+| Torso | Plating extra no peitoral; tons mais dourados |
+| Braços | Canhão visivelmente maior; marcações de energia |
+| Pernas | Propulsores nas botas; calça de exoesqueleto |
+| Armadura completa | Visual "Nova Buster" — canhão único de alto calibre, brilho dourado |
+
+---
+
+### 3.2 Zara (Personagem Melee)
+
+**Conceito:** Guerreira ágil corpo-a-corpo. Silhueta mais robusta que Zael, mas ainda veloz. Armadura vermelha/branca, arma principal é uma espada. Expressão determinada, postura agressiva.
+
+**Paleta sugerida:**
+- Armadura: vermelho carmesim `#CC1E1E` + highlight `#FF4D4D` + sombra `#6E0D0D`
+- Detalhes: branco `#F0F0F0` + cinza metálico `#888888`
+- Olhos/visor: verde `#00FF88`
+
+**Silhueta:** ombros largos, postura baixa de guerreira, espada na mão direita (ou weapon ativa). Cerca de 95px de altura.
+
+#### Animações necessárias — Zara
+
+| Estado | Frames | Loop? | Notas |
+|--------|--------|-------|-------|
+| Idle | 4–6 | Sim | |
+| Run | 6–8 | Sim | |
+| Jump (subida/queda) | 4 | Não | |
+| Land | 2 | Não | |
+| Dash | 3–4 | Não | |
+| Attack 1 (golpe 1) | 4 | Não | Corte horizontal |
+| Attack 2 (golpe 2) | 4 | Não | Corte diagonal para cima |
+| Finisher (golpe 3) | 6 | Não | Golpe poderoso com efeito de onda |
+| Charged attack | 5 | Não | Área em volta (com armadura de braços) |
+| Take damage | 3 | Não | |
+| Death | 6–8 | Não | |
+| Wall slide | 2 | Sim | |
+| Double jump | 3 | Não | |
+
+#### Armas de Zara (variações visuais da arma na mão)
+
+| Arma | Visual |
+|------|--------|
+| Espada | Lâmina reta de aço, guarda simples |
+| Dual Blades | Duas adagas curtas, uma em cada mão |
+| Glaive | Haste longa com lâmina em lua |
+| Garras | Garras metálicas integradas às luvas |
+| Machado de Guerra | Machado pesado, golpes mais lentos e amplos |
+
+#### Armaduras de Zara
+
+| Peça | Visual |
+|------|--------|
+| Capacete | Visor angular com antena — muda expressão facial |
+| Torso | Absorvedores de impacto no peitoral e costas |
+| Braços | Intensificadores musculares nas luvas/vambraces |
+| Pernas | Propulsores diagonais; salto mais longo |
+| Armadura completa | "Fúria Limitless" — chamas vermelhas permanentes ao redor do corpo |
+
+---
+
+## 4. Inimigos Comuns
+
+Design genérico para testes — cada fase terá seus próprios inimigos temáticos (detalhes na seção de fases). Por ora, priorizar o template base.
+
+### 4.1 EnemyBase (patrulheiro genérico)
+
+**Conceito:** Robô de patrulha quadrado/humanóide sem identidade forte. Serve como placeholder.
+
+**Paleta:** cinza metálico + olho vermelho único (câmera/sensor)
+
+**Animações necessárias:**
+- Patrol walk (4 frames, loop)
+- Take damage (2 frames)
+- Death (4 frames — explosão simples)
+
+**Tamanho:** ~60px de altura
+
+---
+
+## 5. Bosses
+
+Todos os bosses têm ~180–220px de altura, duas fases de HP bar (ficam mais agressivos abaixo de 50% HP), e uma sequência de intro ao entrar na sala.
+
+### Tabela Geral dos Bosses
+
+| # | Nome | Tema | Fraqueza | Cor predominante |
+|---|------|------|----------|-----------------|
+| 1 | Ignarath | Fogo | Habilidade de Galerix | Laranja/vermelho |
+| 2 | Cryovex | Gelo | Habilidade de Ignarath | Azul gelo |
+| 3 | Voltrix | Raio | Habilidade de Terragor | Amarelo/branco |
+| 4 | Gravitus | Gravidade | Habilidade de Luxar | Roxo escuro |
+| 5 | Galerix | Vento | Habilidade de Gravitus | Verde/ciano |
+| 6 | Umbraex | Sombra | Habilidade de Voltrix | Preto/roxo profundo |
+| 7 | Luxar | Luz | Habilidade de Umbraex | Dourado/branco brilhante |
+| 8 | Terragor | Terra | Habilidade de Cryovex | Marrom/verde musgo |
+
+---
+
+### 5.1 Ignarath — Boss de Fogo (Fase 01)
+
+**Conceito:** Titã de magma aprisionado em armadura vulcânica. Corpo pétreo com fissuras de lava incandescente. Movimentos pesados mas devastadores. Evoca um golem vulcânico antigo.
+
+**Paleta:** pedra escura `#2A1A0A`, lava `#FF4500`, brilho interno `#FFD700`
+
+**Forma:** bípede, robusto, ombros enormes. Punhos que batem no chão causando tremores. Aura de calor distorce o ar ao redor.
+
+**Animações:**
+- Idle (respiração pesada, fumaça saindo das fissuras)
+- Walk (tremores ao caminhar)
+- Attack 1 — Soco no chão (onda de calor)
+- Attack 2 — Projéteis de magma lançados em arco
+- Attack 3 — Coluna de fogo do chão (fase 2)
+- Take damage
+- Death — fragmenta em pedras e explode em magma
+
+---
+
+### 5.2 Cryovex — Boss de Gelo (Fase 02)
+
+**Conceito:** Entidade cristalina de gelo. Corpo translúcido como cristal azul, movimentos elegantes e precisos. Contrasta com Ignarath — ágil e frio.
+
+**Paleta:** azul gelo `#A0D8EF`, cristal branco `#E8F4FF`, sombra `#1E3A5F`
+
+**Forma:** humanoide esguio, membros longos com pontas afiadas de gelo. Flutua levemente acima do chão. Deixa rastro de gelo ao se mover.
+
+**Animações:**
+- Idle (partículas de gelo ao redor)
+- Dash lateral
+- Attack 1 — Projéteis de gelo em leque
+- Attack 2 — Cravar o chão para criar estalactites
+- Attack 3 — Congelar o chão inteiro (fase 2)
+- Take damage
+- Death — se estilhaça em cristais
+
+---
+
+### 5.3 Voltrix — Boss de Raio (Fase 03)
+
+**Conceito:** Andróide de combate sobrecarregado de energia elétrica. Corpo metálico com descargas constantes. Movimentos rápidos e imprevisíveis — teletransporta curtas distâncias.
+
+**Paleta:** amarelo elétrico `#FFE500`, azul arco `#0088FF`, metal `#444444`
+
+**Forma:** humanoide atlético, antenas no capacete, olhos brilhantes. Descargas visíveis entre as articulações.
+
+**Animações:**
+- Idle (descargas elétricas intermitentes)
+- Teleport (desaparece + reaparece com flash)
+- Attack 1 — Raio direcionado
+- Attack 2 — Onda elétrica no chão
+- Attack 3 — Tempestade elétrica (fase 2)
+- Take damage
+- Death — sobrecarga e explosão elétrica
+
+---
+
+### 5.4 Gravitus — Boss de Gravidade (Fase 04)
+
+**Conceito:** Ser de matéria densa que distorce o espaço ao redor. Corpo esférico-humanoide, pesado, com objetos em órbita (pedras, debris). Inverte ou multiplica gravidade como ataque.
+
+**Paleta:** roxo escuro `#3D0070`, bordô `#800040`, branco gravitacional `#DDCCFF`
+
+**Forma:** torso imenso com braços curtos mas possantes. Halo de debris orbitando. Olhos como buracos negros.
+
+**Animações:**
+- Idle (objetos orbitando devagar)
+- Attack 1 — Onda gravitacional que empurra o jogador
+- Attack 2 — Inverter gravidade da sala por 3s
+- Attack 3 — Atrair o jogador para si (fase 2)
+- Take damage
+- Death — implosão seguida de explosão gravitacional
+
+---
+
+### 5.5 Galerix — Boss de Vento (Fase 05)
+
+**Conceito:** Espírito do vento que mal toca o chão. Corpo feito de ar condensado e correntes de vento visíveis. Extremamente rápido e difícil de acertar.
+
+**Paleta:** verde claro `#80FF80`, ciano `#00FFDD`, branco `#F0FFF0`
+
+**Forma:** humanoide etéreo, semi-transparente, asas estilizadas de vento. Deixa rastro de ar visível.
+
+**Animações:**
+- Idle (flutuando, vento constante ao redor)
+- Dash rápido
+- Attack 1 — Rajada de vento horizontal
+- Attack 2 — Tornado que atravessa a arena
+- Attack 3 — Invoca mini-tufões (fase 2)
+- Take damage (breve solidificação)
+- Death — se dispersa no ar em partículas
+
+---
+
+### 5.6 Umbraex — Boss de Sombra (Fase 06)
+
+**Conceito:** Entidade feita de sombra pura. Pode se fundir com o fundo, emergindo de qualquer ponto escuro. Inquietante, silencioso. Visual mais horror que os outros.
+
+**Paleta:** preto profundo `#0A0010`, roxo escuro `#20003A`, olhos brancos `#FFFFFF`
+
+**Forma:** manto de sombra com silhueta vagamente humanoide. Tentáculos de escuridão. Rosto apenas com olhos brilhantes.
+
+**Animações:**
+- Idle (fundido parcialmente com o fundo)
+- Emerge da sombra (aparece de qualquer ponto)
+- Attack 1 — Tentáculos do chão
+- Attack 2 — Projetil de trevas que apaga iluminação local
+- Attack 3 — Clonar-se em sombras falsas (fase 2)
+- Take damage (brilha brevemente — vulnerável à luz)
+- Death — se dissolve, gritando em silêncio
+
+---
+
+### 5.7 Luxar — Boss de Luz (Fase 07)
+
+**Conceito:** Guardião de luz cegante. Armadura de cristal que refrata luz. Majestuoso e implacável. Visual quase angelical, mas combativo.
+
+**Paleta:** dourado `#FFD700`, branco brilhante `#FFFFF0`, azul claro `#CCE5FF`
+
+**Forma:** humanoide alto e esguio, asas de cristal, auréola fragmentada. Emite luz própria que ilumina a arena.
+
+**Animações:**
+- Idle (asas batendo levemente, prismas de luz)
+- Attack 1 — Raio de luz direcional
+- Attack 2 — Explosão de luz que cega brevemente
+- Attack 3 — Prismas que refletem raios em múltiplas direções (fase 2)
+- Take damage
+- Death — fragmenta em mil pontos de luz
+
+---
+
+### 5.8 Terragor — Boss de Terra (Fase 08)
+
+**Conceito:** Colosso de pedra e raízes vivas. Lento, mas incrivelmente resistente. Partes do corpo se regeneram. Controla o chão da arena, criando obstáculos.
+
+**Paleta:** marrom terra `#5C3A1A`, pedra `#7A7A5A`, verde musgo `#3A5C1A`
+
+**Forma:** quadrúpede/humanoide gigante com raízes saindo das costas. O maior boss dos 8. Punhos que viram pilares de pedra.
+
+**Animações:**
+- Idle (raízes se movendo, pedras caindo)
+- Walk lento
+- Attack 1 — Pilar de pedra sobe do chão
+- Attack 2 — Esmagar com punho
+- Attack 3 — Raízes que cobrem o chão inteiro (fase 2)
+- Take damage (lascas de pedra saem)
+- Death — desmorona em blocos, vira terreno
+
+---
+
+## 6. Nullvex — Vilão Final
+
+**Conceito:** Ser que absorveu energia de todos os 8 bosses. Humanóide na forma 1, monstruoso na forma 2. Transmite a sensação de inevitabilidade — ele não luta por raiva, luta por certeza.
+
+### Fase 10 — Forma Humanoide
+
+**Paleta:** preto vazio `#000000`, roxo nebular `#5000A0`, olhos vermelhos `#FF0000`
+
+**Forma:** humanoide alto (250px), armadura que absorve luz, capa de energia escura. Expressão completamente indiferente.
+
+**Mecânica visual:** em momentos de vulnerabilidade, diferentes partes do corpo brilham com a cor do boss correspondente à fraqueza do momento.
+
+### Fase 11 — Forma Verdadeira
+
+**Conceito:** Abandona a forma humana. Entidade cósmica de energia negativa, múltiplos olhos, membros abstratos. O fundo da arena muda para o vazio do espaço.
+
+**Paleta:** igual à forma humanoide, mas com tentáculos de todas as cores dos 8 bosses
+
+**Tamanho:** ocupa 1/3 da tela (450–500px)
+
+**Animações extra:**
+- Transição de forma (explosão que revela a forma verdadeira)
+- Grito final antes de morrer
+
+---
+
+## 7. Cenários (12 Fases)
+
+Cada fase tem um tileset temático único. As fases 01–08 espelham o tema do boss.
+
+| Fase | Boss | Tema Visual | Paleta |
+|------|------|-------------|--------|
+| 00 | — | Intro/Industrial | Cinza, laranja de alerta |
+| 01 | Ignarath | Vulcão/Fábrica de lava | Laranja, vermelho, pedra |
+| 02 | Cryovex | Glacial/Criogênico | Azul, branco, cristal |
+| 03 | Voltrix | Central elétrica/Tempestade | Amarelo, cinza metálico |
+| 04 | Gravitus | Estação espacial/Antigravidez | Roxo, preto, estrelas |
+| 05 | Galerix | Topo de montanha/Templo do vento | Verde, azul céu |
+| 06 | Umbraex | Caverna de sombras/Cidade noturna | Preto, roxo, mínima iluminação |
+| 07 | Luxar | Templo de cristal/Clareira celestial | Branco, dourado, azul claro |
+| 08 | Terragor | Floresta densa/Ruínas orgânicas | Marrom, verde escuro |
+| 09 | — | Gauntlet (mix dos 8) | Múltiplas paletas em sequência |
+| 10 | Nullvex Forma 1 | Fortaleza de Nullvex | Preto, roxo |
+| 11 | Nullvex Forma 2 | Vazio cósmico | Preto, estrelas, todas as cores |
+
+### Elementos obrigatórios por fase
+
+- **Chão/plataformas** (tileset principal): sólidas, semi-sólidas (passar por baixo)
+- **Background (2–3 camadas)** com parallax
+- **Porta de boss** (design padrão + variação temática)
+- **Checkpoints** (ícone de bandeira/cristal a definir)
+
+### Collectibles visuais (mesmos em todas as fases)
+
+| Item | Descrição visual |
+|------|-----------------|
+| Coração (HP+) | Coração vermelho pulsante, ~20px |
+| Sub-Tank | Recipiente ciano com indicador de carga, ~24px |
+| Armadura Zael | Ícone dourado da peça específica, ~28px |
+| Armadura Zara | Ícone vermelho da peça específica, ~28px |
+| Shot Zael | Ícone verde de projétil, ~24px |
+| Weapon Zara | Ícone roxo de arma, ~24px |
+
+---
+
+## 8. UI / HUD
+
+_(Design detalhado definido no Plan 08 — abaixo os elementos necessários)_
+
+### HUD in-game
+
+- **Barra de HP do jogador** — barra horizontal com ícone do personagem ativo
+- **Ícone + nome da habilidade selecionada** — canto superior direito
+- **Contador de vidas** — ícones pequenos do personagem (3 vidas = 3 ícones)
+- **Sub-tanks** — ícones na lateral esquerda mostrando carga
+
+### Barra de HP do Boss
+
+- Barra grande, centralizada na parte superior ou inferior da tela
+- Ícone/rosto do boss na extremidade
+- Muda de cor abaixo de 50% HP (vermelha/pulsante)
+
+### Menus
+
+- **Title screen** — logo NullvexGame + backdrop de Zael e Zara (arte standalone)
+- **Stage Select** — 8 cards de fase com retrato do boss (busto estilizado)
+- **Menu de pausa** — overlay escuro simples, ícones de arma/shot selecionável
+- **Game Over** — tela escura, texto estilizado, opções de retry/quit
+
+---
+
+## 9. Efeitos Visuais (VFX)
+
+| Efeito | Uso |
+|--------|-----|
+| Hit flash | Qualquer dano recebido — flash branco do sprite por 2 frames |
+| Invincibility blink | Jogador piscando após tomar dano (frames alternados transparentes) |
+| Bullet impact | Pequena explosão de 4–6 frames no ponto de impacto |
+| Dash trail | Ghost semi-transparente do personagem (3 cópias) |
+| Charge glow | Aura de energia crescente em torno do canhão de Zael |
+| Boss intro | Barra de HP aparece com animação de slide + nome do boss |
+| Death explosion | Sequência de círculos expansivos em pixel art |
+
+---
+
+## 10. Prioridade de Entrega
+
+Sugestão de ordem para desbloqueio da implementação:
+
+1. **Zael** — idle + run + jump + shoot + death
+2. **Zara** — idle + run + jump + attack 1/2/3 + death
+3. **EnemyBase** — walk + death
+4. **Fase 00** (intro) — tileset + background
+5. **Bosses 1–8** — pelo menos idle + death (ataques podem ser adicionados iterativamente)
+6. **HUD** — barra de HP, contador de vidas
+7. **Fases 01–08** — tilesets completos com backgrounds
+8. **Nullvex** — formas 1 e 2
+9. **Fases 09–11**
+10. **Menus/UI**
+
+---
+
+## 11. Especificações Técnicas
+
+- **Formato:** PNG com transparência (alpha channel)
+- **Spritesheet:** uma imagem por animação, frames lado a lado, tamanho uniforme por frame
+- **Nomes de arquivo sugeridos:** `zael_idle.png`, `ignarath_attack1.png`, etc.
+- **Tamanho dos frames:** múltiplo de 4px de largura e altura
+- **DPI:** não se aplica (pixel art — trabalhar em resolução exata, sem antialiasing)
+- **Nomenclatura de layers (se entregar .aseprite):** base / shading / highlights / outline / effects
+
+---
+
+*Dúvidas sobre mecânicas ou proporções: consultar `CLAUDE.md` na raiz do repositório.*

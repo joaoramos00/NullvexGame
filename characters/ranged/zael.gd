@@ -46,6 +46,7 @@ static func get_charge_level(timer: float) -> int:
 
 func _fire(level: int) -> void:
     assert(level >= 1 and level <= 3, "charge level deve ser 1, 2 ou 3")
+    AudioManager.play_sfx(AudioLibrary.sfx_shoot)
     var bullet: ZaelBullet = _BULLET_SCENE.instantiate()
     bullet.damage = BULLET_DAMAGE[level]
     bullet.direction = 1.0 if facing_right else -1.0

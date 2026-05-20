@@ -1,0 +1,120 @@
+[gd_scene format=3 uid="uid://stage_07"]
+
+[ext_resource type="Script" path="res://stages/stage_scene.gd" id="1_script"]
+[ext_resource type="PackedScene" uid="uid://stage_controller" path="res://stages/stage_controller.tscn" id="2_sc"]
+[ext_resource type="PackedScene" uid="uid://checkpoint" path="res://stages/checkpoint.tscn" id="3_cp"]
+[ext_resource type="PackedScene" uid="uid://collectible" path="res://stages/collectible.tscn" id="4_col"]
+[ext_resource type="PackedScene" uid="uid://hud" path="res://ui/hud.tscn" id="5_hud"]
+[ext_resource type="PackedScene" uid="uid://pause_menu" path="res://ui/pause_menu.tscn" id="6_pause"]
+[ext_resource type="PackedScene" uid="uid://game_over" path="res://ui/game_over.tscn" id="7_gameover"]
+[ext_resource type="PackedScene" uid="uid://stage_complete" path="res://ui/stage_complete.tscn" id="8_scom"]
+[ext_resource type="PackedScene" uid="uid://luxar" path="res://characters/bosses/luxar.tscn" id="9_boss"]
+[ext_resource type="PackedScene" uid="uid://enemy_base" path="res://characters/enemies/enemy_base.tscn" id="10_grunt"]
+[ext_resource type="PackedScene" uid="uid://enemy_flyer" path="res://characters/enemies/enemy_flyer.tscn" id="11_flyer"]
+
+[sub_resource type="RectangleShape2D" id="Floor"]
+size = Vector2(5400, 40)
+
+[sub_resource type="RectangleShape2D" id="PA"]
+size = Vector2(350, 20)
+
+[sub_resource type="RectangleShape2D" id="PB"]
+size = Vector2(350, 20)
+
+[sub_resource type="RectangleShape2D" id="PC"]
+size = Vector2(350, 20)
+
+[sub_resource type="RectangleShape2D" id="PD"]
+size = Vector2(250, 20)
+
+[node name="Stage07" type="Node2D"]
+script = ExtResource("1_script")
+
+[node name="PlayerSpawn" type="Node2D" parent="."]
+position = Vector2(200, 400)
+
+[node name="StageController" parent="." instance=ExtResource("2_sc")]
+
+[node name="Checkpoint1" parent="." instance=ExtResource("3_cp")]
+position = Vector2(2000, 490)
+checkpoint_index = 1
+
+[node name="Checkpoint2" parent="." instance=ExtResource("3_cp")]
+position = Vector2(3800, 490)
+checkpoint_index = 2
+
+[node name="Floor" type="StaticBody2D" parent="."]
+position = Vector2(2600, 560)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Floor"]
+shape = SubResource("Floor")
+
+[node name="PlatformA" type="StaticBody2D" parent="."]
+position = Vector2(800, 320)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="PlatformA"]
+shape = SubResource("PA")
+
+[node name="PlatformB" type="StaticBody2D" parent="."]
+position = Vector2(1600, 220)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="PlatformB"]
+shape = SubResource("PB")
+
+[node name="PlatformC" type="StaticBody2D" parent="."]
+position = Vector2(2400, 320)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="PlatformC"]
+shape = SubResource("PC")
+
+[node name="PlatformD" type="StaticBody2D" parent="."]
+position = Vector2(3300, 220)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="PlatformD"]
+shape = SubResource("PD")
+
+[node name="Heart" parent="." instance=ExtResource("4_col")]
+position = Vector2(2400, 280)
+stage_id = 7
+
+[node name="ArmorZaelLegs" parent="." instance=ExtResource("4_col")]
+position = Vector2(1600, 180)
+collectible_type = 2
+armor_piece = "legs"
+
+[node name="WarAxeZara" parent="." instance=ExtResource("4_col")]
+position = Vector2(3300, 180)
+collectible_type = 5
+ability_id = "war_axe"
+
+[node name="Luxar" parent="." instance=ExtResource("9_boss")]
+position = Vector2(4600, 400)
+arena_left = 4100.0
+arena_right = 5100.0
+arena_floor = 540.0
+
+[node name="Grunt1" parent="." instance=ExtResource("10_grunt")]
+position = Vector2(600, 490)
+
+[node name="Grunt2" parent="." instance=ExtResource("10_grunt")]
+position = Vector2(1400, 490)
+
+[node name="Grunt3" parent="." instance=ExtResource("10_grunt")]
+position = Vector2(2500, 490)
+
+[node name="Grunt4" parent="." instance=ExtResource("10_grunt")]
+position = Vector2(3500, 490)
+
+[node name="Flyer1" parent="." instance=ExtResource("11_flyer")]
+position = Vector2(2000, 280)
+
+[node name="HUD" parent="." instance=ExtResource("5_hud")]
+[node name="PauseMenu" parent="." instance=ExtResource("6_pause")]
+[node name="GameOver" parent="." instance=ExtResource("7_gameover")]
+[node name="StageComplete" parent="." instance=ExtResource("8_scom")]
+
+[node name="Camera2D" type="Camera2D" parent="."]
+limit_left = 0
+limit_right = 5300
+position_smoothing_enabled = true
+position_smoothing_speed = 8.0

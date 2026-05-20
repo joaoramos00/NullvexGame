@@ -1,8 +1,10 @@
 [gd_scene format=3 uid="uid://galerix"]
 
 [ext_resource type="PackedScene" uid="uid://boss_base" path="res://characters/bosses/boss_base.tscn" id="1_base"]
+[ext_resource type="Script" path="res://characters/bosses/galerix.gd" id="2_script"]
 
 [node name="Galerix" instance=ExtResource("1_base")]
+script = ExtResource("2_script")
 boss_id = "galerix"
 weakness_id = "gravitus"
 ability_id = "galerix"

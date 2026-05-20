@@ -22,6 +22,7 @@ var is_dead: bool = false
 var is_invincible: bool = false
 var active_ability: String = ""
 var facing_right: bool = true
+var gravity_scale: float = 1.0
 
 var _can_double_jump: bool = false
 var _is_dashing: bool = false
@@ -53,6 +54,10 @@ func _tick_timers(delta: float) -> void:
         _invincibility_timer -= delta
         if _invincibility_timer <= 0.0:
             is_invincible = false
+    if is_invincible:
+        modulate.a = 0.35 if int(Time.get_ticks_msec() / 80) % 2 == 0 else 1.0
+    else:
+        modulate.a = 1.0
     if _dash_cooldown_timer > 0.0:
         _dash_cooldown_timer -= delta
     if _air_walk_timer > 0.0:
@@ -70,7 +75,7 @@ func _apply_gravity(delta: float) -> void:
         velocity.y = 0.0
         return
     if not is_on_floor():
-        velocity.y += GRAVITY * delta
+        velocity.y += GRAVITY * gravity_scale * delta
 
 func _handle_movement() -> void:
     if _is_dashing:
@@ -89,9 +94,11 @@ func _handle_jump() -> void:
         if is_on_floor() or _coyote_timer > 0.0:
             velocity.y = JUMP_VELOCITY
             _coyote_timer = 0.0
+            AudioManager.play_sfx(AudioLibrary.sfx_jump)
         elif _can_double_jump:
             velocity.y = DOUBLE_JUMP_VELOCITY
             _can_double_jump = false
+            AudioManager.play_sfx(AudioLibrary.sfx_jump)
 
 func _handle_dash(delta: float) -> void:
     if _is_dashing:
@@ -123,6 +130,7 @@ func take_damage(amount: int, _source_id: String = "") -> void:
     current_hp = max(0, current_hp - amount)
     is_invincible = true
     _invincibility_timer = INVINCIBILITY_DURATION
+    AudioManager.play_sfx(AudioLibrary.sfx_player_damage)
     damaged.emit(amount)
     hp_changed.emit(current_hp, max_hp)
     if current_hp == 0:
@@ -131,6 +139,7 @@ func take_damage(amount: int, _source_id: String = "") -> void:
 func _die() -> void:
     is_dead = true
     velocity = Vector2.ZERO
+    AudioManager.play_sfx(AudioLibrary.sfx_player_death)
     died.emit()
 
 func respawn(position: Vector2) -> void:

@@ -1,8 +1,10 @@
 [gd_scene format=3 uid="uid://gravitus"]
 
 [ext_resource type="PackedScene" uid="uid://boss_base" path="res://characters/bosses/boss_base.tscn" id="1_base"]
+[ext_resource type="Script" path="res://characters/bosses/gravitus.gd" id="2_script"]
 
 [node name="Gravitus" instance=ExtResource("1_base")]
+script = ExtResource("2_script")
 boss_id = "gravitus"
 weakness_id = "luxar"
 ability_id = "gravitus"

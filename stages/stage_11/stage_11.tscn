@@ -1,0 +1,61 @@
+[gd_scene format=3 uid="uid://stage_11"]
+
+[ext_resource type="Script" path="res://stages/stage_scene.gd" id="1_script"]
+[ext_resource type="PackedScene" uid="uid://stage_controller" path="res://stages/stage_controller.tscn" id="2_sc"]
+[ext_resource type="PackedScene" uid="uid://hud" path="res://ui/hud.tscn" id="3_hud"]
+[ext_resource type="PackedScene" uid="uid://pause_menu" path="res://ui/pause_menu.tscn" id="4_pause"]
+[ext_resource type="PackedScene" uid="uid://game_over" path="res://ui/game_over.tscn" id="5_gameover"]
+[ext_resource type="PackedScene" uid="uid://stage_complete" path="res://ui/stage_complete.tscn" id="6_scom"]
+[ext_resource type="PackedScene" uid="uid://nullvex_true" path="res://characters/bosses/nullvex_true.tscn" id="7_boss"]
+
+[sub_resource type="RectangleShape2D" id="Floor"]
+size = Vector2(2400, 40)
+
+[sub_resource type="RectangleShape2D" id="PA"]
+size = Vector2(300, 20)
+
+[sub_resource type="RectangleShape2D" id="PB"]
+size = Vector2(300, 20)
+
+[node name="Stage11" type="Node2D"]
+script = ExtResource("1_script")
+
+[node name="PlayerSpawn" type="Node2D" parent="."]
+position = Vector2(200, 400)
+
+[node name="StageController" parent="." instance=ExtResource("2_sc")]
+
+[node name="Floor" type="StaticBody2D" parent="."]
+position = Vector2(1200, 560)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Floor"]
+shape = SubResource("Floor")
+
+[node name="PlatformA" type="StaticBody2D" parent="."]
+position = Vector2(600, 380)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="PlatformA"]
+shape = SubResource("PA")
+
+[node name="PlatformB" type="StaticBody2D" parent="."]
+position = Vector2(1800, 380)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="PlatformB"]
+shape = SubResource("PB")
+
+[node name="NullvexTrue" parent="." instance=ExtResource("7_boss")]
+position = Vector2(1200, 400)
+arena_left = 100.0
+arena_right = 2300.0
+arena_floor = 540.0
+
+[node name="HUD" parent="." instance=ExtResource("3_hud")]
+[node name="PauseMenu" parent="." instance=ExtResource("4_pause")]
+[node name="GameOver" parent="." instance=ExtResource("5_gameover")]
+[node name="StageComplete" parent="." instance=ExtResource("6_scom")]
+
+[node name="Camera2D" type="Camera2D" parent="."]
+limit_left = 0
+limit_right = 2400
+position_smoothing_enabled = true
+position_smoothing_speed = 8.0

@@ -1,8 +1,10 @@
 [gd_scene format=3 uid="uid://terragor"]
 
 [ext_resource type="PackedScene" uid="uid://boss_base" path="res://characters/bosses/boss_base.tscn" id="1_base"]
+[ext_resource type="Script" path="res://characters/bosses/terragor.gd" id="2_script"]
 
 [node name="Terragor" instance=ExtResource("1_base")]
+script = ExtResource("2_script")
 boss_id = "terragor"
 weakness_id = "cryovex"
 ability_id = "terragor"

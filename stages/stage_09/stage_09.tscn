@@ -1,0 +1,142 @@
+[gd_scene format=3 uid="uid://stage_09"]
+
+[ext_resource type="Script" path="res://stages/stage_09/stage_09_scene.gd" id="1_script"]
+[ext_resource type="PackedScene" uid="uid://stage_controller" path="res://stages/stage_controller.tscn" id="2_sc"]
+[ext_resource type="PackedScene" uid="uid://checkpoint" path="res://stages/checkpoint.tscn" id="3_cp"]
+[ext_resource type="PackedScene" uid="uid://hud" path="res://ui/hud.tscn" id="4_hud"]
+[ext_resource type="PackedScene" uid="uid://pause_menu" path="res://ui/pause_menu.tscn" id="5_pause"]
+[ext_resource type="PackedScene" uid="uid://game_over" path="res://ui/game_over.tscn" id="6_gameover"]
+[ext_resource type="PackedScene" uid="uid://stage_complete" path="res://ui/stage_complete.tscn" id="7_scom"]
+[ext_resource type="PackedScene" uid="uid://ignarath" path="res://characters/bosses/ignarath.tscn" id="8_b1"]
+[ext_resource type="PackedScene" uid="uid://cryovex" path="res://characters/bosses/cryovex.tscn" id="9_b2"]
+[ext_resource type="PackedScene" uid="uid://voltrix" path="res://characters/bosses/voltrix.tscn" id="10_b3"]
+[ext_resource type="PackedScene" uid="uid://gravitus" path="res://characters/bosses/gravitus.tscn" id="11_b4"]
+[ext_resource type="PackedScene" uid="uid://galerix" path="res://characters/bosses/galerix.tscn" id="12_b5"]
+[ext_resource type="PackedScene" uid="uid://umbraex" path="res://characters/bosses/umbraex.tscn" id="13_b6"]
+[ext_resource type="PackedScene" uid="uid://luxar" path="res://characters/bosses/luxar.tscn" id="14_b7"]
+[ext_resource type="PackedScene" uid="uid://terragor" path="res://characters/bosses/terragor.tscn" id="15_b8"]
+
+[sub_resource type="RectangleShape2D" id="Floor"]
+size = Vector2(10040, 40)
+
+[sub_resource type="RectangleShape2D" id="WallShape"]
+size = Vector2(40, 600)
+
+[node name="Stage09" type="Node2D"]
+script = ExtResource("1_script")
+
+[node name="PlayerSpawn" type="Node2D" parent="."]
+position = Vector2(200, 400)
+
+[node name="StageController" parent="." instance=ExtResource("2_sc")]
+
+[node name="Checkpoint" parent="." instance=ExtResource("3_cp")]
+position = Vector2(4600, 490)
+checkpoint_index = 1
+
+[node name="Floor" type="StaticBody2D" parent="."]
+position = Vector2(5000, 560)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Floor"]
+shape = SubResource("Floor")
+
+[node name="Wall1" type="StaticBody2D" parent="."]
+position = Vector2(1200, 260)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Wall1"]
+shape = SubResource("WallShape")
+
+[node name="Wall2" type="StaticBody2D" parent="."]
+position = Vector2(2400, 260)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Wall2"]
+shape = SubResource("WallShape")
+
+[node name="Wall3" type="StaticBody2D" parent="."]
+position = Vector2(3600, 260)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Wall3"]
+shape = SubResource("WallShape")
+
+[node name="Wall4" type="StaticBody2D" parent="."]
+position = Vector2(4800, 260)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Wall4"]
+shape = SubResource("WallShape")
+
+[node name="Wall5" type="StaticBody2D" parent="."]
+position = Vector2(6000, 260)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Wall5"]
+shape = SubResource("WallShape")
+
+[node name="Wall6" type="StaticBody2D" parent="."]
+position = Vector2(7200, 260)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Wall6"]
+shape = SubResource("WallShape")
+
+[node name="Wall7" type="StaticBody2D" parent="."]
+position = Vector2(8400, 260)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Wall7"]
+shape = SubResource("WallShape")
+
+[node name="Ignarath" parent="." instance=ExtResource("8_b1")]
+position = Vector2(600, 400)
+arena_left = 100.0
+arena_right = 1100.0
+arena_floor = 540.0
+
+[node name="Cryovex" parent="." instance=ExtResource("9_b2")]
+position = Vector2(1800, 400)
+arena_left = 1300.0
+arena_right = 2300.0
+arena_floor = 540.0
+
+[node name="Voltrix" parent="." instance=ExtResource("10_b3")]
+position = Vector2(3000, 400)
+arena_left = 2500.0
+arena_right = 3500.0
+arena_floor = 540.0
+
+[node name="Gravitus" parent="." instance=ExtResource("11_b4")]
+position = Vector2(4200, 400)
+arena_left = 3700.0
+arena_right = 4700.0
+arena_floor = 540.0
+
+[node name="Galerix" parent="." instance=ExtResource("12_b5")]
+position = Vector2(5400, 400)
+arena_left = 4900.0
+arena_right = 5900.0
+arena_floor = 540.0
+
+[node name="Umbraex" parent="." instance=ExtResource("13_b6")]
+position = Vector2(6600, 400)
+arena_left = 6100.0
+arena_right = 7100.0
+arena_floor = 540.0
+
+[node name="Luxar" parent="." instance=ExtResource("14_b7")]
+position = Vector2(7800, 400)
+arena_left = 7300.0
+arena_right = 8300.0
+arena_floor = 540.0
+
+[node name="Terragor" parent="." instance=ExtResource("15_b8")]
+position = Vector2(9000, 400)
+arena_left = 8500.0
+arena_right = 9500.0
+arena_floor = 540.0
+
+[node name="HUD" parent="." instance=ExtResource("4_hud")]
+[node name="PauseMenu" parent="." instance=ExtResource("5_pause")]
+[node name="GameOver" parent="." instance=ExtResource("6_gameover")]
+[node name="StageComplete" parent="." instance=ExtResource("7_scom")]
+
+[node name="Camera2D" type="Camera2D" parent="."]
+limit_left = 0
+limit_right = 9600
+position_smoothing_enabled = true
+position_smoothing_speed = 8.0

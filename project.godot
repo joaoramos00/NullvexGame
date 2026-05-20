@@ -23,6 +23,7 @@ config/features=PackedStringArray("4.6", "Forward Plus")
 GameManager="*res://autoloads/game_manager.gd"
 StageManager="*res://autoloads/stage_manager.gd"
 AudioManager="*res://autoloads/audio_manager.gd"
+AudioLibrary="*res://autoloads/audio_library.gd"
 
 [display]
 

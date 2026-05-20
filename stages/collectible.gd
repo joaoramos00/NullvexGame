@@ -31,6 +31,7 @@ func _draw() -> void:
 func _on_body_entered(body: Node) -> void:
     if not body is CharacterBase:
         return
+    AudioManager.play_sfx(AudioLibrary.sfx_collectible)
     _collect()
     queue_free()
 
