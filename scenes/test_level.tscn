@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=3 uid="uid://test_level"]
+[gd_scene load_steps=15 format=3 uid="uid://test_level"]
 
 [ext_resource type="PackedScene" uid="uid://0ael" path="res://characters/ranged/zael.tscn" id="1_char"]
 [ext_resource type="Script" path="res://scenes/test_level.gd" id="2_script"]
@@ -9,6 +9,8 @@
 [ext_resource type="PackedScene" uid="uid://hud" path="res://ui/hud.tscn" id="7_hud"]
 [ext_resource type="PackedScene" uid="uid://pause_menu" path="res://ui/pause_menu.tscn" id="8_pause"]
 [ext_resource type="PackedScene" uid="uid://game_over" path="res://ui/game_over.tscn" id="9_gameover"]
+[ext_resource type="PackedScene" uid="uid://ignarath" path="res://characters/bosses/ignarath.tscn" id="10_boss"]
+[ext_resource type="PackedScene" uid="uid://stage_complete" path="res://ui/stage_complete.tscn" id="11_sc"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_floor"]
 size = Vector2(3000, 40)
@@ -59,6 +61,12 @@ subtank_index = 0
 [node name="PauseMenu" parent="." instance=ExtResource("8_pause")]
 
 [node name="GameOver" parent="." instance=ExtResource("9_gameover")]
+
+[node name="Ignarath" parent="." instance=ExtResource("10_boss")]
+position = Vector2(1400, 380)
+player = NodePath("../Zael")
+
+[node name="StageComplete" parent="." instance=ExtResource("11_sc")]
 
 [node name="Camera2D" type="Camera2D" parent="."]
 position = Vector2(960, 450)

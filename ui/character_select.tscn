@@ -1,0 +1,55 @@
+[gd_scene format=3 uid="uid://character_select"]
+
+[ext_resource type="Script" path="res://ui/character_select.gd" id="1_script"]
+
+[node name="CharacterSelect" type="Control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource("1_script")
+
+[node name="Overlay" type="ColorRect" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0, 0, 0, 0.65)
+
+[node name="Panel" type="Panel" parent="."]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -140.0
+offset_top = -110.0
+offset_right = 140.0
+offset_bottom = 110.0
+
+[node name="VBox" type="VBoxContainer" parent="Panel"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 16.0
+offset_top = 16.0
+offset_right = -16.0
+offset_bottom = -16.0
+theme_override_constants/separation = 12
+
+[node name="TitleLabel" type="Label" parent="Panel/VBox"]
+layout_mode = 2
+text = "Choose Character"
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 18
+
+[node name="StageLabel" type="Label" parent="Panel/VBox"]
+layout_mode = 2
+text = ""
+horizontal_alignment = 1
+
+[node name="ZaelButton" type="Button" parent="Panel/VBox"]
+layout_mode = 2
+text = "Zael  (Ranged)"
+
+[node name="ZaraButton" type="Button" parent="Panel/VBox"]
+layout_mode = 2
+text = "Zara  (Melee)"
+
+[node name="CancelButton" type="Button" parent="Panel/VBox"]
+layout_mode = 2
+text = "Cancel"

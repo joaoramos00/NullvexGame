@@ -48,9 +48,9 @@ func load_stage(stage_id: int) -> void:
     current_stage_id = stage_id
     reset_checkpoints()
     var path: String = STAGE_PATHS.get(stage_id, "")
-    if path.is_empty():
-        push_error("StageManager: no scene path for stage_id %d" % stage_id)
-        return
+    if path.is_empty() or not ResourceLoader.exists(path):
+        push_warning("StageManager: stage %d scene not found, loading test level" % stage_id)
+        path = "res://scenes/test_level.tscn"
     get_tree().change_scene_to_file(path)
     stage_loaded.emit(stage_id)
     transition_finished.emit()

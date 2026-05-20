@@ -10,8 +10,13 @@ const BOSS_THEMES: Dictionary = {
     5: "Wind",     6: "Shadow",   7: "Light",     8: "Earth",
 }
 
+var _pending_stage_id: int = -1
+
+@onready var _char_select: Control = $CharacterSelect
+
 func _ready() -> void:
     $BackButton.pressed.connect(_on_back_pressed)
+    _char_select.character_chosen.connect(_on_character_chosen)
     _build_cards()
 
 func _build_cards() -> void:
@@ -26,13 +31,16 @@ func _build_cards() -> void:
         label.text = BOSS_NAMES.get(stage_id, "Stage %d" % stage_id)
         theme_label.text = BOSS_THEMES.get(stage_id, "")
         btn.text = "CLEAR" if completed else "SELECT"
+        btn.modulate = Color.GREEN if completed else Color.WHITE
         btn.pressed.connect(_on_stage_selected.bind(stage_id))
 
 func _on_stage_selected(stage_id: int) -> void:
-    StageManager.current_stage_id = stage_id
-    GameManager.set_active_character(GameManager.active_character)
-    # Scene transition wired up when individual stage scenes are built (Plan 09)
-    print("Stage %d selected — %s" % [stage_id, BOSS_NAMES.get(stage_id, "?")])
+    _pending_stage_id = stage_id
+    _char_select.show_for_stage(stage_id, BOSS_NAMES.get(stage_id, "Stage %d" % stage_id))
+
+func _on_character_chosen(character: String) -> void:
+    GameManager.set_active_character(character)
+    StageManager.load_stage(_pending_stage_id)
 
 func _on_back_pressed() -> void:
     get_tree().change_scene_to_file("res://ui/title_screen.tscn")

@@ -33,6 +33,7 @@ var _air_walk_timer: float = 0.0
 var _dash_direction: float = 1.0
 
 func _ready() -> void:
+    max_hp = GameManager.max_hp
     current_hp = max_hp
     queue_redraw()
 

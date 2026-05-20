@@ -4,8 +4,9 @@ extends Node2D
 @onready var _hud: CanvasLayer = $HUD
 
 func _ready() -> void:
-    GameManager.reset()
-    GameManager.set_active_character("zael")
+    if StageManager.current_stage_id < 0:
+        GameManager.reset()  # direct editor launch — reset for clean testing
+        GameManager.set_active_character("zael")
     StageManager.spawn_position = character.global_position
     _hud.connect_to_player(character)
     queue_redraw()

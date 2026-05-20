@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://stage_select"]
 
 [ext_resource type="Script" path="res://ui/stage_select.gd" id="1_script"]
+[ext_resource type="PackedScene" uid="uid://character_select" path="res://ui/character_select.tscn" id="2_charsel"]
 
 [node name="StageSelect" type="Control"]
 anchor_right = 1.0
@@ -220,3 +221,5 @@ offset_top = 540.0
 offset_right = 60.0
 offset_bottom = 570.0
 text = "< Back"
+
+[node name="CharacterSelect" parent="." instance=ExtResource("2_charsel")]
