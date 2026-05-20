@@ -50,6 +50,7 @@ func _fire(level: int) -> void:
     bullet.damage = BULLET_DAMAGE[level]
     bullet.direction = 1.0 if facing_right else -1.0
     bullet.scale = BULLET_SCALE[level]
+    bullet.source_id = GameManager.zael_selected_shot
     get_parent().add_child(bullet)  # sibling, não filho — evita herdar scale.x flip do Zael
     bullet.global_position = _bullet_spawn.global_position
 

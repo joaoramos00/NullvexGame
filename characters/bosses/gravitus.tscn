@@ -1,0 +1,11 @@
+[gd_scene format=3 uid="uid://gravitus"]
+
+[ext_resource type="PackedScene" uid="uid://boss_base" path="res://characters/bosses/boss_base.tscn" id="1_base"]
+
+[node name="Gravitus" instance=ExtResource("1_base")]
+boss_id = "gravitus"
+weakness_id = "luxar"
+ability_id = "gravitus"
+stage_id = 4
+max_hp = 200
+boss_color = Color(0.5, 0.0, 0.8, 1)

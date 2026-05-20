@@ -1,0 +1,11 @@
+[gd_scene format=3 uid="uid://terragor"]
+
+[ext_resource type="PackedScene" uid="uid://boss_base" path="res://characters/bosses/boss_base.tscn" id="1_base"]
+
+[node name="Terragor" instance=ExtResource("1_base")]
+boss_id = "terragor"
+weakness_id = "cryovex"
+ability_id = "terragor"
+stage_id = 8
+max_hp = 200
+boss_color = Color(0.5, 0.3, 0.1, 1)

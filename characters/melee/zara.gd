@@ -47,6 +47,7 @@ func _strike() -> void:
 	_attack_timer = ZaraHitbox.ATTACK_DURATION
 	var hitbox: ZaraHitbox = _HITBOX_SCENE.instantiate()
 	hitbox.damage = COMBO_DAMAGE[strike_num]
+	hitbox.source_id = GameManager.zara_selected_weapon
 	var offset_x := HITBOX_OFFSET.x if facing_right else -HITBOX_OFFSET.x
 	get_parent().add_child(hitbox)
 	hitbox.global_position = global_position + Vector2(offset_x, HITBOX_OFFSET.y)

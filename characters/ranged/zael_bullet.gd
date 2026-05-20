@@ -5,6 +5,7 @@ const SPEED := 500.0
 
 var damage: int = 5
 var direction: float = 1.0
+var source_id: String = "single"
 
 func _ready() -> void:
     body_entered.connect(_on_body_entered)
@@ -19,6 +20,6 @@ func _draw() -> void:
 
 func _on_body_entered(body: Node) -> void:
     if body.has_method("take_damage"):
-        body.take_damage(damage)
+        body.take_damage(damage, source_id)
     $Timer.stop()
     queue_free()

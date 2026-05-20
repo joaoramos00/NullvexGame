@@ -4,6 +4,7 @@ class_name ZaraHitbox
 const ATTACK_DURATION := 0.15
 
 var damage: int = 8
+var source_id: String = "sword"
 var _hit_bodies: Array[Node] = []
 
 func _ready() -> void:
@@ -21,4 +22,4 @@ func _on_body_entered(body: Node) -> void:
 		return
 	_hit_bodies.append(body)
 	if body.has_method("take_damage"):
-		body.take_damage(damage)
+		body.take_damage(damage, source_id)

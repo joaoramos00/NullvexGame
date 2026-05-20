@@ -1,0 +1,11 @@
+[gd_scene format=3 uid="uid://umbraex"]
+
+[ext_resource type="PackedScene" uid="uid://boss_base" path="res://characters/bosses/boss_base.tscn" id="1_base"]
+
+[node name="Umbraex" instance=ExtResource("1_base")]
+boss_id = "umbraex"
+weakness_id = "voltrix"
+ability_id = "umbraex"
+stage_id = 6
+max_hp = 200
+boss_color = Color(0.2, 0.0, 0.3, 1)

@@ -1,0 +1,11 @@
+[gd_scene format=3 uid="uid://luxar"]
+
+[ext_resource type="PackedScene" uid="uid://boss_base" path="res://characters/bosses/boss_base.tscn" id="1_base"]
+
+[node name="Luxar" instance=ExtResource("1_base")]
+boss_id = "luxar"
+weakness_id = "umbraex"
+ability_id = "luxar"
+stage_id = 7
+max_hp = 200
+boss_color = Color(1.0, 1.0, 0.6, 1)

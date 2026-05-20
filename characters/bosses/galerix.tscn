@@ -1,0 +1,11 @@
+[gd_scene format=3 uid="uid://galerix"]
+
+[ext_resource type="PackedScene" uid="uid://boss_base" path="res://characters/bosses/boss_base.tscn" id="1_base"]
+
+[node name="Galerix" instance=ExtResource("1_base")]
+boss_id = "galerix"
+weakness_id = "gravitus"
+ability_id = "galerix"
+stage_id = 5
+max_hp = 200
+boss_color = Color(0.4, 0.9, 0.4, 1)

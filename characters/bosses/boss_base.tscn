@@ -1,0 +1,15 @@
+[gd_scene format=3 uid="uid://boss_base"]
+
+[ext_resource type="Script" path="res://characters/bosses/boss_base.gd" id="1_script"]
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_1"]
+radius = 24.0
+height = 80.0
+
+[node name="BossBase" type="CharacterBody2D"]
+collision_layer = 4
+collision_mask = 1
+script = ExtResource("1_script")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CapsuleShape2D_1")

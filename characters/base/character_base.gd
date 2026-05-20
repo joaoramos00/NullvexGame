@@ -116,7 +116,7 @@ func _update_facing() -> void:
         facing_right = false
         scale.x = -1.0
 
-func take_damage(amount: int) -> void:
+func take_damage(amount: int, _source_id: String = "") -> void:
     if is_invincible or is_dead:
         return
     current_hp = max(0, current_hp - amount)
