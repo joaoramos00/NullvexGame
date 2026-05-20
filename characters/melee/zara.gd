@@ -46,24 +46,23 @@ func _setup_sprite_frames() -> void:
         at.region = Rect2(i * fw, ry, fw, fh)
         frames.add_frame("walk", at)
 
+    # jump — single static frame (middle of row 2)
     frames.add_animation("jump")
     frames.set_animation_loop("jump", false)
     frames.set_animation_speed("jump", 1.0)
     var jump_at := AtlasTexture.new()
     jump_at.atlas = tex
-    jump_at.region = Rect2(fw, 3 * fh, fw, fh)
+    jump_at.region = Rect2(fw, ry, fw, fh)
     frames.add_frame("jump", jump_at)
 
-    # attack — row 2 (lateral) at 12 FPS, non-looping
-    # frames in order [2,0,1] gives a "swing forward then back" feel
+    # attack — single static frame (first frame of row 2)
     frames.add_animation("attack")
     frames.set_animation_loop("attack", false)
-    frames.set_animation_speed("attack", 12.0)
-    for i in [2, 0, 1]:
-        var at := AtlasTexture.new()
-        at.atlas = tex
-        at.region = Rect2(i * fw, ry, fw, fh)
-        frames.add_frame("attack", at)
+    frames.set_animation_speed("attack", 1.0)
+    var attack_at := AtlasTexture.new()
+    attack_at.atlas = tex
+    attack_at.region = Rect2(0, ry, fw, fh)
+    frames.add_frame("attack", attack_at)
 
     _sprite.sprite_frames = frames
     _sprite.play("idle")

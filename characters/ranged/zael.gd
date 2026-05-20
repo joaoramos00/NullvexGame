@@ -55,23 +55,23 @@ func _setup_sprite_frames() -> void:
         at.region = Rect2(i * fw, ry, fw, fh)
         frames.add_frame("walk", at)
 
+    # jump — single static frame (middle of row 2)
     frames.add_animation("jump")
     frames.set_animation_loop("jump", false)
     frames.set_animation_speed("jump", 1.0)
     var jump_at := AtlasTexture.new()
     jump_at.atlas = walk_tex
-    jump_at.region = Rect2(fw, 3 * fh, fw, fh)
+    jump_at.region = Rect2(fw, ry, fw, fh)
     frames.add_frame("jump", jump_at)
 
-    # shoot uses ZaelLutando row 2 (right-facing) of first slot
+    # shoot — single static frame from ZaelLutando row 2 (first frame)
     frames.add_animation("shoot")
     frames.set_animation_loop("shoot", false)
-    frames.set_animation_speed("shoot", 12.0)
-    for i in 3:
-        var at := AtlasTexture.new()
-        at.atlas = fight_tex
-        at.region = Rect2(i * fw, ry, fw, fh)
-        frames.add_frame("shoot", at)
+    frames.set_animation_speed("shoot", 1.0)
+    var shoot_at := AtlasTexture.new()
+    shoot_at.atlas = fight_tex
+    shoot_at.region = Rect2(0, ry, fw, fh)
+    frames.add_frame("shoot", shoot_at)
 
     _sprite.sprite_frames = frames
     _sprite.play("idle")
