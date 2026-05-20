@@ -1,10 +1,11 @@
-[gd_scene load_steps=9 format=3 uid="uid://test_level"]
+[gd_scene load_steps=10 format=3 uid="uid://test_level"]
 
 [ext_resource type="PackedScene" uid="uid://0ael" path="res://characters/ranged/zael.tscn" id="1_char"]
 [ext_resource type="Script" path="res://scenes/test_level.gd" id="2_script"]
 [ext_resource type="PackedScene" uid="uid://enemy_base" path="res://characters/enemies/enemy_base.tscn" id="3_enemy"]
 [ext_resource type="PackedScene" uid="uid://stage_controller" path="res://stages/stage_controller.tscn" id="4_sc"]
 [ext_resource type="PackedScene" uid="uid://checkpoint" path="res://stages/checkpoint.tscn" id="5_cp"]
+[ext_resource type="PackedScene" uid="uid://collectible" path="res://stages/collectible.tscn" id="6_col"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_floor"]
 size = Vector2(3000, 40)
@@ -41,6 +42,14 @@ position = Vector2(700, 400)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Platform"]
 shape = SubResource("RectangleShape2D_1")
+
+[node name="Heart" parent="." instance=ExtResource("6_col")]
+position = Vector2(560, 460)
+
+[node name="SubTank" parent="." instance=ExtResource("6_col")]
+position = Vector2(640, 460)
+collectible_type = 1
+subtank_index = 0
 
 [node name="Camera2D" type="Camera2D" parent="."]
 position = Vector2(960, 450)
