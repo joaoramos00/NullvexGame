@@ -7,7 +7,7 @@ func _do_attack() -> void:
 	_is_attacking = true
 	if player != null:
 		var behind := -120.0 if player.facing_right else 120.0
-		var tx := clamp(
+		var tx: float = clamp(
 			player.global_position.x + behind,
 			arena_left + 60.0, arena_right - 60.0
 		)

@@ -6,7 +6,7 @@ func _do_combat(_delta: float) -> void:
 func _do_attack() -> void:
 	_is_attacking = true
 	if player != null:
-		var tx := clamp(
+		var tx: float = clamp(
 			player.global_position.x + randf_range(-250.0, 250.0),
 			arena_left + 60.0, arena_right - 60.0
 		)

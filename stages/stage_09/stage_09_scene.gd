@@ -70,5 +70,5 @@ func _draw() -> void:
 			if not shape_child.shape is RectangleShape2D:
 				continue
 			var size: Vector2 = (shape_child.shape as RectangleShape2D).size
-			var center := child.position + shape_child.position
+			var center: Vector2 = (child as Node2D).position + (shape_child as Node2D).position
 			draw_rect(Rect2(center - size * 0.5, size), Color(0.35, 0.35, 0.35))
