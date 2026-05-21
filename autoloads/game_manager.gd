@@ -27,6 +27,11 @@ var zara_weapons: Array[String] = ["sword"]
 var zael_selected_shot: String = "single"
 var zara_selected_weapon: String = "sword"
 
+func _ready() -> void:
+    if OS.get_name() == "Web":
+        DisplayServer.screen_set_orientation(DisplayServer.SCREEN_LANDSCAPE)
+        JavaScriptBridge.eval("screen.orientation.lock('landscape-primary').catch(function(){})")
+
 func reset() -> void:
     active_character = "zael"
     lives = DEFAULT_LIVES
