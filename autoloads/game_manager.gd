@@ -27,10 +27,14 @@ var zara_weapons: Array[String] = ["sword"]
 var zael_selected_shot: String = "single"
 var zara_selected_weapon: String = "sword"
 
+const _TOUCH_SCENE := preload("res://ui/touch_controls.tscn")
+
 func _ready() -> void:
     if OS.get_name() == "Web":
         DisplayServer.screen_set_orientation(DisplayServer.SCREEN_LANDSCAPE)
         JavaScriptBridge.eval("screen.orientation.lock('landscape-primary').catch(function(){})")
+    if OS.get_name() == "Web" or DisplayServer.is_touchscreen_available():
+        add_child(_TOUCH_SCENE.instantiate())
 
 func reset() -> void:
     active_character = "zael"
