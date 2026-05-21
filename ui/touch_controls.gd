@@ -9,7 +9,6 @@ func _ready() -> void:
 	if OS.get_name() != "Web":
 		visible = false
 		return
-	layer = 10
 	var vp: Vector2 = get_viewport().get_visible_rect().size
 	_add_button("move_left",  Vector2(10,           vp.y - 62), 52, 52, _COLOR_MOVE)
 	_add_button("move_right", Vector2(68,           vp.y - 62), 52, 52, _COLOR_MOVE)
