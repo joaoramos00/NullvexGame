@@ -2,7 +2,6 @@ extends Node2D
 
 const ZAEL_SCENE := preload("res://characters/ranged/zael.tscn")
 const ZARA_SCENE := preload("res://characters/melee/zara.tscn")
-const _TOUCH_SCENE := preload("res://ui/touch_controls.tscn")
 
 var _player: CharacterBase
 var _bosses: Array[BossBase] = []
@@ -19,7 +18,6 @@ func _ready() -> void:
 	_collect_nodes()
 	_setup_bosses()
 	AudioManager.play_bgm(AudioLibrary.bgm_gauntlet)
-	add_child(_TOUCH_SCENE.instantiate())
 	queue_redraw()
 
 func _collect_nodes() -> void:

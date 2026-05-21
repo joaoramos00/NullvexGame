@@ -2,7 +2,6 @@ extends Node2D
 
 const ZAEL_SCENE := preload("res://characters/ranged/zael.tscn")
 const ZARA_SCENE := preload("res://characters/melee/zara.tscn")
-const _TOUCH_SCENE := preload("res://ui/touch_controls.tscn")
 
 var _player: CharacterBase
 
@@ -18,7 +17,6 @@ func _ready() -> void:
 	$HUD.connect_to_player(_player)
 	StageManager.spawn_position = $PlayerSpawn.global_position
 	AudioManager.play_bgm(AudioLibrary.get_stage_bgm(StageManager.current_stage_id))
-	add_child(_TOUCH_SCENE.instantiate())
 	queue_redraw()
 
 func _process(_delta: float) -> void:
