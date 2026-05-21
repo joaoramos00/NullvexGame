@@ -3,6 +3,8 @@ extends Node2D
 const ZAEL_SCENE := preload("res://characters/ranged/zael.tscn")
 const ZARA_SCENE := preload("res://characters/melee/zara.tscn")
 
+@export var platform_color: Color = Color(0.35, 0.35, 0.35)
+
 var _player: CharacterBase
 
 func _ready() -> void:
@@ -45,4 +47,4 @@ func _draw() -> void:
 				continue
 			var size: Vector2 = (shape_child.shape as RectangleShape2D).size
 			var center: Vector2 = (child as Node2D).position + (shape_child as Node2D).position
-			draw_rect(Rect2(center - size * 0.5, size), Color(0.35, 0.35, 0.35))
+			draw_rect(Rect2(center - size * 0.5, size), platform_color)
