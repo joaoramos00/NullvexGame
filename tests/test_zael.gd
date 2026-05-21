@@ -3,6 +3,7 @@ extends Node
 func _ready() -> void:
     test_bullet_properties()
     test_charge_levels()
+    test_zael_run_animation()
     print("ALL TESTS PASSED")
     get_tree().quit(0)
 
@@ -26,3 +27,15 @@ func test_charge_levels() -> void:
     assert(Zael.get_charge_level(1.2) == 3, "L3: timer 1.2")
     assert(Zael.get_charge_level(2.0) == 3, "L3: timer 2.0")
     print("PASS: charge_levels")
+
+func test_zael_run_animation() -> void:
+    var zael_scene := load("res://characters/ranged/zael.tscn")
+    var zael = zael_scene.instantiate()
+    add_child(zael)
+    var sf: SpriteFrames = zael.get_node("AnimatedSprite2D").sprite_frames
+    assert(sf.has_animation("run"), "Zael deve ter animação 'run'")
+    assert(not sf.has_animation("walk"), "Zael não deve ter animação 'walk'")
+    assert(sf.get_frame_count("run") == 5, "run deve ter 5 frames")
+    assert(sf.get_frame_count("shoot") == 3, "shoot deve ter 3 frames")
+    zael.queue_free()
+    print("PASS: zael_run_animation")
