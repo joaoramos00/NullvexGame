@@ -8,6 +8,7 @@ var _standalone: bool = false
 
 func _ready() -> void:
     _standalone = get_parent() == get_tree().root
+    set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
     if _standalone:
         _stage_label.text = "New Game"
         visible = true

@@ -17,39 +17,43 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -140.0
-offset_top = -110.0
-offset_right = 140.0
-offset_bottom = 110.0
+offset_left = -220.0
+offset_top = -180.0
+offset_right = 220.0
+offset_bottom = 180.0
 
 [node name="VBox" type="VBoxContainer" parent="Panel"]
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 16.0
-offset_top = 16.0
-offset_right = -16.0
-offset_bottom = -16.0
-theme_override_constants/separation = 12
+offset_left = 24.0
+offset_top = 24.0
+offset_right = -24.0
+offset_bottom = -24.0
+theme_override_constants/separation = 18
 
 [node name="TitleLabel" type="Label" parent="Panel/VBox"]
 layout_mode = 2
 text = "Choose Character"
 horizontal_alignment = 1
-theme_override_font_sizes/font_size = 18
+theme_override_font_sizes/font_size = 28
 
 [node name="StageLabel" type="Label" parent="Panel/VBox"]
 layout_mode = 2
 text = ""
 horizontal_alignment = 1
+theme_override_font_sizes/font_size = 20
 
 [node name="ZaelButton" type="Button" parent="Panel/VBox"]
 layout_mode = 2
 text = "Zael  (Ranged)"
+theme_override_font_sizes/font_size = 22
 
 [node name="ZaraButton" type="Button" parent="Panel/VBox"]
 layout_mode = 2
 text = "Zara  (Melee)"
+theme_override_font_sizes/font_size = 22
 
 [node name="CancelButton" type="Button" parent="Panel/VBox"]
 layout_mode = 2
 text = "Cancel"
+theme_override_font_sizes/font_size = 18
