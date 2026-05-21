@@ -4,6 +4,7 @@ func _ready() -> void:
 	test_hitbox_properties()
 	test_combo_progression()
 	test_combo_damage()
+	test_zara_run_animation()
 	print("ALL TESTS PASSED")
 	get_tree().quit(0)
 
@@ -28,3 +29,14 @@ func test_combo_damage() -> void:
 	assert(Zara.COMBO_DAMAGE[2] == 12)
 	assert(Zara.COMBO_DAMAGE[3] == 20)
 	print("PASS: combo_damage")
+
+func test_zara_run_animation() -> void:
+	var zara_scene := load("res://characters/melee/zara.tscn")
+	var zara = zara_scene.instantiate()
+	add_child(zara)
+	var sf: SpriteFrames = zara.get_node("AnimatedSprite2D").sprite_frames
+	assert(sf.has_animation("run"), "Zara deve ter animação 'run'")
+	assert(not sf.has_animation("walk"), "Zara não deve ter animação 'walk'")
+	assert(sf.get_frame_count("run") == 5, "run deve ter 5 frames")
+	zara.queue_free()
+	print("PASS: zara_run_animation")
