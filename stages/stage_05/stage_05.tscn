@@ -171,7 +171,7 @@ position = Vector2(3350, 490)
 position = Vector2(3600, 490)
 
 [node name="Grunt4" parent="." instance=ExtResource("10_grunt")]
-position = Vector2(3800, 490)
+position = Vector2(3500, 490)
 
 [node name="Flyer1" parent="." instance=ExtResource("11_flyer")]
 position = Vector2(1030, 300)
