@@ -2,9 +2,9 @@ extends Control
 
 signal character_chosen(character: String)
 
-const _FRAME_W := 48
-const _FRAME_H := 48
-const _ROW_RIGHT := 2
+const _FRAME_W := 68
+const _FRAME_H := 68
+const _ROW_RIGHT := 0
 const _ANIM_SPEED := 8.0
 
 var _standalone: bool = false
@@ -34,7 +34,7 @@ func _setup_previews() -> void:
     var zael_tex := load("res://characters/ranged/ZaelAndando.png") as Texture2D
     var zara_tex := load("res://characters/melee/ZaraAndando.png") as Texture2D
     var ry := _ROW_RIGHT * _FRAME_H
-    for i in 3:
+    for i in 5:
         var at := AtlasTexture.new()
         at.atlas = zael_tex
         at.region = Rect2(i * _FRAME_W, ry, _FRAME_W, _FRAME_H)
@@ -52,7 +52,7 @@ func _process(delta: float) -> void:
     _frame_timer += delta
     if _frame_timer >= 1.0 / _ANIM_SPEED:
         _frame_timer = 0.0
-        _current_frame = (_current_frame + 1) % 3
+        _current_frame = (_current_frame + 1) % 5
         _zael_preview.texture = _zael_frames[_current_frame]
         _zara_preview.texture = _zara_frames[_current_frame]
 

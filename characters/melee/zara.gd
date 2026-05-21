@@ -7,9 +7,9 @@ const COMBO_DAMAGE := [0, 8, 12, 20]
 
 const _HITBOX_SCENE := preload("res://characters/melee/zara_hitbox.tscn")
 
-const _FRAME_W := 48
-const _FRAME_H := 48
-const _ROW_RIGHT := 2  # RPG Maker MZ row 2 = facing right
+const _FRAME_W := 68
+const _FRAME_H := 68
+const _ROW_RIGHT := 0
 
 var _combo_step: int = 0
 var _combo_timer: float = 0.0
@@ -27,35 +27,35 @@ func _setup_sprite_frames() -> void:
     var tex := load("res://characters/melee/ZaraAndando.png") as Texture2D
     var fw := _FRAME_W
     var fh := _FRAME_H
-    var ry := _ROW_RIGHT * fh  # y = 96
+    var ry := _ROW_RIGHT * fh  # y = 0
 
     frames.add_animation("idle")
     frames.set_animation_loop("idle", true)
     frames.set_animation_speed("idle", 1.0)
     var idle_at := AtlasTexture.new()
     idle_at.atlas = tex
-    idle_at.region = Rect2(fw, ry, fw, fh)
+    idle_at.region = Rect2(2 * fw, ry, fw, fh)
     frames.add_frame("idle", idle_at)
 
     frames.add_animation("walk")
     frames.set_animation_loop("walk", true)
     frames.set_animation_speed("walk", 8.0)
-    for i in 3:
+    for i in 5:
         var at := AtlasTexture.new()
         at.atlas = tex
         at.region = Rect2(i * fw, ry, fw, fh)
         frames.add_frame("walk", at)
 
-    # jump — single static frame (middle of row 2)
+    # jump — middle walk frame
     frames.add_animation("jump")
     frames.set_animation_loop("jump", false)
     frames.set_animation_speed("jump", 1.0)
     var jump_at := AtlasTexture.new()
     jump_at.atlas = tex
-    jump_at.region = Rect2(fw, ry, fw, fh)
+    jump_at.region = Rect2(2 * fw, ry, fw, fh)
     frames.add_frame("jump", jump_at)
 
-    # attack — single static frame (first frame of row 2)
+    # attack — first walk frame as placeholder
     frames.add_animation("attack")
     frames.set_animation_loop("attack", false)
     frames.set_animation_speed("attack", 1.0)
