@@ -14,9 +14,13 @@ const BULLET_SCALE := [
 
 const _BULLET_SCENE := preload("res://characters/ranged/zael_bullet.tscn")
 
-const _FRAME_W := 48
-const _FRAME_H := 48
-const _ROW_RIGHT := 2  # RPG Maker MZ row 2 = facing right
+const _FRAME_W := 68
+const _FRAME_H := 68
+const _ROW_RIGHT := 0
+
+const _FIGHT_FRAME_W := 48
+const _FIGHT_FRAME_H := 48
+const _FIGHT_ROW := 2
 
 # bullet spawn offset from character center
 const _SPAWN_OFFSET := Vector2(30.0, -10.0)
@@ -36,41 +40,41 @@ func _setup_sprite_frames() -> void:
     var fight_tex := load("res://characters/ranged/ZaelLutando.png") as Texture2D
     var fw := _FRAME_W
     var fh := _FRAME_H
-    var ry := _ROW_RIGHT * fh  # y = 96
+    var ry := _ROW_RIGHT * fh  # y = 0
 
     frames.add_animation("idle")
     frames.set_animation_loop("idle", true)
     frames.set_animation_speed("idle", 1.0)
     var idle_at := AtlasTexture.new()
     idle_at.atlas = walk_tex
-    idle_at.region = Rect2(fw, ry, fw, fh)
+    idle_at.region = Rect2(2 * fw, ry, fw, fh)
     frames.add_frame("idle", idle_at)
 
     frames.add_animation("walk")
     frames.set_animation_loop("walk", true)
     frames.set_animation_speed("walk", 8.0)
-    for i in 3:
+    for i in 5:
         var at := AtlasTexture.new()
         at.atlas = walk_tex
         at.region = Rect2(i * fw, ry, fw, fh)
         frames.add_frame("walk", at)
 
-    # jump — single static frame (middle of row 2)
+    # jump — middle walk frame
     frames.add_animation("jump")
     frames.set_animation_loop("jump", false)
     frames.set_animation_speed("jump", 1.0)
     var jump_at := AtlasTexture.new()
     jump_at.atlas = walk_tex
-    jump_at.region = Rect2(fw, ry, fw, fh)
+    jump_at.region = Rect2(2 * fw, ry, fw, fh)
     frames.add_frame("jump", jump_at)
 
-    # shoot — single static frame from ZaelLutando row 2 (first frame)
+    # shoot — first frame from ZaelLutando (48×48 sheet, row 2)
     frames.add_animation("shoot")
     frames.set_animation_loop("shoot", false)
     frames.set_animation_speed("shoot", 1.0)
     var shoot_at := AtlasTexture.new()
     shoot_at.atlas = fight_tex
-    shoot_at.region = Rect2(0, ry, fw, fh)
+    shoot_at.region = Rect2(0, _FIGHT_ROW * _FIGHT_FRAME_H, _FIGHT_FRAME_W, _FIGHT_FRAME_H)
     frames.add_frame("shoot", shoot_at)
 
     _sprite.sprite_frames = frames
