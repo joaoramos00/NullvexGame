@@ -12,31 +12,47 @@
 [ext_resource type="PackedScene" uid="uid://enemy_base" path="res://characters/enemies/enemy_base.tscn" id="10_grunt"]
 [ext_resource type="PackedScene" uid="uid://enemy_flyer" path="res://characters/enemies/enemy_flyer.tscn" id="11_flyer"]
 
-[sub_resource type="RectangleShape2D" id="Floor"]
-size = Vector2(5400, 40)
+[sub_resource type="RectangleShape2D" id="FloorStart"]
+size = Vector2(1000, 40)
 
-[sub_resource type="RectangleShape2D" id="PA"]
-size = Vector2(150, 20)
+[sub_resource type="RectangleShape2D" id="FloorPost"]
+size = Vector2(800, 40)
 
-[sub_resource type="RectangleShape2D" id="PB"]
-size = Vector2(150, 20)
+[sub_resource type="RectangleShape2D" id="FloorBoss"]
+size = Vector2(1200, 40)
 
-[sub_resource type="RectangleShape2D" id="PC"]
-size = Vector2(150, 20)
+[sub_resource type="RectangleShape2D" id="WallL"]
+size = Vector2(40, 500)
 
-[sub_resource type="RectangleShape2D" id="PD"]
-size = Vector2(150, 20)
+[sub_resource type="RectangleShape2D" id="WallR"]
+size = Vector2(40, 500)
 
-[sub_resource type="RectangleShape2D" id="PE"]
-size = Vector2(150, 20)
+[sub_resource type="RectangleShape2D" id="SP1"]
+size = Vector2(140, 20)
 
-[sub_resource type="RectangleShape2D" id="PF"]
-size = Vector2(250, 20)
+[sub_resource type="RectangleShape2D" id="SP2"]
+size = Vector2(140, 20)
 
-[sub_resource type="RectangleShape2D" id="PG"]
+[sub_resource type="RectangleShape2D" id="SP3"]
+size = Vector2(140, 20)
+
+[sub_resource type="RectangleShape2D" id="SP4"]
+size = Vector2(140, 20)
+
+[sub_resource type="RectangleShape2D" id="PP1"]
+size = Vector2(200, 20)
+
+[sub_resource type="RectangleShape2D" id="PP2"]
+size = Vector2(200, 20)
+
+[sub_resource type="RectangleShape2D" id="PP3"]
+size = Vector2(200, 20)
+
+[sub_resource type="RectangleShape2D" id="PreBoss"]
 size = Vector2(200, 20)
 
 [node name="Stage03" type="Node2D"]
+platform_color = Color(1.0, 0.9, 0.1, 1)
 script = ExtResource("1_script")
 
 [node name="PlayerSpawn" type="Node2D" parent="."]
@@ -45,72 +61,89 @@ position = Vector2(200, 400)
 [node name="StageController" parent="." instance=ExtResource("2_sc")]
 
 [node name="Checkpoint1" parent="." instance=ExtResource("3_cp")]
-position = Vector2(2000, 490)
+position = Vector2(1900, 490)
 checkpoint_index = 1
 
 [node name="Checkpoint2" parent="." instance=ExtResource("3_cp")]
-position = Vector2(3800, 490)
+position = Vector2(3500, 490)
 checkpoint_index = 2
 
-[node name="Floor" type="StaticBody2D" parent="."]
-position = Vector2(2600, 560)
+[node name="FloorStart" type="StaticBody2D" parent="."]
+position = Vector2(500, 560)
+[node name="CollisionShape2D" type="CollisionShape2D" parent="FloorStart"]
+shape = SubResource("FloorStart")
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Floor"]
-shape = SubResource("Floor")
+[node name="FloorPost" type="StaticBody2D" parent="."]
+position = Vector2(2200, 560)
+[node name="CollisionShape2D" type="CollisionShape2D" parent="FloorPost"]
+shape = SubResource("FloorPost")
 
-[node name="PlatformA" type="StaticBody2D" parent="."]
-position = Vector2(700, 440)
+[node name="FloorBoss" type="StaticBody2D" parent="."]
+position = Vector2(4700, 560)
+[node name="CollisionShape2D" type="CollisionShape2D" parent="FloorBoss"]
+shape = SubResource("FloorBoss")
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="PlatformA"]
-shape = SubResource("PA")
+[node name="ShaftWallLeft" type="StaticBody2D" parent="."]
+position = Vector2(1100, 300)
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ShaftWallLeft"]
+shape = SubResource("WallL")
 
-[node name="PlatformB" type="StaticBody2D" parent="."]
-position = Vector2(900, 340)
+[node name="ShaftWallRight" type="StaticBody2D" parent="."]
+position = Vector2(1600, 300)
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ShaftWallRight"]
+shape = SubResource("WallR")
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="PlatformB"]
-shape = SubResource("PB")
+[node name="ShaftPlat1" type="StaticBody2D" parent="."]
+position = Vector2(1190, 480)
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ShaftPlat1"]
+shape = SubResource("SP1")
 
-[node name="PlatformC" type="StaticBody2D" parent="."]
-position = Vector2(1100, 240)
+[node name="ShaftPlat2" type="StaticBody2D" parent="."]
+position = Vector2(1510, 390)
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ShaftPlat2"]
+shape = SubResource("SP2")
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="PlatformC"]
-shape = SubResource("PC")
+[node name="ShaftPlat3" type="StaticBody2D" parent="."]
+position = Vector2(1190, 300)
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ShaftPlat3"]
+shape = SubResource("SP3")
 
-[node name="PlatformD" type="StaticBody2D" parent="."]
-position = Vector2(1900, 440)
+[node name="ShaftPlat4" type="StaticBody2D" parent="."]
+position = Vector2(1510, 210)
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ShaftPlat4"]
+shape = SubResource("SP4")
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="PlatformD"]
-shape = SubResource("PD")
+[node name="PostPlat1" type="StaticBody2D" parent="."]
+position = Vector2(1750, 290)
+[node name="CollisionShape2D" type="CollisionShape2D" parent="PostPlat1"]
+shape = SubResource("PP1")
 
-[node name="PlatformE" type="StaticBody2D" parent="."]
-position = Vector2(2100, 340)
+[node name="PostPlat2" type="StaticBody2D" parent="."]
+position = Vector2(2000, 390)
+[node name="CollisionShape2D" type="CollisionShape2D" parent="PostPlat2"]
+shape = SubResource("PP2")
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="PlatformE"]
-shape = SubResource("PE")
+[node name="PostPlat3" type="StaticBody2D" parent="."]
+position = Vector2(2300, 460)
+[node name="CollisionShape2D" type="CollisionShape2D" parent="PostPlat3"]
+shape = SubResource("PP3")
 
-[node name="PlatformF" type="StaticBody2D" parent="."]
-position = Vector2(3000, 440)
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="PlatformF"]
-shape = SubResource("PF")
-
-[node name="PlatformG" type="StaticBody2D" parent="."]
-position = Vector2(3400, 340)
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="PlatformG"]
-shape = SubResource("PG")
+[node name="PreBossPlat" type="StaticBody2D" parent="."]
+position = Vector2(3800, 420)
+[node name="CollisionShape2D" type="CollisionShape2D" parent="PreBossPlat"]
+shape = SubResource("PreBoss")
 
 [node name="Heart" parent="." instance=ExtResource("4_col")]
-position = Vector2(1900, 400)
+position = Vector2(2000, 350)
 stage_id = 3
 
 [node name="ArmorZaelTorso" parent="." instance=ExtResource("4_col")]
-position = Vector2(1100, 200)
+position = Vector2(1190, 260)
 collectible_type = 2
 armor_piece = "torso"
 
 [node name="GlaiveZara" parent="." instance=ExtResource("4_col")]
-position = Vector2(3000, 400)
+position = Vector2(2300, 420)
 collectible_type = 5
 ability_id = "glaive"
 
@@ -121,19 +154,22 @@ arena_right = 5100.0
 arena_floor = 540.0
 
 [node name="Grunt1" parent="." instance=ExtResource("10_grunt")]
-position = Vector2(500, 490)
+position = Vector2(600, 490)
 
 [node name="Grunt2" parent="." instance=ExtResource("10_grunt")]
-position = Vector2(1300, 490)
+position = Vector2(900, 490)
 
 [node name="Grunt3" parent="." instance=ExtResource("10_grunt")]
-position = Vector2(2400, 490)
+position = Vector2(2100, 490)
 
 [node name="Grunt4" parent="." instance=ExtResource("10_grunt")]
-position = Vector2(3200, 490)
+position = Vector2(2700, 490)
 
 [node name="Flyer1" parent="." instance=ExtResource("11_flyer")]
-position = Vector2(1800, 300)
+position = Vector2(1200, 390)
+
+[node name="Flyer2" parent="." instance=ExtResource("11_flyer")]
+position = Vector2(1500, 290)
 
 [node name="HUD" parent="." instance=ExtResource("5_hud")]
 [node name="PauseMenu" parent="." instance=ExtResource("6_pause")]
