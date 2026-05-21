@@ -7,7 +7,6 @@ const _COLOR_ATTACK := Color(0.29, 0.56, 0.85, 0.65)
 const _COLOR_PAUSE  := Color(0.31, 0.31, 0.39, 0.65)
 
 func _ready() -> void:
-	print("[TC] OS=", OS.get_name(), " touch=", DisplayServer.is_touchscreen_available())
 	if not (OS.get_name() == "Web" or DisplayServer.is_touchscreen_available()):
 		visible = false
 		return
