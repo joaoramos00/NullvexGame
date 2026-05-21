@@ -27,6 +27,7 @@ func _add_button(action: String, pos: Vector2, w: int, h: int, color: Color) -> 
 	shape.size = Vector2(w, h)
 	btn.shape = shape
 	btn.shape_centered = false
+	btn.visibility_mode = TouchScreenButton.VISIBILITY_ALWAYS
 	btn.modulate = Color(1.0, 1.0, 1.0, 0.65)
 	add_child(btn)
 
