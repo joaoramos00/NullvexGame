@@ -6,9 +6,10 @@ const _COLOR_ATTACK := Color(0.29, 0.56, 0.85)  # blue
 const _COLOR_PAUSE  := Color(0.31, 0.31, 0.39)  # grey
 
 func _ready() -> void:
-	if OS.get_name() != "Web":
+	if not (OS.get_name() == "Web" or DisplayServer.is_touchscreen_available()):
 		visible = false
 		return
+	await get_tree().process_frame
 	var vp: Vector2 = get_viewport().get_visible_rect().size
 	_add_button("move_left",  Vector2(10,           vp.y - 62), 52, 52, _COLOR_MOVE)
 	_add_button("move_right", Vector2(68,           vp.y - 62), 52, 52, _COLOR_MOVE)
