@@ -8,7 +8,7 @@ func _ready() -> void:
 
 func _on_new_game_pressed() -> void:
     GameManager.reset()
-    get_tree().change_scene_to_file("res://ui/stage_select.tscn")
+    get_tree().change_scene_to_file("res://ui/character_select.tscn")
 
 func _on_continue_pressed() -> void:
     if GameManager.load_game():
