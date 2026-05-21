@@ -37,14 +37,15 @@ func _setup_sprite_frames() -> void:
     idle_at.region = Rect2(2 * fw, ry, fw, fh)
     frames.add_frame("idle", idle_at)
 
-    frames.add_animation("walk")
-    frames.set_animation_loop("walk", true)
-    frames.set_animation_speed("walk", 8.0)
+    var run_tex := load("res://characters/melee/ZaraCorrendo.png") as Texture2D
+    frames.add_animation("run")
+    frames.set_animation_loop("run", true)
+    frames.set_animation_speed("run", 8.0)
     for i in 5:
         var at := AtlasTexture.new()
-        at.atlas = tex
-        at.region = Rect2(i * fw, ry, fw, fh)
-        frames.add_frame("walk", at)
+        at.atlas = run_tex
+        at.region = Rect2(i * 68, 0, 68, 68)
+        frames.add_frame("run", at)
 
     # jump — middle walk frame
     frames.add_animation("jump")
@@ -84,7 +85,7 @@ func _update_animation() -> void:
     elif attacking:
         pass
     elif velocity.x != 0.0:
-        _sprite.play("walk")
+        _sprite.play("run")
     else:
         _sprite.play("idle")
 
