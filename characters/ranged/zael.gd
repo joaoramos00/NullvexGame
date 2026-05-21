@@ -18,10 +18,6 @@ const _FRAME_W := 68
 const _FRAME_H := 68
 const _ROW_RIGHT := 0
 
-const _FIGHT_FRAME_W := 48
-const _FIGHT_FRAME_H := 48
-const _FIGHT_ROW := 2
-
 # bullet spawn offset from character center
 const _SPAWN_OFFSET := Vector2(30.0, -10.0)
 
@@ -37,7 +33,8 @@ func _ready() -> void:
 func _setup_sprite_frames() -> void:
     var frames := SpriteFrames.new()
     var walk_tex := load("res://characters/ranged/ZaelAndando.png") as Texture2D
-    var fight_tex := load("res://characters/ranged/ZaelLutando.png") as Texture2D
+    var run_tex := load("res://characters/ranged/ZaelCorrendo.png") as Texture2D
+    var shoot_tex := load("res://characters/ranged/ZaelAtirando.png") as Texture2D
     var fw := _FRAME_W
     var fh := _FRAME_H
     var ry := _ROW_RIGHT * fh  # y = 0
@@ -50,14 +47,14 @@ func _setup_sprite_frames() -> void:
     idle_at.region = Rect2(2 * fw, ry, fw, fh)
     frames.add_frame("idle", idle_at)
 
-    frames.add_animation("walk")
-    frames.set_animation_loop("walk", true)
-    frames.set_animation_speed("walk", 8.0)
+    frames.add_animation("run")
+    frames.set_animation_loop("run", true)
+    frames.set_animation_speed("run", 8.0)
     for i in 5:
         var at := AtlasTexture.new()
-        at.atlas = walk_tex
-        at.region = Rect2(i * fw, ry, fw, fh)
-        frames.add_frame("walk", at)
+        at.atlas = run_tex
+        at.region = Rect2(i * fw, 0, fw, fh)
+        frames.add_frame("run", at)
 
     # jump — middle walk frame
     frames.add_animation("jump")
@@ -68,14 +65,15 @@ func _setup_sprite_frames() -> void:
     jump_at.region = Rect2(2 * fw, ry, fw, fh)
     frames.add_frame("jump", jump_at)
 
-    # shoot — first frame from ZaelLutando (48×48 sheet, row 2)
+    # shoot — 3 frames from ZaelAtirando (204×68, 3×68×68), one per charge level
     frames.add_animation("shoot")
     frames.set_animation_loop("shoot", false)
-    frames.set_animation_speed("shoot", 1.0)
-    var shoot_at := AtlasTexture.new()
-    shoot_at.atlas = fight_tex
-    shoot_at.region = Rect2(0, _FIGHT_ROW * _FIGHT_FRAME_H, _FIGHT_FRAME_W, _FIGHT_FRAME_H)
-    frames.add_frame("shoot", shoot_at)
+    frames.set_animation_speed("shoot", 8.0)
+    for i in 3:
+        var shoot_at := AtlasTexture.new()
+        shoot_at.atlas = shoot_tex
+        shoot_at.region = Rect2(i * fw, 0, fw, fh)
+        frames.add_frame("shoot", shoot_at)
 
     _sprite.sprite_frames = frames
     _sprite.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
@@ -108,8 +106,13 @@ func _update_animation() -> void:
         _sprite.play("jump")
     elif shooting:
         pass
+    elif _is_charging:
+        var level := get_charge_level(_charge_timer)
+        _sprite.play("shoot")
+        _sprite.set_frame_and_progress(level - 1, 0.0)
+        _sprite.stop()
     elif velocity.x != 0.0:
-        _sprite.play("walk")
+        _sprite.play("run")
     else:
         _sprite.play("idle")
 
@@ -124,6 +127,7 @@ func _fire(level: int) -> void:
     assert(level >= 1 and level <= 3, "charge level deve ser 1, 2 ou 3")
     AudioManager.play_sfx(AudioLibrary.sfx_shoot)
     _sprite.play("shoot")
+    _sprite.set_frame_and_progress(level - 1, 0.0)
     var bullet: ZaelBullet = _BULLET_SCENE.instantiate()
     bullet.damage = BULLET_DAMAGE[level]
     bullet.direction = 1.0 if facing_right else -1.0
