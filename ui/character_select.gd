@@ -31,8 +31,8 @@ func _ready() -> void:
     _setup_previews()
 
 func _setup_previews() -> void:
-    var zael_tex := load("res://characters/ranged/ZaelAndando.png") as Texture2D
-    var zara_tex := load("res://characters/melee/ZaraAndando.png") as Texture2D
+    var zael_tex := load("res://characters/ranged/ZaelCorrendo.png") as Texture2D
+    var zara_tex := load("res://characters/melee/ZaraCorrendo.png") as Texture2D
     var ry := _ROW_RIGHT * _FRAME_H
     for i in 5:
         var at := AtlasTexture.new()
