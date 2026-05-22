@@ -20,15 +20,21 @@ const _ROW_RIGHT := 0
 
 const _SPAWN_OFFSET := Vector2(60.0, -28.0)
 
-# Espiral: 4 bolinhas sobem em loop, somem perto do topo e reaparecem embaixo
-const _SPIRAL_COUNT  := 4
-const _SPIRAL_SPEED  := 0.7   # loops por segundo
-const _SPIRAL_RADIUS := 16.0  # raio horizontal
-const _SPIRAL_BOTTOM := 22.0  # y inicial (abaixo do centro)
-const _SPIRAL_TOP    := -46.0 # y final (acima da cabeça)
-const _SPIRAL_TURNS  := 1.5   # rotações ao longo da subida
-const _SPIRAL_COLOR  := Color(1.0, 0.88, 0.2, 0.55)
-const _SPIRAL_RADIUS_PX := 5.0
+# Espiral ascendente — parâmetros por nível de charge
+const _SPIRAL_SPEED   := 0.7    # loops por segundo
+const _SPIRAL_BOTTOM  := 22.0   # y inicial (abaixo do centro)
+const _SPIRAL_TOP     := -46.0  # y final (acima da cabeça)
+const _SPIRAL_TURNS   := 1.5    # rotações ao longo da subida
+
+const _SPIRAL_COUNT_L2  := 6
+const _SPIRAL_RADIUS_L2 := 24.0
+const _SPIRAL_SIZE_L2   := 5.0
+const _SPIRAL_COLOR_L2  := Color(1.0, 0.88, 0.2, 0.55)
+
+const _SPIRAL_COUNT_L3  := 8
+const _SPIRAL_RADIUS_L3 := 24.0
+const _SPIRAL_SIZE_L3   := 7.0
+const _SPIRAL_COLOR_L3  := Color(1.0, 0.22, 0.18, 0.65)
 
 class _ChargeOrb extends Node2D:
     var orb_color := Color(1.0, 0.88, 0.2, 0.55)
@@ -39,7 +45,7 @@ class _ChargeOrb extends Node2D:
 var _charge_timer: float = 0.0
 var _is_charging: bool = false
 var _is_shooting: bool = false
-var _spiral_phases: Array = [0.0, 0.25, 0.5, 0.75]
+var _spiral_phases: Array = []
 var _charge_orbs: Array = []
 
 @onready var _sprite: AnimatedSprite2D = $AnimatedSprite2D
@@ -51,14 +57,13 @@ func _ready() -> void:
     _setup_charge_orbs()
 
 func _setup_charge_orbs() -> void:
-    for i in _SPIRAL_COUNT:
+    for i in _SPIRAL_COUNT_L3:  # max count
         var orb := _ChargeOrb.new()
-        orb.orb_color = _SPIRAL_COLOR
-        orb.orb_radius = _SPIRAL_RADIUS_PX
         orb.visible = false
         orb.z_index = 2
         add_child(orb)
         _charge_orbs.append(orb)
+        _spiral_phases.append(float(i) / _SPIRAL_COUNT_L3)
 
 func _setup_sprite_frames() -> void:
     var frames := SpriteFrames.new()
@@ -137,28 +142,31 @@ func _handle_shooting(delta: float) -> void:
         _charge_timer = 0.0
 
 func _update_charge_effect(delta: float) -> void:
-    var show := _is_charging and get_charge_level(_charge_timer) >= 2
-    if not show:
+    var level := get_charge_level(_charge_timer)
+    if not _is_charging or level < 2:
         for orb in _charge_orbs:
             (orb as Node2D).visible = false
         return
 
-    for i in _SPIRAL_COUNT:
+    var count  := _SPIRAL_COUNT_L2  if level == 2 else _SPIRAL_COUNT_L3
+    var radius := _SPIRAL_RADIUS_L2 if level == 2 else _SPIRAL_RADIUS_L3
+    var size   := _SPIRAL_SIZE_L2   if level == 2 else _SPIRAL_SIZE_L3
+    var color  := _SPIRAL_COLOR_L2  if level == 2 else _SPIRAL_COLOR_L3
+
+    for i in _SPIRAL_COUNT_L3:
         _spiral_phases[i] = fmod(_spiral_phases[i] + _SPIRAL_SPEED * delta, 1.0)
+        var orb := _charge_orbs[i] as _ChargeOrb
+        if i >= count:
+            orb.visible = false
+            continue
         var t: float = _spiral_phases[i]
-        var orb := _charge_orbs[i] as Node2D
-        # fade out no topo (últimos 15% do ciclo)
         var alpha_mul := clampf(1.0 - (t - 0.85) / 0.15, 0.0, 1.0)
         orb.visible = alpha_mul > 0.0
         if orb.visible:
-            var angle := (TAU / _SPIRAL_COUNT) * i + t * TAU * _SPIRAL_TURNS
-            var x := sin(angle) * _SPIRAL_RADIUS
-            var y := lerpf(_SPIRAL_BOTTOM, _SPIRAL_TOP, t)
-            orb.position = Vector2(x, y)
-            (orb as _ChargeOrb).orb_color = Color(
-                _SPIRAL_COLOR.r, _SPIRAL_COLOR.g, _SPIRAL_COLOR.b,
-                _SPIRAL_COLOR.a * alpha_mul
-            )
+            var angle := (TAU / count) * i + t * TAU * _SPIRAL_TURNS
+            orb.position = Vector2(sin(angle) * radius, lerpf(_SPIRAL_BOTTOM, _SPIRAL_TOP, t))
+            orb.orb_color = Color(color.r, color.g, color.b, color.a * alpha_mul)
+            orb.orb_radius = size
             orb.queue_redraw()
 
 func _on_shoot_finished() -> void:
