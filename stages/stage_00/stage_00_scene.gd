@@ -59,9 +59,8 @@ func _draw_platform_tiles(rect: Rect2) -> void:
 	var rows := ceili(rect.size.y / ts)
 	for row in rows:
 		for col in cols:
-			var tx := _tile_col(col, cols)
-			var ty := _tile_row(row, rows)
-			var src := Rect2(tx * ts, ty * ts, ts, ts)
+			var tile := _tile_at(col, cols, row, rows)
+			var src := Rect2(tile.x * ts, tile.y * ts, ts, ts)
 			var dx := rect.position.x + col * ts
 			var dy := rect.position.y + row * ts
 			var dw := minf(ts, rect.position.x + rect.size.x - dx)
@@ -70,18 +69,25 @@ func _draw_platform_tiles(rect: Rect2) -> void:
 			src.size.y = src.size.y * dh / ts
 			draw_texture_rect_region(_TILESET, Rect2(dx, dy, dw, dh), src)
 
-func _tile_col(col: int, cols: int) -> int:
-	if col == 0:
-		return 0
-	if col == cols - 1:
-		return 3
-	return 1 + (col % 2)  # alterna tiles 1 e 2 para variedade
+func _tile_at(col: int, cols: int, row: int, rows: int) -> Vector2i:
+	var is_left   := col == 0
+	var is_right  := col == cols - 1
+	var is_top    := row == 0
+	var is_bottom := row == rows - 1
 
-func _tile_row(row: int, rows: int) -> int:
 	if rows == 1:
-		return 0
-	if row == 0:
-		return 0
-	if row == rows - 1:
-		return 2
-	return 1
+		return Vector2i(3, 0)  # Plataforma reta
+
+	if is_top:
+		if is_left:  return Vector2i(3, 3)  # Canto superior esquerdo
+		if is_right: return Vector2i(0, 2)  # Canto superior direito
+		return Vector2i(3, 0)               # Plataforma reta
+
+	if is_bottom:
+		if is_left:  return Vector2i(0, 0)  # Canto inferior esquerdo
+		if is_right: return Vector2i(1, 3)  # Canto inferior direito
+		return Vector2i(1, 2)               # Teto reto
+
+	if is_left:  return Vector2i(3, 2)  # Lateral esquerda da coluna lisa
+	if is_right: return Vector2i(1, 0)  # Lateral direita da coluna lisa
+	return Vector2i(2, 1)               # Miolo de preenchimento
