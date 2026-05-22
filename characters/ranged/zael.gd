@@ -23,12 +23,14 @@ const _SPAWN_OFFSET := Vector2(30.0, -10.0)
 
 var _charge_timer: float = 0.0
 var _is_charging: bool = false
+var _is_shooting: bool = false
 
 @onready var _sprite: AnimatedSprite2D = $AnimatedSprite2D
 
 func _ready() -> void:
     super._ready()
     _setup_sprite_frames()
+    _sprite.animation_finished.connect(_on_shoot_finished)
 
 func _setup_sprite_frames() -> void:
     var frames := SpriteFrames.new()
@@ -108,13 +110,17 @@ func _handle_shooting(delta: float) -> void:
         _is_charging = false
         _charge_timer = 0.0
 
+func _on_shoot_finished() -> void:
+    if _sprite.animation.begins_with("shoot_"):
+        _is_shooting = false
+
 func _update_animation() -> void:
-    var shooting := _sprite.animation.begins_with("shoot_") and _sprite.is_playing()
-    if not shooting:
+    if not _is_shooting:
         _sprite.flip_h = not facing_right
     if not is_on_floor():
-        _sprite.play("jump")
-    elif shooting:
+        if not _is_shooting:
+            _sprite.play("jump")
+    elif _is_shooting:
         pass
     elif velocity.x != 0.0:
         _sprite.play("run")
@@ -131,6 +137,7 @@ static func get_charge_level(timer: float) -> int:
 func _fire(level: int) -> void:
     assert(level >= 1 and level <= 3, "charge level deve ser 1, 2 ou 3")
     AudioManager.play_sfx(AudioLibrary.sfx_shoot)
+    _is_shooting = true
     _sprite.play("shoot_%d" % level)
     var bullet: ZaelBullet = _BULLET_SCENE.instantiate()
     bullet.damage = BULLET_DAMAGE[level]
