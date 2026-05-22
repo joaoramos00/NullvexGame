@@ -39,6 +39,8 @@ var _preview_rect: TextureRect
 var _info_label: Label
 var _strip_box: HBoxContainer
 var _tile_info_label: Label
+var _tile_preview_rect: TextureRect
+var _tile_preview_atlas: AtlasTexture
 
 func _ready() -> void:
     texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
@@ -287,16 +289,36 @@ func _refresh_tiles() -> void:
         _tiles_box.add_child(lbl)
 
         _tile_info_label = Label.new()
-        _tile_info_label.text = "clique num tile para ver as coordenadas"
+        _tile_info_label.text = "clique num tile para zoom"
         _tile_info_label.add_theme_font_size_override("font_size", 13)
         _tile_info_label.add_theme_color_override("font_color", Color(0.5, 0.5, 0.5))
         _tiles_box.add_child(_tile_info_label)
+
+        var content_row := HBoxContainer.new()
+        content_row.add_theme_constant_override("separation", 16)
+        _tiles_box.add_child(content_row)
 
         var grid := GridContainer.new()
         grid.columns = ts_data.cols
         grid.add_theme_constant_override("h_separation", 4)
         grid.add_theme_constant_override("v_separation", 4)
-        _tiles_box.add_child(grid)
+        content_row.add_child(grid)
+
+        var zoom_panel := Panel.new()
+        zoom_panel.custom_minimum_size = Vector2(160, 160)
+        var zoom_style := StyleBoxFlat.new()
+        zoom_style.bg_color = Color(0.05, 0.05, 0.12)
+        zoom_style.border_color = Color(1.0, 0.9, 0.2)
+        zoom_style.set_border_width_all(1)
+        zoom_panel.add_theme_stylebox_override("panel", zoom_style)
+        content_row.add_child(zoom_panel)
+
+        _tile_preview_rect = TextureRect.new()
+        _tile_preview_rect.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+        _tile_preview_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+        _tile_preview_rect.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+        _tile_preview_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+        zoom_panel.add_child(_tile_preview_rect)
 
         var tex    := load(ts_data.path) as Texture2D
         var ts_px: int = ts_data.tile_size
@@ -350,3 +372,11 @@ func _on_tile_input(event: InputEvent, col: int, row: int) -> void:
                 _tile_info_label.text = "Tile (0,3) — transparente (alpha = 0)"
             else:
                 _tile_info_label.text = "Tile selecionado: (%d, %d)" % [col, row]
+        if is_instance_valid(_tile_preview_rect):
+            var ts_data: Dictionary = _TILESETS[0]
+            var ts_px: int = ts_data.tile_size
+            var at := AtlasTexture.new()
+            at.atlas = load(ts_data.path) as Texture2D
+            at.filter_clip = true
+            at.region = Rect2(col * ts_px, row * ts_px, ts_px, ts_px)
+            _tile_preview_rect.texture = at
