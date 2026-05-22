@@ -8,16 +8,16 @@
 [ext_resource type="PackedScene" uid="uid://stage_complete" path="res://ui/stage_complete.tscn" id="6_scom"]
 
 [sub_resource type="RectangleShape2D" id="Floor"]
-size = Vector2(3000, 40)
+size = Vector2(3000, 32)
 
 [sub_resource type="RectangleShape2D" id="PA"]
-size = Vector2(200, 20)
+size = Vector2(192, 32)
 
 [sub_resource type="RectangleShape2D" id="PB"]
-size = Vector2(300, 20)
+size = Vector2(288, 32)
 
 [sub_resource type="RectangleShape2D" id="PC"]
-size = Vector2(200, 20)
+size = Vector2(192, 32)
 
 [sub_resource type="RectangleShape2D" id="GoalShape"]
 size = Vector2(200, 120)
