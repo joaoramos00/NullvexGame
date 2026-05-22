@@ -1,30 +1,42 @@
 extends Control
 
+var _debug_panel: Node = null
+
 func _ready() -> void:
     $VBox/ContinueButton.disabled = not GameManager.has_save()
     $VBox/NewGameButton.pressed.connect(_on_new_game_pressed)
     $VBox/ContinueButton.pressed.connect(_on_continue_pressed)
     $VBox/QuitButton.pressed.connect(_on_quit_pressed)
-    call_deferred("_build_sprite_debug")
+    $VBox/ImgDebugButton.pressed.connect(_on_img_debug_pressed)
+
+func _on_img_debug_pressed() -> void:
+    if is_instance_valid(_debug_panel):
+        _debug_panel.queue_free()
+        _debug_panel = null
+    else:
+        call_deferred("_build_sprite_debug")
 
 func _build_sprite_debug() -> void:
-    var vp := get_viewport_rect().size  # real viewport size at runtime
+    var vp := get_viewport_rect().size
 
-    # -- background strip --
+    var root := Control.new()
+    root.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+    root.mouse_filter = Control.MOUSE_FILTER_IGNORE
+    root.z_index = 100
+    add_child(root)
+    _debug_panel = root
+
     var bg := ColorRect.new()
     bg.color = Color(0, 0, 0, 0.82)
     bg.position = Vector2(0, vp.y - 380)
     bg.size = Vector2(vp.x, 380)
-    bg.z_index = 100
-    add_child(bg)
+    root.add_child(bg)
 
-    # -- outer VBox --
     var vbox := VBoxContainer.new()
     vbox.position = Vector2(0, vp.y - 377)
     vbox.size = Vector2(vp.x, 374)
     vbox.add_theme_constant_override("separation", 6)
-    vbox.z_index = 101
-    add_child(vbox)
+    root.add_child(vbox)
 
     var shoot_z := load("res://characters/ranged/ZaelAtirando.png") as Texture2D
 
