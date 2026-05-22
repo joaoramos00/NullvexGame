@@ -69,11 +69,10 @@ func _setup_sprite_frames() -> void:
         at.region = Rect2(i * fw, 0, fw, fh)
         frames.add_frame("jump", at)
 
-    # shoot — 3 frames from ZaelAtirando (204×68, 3×68×68), one per charge level
     frames.add_animation("shoot")
     frames.set_animation_loop("shoot", false)
-    frames.set_animation_speed("shoot", 8.0)
-    for i in 3:
+    frames.set_animation_speed("shoot", 10.0)
+    for i in 9:
         var shoot_at := AtlasTexture.new()
         shoot_at.atlas = shoot_tex
         shoot_at.filter_clip = true
@@ -114,7 +113,7 @@ func _update_animation() -> void:
     elif _is_charging:
         var level := get_charge_level(_charge_timer)
         _sprite.play("shoot")
-        _sprite.set_frame_and_progress(level - 1, 0.0)
+        _sprite.set_frame_and_progress((level - 1) * 3, 0.0)
         _sprite.stop()
     elif velocity.x != 0.0:
         _sprite.play("run")
@@ -132,7 +131,7 @@ func _fire(level: int) -> void:
     assert(level >= 1 and level <= 3, "charge level deve ser 1, 2 ou 3")
     AudioManager.play_sfx(AudioLibrary.sfx_shoot)
     _sprite.play("shoot")
-    _sprite.set_frame_and_progress(level - 1, 0.0)
+    _sprite.set_frame_and_progress((level - 1) * 3, 0.0)
     var bullet: ZaelBullet = _BULLET_SCENE.instantiate()
     bullet.damage = BULLET_DAMAGE[level]
     bullet.direction = 1.0 if facing_right else -1.0
