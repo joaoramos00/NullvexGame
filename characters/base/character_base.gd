@@ -110,15 +110,18 @@ func _handle_movement() -> void:
     else:
         velocity.x = move_toward(velocity.x, 0.0, SPEED)
 
+func _apply_wall_jump() -> void:
+    velocity.x = _wall_normal.x * WALL_JUMP_H
+    velocity.y = WALL_JUMP_V
+    _is_wall_sliding = false
+
 func _handle_jump() -> void:
     if _is_dashing:
         return
-    if _is_wall_sliding:
-        velocity.x = _wall_normal.x * WALL_JUMP_H
-        velocity.y = WALL_JUMP_V
-        _is_wall_sliding = false
-        return
     if Input.is_action_just_pressed("jump"):
+        if _is_wall_sliding:
+            _apply_wall_jump()
+            return
         if is_on_floor() or _coyote_timer > 0.0:
             velocity.y = JUMP_VELOCITY
             _coyote_timer = 0.0

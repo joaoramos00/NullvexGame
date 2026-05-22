@@ -42,11 +42,12 @@ func test_wall_jump_velocity_applied() -> void:
 	add_child(c)
 	# Simular estado wall slide ativo + normal de parede apontando para a direita
 	c._is_wall_sliding = true
-	# _handle_jump_wall usa wall_normal armazenado; setar diretamente
+	# _apply_wall_jump usa wall_normal armazenado; setar diretamente
 	c._wall_normal = Vector2(1.0, 0.0)
-	c._handle_jump()
+	c._apply_wall_jump()
 	_assert(c.velocity.x == 280.0, "Wall jump: velocidade horizontal = 280")
 	_assert(c.velocity.y == -480.0, "Wall jump: velocidade vertical = -480")
+	_assert(c._is_wall_sliding == false, "Wall jump: _is_wall_sliding resetado")
 	c.queue_free()
 
 func test_no_wall_slide_on_floor() -> void:
