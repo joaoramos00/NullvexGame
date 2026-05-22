@@ -5,9 +5,27 @@ func _ready() -> void:
     $VBox/NewGameButton.pressed.connect(_on_new_game_pressed)
     $VBox/ContinueButton.pressed.connect(_on_continue_pressed)
     $VBox/QuitButton.pressed.connect(_on_quit_pressed)
-    _build_sprite_debug()
+    call_deferred("_build_sprite_debug")
 
 func _build_sprite_debug() -> void:
+    var vp := get_viewport_rect().size  # real viewport size at runtime
+
+    # -- background strip --
+    var bg := ColorRect.new()
+    bg.color = Color(0, 0, 0, 0.82)
+    bg.position = Vector2(0, vp.y - 380)
+    bg.size = Vector2(vp.x, 380)
+    bg.z_index = 100
+    add_child(bg)
+
+    # -- outer VBox --
+    var vbox := VBoxContainer.new()
+    vbox.position = Vector2(0, vp.y - 377)
+    vbox.size = Vector2(vp.x, 374)
+    vbox.add_theme_constant_override("separation", 6)
+    vbox.z_index = 101
+    add_child(vbox)
+
     var walk_z  := load("res://characters/ranged/ZaelAndando.png")  as Texture2D
     var run_z   := load("res://characters/ranged/ZaelCorrendo.png") as Texture2D
     var shoot_z := load("res://characters/ranged/ZaelAtirando.png") as Texture2D
@@ -33,31 +51,13 @@ func _build_sprite_debug() -> void:
         ["attack",   walk_a, 0 * 68],
     ]
 
-    # CanvasLayer garante que fica por cima de tudo
-    var layer := CanvasLayer.new()
-    layer.layer = 10
-    add_child(layer)
-
-    # Painel de fundo escuro na parte inferior
-    var bg := ColorRect.new()
-    bg.color = Color(0, 0, 0, 0.75)
-    bg.position = Vector2(0, 700)
-    bg.size = Vector2(1920, 380)
-    layer.add_child(bg)
-
-    var vbox := VBoxContainer.new()
-    vbox.position = Vector2(0, 704)
-    vbox.size = Vector2(1920, 372)
-    vbox.add_theme_constant_override("separation", 8)
-    layer.add_child(vbox)
-
     _add_char_row(vbox, "ZAEL", zael_frames)
     _add_char_row(vbox, "ZARA", zara_frames)
 
 func _add_char_row(parent: VBoxContainer, char_name: String, frame_data: Array) -> void:
     var lbl := Label.new()
     lbl.text = char_name
-    lbl.add_theme_font_size_override("font_size", 20)
+    lbl.add_theme_font_size_override("font_size", 18)
     lbl.add_theme_color_override("font_color", Color(1, 1, 0))
     lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
     parent.add_child(lbl)
@@ -78,31 +78,32 @@ func _add_char_row(parent: VBoxContainer, char_name: String, frame_data: Array) 
 
         var panel := PanelContainer.new()
         var style := StyleBoxFlat.new()
-        style.bg_color = Color(0.05, 0.05, 0.05)
+        style.bg_color = Color(0.08, 0.08, 0.08)
         style.border_color = Color(1, 1, 0)
         style.set_border_width_all(5)
-        style.content_margin_left = 4
-        style.content_margin_right = 4
-        style.content_margin_top = 4
-        style.content_margin_bottom = 4
+        style.content_margin_left   = 3
+        style.content_margin_right  = 3
+        style.content_margin_top    = 3
+        style.content_margin_bottom = 3
         panel.add_theme_stylebox_override("panel", style)
         col.add_child(panel)
 
-        var at := AtlasTexture.new()
-        at.atlas = tex
-        at.filter_clip = true
-        at.region = Rect2(atlas_x, 0, 68, 68)
         var rect := TextureRect.new()
-        rect.texture = at
-        rect.custom_minimum_size = Vector2(120, 120)
+        rect.custom_minimum_size = Vector2(112, 112)
         rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
         rect.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+        if tex != null:
+            var at := AtlasTexture.new()
+            at.atlas = tex
+            at.filter_clip = true
+            at.region = Rect2(atlas_x, 0, 68, 68)
+            rect.texture = at
         panel.add_child(rect)
 
         var name_lbl := Label.new()
         name_lbl.text = frame_name
         name_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-        name_lbl.add_theme_font_size_override("font_size", 14)
+        name_lbl.add_theme_font_size_override("font_size", 13)
         name_lbl.add_theme_color_override("font_color", Color(1, 1, 0.4))
         col.add_child(name_lbl)
 
