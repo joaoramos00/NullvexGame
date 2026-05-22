@@ -83,7 +83,7 @@ func _update_wall_slide() -> void:
         _is_wall_sliding = false
         return
     var dir := Input.get_axis("move_left", "move_right")
-    if is_on_wall() and dir != 0.0:
+    if is_on_wall() and dir != 0.0 and velocity.y >= 0.0:
         _is_wall_sliding = true
         _wall_normal = get_wall_normal()
     else:
@@ -114,6 +114,8 @@ func _apply_wall_jump() -> void:
     velocity.x = _wall_normal.x * WALL_JUMP_H
     velocity.y = WALL_JUMP_V
     _is_wall_sliding = false
+    _double_tap_timer = 0.0
+    _double_tap_dir = 0.0
 
 func _handle_jump() -> void:
     if _is_dashing:
