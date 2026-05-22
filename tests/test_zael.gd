@@ -35,7 +35,7 @@ func test_zael_run_animation() -> void:
     var sf: SpriteFrames = zael.get_node("AnimatedSprite2D").sprite_frames
     assert(sf.has_animation("run"), "Zael deve ter animação 'run'")
     assert(not sf.has_animation("walk"), "Zael não deve ter animação 'walk'")
-    assert(sf.get_frame_count("run") == 3, "run deve ter 3 frames")
+    assert(sf.get_frame_count("run") == 6, "run deve ter 6 frames")
     assert(sf.get_frame_count("shoot") == 3, "shoot deve ter 3 frames")
     zael.queue_free()
     print("PASS: zael_run_animation")
