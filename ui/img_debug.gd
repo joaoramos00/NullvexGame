@@ -14,6 +14,25 @@ const _TILESETS: Array = [
     {"name": "Stage_00T", "path": "res://stages/stage_00/Stage_00T.png", "cols": 4, "rows": 4, "tile_size": 32},
 ]
 
+const _TILE_DESCS: Dictionary = {
+    "0,0": "Canto superior-esquerdo — borda esquerda do topo da plataforma",
+    "1,0": "Superfície superior A — topo central (par)",
+    "2,0": "Superfície superior B — topo central (ímpar, alternado com A)",
+    "3,0": "Canto superior-direito — borda direita do topo da plataforma",
+    "0,1": "Lateral esquerda — interior esquerdo de plataformas altas",
+    "1,1": "Interior A — miolo central (par) de plataformas com 2+ rows",
+    "2,1": "Interior B — miolo central (ímpar, alternado com A)",
+    "3,1": "Lateral direita — interior direito de plataformas altas",
+    "0,2": "Canto inferior-esquerdo — base esquerda da plataforma",
+    "1,2": "Base inferior A — fundo central (par)",
+    "2,2": "Base inferior B — fundo central (ímpar, alternado com A)",
+    "3,2": "Canto inferior-direito — base direita da plataforma",
+    "0,3": "Transparente — tile vazio (alpha = 0), não utilizado",
+    "1,3": "Reservado — não utilizado pelo engine atual",
+    "2,3": "Reservado — não utilizado pelo engine atual",
+    "3,3": "Reservado — não utilizado pelo engine atual",
+}
+
 const _FRAME_SIZE   := 68
 const _PREVIEW_SIZE := 136
 const _STRIP_SIZE   := 40
@@ -40,7 +59,7 @@ var _info_label: Label
 var _strip_box: HBoxContainer
 var _tile_info_label: Label
 var _tile_preview_rect: TextureRect
-var _tile_preview_atlas: AtlasTexture
+var _tile_desc_label: Label
 
 func _ready() -> void:
     texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
@@ -320,6 +339,14 @@ func _refresh_tiles() -> void:
         _tile_preview_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
         zoom_panel.add_child(_tile_preview_rect)
 
+        _tile_desc_label = Label.new()
+        _tile_desc_label.text = ""
+        _tile_desc_label.add_theme_font_size_override("font_size", 13)
+        _tile_desc_label.add_theme_color_override("font_color", Color(0.85, 0.85, 0.6))
+        _tile_desc_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+        _tile_desc_label.custom_minimum_size = Vector2(160, 0)
+        content_row.add_child(_tile_desc_label)
+
         var tex    := load(ts_data.path) as Texture2D
         var ts_px: int = ts_data.tile_size
 
@@ -380,3 +407,5 @@ func _on_tile_input(event: InputEvent, col: int, row: int) -> void:
             at.filter_clip = true
             at.region = Rect2(col * ts_px, row * ts_px, ts_px, ts_px)
             _tile_preview_rect.texture = at
+        if is_instance_valid(_tile_desc_label):
+            _tile_desc_label.text = _TILE_DESCS.get("%d,%d" % [col, row], "")
