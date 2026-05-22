@@ -312,16 +312,26 @@ func _refresh_tiles() -> void:
                 at.filter_clip = true
                 at.region = Rect2(col * ts_px, row * ts_px, ts_px, ts_px)
 
-                var tile_rect := TextureRect.new()
-                tile_rect.texture = at
-                tile_rect.custom_minimum_size = Vector2(_TILE_DISPLAY, _TILE_DISPLAY)
-                tile_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-                tile_rect.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-                tile_rect.mouse_filter = Control.MOUSE_FILTER_STOP
+                var tile_panel := Panel.new()
+                tile_panel.custom_minimum_size = Vector2(_TILE_DISPLAY, _TILE_DISPLAY)
+                tile_panel.mouse_filter = Control.MOUSE_FILTER_STOP
+                var tile_style := StyleBoxFlat.new()
+                tile_style.bg_color = Color(0.08, 0.08, 0.18)
+                tile_style.border_color = Color(1.0, 0.9, 0.2)
+                tile_style.set_border_width_all(1)
+                tile_panel.add_theme_stylebox_override("panel", tile_style)
                 var c: int = col
                 var r: int = row
-                tile_rect.gui_input.connect(func(ev): _on_tile_input(ev, c, r))
-                cell.add_child(tile_rect)
+                tile_panel.gui_input.connect(func(ev): _on_tile_input(ev, c, r))
+                cell.add_child(tile_panel)
+
+                var tile_rect := TextureRect.new()
+                tile_rect.texture = at
+                tile_rect.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+                tile_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+                tile_rect.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+                tile_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+                tile_panel.add_child(tile_rect)
 
                 var coord_lbl := Label.new()
                 coord_lbl.text = "—" if (col == 0 and row == 3) else "%d,%d" % [col, row]
