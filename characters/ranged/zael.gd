@@ -32,21 +32,22 @@ func _ready() -> void:
 
 func _setup_sprite_frames() -> void:
     var frames := SpriteFrames.new()
-    var walk_tex := load("res://characters/ranged/ZaelAndando.png") as Texture2D
-    var run_tex := load("res://characters/ranged/ZaelCorrendo.png") as Texture2D
+    var idle_tex  := load("res://characters/ranged/ZaelIdle.png")     as Texture2D
+    var run_tex   := load("res://characters/ranged/ZaelCorrendo.png") as Texture2D
+    var jump_tex  := load("res://characters/ranged/ZaelJump.png")     as Texture2D
     var shoot_tex := load("res://characters/ranged/ZaelAtirando.png") as Texture2D
     var fw := _FRAME_W
     var fh := _FRAME_H
-    var ry := _ROW_RIGHT * fh  # y = 0
 
     frames.add_animation("idle")
     frames.set_animation_loop("idle", true)
-    frames.set_animation_speed("idle", 1.0)
-    var idle_at := AtlasTexture.new()
-    idle_at.atlas = walk_tex
-    idle_at.filter_clip = true
-    idle_at.region = Rect2(2 * fw, ry, fw, fh)
-    frames.add_frame("idle", idle_at)
+    frames.set_animation_speed("idle", 8.0)
+    for i in 8:
+        var at := AtlasTexture.new()
+        at.atlas = idle_tex
+        at.filter_clip = true
+        at.region = Rect2(i * fw, 0, fw, fh)
+        frames.add_frame("idle", at)
 
     frames.add_animation("run")
     frames.set_animation_loop("run", true)
@@ -58,15 +59,15 @@ func _setup_sprite_frames() -> void:
         at.region = Rect2(i * fw, 0, fw, fh)
         frames.add_frame("run", at)
 
-    # jump — middle walk frame
     frames.add_animation("jump")
     frames.set_animation_loop("jump", false)
-    frames.set_animation_speed("jump", 1.0)
-    var jump_at := AtlasTexture.new()
-    jump_at.atlas = walk_tex
-    jump_at.filter_clip = true
-    jump_at.region = Rect2(2 * fw, ry, fw, fh)
-    frames.add_frame("jump", jump_at)
+    frames.set_animation_speed("jump", 10.0)
+    for i in 9:
+        var at := AtlasTexture.new()
+        at.atlas = jump_tex
+        at.filter_clip = true
+        at.region = Rect2(i * fw, 0, fw, fh)
+        frames.add_frame("jump", at)
 
     # shoot — 3 frames from ZaelAtirando (204×68, 3×68×68), one per charge level
     frames.add_animation("shoot")
