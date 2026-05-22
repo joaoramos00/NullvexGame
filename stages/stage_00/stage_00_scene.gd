@@ -64,10 +64,10 @@ func _ready() -> void:
 		GameManager.reset()
 		GameManager.set_active_character("zael")
 
+	StageManager.spawn_position = $PlayerSpawn.global_position
 	_spawn_player()
 	$StageController.setup(_player)
 	$HUD.connect_to_player(_player)
-	StageManager.spawn_position = $PlayerSpawn.global_position
 
 	# Disconnect GoalZone — stage completion is handled via boss defeat
 	# (BossBase calls GameManager.complete_stage(stage_id) automatically)

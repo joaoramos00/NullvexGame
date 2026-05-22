@@ -10,6 +10,7 @@ func _ready() -> void:
     $VBox/ContinueButton.pressed.connect(_on_continue_pressed)
     $VBox/QuitButton.pressed.connect(_on_quit_pressed)
     $VBox/ImgDebugButton.pressed.connect(_on_img_debug_pressed)
+    $VBox/NewGameButton.grab_focus()
 
 func _on_img_debug_pressed() -> void:
     if is_instance_valid(_debug_panel):
