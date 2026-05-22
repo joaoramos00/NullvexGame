@@ -74,155 +74,155 @@ platform_color = Color(0.5, 0.2, 0.8, 1)
 script = ExtResource("1_script")
 
 [node name="PlayerSpawn" type="Node2D" parent="."]
-position = Vector2(200, 400)
+position = Vector2(200, 760)
 
 [node name="StageController" parent="." instance=ExtResource("2_sc")]
 
 [node name="Checkpoint1" parent="." instance=ExtResource("3_cp")]
-position = Vector2(2200, 490)
+position = Vector2(2200, 850)
 checkpoint_index = 1
 
 [node name="Checkpoint2" parent="." instance=ExtResource("3_cp")]
-position = Vector2(3200, 490)
+position = Vector2(3200, 850)
 checkpoint_index = 2
 
 [node name="FloorStart" type="StaticBody2D" parent="."]
-position = Vector2(400, 560)
+position = Vector2(400, 920)
 [node name="CollisionShape2D" type="CollisionShape2D" parent="FloorStart"]
 shape = SubResource("FloorStart")
 
 [node name="FloorMid" type="StaticBody2D" parent="."]
-position = Vector2(2200, 560)
+position = Vector2(2200, 920)
 [node name="CollisionShape2D" type="CollisionShape2D" parent="FloorMid"]
 shape = SubResource("FloorMid")
 
 [node name="FloorReturn" type="StaticBody2D" parent="."]
-position = Vector2(3200, 560)
+position = Vector2(3200, 920)
 [node name="CollisionShape2D" type="CollisionShape2D" parent="FloorReturn"]
 shape = SubResource("FloorReturn")
 
 [node name="FloorBoss" type="StaticBody2D" parent="."]
-position = Vector2(4700, 560)
+position = Vector2(4700, 920)
 [node name="CollisionShape2D" type="CollisionShape2D" parent="FloorBoss"]
 shape = SubResource("FloorBoss")
 
 [node name="Ceiling" type="StaticBody2D" parent="."]
-position = Vector2(2650, 60)
+position = Vector2(2650, 420)
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Ceiling"]
 shape = SubResource("Ceil")
 
 [node name="PlatFloor1" type="StaticBody2D" parent="."]
-position = Vector2(900, 480)
+position = Vector2(900, 840)
 [node name="CollisionShape2D" type="CollisionShape2D" parent="PlatFloor1"]
 shape = SubResource("PF1")
 
 [node name="PlatFloor2" type="StaticBody2D" parent="."]
-position = Vector2(1150, 480)
+position = Vector2(1150, 840)
 [node name="CollisionShape2D" type="CollisionShape2D" parent="PlatFloor2"]
 shape = SubResource("PF2")
 
 [node name="PlatClimb1" type="StaticBody2D" parent="."]
-position = Vector2(1050, 380)
+position = Vector2(1050, 740)
 [node name="CollisionShape2D" type="CollisionShape2D" parent="PlatClimb1"]
 shape = SubResource("PC1")
 
 [node name="PlatClimb2" type="StaticBody2D" parent="."]
-position = Vector2(1050, 270)
+position = Vector2(1050, 630)
 [node name="CollisionShape2D" type="CollisionShape2D" parent="PlatClimb2"]
 shape = SubResource("PC2")
 
 [node name="PlatClimb3" type="StaticBody2D" parent="."]
-position = Vector2(1050, 150)
+position = Vector2(1050, 510)
 [node name="CollisionShape2D" type="CollisionShape2D" parent="PlatClimb3"]
 shape = SubResource("PC3")
 
 [node name="PlatCeil1" type="StaticBody2D" parent="."]
-position = Vector2(1350, 150)
+position = Vector2(1350, 510)
 [node name="CollisionShape2D" type="CollisionShape2D" parent="PlatCeil1"]
 shape = SubResource("CPL1")
 
 [node name="PlatCeil2" type="StaticBody2D" parent="."]
-position = Vector2(1750, 150)
+position = Vector2(1750, 510)
 [node name="CollisionShape2D" type="CollisionShape2D" parent="PlatCeil2"]
 shape = SubResource("CPL2")
 
 [node name="PlatCeil3" type="StaticBody2D" parent="."]
-position = Vector2(2100, 150)
+position = Vector2(2100, 510)
 [node name="CollisionShape2D" type="CollisionShape2D" parent="PlatCeil3"]
 shape = SubResource("CPL3")
 
 [node name="PlatDesc1" type="StaticBody2D" parent="."]
-position = Vector2(2350, 260)
+position = Vector2(2350, 620)
 [node name="CollisionShape2D" type="CollisionShape2D" parent="PlatDesc1"]
 shape = SubResource("PD1")
 
 [node name="PlatDesc2" type="StaticBody2D" parent="."]
-position = Vector2(2350, 370)
+position = Vector2(2350, 730)
 [node name="CollisionShape2D" type="CollisionShape2D" parent="PlatDesc2"]
 shape = SubResource("PD2")
 
 [node name="PlatDesc3" type="StaticBody2D" parent="."]
-position = Vector2(2350, 460)
+position = Vector2(2350, 820)
 [node name="CollisionShape2D" type="CollisionShape2D" parent="PlatDesc3"]
 shape = SubResource("PD3")
 
 [node name="PlatBoss1" type="StaticBody2D" parent="."]
-position = Vector2(2700, 400)
+position = Vector2(2700, 760)
 [node name="CollisionShape2D" type="CollisionShape2D" parent="PlatBoss1"]
 shape = SubResource("PB1")
 
 [node name="PlatBoss2" type="StaticBody2D" parent="."]
-position = Vector2(3100, 340)
+position = Vector2(3100, 700)
 [node name="CollisionShape2D" type="CollisionShape2D" parent="PlatBoss2"]
 shape = SubResource("PB2")
 
 [node name="PlatBoss3" type="StaticBody2D" parent="."]
-position = Vector2(3500, 400)
+position = Vector2(3500, 760)
 [node name="CollisionShape2D" type="CollisionShape2D" parent="PlatBoss3"]
 shape = SubResource("PB3")
 
 [node name="Heart" parent="." instance=ExtResource("4_col")]
-position = Vector2(1050, 110)
+position = Vector2(1050, 470)
 stage_id = 4
 
 [node name="SubTank" parent="." instance=ExtResource("4_col")]
-position = Vector2(1750, 110)
+position = Vector2(1750, 470)
 collectible_type = 1
 subtank_index = 1
 
 [node name="ArmorZaraTorso" parent="." instance=ExtResource("4_col")]
-position = Vector2(2100, 110)
+position = Vector2(2100, 470)
 collectible_type = 3
 armor_piece = "torso"
 
 [node name="RapidZael" parent="." instance=ExtResource("4_col")]
-position = Vector2(2700, 360)
+position = Vector2(2700, 720)
 collectible_type = 4
 ability_id = "rapid"
 
 [node name="Gravitus" parent="." instance=ExtResource("9_boss")]
-position = Vector2(4600, 400)
+position = Vector2(4600, 760)
 arena_left = 4100.0
 arena_right = 5100.0
-arena_floor = 540.0
+arena_floor = 900.0
 
 [node name="Grunt1" parent="." instance=ExtResource("10_grunt")]
-position = Vector2(400, 490)
+position = Vector2(400, 850)
 
 [node name="Grunt2" parent="." instance=ExtResource("10_grunt")]
-position = Vector2(700, 490)
+position = Vector2(700, 850)
 
 [node name="Grunt3" parent="." instance=ExtResource("10_grunt")]
-position = Vector2(2600, 490)
+position = Vector2(2600, 850)
 
 [node name="Grunt4" parent="." instance=ExtResource("10_grunt")]
-position = Vector2(3100, 310)
+position = Vector2(3100, 670)
 
 [node name="Flyer1" parent="." instance=ExtResource("11_flyer")]
-position = Vector2(1350, 120)
+position = Vector2(1350, 480)
 
 [node name="Flyer2" parent="." instance=ExtResource("11_flyer")]
-position = Vector2(1750, 120)
+position = Vector2(1750, 480)
 
 [node name="HUD" parent="." instance=ExtResource("5_hud")]
 [node name="PauseMenu" parent="." instance=ExtResource("6_pause")]
@@ -231,6 +231,8 @@ position = Vector2(1750, 120)
 
 [node name="Camera2D" type="Camera2D" parent="."]
 limit_left = 0
+limit_top = 0
+limit_bottom = 1080
 limit_right = 5300
 position_smoothing_enabled = true
 position_smoothing_speed = 8.0
