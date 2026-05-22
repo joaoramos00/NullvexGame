@@ -25,20 +25,27 @@ const _CHARGE_SPEED    := 0.6
 const _CHARGE_TURNS    := 1.2
 const _CHARGE_CENTER_Y := -18.0
 
-const _CHARGE_COUNT_L2 := 6
-const _CHARGE_OUTER_L2 := 44.0
-const _CHARGE_SIZE_L2  := 5.0
-const _CHARGE_COLOR_L2 := Color(1.0, 0.88, 0.2, 0.85)
+const _CHARGE_COUNT_L2     := 6
+const _CHARGE_OUTER_L2     := 60.0
+const _CHARGE_SIZE_L2      := 5.0
+const _CHARGE_BIG_COUNT_L2 := 3
+const _CHARGE_BIG_SIZE_L2  := 11.0
+const _CHARGE_COLOR_L2     := Color(1.0, 0.88, 0.2, 0.85)
 
-const _CHARGE_COUNT_L3 := 8
-const _CHARGE_OUTER_L3 := 52.0
-const _CHARGE_SIZE_L3  := 7.0
-const _CHARGE_COLOR_L3 := Color(1.0, 0.22, 0.18, 0.85)
+const _CHARGE_COUNT_L3     := 8
+const _CHARGE_OUTER_L3     := 72.0
+const _CHARGE_SIZE_L3      := 7.0
+const _CHARGE_BIG_COUNT_L3 := 4
+const _CHARGE_BIG_SIZE_L3  := 14.0
+const _CHARGE_COLOR_L3     := Color(1.0, 0.22, 0.18, 0.85)
+
+const _CHARGE_BIG_SPEED := 0.4  # bolinhas grandes mais lentas
 
 var _charge_timer: float = 0.0
 var _is_charging: bool = false
 var _is_shooting: bool = false
 var _spiral_phases: Array = []
+var _spiral_phases_big: Array = []
 var _draw_orbs: Array = []  # [{pos, color, radius}]
 var _orb_canvas: Node2D    # filho com z_index alto para desenhar por cima
 
@@ -50,6 +57,8 @@ func _ready() -> void:
     _sprite.animation_finished.connect(_on_shoot_finished)
     for i in _CHARGE_COUNT_L3:
         _spiral_phases.append(float(i) / _CHARGE_COUNT_L3)
+    for i in _CHARGE_BIG_COUNT_L3:
+        _spiral_phases_big.append(float(i) / _CHARGE_BIG_COUNT_L3)
     _orb_canvas = Node2D.new()
     _orb_canvas.z_index = 10
     add_child(_orb_canvas)
@@ -152,11 +161,23 @@ func _update_charge_effect(delta: float) -> void:
         var t: float = _spiral_phases[i]
         var angle := (TAU / count) * i + t * TAU * _CHARGE_TURNS
         var r := lerpf(outer_r, 0.0, t)
-        var alpha := 1.0 - t * t
         _draw_orbs.append({
             "pos":    Vector2(cos(angle) * r, sin(angle) * r + _CHARGE_CENTER_Y),
-            "color":  Color(col.r, col.g, col.b, col.a * alpha),
+            "color":  Color(col.r, col.g, col.b, col.a * (1.0 - t * t)),
             "radius": size,
+        })
+
+    var big_count := _CHARGE_BIG_COUNT_L2 if level == 2 else _CHARGE_BIG_COUNT_L3
+    var big_size  := _CHARGE_BIG_SIZE_L2  if level == 2 else _CHARGE_BIG_SIZE_L3
+    for i in big_count:
+        _spiral_phases_big[i] = fmod(_spiral_phases_big[i] + _CHARGE_BIG_SPEED * delta, 1.0)
+        var t: float = _spiral_phases_big[i]
+        var angle := (TAU / big_count) * i + t * TAU * _CHARGE_TURNS
+        var r := lerpf(outer_r * 1.1, 0.0, t)
+        _draw_orbs.append({
+            "pos":    Vector2(cos(angle) * r, sin(angle) * r + _CHARGE_CENTER_Y),
+            "color":  Color(col.r, col.g, col.b, col.a * 0.7 * (1.0 - t * t)),
+            "radius": big_size,
         })
 
     _orb_canvas.queue_redraw()
