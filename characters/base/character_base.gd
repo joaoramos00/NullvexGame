@@ -9,9 +9,10 @@ const GRAVITY := 980.0
 const SPEED := 200.0
 const JUMP_VELOCITY := -480.0
 const DOUBLE_JUMP_VELOCITY := -420.0
-const DASH_SPEED := 500.0
-const DASH_DURATION := 0.18
+const DASH_SPEED := 720.0
+const DASH_DURATION := 0.22
 const DASH_COOLDOWN := 0.4
+const DOUBLE_TAP_WINDOW := 0.25
 const COYOTE_TIME := 0.12
 const INVINCIBILITY_DURATION := 1.5
 const AIR_WALK_DURATION := 0.3
@@ -32,6 +33,8 @@ var _coyote_timer: float = 0.0
 var _invincibility_timer: float = 0.0
 var _air_walk_timer: float = 0.0
 var _dash_direction: float = 1.0
+var _double_tap_timer: float = 0.0
+var _double_tap_dir: float = 0.0
 
 func _ready() -> void:
     max_hp = GameManager.max_hp
@@ -106,14 +109,27 @@ func _handle_dash(delta: float) -> void:
         if _dash_timer <= 0.0:
             _is_dashing = false
         return
+    if _double_tap_timer > 0.0:
+        _double_tap_timer -= delta
     if Input.is_action_just_pressed("dash") and _dash_cooldown_timer <= 0.0:
         _start_dash()
+        return
+    if _dash_cooldown_timer <= 0.0:
+        for dir in [[1.0, "move_right"], [-1.0, "move_left"]]:
+            if Input.is_action_just_pressed(dir[1]):
+                if _double_tap_dir == dir[0] and _double_tap_timer > 0.0:
+                    _double_tap_timer = 0.0
+                    _double_tap_dir = 0.0
+                    _start_dash(dir[0])
+                else:
+                    _double_tap_dir = dir[0]
+                    _double_tap_timer = DOUBLE_TAP_WINDOW
 
-func _start_dash() -> void:
+func _start_dash(dir: float = 0.0) -> void:
     _is_dashing = true
     _dash_timer = DASH_DURATION
     _dash_cooldown_timer = DASH_COOLDOWN
-    _dash_direction = 1.0 if facing_right else -1.0
+    _dash_direction = dir if dir != 0.0 else (1.0 if facing_right else -1.0)
     velocity.y = 0.0
 
 func _update_facing() -> void:
