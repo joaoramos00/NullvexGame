@@ -20,21 +20,20 @@ const _ROW_RIGHT := 0
 
 const _SPAWN_OFFSET := Vector2(60.0, -28.0)
 
-# Espiral ascendente — parâmetros por nível de charge
-const _SPIRAL_SPEED   := 0.7    # loops por segundo
-const _SPIRAL_BOTTOM  := 22.0   # y inicial (abaixo do centro)
-const _SPIRAL_TOP     := -46.0  # y final (acima da cabeça)
-const _SPIRAL_TURNS   := 1.5    # rotações ao longo da subida
+# Absorção: bolinhas partem do círculo externo e espiralam para o centro
+const _CHARGE_SPEED    := 0.6   # absorções por segundo
+const _CHARGE_TURNS    := 1.2   # rotações durante a espiral
+const _CHARGE_CENTER_Y := -18.0 # offset vertical (torso)
 
-const _SPIRAL_COUNT_L2  := 6
-const _SPIRAL_RADIUS_L2 := 24.0
-const _SPIRAL_SIZE_L2   := 5.0
-const _SPIRAL_COLOR_L2  := Color(1.0, 0.88, 0.2, 0.55)
+const _CHARGE_COUNT_L2 := 6
+const _CHARGE_OUTER_L2 := 30.0
+const _CHARGE_SIZE_L2  := 5.0
+const _CHARGE_COLOR_L2 := Color(1.0, 0.88, 0.2, 0.85)
 
-const _SPIRAL_COUNT_L3  := 8
-const _SPIRAL_RADIUS_L3 := 24.0
-const _SPIRAL_SIZE_L3   := 7.0
-const _SPIRAL_COLOR_L3  := Color(1.0, 0.22, 0.18, 0.65)
+const _CHARGE_COUNT_L3 := 8
+const _CHARGE_OUTER_L3 := 35.0
+const _CHARGE_SIZE_L3  := 7.0
+const _CHARGE_COLOR_L3 := Color(1.0, 0.22, 0.18, 0.85)
 
 class _ChargeOrb extends Node2D:
     var orb_color := Color(1.0, 0.88, 0.2, 0.55)
@@ -148,26 +147,27 @@ func _update_charge_effect(delta: float) -> void:
             (orb as Node2D).visible = false
         return
 
-    var count  := _SPIRAL_COUNT_L2  if level == 2 else _SPIRAL_COUNT_L3
-    var radius := _SPIRAL_RADIUS_L2 if level == 2 else _SPIRAL_RADIUS_L3
-    var size   := _SPIRAL_SIZE_L2   if level == 2 else _SPIRAL_SIZE_L3
-    var color  := _SPIRAL_COLOR_L2  if level == 2 else _SPIRAL_COLOR_L3
+    var count   := _CHARGE_COUNT_L2 if level == 2 else _CHARGE_COUNT_L3
+    var outer_r := _CHARGE_OUTER_L2 if level == 2 else _CHARGE_OUTER_L3
+    var size    := _CHARGE_SIZE_L2  if level == 2 else _CHARGE_SIZE_L3
+    var col     := _CHARGE_COLOR_L2 if level == 2 else _CHARGE_COLOR_L3
 
-    for i in _SPIRAL_COUNT_L3:
-        _spiral_phases[i] = fmod(_spiral_phases[i] + _SPIRAL_SPEED * delta, 1.0)
+    for i in _CHARGE_COUNT_L3:
+        _spiral_phases[i] = fmod(_spiral_phases[i] + _CHARGE_SPEED * delta, 1.0)
         var orb := _charge_orbs[i] as _ChargeOrb
         if i >= count:
             orb.visible = false
             continue
         var t: float = _spiral_phases[i]
-        var alpha_mul := clampf(1.0 - (t - 0.85) / 0.15, 0.0, 1.0)
-        orb.visible = alpha_mul > 0.0
-        if orb.visible:
-            var angle := (TAU / count) * i + t * TAU * _SPIRAL_TURNS
-            orb.position = Vector2(sin(angle) * radius, lerpf(_SPIRAL_BOTTOM, _SPIRAL_TOP, t))
-            orb.orb_color = Color(color.r, color.g, color.b, color.a * alpha_mul)
-            orb.orb_radius = size
-            orb.queue_redraw()
+        var base_angle := (TAU / count) * i
+        var angle := base_angle + t * TAU * _CHARGE_TURNS
+        var r := lerpf(outer_r, 0.0, t)
+        var alpha := 1.0 - t * t  # fade acelerado perto do centro
+        orb.visible = true
+        orb.position = Vector2(cos(angle) * r, sin(angle) * r + _CHARGE_CENTER_Y)
+        orb.orb_color = Color(col.r, col.g, col.b, col.a * alpha)
+        orb.orb_radius = size
+        orb.queue_redraw()
 
 func _on_shoot_finished() -> void:
     if _sprite.animation.begins_with("shoot_"):
