@@ -25,6 +25,7 @@ var _anim_idx: int     = 0
 var _frame: int        = 0
 var _paused: bool      = false
 var _anim_timer: float = 0.0
+var _current_tex: Texture2D = null
 
 var _section_btns: Dictionary = {}
 var _char_btns: Dictionary    = {}
@@ -83,6 +84,8 @@ func _select_anim(idx: int) -> void:
     _frame     = 0
     _anim_timer = 0.0
     _paused    = false
+    var sd := _current_sprite()
+    _current_tex = load(sd.path) as Texture2D
     for i in _anim_btns.size():
         _anim_btns[i].modulate = Color(0, 1, 0) if i == idx else Color(0.6, 0.6, 0.6)
     _rebuild_strip()
@@ -107,7 +110,7 @@ func _rebuild_strip() -> void:
         child.queue_free()
     _strip_frames.clear()
     var sd  := _current_sprite()
-    var tex := load(sd.path) as Texture2D
+    var tex := _current_tex
     for i in sd.frames:
         var at := AtlasTexture.new()
         at.atlas = tex
@@ -130,7 +133,7 @@ func _rebuild_strip() -> void:
 
 func _update_preview() -> void:
     var sd  := _current_sprite()
-    var tex := load(sd.path) as Texture2D
+    var tex := _current_tex
     var at  := AtlasTexture.new()
     at.atlas = tex
     at.filter_clip = true
