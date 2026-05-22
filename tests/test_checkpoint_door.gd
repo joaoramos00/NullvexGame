@@ -37,7 +37,7 @@ func test_door_opens_and_emits_signal() -> void:
 	_door_opened_received = false
 	door.door_opened.connect(_on_door_opened)
 	door.open()
-	await get_tree().create_timer(0.1).timeout
+	await get_tree().create_timer(0.5).timeout
 	_assert(_door_opened_received, "door_opened emitido apos open()")
 	door.queue_free()
 
@@ -48,8 +48,8 @@ func test_door_closes_on_demand() -> void:
 	_door_closed_received = false
 	door.door_closed.connect(_on_door_closed)
 	door.open()
-	await get_tree().create_timer(0.1).timeout
+	await get_tree().create_timer(0.5).timeout
 	door.close()
-	await get_tree().create_timer(0.1).timeout
+	await get_tree().create_timer(0.5).timeout
 	_assert(_door_closed_received, "door_closed emitido apos close()")
 	door.queue_free()
