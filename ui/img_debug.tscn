@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://img_debug"]
+
+[ext_resource type="Script" path="res://ui/img_debug.gd" id="1_script"]
+
+[node name="ImgDebug" type="Control"]
+script = ExtResource("1_script")
