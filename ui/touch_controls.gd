@@ -19,11 +19,11 @@ func _ready() -> void:
 
 	# [action, anchor_x, anchor_y, offset_left, offset_top, width, height, color]
 	# anchor 0.0 = left/top edge, 1.0 = right/bottom edge
-	_add_btn(root, "move_left",  0.0, 1.0,   24, -104, 80, 80, _COLOR_MOVE)
-	_add_btn(root, "move_right", 0.0, 1.0,  118, -104, 80, 80, _COLOR_MOVE)
-	_add_btn(root, "jump",       1.0, 1.0, -198, -104, 80, 80, _COLOR_JUMP)
-	_add_btn(root, "attack",     1.0, 1.0, -104, -104, 80, 80, _COLOR_ATTACK)
-	_add_btn(root, "pause",      1.0, 0.0,  -76,   20, 52, 38, _COLOR_PAUSE)
+	_add_btn(root, "move_left",  0.0, 1.0,   30, -210, 160, 160, _COLOR_MOVE)
+	_add_btn(root, "move_right", 0.0, 1.0,  210, -210, 160, 160, _COLOR_MOVE)
+	_add_btn(root, "jump",       1.0, 1.0, -380, -210, 160, 160, _COLOR_JUMP)
+	_add_btn(root, "attack",     1.0, 1.0, -200, -210, 160, 160, _COLOR_ATTACK)
+	_add_btn(root, "pause",      1.0, 0.0, -100,   30,  68,  50, _COLOR_PAUSE)
 
 func _add_btn(parent: Control, action: String, ax: float, ay: float, ol: float, ot: float, w: float, h: float, color: Color) -> void:
 	var btn := ColorRect.new()

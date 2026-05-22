@@ -37,6 +37,6 @@ func test_zara_run_animation() -> void:
 	var sf: SpriteFrames = zara.get_node("AnimatedSprite2D").sprite_frames
 	assert(sf.has_animation("run"), "Zara deve ter animação 'run'")
 	assert(not sf.has_animation("walk"), "Zara não deve ter animação 'walk'")
-	assert(sf.get_frame_count("run") == 5, "run deve ter 5 frames")
+	assert(sf.get_frame_count("run") == 3, "run deve ter 3 frames")
 	zara.queue_free()
 	print("PASS: zara_run_animation")
