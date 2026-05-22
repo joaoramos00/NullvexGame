@@ -341,7 +341,7 @@ func _refresh_tiles() -> void:
 
         _tile_desc_label = Label.new()
         _tile_desc_label.text = ""
-        _tile_desc_label.add_theme_font_size_override("font_size", 40)
+        _tile_desc_label.add_theme_font_size_override("font_size", 80)
         _tile_desc_label.add_theme_color_override("font_color", Color(0.85, 0.85, 0.6))
         _tile_desc_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
         _tile_desc_label.custom_minimum_size = Vector2(160, 0)
