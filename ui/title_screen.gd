@@ -26,20 +26,21 @@ func _build_sprite_debug() -> void:
     vbox.z_index = 101
     add_child(vbox)
 
-    var walk_z  := load("res://characters/ranged/ZaelAndando.png")  as Texture2D
+    var idle_z  := load("res://characters/ranged/ZaelIdle.png")     as Texture2D
     var run_z   := load("res://characters/ranged/ZaelCorrendo.png") as Texture2D
+    var jump_z  := load("res://characters/ranged/ZaelJump.png")     as Texture2D
     var shoot_z := load("res://characters/ranged/ZaelAtirando.png") as Texture2D
     var walk_a  := load("res://characters/melee/ZaraAndando.png")   as Texture2D
     var run_a   := load("res://characters/melee/ZaraCorrendo.png")  as Texture2D
 
     var zael_frames: Array = [
-        ["idle",     walk_z,  2 * 68],
+        ["idle[0]",  idle_z,  0 * 68],
+        ["idle[1]",  idle_z,  1 * 68],
         ["run[0]",   run_z,   0 * 68],
-        ["run[1]",   run_z,   1 * 68],
-        ["run[2]",   run_z,   2 * 68],
         ["run[3]",   run_z,   3 * 68],
-        ["run[4]",   run_z,   4 * 68],
-        ["run[5]",   run_z,   5 * 68],
+        ["jump[0]",  jump_z,  0 * 68],
+        ["jump[4]",  jump_z,  4 * 68],
+        ["jump[8]",  jump_z,  8 * 68],
         ["shoot[0]", shoot_z, 0 * 68],
         ["shoot[1]", shoot_z, 1 * 68],
         ["shoot[2]", shoot_z, 2 * 68],
