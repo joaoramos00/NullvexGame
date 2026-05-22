@@ -56,9 +56,9 @@ func _ready() -> void:
     _setup_sprite_frames()
     _sprite.animation_finished.connect(_on_shoot_finished)
     for i in _CHARGE_COUNT_L3:
-        _spiral_phases.append(float(i) / _CHARGE_COUNT_L3)
+        _spiral_phases.append(randf())
     for i in _CHARGE_BIG_COUNT_L3:
-        _spiral_phases_big.append(float(i) / _CHARGE_BIG_COUNT_L3)
+        _spiral_phases_big.append(randf())
     _orb_canvas = Node2D.new()
     _orb_canvas.z_index = 10
     add_child(_orb_canvas)
