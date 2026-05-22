@@ -16,6 +16,9 @@ const DOUBLE_TAP_WINDOW := 0.25
 const COYOTE_TIME := 0.12
 const INVINCIBILITY_DURATION := 1.5
 const AIR_WALK_DURATION := 0.3
+const WALL_SLIDE_SPEED := 60.0
+const WALL_JUMP_H := 280.0
+const WALL_JUMP_V := -480.0
 
 @export var max_hp: int = 100
 var current_hp: int = 100
@@ -34,6 +37,8 @@ var _air_walk_timer: float = 0.0
 var _dash_direction: float = 1.0
 var _double_tap_timer: float = 0.0
 var _double_tap_dir: float = 0.0
+var _is_wall_sliding := false
+var _wall_normal := Vector2.ZERO
 
 func _ready() -> void:
     max_hp = GameManager.max_hp
@@ -47,6 +52,7 @@ func _physics_process(delta: float) -> void:
         _die()
         return
     _tick_timers(delta)
+    _update_wall_slide()
     _apply_gravity(delta)
     _handle_dash(delta)
     _handle_movement()
@@ -72,6 +78,17 @@ func _tick_timers(delta: float) -> void:
     elif _coyote_timer > 0.0:
         _coyote_timer -= delta
 
+func _update_wall_slide() -> void:
+    if _is_dashing or is_on_floor():
+        _is_wall_sliding = false
+        return
+    var dir := Input.get_axis("move_left", "move_right")
+    if is_on_wall() and dir != 0.0:
+        _is_wall_sliding = true
+        _wall_normal = get_wall_normal()
+    else:
+        _is_wall_sliding = false
+
 func _apply_gravity(delta: float) -> void:
     if _is_dashing:
         return
@@ -80,6 +97,8 @@ func _apply_gravity(delta: float) -> void:
         return
     if not is_on_floor():
         velocity.y += GRAVITY * gravity_scale * delta
+        if _is_wall_sliding and velocity.y > WALL_SLIDE_SPEED:
+            velocity.y = WALL_SLIDE_SPEED
 
 func _handle_movement() -> void:
     if _is_dashing:
@@ -93,6 +112,11 @@ func _handle_movement() -> void:
 
 func _handle_jump() -> void:
     if _is_dashing:
+        return
+    if _is_wall_sliding:
+        velocity.x = _wall_normal.x * WALL_JUMP_H
+        velocity.y = WALL_JUMP_V
+        _is_wall_sliding = false
         return
     if Input.is_action_just_pressed("jump"):
         if is_on_floor() or _coyote_timer > 0.0:
