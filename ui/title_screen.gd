@@ -26,36 +26,13 @@ func _build_sprite_debug() -> void:
     vbox.z_index = 101
     add_child(vbox)
 
-    var idle_z  := load("res://characters/ranged/ZaelIdle.png")     as Texture2D
-    var run_z   := load("res://characters/ranged/ZaelCorrendo.png") as Texture2D
-    var jump_z  := load("res://characters/ranged/ZaelJump.png")     as Texture2D
     var shoot_z := load("res://characters/ranged/ZaelAtirando.png") as Texture2D
-    var walk_a  := load("res://characters/melee/ZaraAndando.png")   as Texture2D
-    var run_a   := load("res://characters/melee/ZaraCorrendo.png")  as Texture2D
 
-    var zael_frames: Array = [
-        ["idle[0]",  idle_z,  0 * 68],
-        ["idle[1]",  idle_z,  1 * 68],
-        ["run[0]",   run_z,   0 * 68],
-        ["run[3]",   run_z,   3 * 68],
-        ["jump[0]",  jump_z,  0 * 68],
-        ["jump[4]",  jump_z,  4 * 68],
-        ["jump[8]",  jump_z,  8 * 68],
-        ["shoot[0]", shoot_z, 0 * 68],
-        ["shoot[1]", shoot_z, 1 * 68],
-        ["shoot[2]", shoot_z, 2 * 68],
-    ]
-    var zara_frames: Array = [
-        ["idle",     walk_a, 2 * 68],
-        ["run[0]",   run_a,  0 * 68],
-        ["run[1]",   run_a,  1 * 68],
-        ["run[2]",   run_a,  2 * 68],
-        ["jump",     walk_a, 2 * 68],
-        ["attack",   walk_a, 0 * 68],
-    ]
+    var shoot_frames: Array = []
+    for i in 9:
+        shoot_frames.append(["shot[%d]" % i, shoot_z, i * 68])
 
-    _add_char_row(vbox, "ZAEL", zael_frames)
-    _add_char_row(vbox, "ZARA", zara_frames)
+    _add_char_row(vbox, "ZAEL SHOT", shoot_frames)
 
 func _add_char_row(parent: VBoxContainer, char_name: String, frame_data: Array) -> void:
     var lbl := Label.new()

@@ -41,6 +41,6 @@ func test_zael_run_animation() -> void:
     assert(sf.get_frame_count("idle")  == 8, "idle deve ter 8 frames")
     assert(sf.get_frame_count("run")   == 6, "run deve ter 6 frames")
     assert(sf.get_frame_count("jump")  == 9, "jump deve ter 9 frames")
-    assert(sf.get_frame_count("shoot") == 3, "shoot deve ter 3 frames")
+    assert(sf.get_frame_count("shoot") == 9, "shoot deve ter 9 frames")
     zael.queue_free()
     print("PASS: zael_animations")
