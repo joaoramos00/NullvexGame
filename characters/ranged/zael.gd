@@ -18,12 +18,30 @@ const _FRAME_W := 68
 const _FRAME_H := 68
 const _ROW_RIGHT := 0
 
-# bullet spawn offset from character center
-const _SPAWN_OFFSET := Vector2(60.0, -36.0)
+const _SPAWN_OFFSET   := Vector2(60.0, -28.0)
+const _ORBIT_RADIUS   := 28.0
+const _ORBIT_SPEED    := 4.0  # rad/s
+const _ORBIT_CENTER_Y := -24.0  # altura do torso
+
+# Orb colors por nível de charge
+const _ORB_COLORS := [
+    Color(0.4, 0.8, 1.0, 0.9),   # azul — L1
+    Color(1.0, 0.85, 0.2, 0.9),  # amarelo — L2
+    Color(1.0, 0.3, 0.3, 0.9),   # vermelho — L3
+]
+const _ORB_SIZES := [4.0, 5.5, 7.0]
+
+class _ChargeOrb extends Node2D:
+    var orb_color := Color(0.4, 0.8, 1.0, 0.9)
+    var orb_radius := 5.0
+    func _draw() -> void:
+        draw_circle(Vector2.ZERO, orb_radius, orb_color)
 
 var _charge_timer: float = 0.0
 var _is_charging: bool = false
 var _is_shooting: bool = false
+var _charge_angle: float = 0.0
+var _charge_orbs: Array = []
 
 @onready var _sprite: AnimatedSprite2D = $AnimatedSprite2D
 
@@ -31,6 +49,17 @@ func _ready() -> void:
     super._ready()
     _setup_sprite_frames()
     _sprite.animation_finished.connect(_on_shoot_finished)
+    _setup_charge_orbs()
+
+func _setup_charge_orbs() -> void:
+    for i in 3:
+        var orb := _ChargeOrb.new()
+        orb.orb_color = _ORB_COLORS[i]
+        orb.orb_radius = _ORB_SIZES[i]
+        orb.visible = false
+        orb.z_index = 2
+        add_child(orb)
+        _charge_orbs.append(orb)
 
 func _setup_sprite_frames() -> void:
     var frames := SpriteFrames.new()
@@ -96,6 +125,7 @@ func _physics_process(delta: float) -> void:
     if is_dead:
         return
     _handle_shooting(delta)
+    _update_charge_effect(delta)
     _update_animation()
 
 func _handle_shooting(delta: float) -> void:
@@ -109,6 +139,23 @@ func _handle_shooting(delta: float) -> void:
         _fire(get_charge_level(_charge_timer))
         _is_charging = false
         _charge_timer = 0.0
+
+func _update_charge_effect(delta: float) -> void:
+    if not _is_charging:
+        for orb in _charge_orbs:
+            (orb as Node2D).visible = false
+        _charge_angle = 0.0
+        return
+
+    _charge_angle += _ORBIT_SPEED * delta
+    var level := get_charge_level(_charge_timer)
+    for i in 3:
+        var orb := _charge_orbs[i] as Node2D
+        orb.visible = i < level
+        if orb.visible:
+            var angle := _charge_angle + (TAU / level) * i
+            orb.position = Vector2(cos(angle), sin(angle)) * _ORBIT_RADIUS + Vector2(0, _ORBIT_CENTER_Y)
+            orb.queue_redraw()
 
 func _on_shoot_finished() -> void:
     if _sprite.animation.begins_with("shoot_"):
