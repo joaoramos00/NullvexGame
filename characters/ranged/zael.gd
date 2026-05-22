@@ -50,8 +50,8 @@ func _setup_sprite_frames() -> void:
 
     frames.add_animation("run")
     frames.set_animation_loop("run", true)
-    frames.set_animation_speed("run", 8.0)
-    for i in 3:
+    frames.set_animation_speed("run", 10.0)
+    for i in 6:
         var at := AtlasTexture.new()
         at.atlas = run_tex
         at.filter_clip = true
