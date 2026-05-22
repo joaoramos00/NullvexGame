@@ -109,6 +109,8 @@ func _rebuild_strip() -> void:
     for child in _strip_box.get_children():
         child.queue_free()
     _strip_frames.clear()
+    if _current_tex == null:
+        return
     var sd  := _current_sprite()
     var tex := _current_tex
     for i in sd.frames:
@@ -132,6 +134,8 @@ func _rebuild_strip() -> void:
         _strip_frames.append(panel)
 
 func _update_preview() -> void:
+    if _current_tex == null:
+        return
     var sd  := _current_sprite()
     var tex := _current_tex
     var at  := AtlasTexture.new()
