@@ -116,11 +116,6 @@ func _update_animation() -> void:
         _sprite.play("jump")
     elif shooting:
         pass
-    elif _is_charging:
-        var level := get_charge_level(_charge_timer)
-        _sprite.play("shoot_%d" % level)
-        _sprite.set_frame_and_progress(0, 0.0)
-        _sprite.stop()
     elif velocity.x != 0.0:
         _sprite.play("run")
     else:
