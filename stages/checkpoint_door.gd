@@ -15,26 +15,29 @@ signal door_closed
 var _is_open := false
 
 func _ready() -> void:
+	assert(_sprite != null, "CheckpointDoor: ColorRect child missing")
+	assert(_collider != null, "CheckpointDoor: CollisionShape2D child missing")
+	assert(_trigger != null, "CheckpointDoor: TriggerArea child missing")
 	_trigger.body_entered.connect(_on_body_entered)
 
 func open() -> void:
 	if _is_open:
 		return
 	_is_open = true
-	_collider.disabled = true
 	var tween := create_tween()
 	tween.tween_property(_sprite, "position:y", open_offset, tween_duration)
+	await tween.finished
+	_collider.disabled = true
 	door_opened.emit()
 
 func close() -> void:
 	if not _is_open:
 		return
+	_collider.disabled = false
 	_is_open = false
 	var tween := create_tween()
 	tween.tween_property(_sprite, "position:y", 0.0, tween_duration)
-	tween.tween_callback(func() -> void:
-		_collider.disabled = false
-	)
+	await tween.finished
 	door_closed.emit()
 
 func _on_body_entered(body: Node2D) -> void:
