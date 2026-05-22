@@ -69,15 +69,21 @@ func _setup_sprite_frames() -> void:
         at.region = Rect2(i * fw, 0, fw, fh)
         frames.add_frame("jump", at)
 
-    frames.add_animation("shoot")
-    frames.set_animation_loop("shoot", false)
-    frames.set_animation_speed("shoot", 10.0)
-    for i in 9:
-        var shoot_at := AtlasTexture.new()
-        shoot_at.atlas = shoot_tex
-        shoot_at.filter_clip = true
-        shoot_at.region = Rect2(i * fw, 0, fw, fh)
-        frames.add_frame("shoot", shoot_at)
+    # shoot_1: frame 4 (tiro simples)
+    # shoot_2: frames 4-5 (carregado 1)
+    # shoot_3: frames 4-6 (carregado 2)
+    var shoot_ranges := [[4, 4], [4, 5], [4, 6]]
+    for lvl in 3:
+        var anim := "shoot_%d" % (lvl + 1)
+        frames.add_animation(anim)
+        frames.set_animation_loop(anim, false)
+        frames.set_animation_speed(anim, 10.0)
+        for i in range(shoot_ranges[lvl][0], shoot_ranges[lvl][1] + 1):
+            var at := AtlasTexture.new()
+            at.atlas = shoot_tex
+            at.filter_clip = true
+            at.region = Rect2(i * fw, 0, fw, fh)
+            frames.add_frame(anim, at)
 
     _sprite.sprite_frames = frames
     _sprite.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
@@ -103,7 +109,7 @@ func _handle_shooting(delta: float) -> void:
         _charge_timer = 0.0
 
 func _update_animation() -> void:
-    var shooting := _sprite.animation == "shoot" and _sprite.is_playing()
+    var shooting := _sprite.animation.begins_with("shoot_") and _sprite.is_playing()
     if not shooting:
         _sprite.flip_h = not facing_right
     if not is_on_floor():
@@ -112,8 +118,8 @@ func _update_animation() -> void:
         pass
     elif _is_charging:
         var level := get_charge_level(_charge_timer)
-        _sprite.play("shoot")
-        _sprite.set_frame_and_progress((level - 1) * 3, 0.0)
+        _sprite.play("shoot_%d" % level)
+        _sprite.set_frame_and_progress(0, 0.0)
         _sprite.stop()
     elif velocity.x != 0.0:
         _sprite.play("run")
@@ -130,8 +136,7 @@ static func get_charge_level(timer: float) -> int:
 func _fire(level: int) -> void:
     assert(level >= 1 and level <= 3, "charge level deve ser 1, 2 ou 3")
     AudioManager.play_sfx(AudioLibrary.sfx_shoot)
-    _sprite.play("shoot")
-    _sprite.set_frame_and_progress((level - 1) * 3, 0.0)
+    _sprite.play("shoot_%d" % level)
     var bullet: ZaelBullet = _BULLET_SCENE.instantiate()
     bullet.damage = BULLET_DAMAGE[level]
     bullet.direction = 1.0 if facing_right else -1.0
