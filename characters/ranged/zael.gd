@@ -26,12 +26,12 @@ const _CHARGE_TURNS    := 1.2
 const _CHARGE_CENTER_Y := -18.0
 
 const _CHARGE_COUNT_L2 := 6
-const _CHARGE_OUTER_L2 := 30.0
+const _CHARGE_OUTER_L2 := 44.0
 const _CHARGE_SIZE_L2  := 5.0
 const _CHARGE_COLOR_L2 := Color(1.0, 0.88, 0.2, 0.85)
 
 const _CHARGE_COUNT_L3 := 8
-const _CHARGE_OUTER_L3 := 35.0
+const _CHARGE_OUTER_L3 := 52.0
 const _CHARGE_SIZE_L3  := 7.0
 const _CHARGE_COLOR_L3 := Color(1.0, 0.22, 0.18, 0.85)
 
@@ -39,7 +39,8 @@ var _charge_timer: float = 0.0
 var _is_charging: bool = false
 var _is_shooting: bool = false
 var _spiral_phases: Array = []
-var _draw_orbs: Array = []  # [{pos, color, radius}] preenchido por _update_charge_effect
+var _draw_orbs: Array = []  # [{pos, color, radius}]
+var _orb_canvas: Node2D    # filho com z_index alto para desenhar por cima
 
 @onready var _sprite: AnimatedSprite2D = $AnimatedSprite2D
 
@@ -49,10 +50,14 @@ func _ready() -> void:
     _sprite.animation_finished.connect(_on_shoot_finished)
     for i in _CHARGE_COUNT_L3:
         _spiral_phases.append(float(i) / _CHARGE_COUNT_L3)
+    _orb_canvas = Node2D.new()
+    _orb_canvas.z_index = 10
+    add_child(_orb_canvas)
+    _orb_canvas.draw.connect(_on_orb_canvas_draw)
 
-func _draw() -> void:
+func _on_orb_canvas_draw() -> void:
     for d in _draw_orbs:
-        draw_circle(d.pos, d.radius, d.color)
+        _orb_canvas.draw_circle(d.pos, d.radius, d.color)
 
 func _setup_sprite_frames() -> void:
     var frames := SpriteFrames.new()
@@ -134,7 +139,7 @@ func _update_charge_effect(delta: float) -> void:
     _draw_orbs.clear()
     var level := get_charge_level(_charge_timer)
     if not _is_charging or level < 2:
-        queue_redraw()
+        _orb_canvas.queue_redraw()
         return
 
     var count   := _CHARGE_COUNT_L2 if level == 2 else _CHARGE_COUNT_L3
@@ -154,7 +159,7 @@ func _update_charge_effect(delta: float) -> void:
             "radius": size,
         })
 
-    queue_redraw()
+    _orb_canvas.queue_redraw()
 
 func _on_shoot_finished() -> void:
     if _sprite.animation.begins_with("shoot_"):
