@@ -1,0 +1,13 @@
+[gd_scene format=3 uid="uid://intro_boss"]
+
+[ext_resource type="PackedScene" uid="uid://boss_base" path="res://characters/bosses/boss_base.tscn" id="1_base"]
+[ext_resource type="Script" path="res://characters/bosses/intro_boss.gd" id="2_script"]
+
+[node name="IntroBoss" instance=ExtResource("1_base")]
+script = ExtResource("2_script")
+boss_id = "intro_boss"
+weakness_id = ""
+ability_id = ""
+stage_id = 0
+max_hp = 28
+boss_color = Color(0.5, 0.0, 0.1, 1)
