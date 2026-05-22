@@ -62,132 +62,132 @@ platform_color = Color(0.5, 0.35, 0.15, 1)
 script = ExtResource("1_script")
 
 [node name="PlayerSpawn" type="Node2D" parent="."]
-position = Vector2(200, 400)
+position = Vector2(200, 760)
 
 [node name="StageController" parent="." instance=ExtResource("2_sc")]
 
 [node name="Checkpoint1" parent="." instance=ExtResource("3_cp")]
-position = Vector2(1800, 650)
+position = Vector2(1800, 1010)
 checkpoint_index = 1
 
 [node name="Checkpoint2" parent="." instance=ExtResource("3_cp")]
-position = Vector2(3400, 490)
+position = Vector2(3400, 850)
 checkpoint_index = 2
 
 [node name="FloorStart" type="StaticBody2D" parent="."]
-position = Vector2(350, 560)
+position = Vector2(350, 920)
 [node name="CollisionShape2D" type="CollisionShape2D" parent="FloorStart"]
 shape = SubResource("FloorStart")
 
 [node name="CaveFloorA" type="StaticBody2D" parent="."]
-position = Vector2(1550, 700)
+position = Vector2(1550, 1060)
 [node name="CollisionShape2D" type="CollisionShape2D" parent="CaveFloorA"]
 shape = SubResource("CaveFloorA")
 
 [node name="CaveFloorB" type="StaticBody2D" parent="."]
-position = Vector2(2650, 700)
+position = Vector2(2650, 1060)
 [node name="CollisionShape2D" type="CollisionShape2D" parent="CaveFloorB"]
 shape = SubResource("CaveFloorB")
 
 [node name="FloorReturn" type="StaticBody2D" parent="."]
-position = Vector2(3350, 560)
+position = Vector2(3350, 920)
 [node name="CollisionShape2D" type="CollisionShape2D" parent="FloorReturn"]
 shape = SubResource("FloorReturn")
 
 [node name="FloorBoss" type="StaticBody2D" parent="."]
-position = Vector2(4700, 560)
+position = Vector2(4700, 920)
 [node name="CollisionShape2D" type="CollisionShape2D" parent="FloorBoss"]
 shape = SubResource("FloorBoss")
 
 [node name="CaveWallLeft" type="StaticBody2D" parent="."]
-position = Vector2(730, 630)
+position = Vector2(730, 990)
 [node name="CollisionShape2D" type="CollisionShape2D" parent="CaveWallLeft"]
 shape = SubResource("CWL1")
 
 [node name="CaveWallRight" type="StaticBody2D" parent="."]
-position = Vector2(3070, 630)
+position = Vector2(3070, 990)
 [node name="CollisionShape2D" type="CollisionShape2D" parent="CaveWallRight"]
 shape = SubResource("CWR1")
 
 [node name="DescentPlat1" type="StaticBody2D" parent="."]
-position = Vector2(800, 600)
+position = Vector2(800, 960)
 [node name="CollisionShape2D" type="CollisionShape2D" parent="DescentPlat1"]
 shape = SubResource("CDP1")
 
 [node name="DescentPlat2" type="StaticBody2D" parent="."]
-position = Vector2(990, 660)
+position = Vector2(990, 1020)
 [node name="CollisionShape2D" type="CollisionShape2D" parent="DescentPlat2"]
 shape = SubResource("CDP2")
 
 [node name="CaveMidPlat1" type="StaticBody2D" parent="."]
-position = Vector2(2050, 670)
+position = Vector2(2050, 1030)
 [node name="CollisionShape2D" type="CollisionShape2D" parent="CaveMidPlat1"]
 shape = SubResource("CM1")
 
 [node name="CaveMidPlat2" type="StaticBody2D" parent="."]
-position = Vector2(2250, 670)
+position = Vector2(2250, 1030)
 [node name="CollisionShape2D" type="CollisionShape2D" parent="CaveMidPlat2"]
 shape = SubResource("CM2")
 
 [node name="AscentPlat1" type="StaticBody2D" parent="."]
-position = Vector2(3010, 650)
+position = Vector2(3010, 1010)
 [node name="CollisionShape2D" type="CollisionShape2D" parent="AscentPlat1"]
 shape = SubResource("CEP1")
 
 [node name="AscentPlat2" type="StaticBody2D" parent="."]
-position = Vector2(3200, 590)
+position = Vector2(3200, 950)
 [node name="CollisionShape2D" type="CollisionShape2D" parent="AscentPlat2"]
 shape = SubResource("CEP2")
 
 [node name="PreBossPlat1" type="StaticBody2D" parent="."]
-position = Vector2(3700, 420)
+position = Vector2(3700, 780)
 [node name="CollisionShape2D" type="CollisionShape2D" parent="PreBossPlat1"]
 shape = SubResource("PB1")
 
 [node name="PreBossPlat2" type="StaticBody2D" parent="."]
-position = Vector2(3950, 380)
+position = Vector2(3950, 740)
 [node name="CollisionShape2D" type="CollisionShape2D" parent="PreBossPlat2"]
 shape = SubResource("PB2")
 
 [node name="Heart" parent="." instance=ExtResource("4_col")]
-position = Vector2(2050, 630)
+position = Vector2(2050, 990)
 stage_id = 8
 
 [node name="SubTank" parent="." instance=ExtResource("4_col")]
-position = Vector2(2650, 650)
+position = Vector2(2650, 1010)
 collectible_type = 1
 subtank_index = 3
 
 [node name="ArmorZaraLegs" parent="." instance=ExtResource("4_col")]
-position = Vector2(3200, 550)
+position = Vector2(3200, 910)
 collectible_type = 3
 armor_piece = "legs"
 
 [node name="CannonZael" parent="." instance=ExtResource("4_col")]
-position = Vector2(3500, 490)
+position = Vector2(3500, 850)
 collectible_type = 4
 ability_id = "cannon"
 
 [node name="Terragor" parent="." instance=ExtResource("9_boss")]
-position = Vector2(4600, 400)
+position = Vector2(4600, 760)
 arena_left = 4100.0
 arena_right = 5100.0
-arena_floor = 540.0
+arena_floor = 900.0
 
 [node name="Grunt1" parent="." instance=ExtResource("10_grunt")]
-position = Vector2(300, 490)
+position = Vector2(300, 850)
 
 [node name="Grunt2" parent="." instance=ExtResource("10_grunt")]
-position = Vector2(1600, 660)
+position = Vector2(1600, 1020)
 
 [node name="Grunt3" parent="." instance=ExtResource("10_grunt")]
-position = Vector2(2700, 660)
+position = Vector2(2700, 1020)
 
 [node name="Grunt4" parent="." instance=ExtResource("10_grunt")]
-position = Vector2(3500, 490)
+position = Vector2(3500, 850)
 
 [node name="Flyer1" parent="." instance=ExtResource("11_flyer")]
-position = Vector2(1900, 600)
+position = Vector2(1900, 960)
 
 [node name="HUD" parent="." instance=ExtResource("5_hud")]
 [node name="PauseMenu" parent="." instance=ExtResource("6_pause")]
