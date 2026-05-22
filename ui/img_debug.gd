@@ -344,8 +344,7 @@ func _refresh_tiles() -> void:
         _tile_desc_label.add_theme_font_size_override("font_size", 40)
         _tile_desc_label.add_theme_color_override("font_color", Color(0.85, 0.85, 0.6))
         _tile_desc_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-        _tile_desc_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-        content_row.add_child(_tile_desc_label)
+        _tiles_box.add_child(_tile_desc_label)
 
         var tex    := load(ts_data.path) as Texture2D
         var ts_px: int = ts_data.tile_size
