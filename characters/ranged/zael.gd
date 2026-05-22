@@ -19,7 +19,7 @@ const _FRAME_H := 68
 const _ROW_RIGHT := 0
 
 # bullet spawn offset from character center
-const _SPAWN_OFFSET := Vector2(30.0, -22.0)
+const _SPAWN_OFFSET := Vector2(30.0, -36.0)
 
 var _charge_timer: float = 0.0
 var _is_charging: bool = false
