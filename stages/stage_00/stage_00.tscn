@@ -85,6 +85,9 @@ size = Vector2(300, 32)
 [sub_resource type="RectangleShape2D" id="shape_Corr2WallL"]
 size = Vector2(32, 192)
 
+[sub_resource type="RectangleShape2D" id="shape_Corr2WallR"]
+size = Vector2(32, 192)
+
 [sub_resource type="RectangleShape2D" id="shape_BossFloor"]
 size = Vector2(1000, 32)
 
@@ -263,6 +266,12 @@ position = Vector2(7985, 480)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Corr2_Wall_L"]
 shape = SubResource("shape_Corr2WallL")
+
+[node name="Corr2_Wall_R" type="StaticBody2D" parent="."]
+position = Vector2(8315, 480)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Corr2_Wall_R"]
+shape = SubResource("shape_Corr2WallR")
 
 [node name="Boss_Floor" type="StaticBody2D" parent="."]
 position = Vector2(8800, 560)
