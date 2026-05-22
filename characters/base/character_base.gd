@@ -8,8 +8,8 @@ signal hp_changed(current: int, maximum: int)
 const GRAVITY := 980.0
 const SPEED := 200.0
 const JUMP_VELOCITY := -480.0
-const DOUBLE_JUMP_VELOCITY := -420.0
 const DASH_SPEED := 720.0
+const KILL_Y := 1500.0
 const DASH_DURATION := 0.22
 const DASH_COOLDOWN := 0.4
 const DOUBLE_TAP_WINDOW := 0.25
@@ -25,7 +25,6 @@ var active_ability: String = ""
 var facing_right: bool = true
 var gravity_scale: float = 1.0
 
-var _can_double_jump: bool = false
 var _is_dashing: bool = false
 var _dash_timer: float = 0.0
 var _dash_cooldown_timer: float = 0.0
@@ -43,6 +42,9 @@ func _ready() -> void:
 
 func _physics_process(delta: float) -> void:
     if is_dead:
+        return
+    if global_position.y > KILL_Y:
+        _die()
         return
     _tick_timers(delta)
     _apply_gravity(delta)
@@ -67,7 +69,6 @@ func _tick_timers(delta: float) -> void:
         _air_walk_timer -= delta
     if is_on_floor():
         _coyote_timer = COYOTE_TIME
-        _can_double_jump = true
     elif _coyote_timer > 0.0:
         _coyote_timer -= delta
 
@@ -98,10 +99,6 @@ func _handle_jump() -> void:
             velocity.y = JUMP_VELOCITY
             _coyote_timer = 0.0
             AudioManager.play_sfx(AudioLibrary.sfx_jump)
-        elif _can_double_jump:
-            velocity.y = DOUBLE_JUMP_VELOCITY
-            _can_double_jump = false
-            AudioManager.play_sfx(AudioLibrary.sfx_jump)
 
 func _handle_dash(delta: float) -> void:
     if _is_dashing:
@@ -111,10 +108,11 @@ func _handle_dash(delta: float) -> void:
         return
     if _double_tap_timer > 0.0:
         _double_tap_timer -= delta
-    if Input.is_action_just_pressed("dash") and _dash_cooldown_timer <= 0.0:
+    var on_ground := is_on_floor() or _coyote_timer > 0.0
+    if Input.is_action_just_pressed("dash") and _dash_cooldown_timer <= 0.0 and on_ground:
         _start_dash()
         return
-    if _dash_cooldown_timer <= 0.0:
+    if _dash_cooldown_timer <= 0.0 and on_ground:
         for dir in [[1.0, "move_right"], [-1.0, "move_left"]]:
             if Input.is_action_just_pressed(dir[1]):
                 if _double_tap_dir == dir[0] and _double_tap_timer > 0.0:
