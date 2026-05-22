@@ -15,22 +15,22 @@ const _TILESETS: Array = [
 ]
 
 const _TILE_DESCS: Dictionary = {
-    "0,0": "Superfície superior — canto esquerdo da plataforma",
-    "1,0": "Superfície superior — centro A (colunas pares)",
-    "2,0": "Superfície superior — centro B (colunas ímpares, alternado com A)",
-    "3,0": "Superfície superior — canto direito da plataforma",
-    "0,1": "Interior da plataforma — lateral esquerda (plataformas com 2+ linhas)",
-    "1,1": "Interior da plataforma — centro A (colunas pares)",
-    "2,1": "Interior da plataforma — centro B (colunas ímpares, alternado com A)",
-    "3,1": "Interior da plataforma — lateral direita (plataformas com 2+ linhas)",
-    "0,2": "Base inferior — canto esquerdo da plataforma",
-    "1,2": "Base inferior — centro A (colunas pares)",
-    "2,2": "Base inferior — centro B (colunas ímpares, alternado com A)",
-    "3,2": "Base inferior — canto direito da plataforma",
+    "0,0": "Canto inferior esquerdo",
+    "1,0": "Lateral direita da coluna lisa",
+    "2,0": "L da coluna com chão do lado direito",
+    "3,0": "Plataforma reta",
+    "0,1": "Canto superior esquerdo com canto inferior direito",
+    "1,1": "L da coluna com chão do lado esquerdo",
+    "2,1": "Centro do tile — miolo de preenchimento todo preenchido",
+    "3,1": "L da coluna com teto do lado direito",
+    "0,2": "Canto superior direito",
+    "1,2": "Teto reto",
+    "2,2": "L da coluna com teto do lado esquerdo",
+    "3,2": "Lateral esquerda da coluna lisa",
     "0,3": "Transparente — tile vazio (alpha = 0), não utilizado",
-    "1,3": "Reservado — não utilizado pelo engine atual",
-    "2,3": "Reservado — não utilizado pelo engine atual",
-    "3,3": "Reservado — não utilizado pelo engine atual",
+    "1,3": "Canto inferior direito",
+    "2,3": "Canto inferior esquerdo com canto superior direito",
+    "3,3": "Canto superior esquerdo",
 }
 
 const _FRAME_SIZE   := 68
