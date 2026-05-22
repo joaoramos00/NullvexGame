@@ -34,6 +34,7 @@ func _setup_sprite_frames() -> void:
     frames.set_animation_speed("idle", 1.0)
     var idle_at := AtlasTexture.new()
     idle_at.atlas = tex
+    idle_at.filter_clip = true
     idle_at.region = Rect2(2 * fw, ry, fw, fh)
     frames.add_frame("idle", idle_at)
 
@@ -44,6 +45,7 @@ func _setup_sprite_frames() -> void:
     for i in 3:
         var at := AtlasTexture.new()
         at.atlas = run_tex
+        at.filter_clip = true
         at.region = Rect2(i * 68, 0, 68, 68)
         frames.add_frame("run", at)
 
@@ -53,6 +55,7 @@ func _setup_sprite_frames() -> void:
     frames.set_animation_speed("jump", 1.0)
     var jump_at := AtlasTexture.new()
     jump_at.atlas = tex
+    jump_at.filter_clip = true
     jump_at.region = Rect2(2 * fw, ry, fw, fh)
     frames.add_frame("jump", jump_at)
 
@@ -62,6 +65,7 @@ func _setup_sprite_frames() -> void:
     frames.set_animation_speed("attack", 1.0)
     var attack_at := AtlasTexture.new()
     attack_at.atlas = tex
+    attack_at.filter_clip = true
     attack_at.region = Rect2(0, ry, fw, fh)
     frames.add_frame("attack", attack_at)
 
