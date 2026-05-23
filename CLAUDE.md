@@ -150,6 +150,26 @@ Cadeia: `Gravitus→Galerix→Ignarath→Cryovex→Terragor→Voltrix→Umbraex�
 
 ---
 
+## Contexto Completo do Jogo
+
+Ver `GAME_CONTEXT.md` na raiz — contém collision layers, tabela de bosses, APIs de autoloads, padrões de código e convenções.
+
+---
+
+## Skills Disponíveis
+
+Skills locais em `.claude/skills/`. Invocar dizendo "use a skill X" ou `/X`.
+
+| Skill | Quando Usar |
+|-------|-------------|
+| `new-enemy` | Criar novo tipo de inimigo (ground/flyer/jumper/shooter) |
+| `new-boss` | Criar novo boss elemental com AI e fraqueza |
+| `new-stage` | Criar nova fase (simple ou complex com zonas) |
+| `run-tests` | Rodar testes headless do Godot, reportar PASS/FAIL |
+| `web-export` | Exportar build web e publicar no GitHub Pages |
+
+---
+
 ## Input Map
 
 | Ação | Teclado |
