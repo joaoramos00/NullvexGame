@@ -12,7 +12,7 @@ const _SPRITES: Array = [
 
 const _TILESETS: Array = [
     {"name": "Stage_00T", "path": "res://stages/stage_00/Stage_00T.png", "cols": 4, "rows": 4, "tile_size": 32},
-    {"name": "Stage_01T", "path": "res://stages/stage_01/Stage_01T.png", "cols": 4, "rows": 4, "tile_size": 32},
+    {"name": "Stage_01T", "path": "res://stages/stage_01/Stage_01T.png", "cols": 4, "rows": 5, "tile_size": 32},
 ]
 
 const _TILE_DESCS: Dictionary = {
@@ -50,6 +50,11 @@ const _TILE_DESCS: Dictionary = {
     "Stage_01T:1,3": "Rocha inferior — parte de baixo do bloco de chão",
     "Stage_01T:2,3": "Gota de lava — lava escorrendo",
     "Stage_01T:3,3": "Brasas — faíscas flutuantes",
+    # row 4 — paredes laterais
+    "Stage_01T:0,4": "Parede esquerda — face direita exposta (player encosta e pula)",
+    "Stage_01T:1,4": "Parede direita — face esquerda exposta (player encosta e pula)",
+    "Stage_01T:2,4": "Canto parede-esquerda + teto — junção interna",
+    "Stage_01T:3,4": "Canto parede-direita + teto — junção interna",
 }
 
 const _FRAME_SIZE   := 68

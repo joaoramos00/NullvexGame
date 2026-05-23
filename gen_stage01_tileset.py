@@ -1,12 +1,14 @@
-"""Generates Stage_01T.png — 128x128 spritesheet (4x4 grid, 32x32 tiles) fire/volcano theme."""
+"""Generates Stage_01T.png — 128x160 spritesheet (4x5 grid, 32x32 tiles) fire/volcano theme."""
 from PIL import Image
 import random, os
 
 random.seed(1337)
 
 TILE = 32
-T = 4  # grid size
-W = H = TILE * T  # 128x128
+COLS = 4
+ROWS = 5
+W = TILE * COLS   # 128
+H = TILE * ROWS   # 160
 
 # --- Palette ---
 BLANK   = (  0,   0,   0,   0)
@@ -27,7 +29,7 @@ px  = img.load()
 
 def sp(col, row, x, y, c):
     gx, gy = col * TILE + x, row * TILE + y
-    if 0 <= gx < W and 0 <= gy < H:
+    if 0 <= gx < W and 0 <= gy < H and row < ROWS:
         px[gx, gy] = c
 
 def rock_fill(col, row, base=RK_DK):
@@ -319,6 +321,74 @@ for (ex, ey, size) in clusters:
                     sp(3, 3, nx, ny, c_mid)
                 elif d == 2 and size >= 3:
                     sp(3, 3, nx, ny, c_outer)
+
+# ──────────────────────────────────────────────
+# (0,4)  Wall left — face direita visível
+# (player encosta à esquerda e pula na face direita)
+# ──────────────────────────────────────────────
+rock_fill(0, 4)
+# lava seams
+for (vx, vy) in [(4, 6), (5, 14), (3, 22), (6, 28)]:
+    sp(0, 4, vx, vy, LV_DK)
+    if vx + 1 < TILE: sp(0, 4, vx + 1, vy, LV_MD)
+# highlight na borda direita (face exposta)
+for y in range(TILE):
+    sp(0, 4, TILE - 1, y, RK_HI if random.random() > 0.25 else RK_LT)
+    sp(0, 4, TILE - 2, y, RK_LT if random.random() > 0.35 else RK_HI)
+    sp(0, 4, TILE - 3, y, RK_MD)
+    sp(0, 4, TILE - 4, y, RK_DK if random.random() > 0.4 else RK_MD)
+
+# ──────────────────────────────────────────────
+# (1,4)  Wall right — face esquerda visível
+# (player encosta à direita e pula na face esquerda)
+# ──────────────────────────────────────────────
+rock_fill(1, 4)
+for (vx, vy) in [(26, 5), (27, 13), (25, 21), (28, 27)]:
+    sp(1, 4, vx, vy, LV_DK)
+    if vx + 1 < TILE: sp(1, 4, vx + 1, vy, LV_MD)
+for y in range(TILE):
+    sp(1, 4, 0, y, RK_HI if random.random() > 0.25 else RK_LT)
+    sp(1, 4, 1, y, RK_LT if random.random() > 0.35 else RK_HI)
+    sp(1, 4, 2, y, RK_MD)
+    sp(1, 4, 3, y, RK_DK if random.random() > 0.4 else RK_MD)
+
+# ──────────────────────────────────────────────
+# (2,4)  Canto parede-esquerda + teto
+# (junção entre parede esquerda e teto)
+# ──────────────────────────────────────────────
+rock_fill(2, 4)
+# face direita (parede)
+for y in range(TILE):
+    sp(2, 4, TILE - 1, y, RK_HI if random.random() > 0.25 else RK_LT)
+    sp(2, 4, TILE - 2, y, RK_LT)
+    sp(2, 4, TILE - 3, y, RK_MD)
+# face inferior (teto)
+for x in range(TILE):
+    sp(2, 4, x, TILE - 1, RK_HI if random.random() > 0.25 else RK_LT)
+    sp(2, 4, x, TILE - 2, RK_LT)
+    sp(2, 4, x, TILE - 3, RK_MD)
+# canto em diagonal
+for d in range(8):
+    sp(2, 4, TILE - 1 - d, TILE - 1 - (7 - d), RK_VDK)
+
+# ──────────────────────────────────────────────
+# (3,4)  Canto parede-direita + teto
+# (junção entre parede direita e teto)
+# ──────────────────────────────────────────────
+rock_fill(3, 4)
+# face esquerda (parede)
+for y in range(TILE):
+    sp(3, 4, 0, y, RK_HI if random.random() > 0.25 else RK_LT)
+    sp(3, 4, 1, y, RK_LT)
+    sp(3, 4, 2, y, RK_MD)
+# face inferior (teto)
+for x in range(TILE):
+    sp(3, 4, x, TILE - 1, RK_HI if random.random() > 0.25 else RK_LT)
+    sp(3, 4, x, TILE - 2, RK_LT)
+    sp(3, 4, x, TILE - 3, RK_MD)
+# canto em diagonal
+for d in range(8):
+    sp(3, 4, d, TILE - 1 - (7 - d), RK_VDK)
 
 # ──────────────────────────────────────────────
 # Save
