@@ -8,6 +8,7 @@ const GRAVITY                := 980.0
 const PATROL_SPEED           := 80.0
 const INVINCIBILITY_DURATION := 0.3
 const ANIM_FPS               := 5.0
+const HIT_FPS                := 12.0
 const WALK_FRAMES            := 6
 const HIT_FRAMES             := 5
 
@@ -49,8 +50,9 @@ func _physics_process(delta: float) -> void:
 	if is_on_wall():
 		_direction = -_direction
 	_anim_timer += delta
-	if _anim_timer >= 1.0 / ANIM_FPS:
-		_anim_timer -= 1.0 / ANIM_FPS
+	var _fps := HIT_FPS if _hit_playing else ANIM_FPS
+	if _anim_timer >= 1.0 / _fps:
+		_anim_timer -= 1.0 / _fps
 		if _hit_playing:
 			_anim_frame += 1
 			if _anim_frame >= HIT_FRAMES:
