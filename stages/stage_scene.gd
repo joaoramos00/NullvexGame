@@ -18,7 +18,7 @@ func _ready() -> void:
 	$StageController.setup(_player)
 	$HUD.connect_to_player(_player)
 	StageManager.spawn_position = $PlayerSpawn.global_position
-	$Camera2D.zoom = Vector2(2, 2)
+	$Camera2D.zoom = Vector2(2.5, 2.5)
 	AudioManager.play_bgm(AudioLibrary.get_stage_bgm(StageManager.current_stage_id))
 	queue_redraw()
 
