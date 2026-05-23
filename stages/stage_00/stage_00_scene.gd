@@ -4,30 +4,30 @@ extends Node2D
 const ZAEL_SCENE   := preload("res://characters/ranged/zael.tscn")
 const ZARA_SCENE   := preload("res://characters/melee/zara.tscn")
 const _TILESET     := preload("res://stages/stage_00/Stage_00T.png")
-const _TS          := 32
+const _TS          := 64
 const _GRUNT_SCENE := preload("res://characters/enemies/enemy_base.tscn")
 const _FLYER_SCENE := preload("res://characters/enemies/enemy_flyer.tscn")
 const _BOSS_SCENE  := preload("res://characters/bosses/intro_boss.tscn")
 const _DOOR_SCENE  := preload("res://stages/checkpoint_door.tscn")
 
 const ZONE1_GRUNTS := [
-	Vector2(400, 520), Vector2(700, 520), Vector2(1700, 452),
-	Vector2(1900, 520), Vector2(2200, 440), Vector2(2700, 520)
+	Vector2(800, 1040), Vector2(1400, 1040), Vector2(3400, 904),
+	Vector2(3800, 1040), Vector2(4400, 880), Vector2(5400, 1040)
 ]
-const ZONE1_FLYERS := [Vector2(1050, 380), Vector2(2450, 400)]
+const ZONE1_FLYERS := [Vector2(2100, 760), Vector2(4900, 800)]
 
 const ZONE2_GRUNTS := [
-	Vector2(3500, 204), Vector2(3900, 204), Vector2(4650, 140),
-	Vector2(4980, 200), Vector2(5900, 360)
+	Vector2(7000, 408), Vector2(7800, 408), Vector2(9300, 280),
+	Vector2(9960, 400), Vector2(11800, 720)
 ]
-const ZONE2_FLYERS := [Vector2(3700, 160), Vector2(4250, 180), Vector2(5600, 380)]
+const ZONE2_FLYERS := [Vector2(7400, 320), Vector2(8500, 360), Vector2(11200, 760)]
 
 const ZONE3_GRUNTS := [
-	Vector2(6100, 520), Vector2(6800, 460), Vector2(7100, 520), Vector2(7600, 520)
+	Vector2(12200, 1040), Vector2(13600, 920), Vector2(14200, 1040), Vector2(15200, 1040)
 ]
-const ZONE3_FLYERS := [Vector2(6600, 400), Vector2(7300, 380)]
+const ZONE3_FLYERS := [Vector2(13200, 800), Vector2(14600, 760)]
 
-const BOSS_SPAWN := Vector2(9100, 400)
+const BOSS_SPAWN := Vector2(18200, 800)
 const CP1_ENTRY_X := 2900.0
 const CP1_EXIT_X  := 3200.0
 const CP2_ENTRY_X := 8000.0
@@ -128,7 +128,7 @@ func _setup_doors() -> void:
 
 func _on_cp1_entry_opened(door: Node2D) -> void:
 	# Save checkpoint so player respawns at CP1 exit if they die
-	StageManager.save_checkpoint(Vector2(CP1_EXIT_X + 64, 496), 1)
+	StageManager.save_checkpoint(Vector2(CP1_EXIT_X * 2 + 128, 992), 1)
 	# Heal player fully
 	if is_instance_valid(_player):
 		_player.heal(_player.max_hp)
@@ -140,7 +140,7 @@ func _on_cp1_entry_opened(door: Node2D) -> void:
 
 func _on_cp2_entry_opened(door: Node2D) -> void:
 	# Save checkpoint so player respawns at CP2 exit if they die (before boss)
-	StageManager.save_checkpoint(Vector2(CP2_EXIT_X + 64, 496), 2)
+	StageManager.save_checkpoint(Vector2(CP2_EXIT_X * 2 + 128, 992), 2)
 	# Heal player fully
 	if is_instance_valid(_player):
 		_player.heal(_player.max_hp)
@@ -168,9 +168,9 @@ func _spawn_boss() -> void:
 	_boss.global_position = BOSS_SPAWN
 	_boss.player = _player
 	# Arena bounds for the boss room (x: 8301–9301, floor: ~560)
-	_boss.arena_left  = 8340.0
-	_boss.arena_right = 9260.0
-	_boss.arena_floor = 540.0
+	_boss.arena_left  = 16680.0
+	_boss.arena_right = 18520.0
+	_boss.arena_floor = 1080.0
 	add_child(_boss)
 	_boss.boss_defeated.connect(_on_boss_defeated)
 
