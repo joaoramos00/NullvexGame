@@ -1,398 +1,182 @@
-"""Generates Stage_01T.png — 128x160 spritesheet (4x5 grid, 32x32 tiles) fire/volcano theme."""
+"""Generates Stage_01T.png — 128x128 (4x4 grid, 32x32 tiles) fire/volcano theme.
+Tile layout mirrors Stage_00T exactly so both share the same positional descriptions."""
 from PIL import Image
 import random, os
 
-random.seed(1337)
+random.seed(42)
 
 TILE = 32
-COLS = 4
-ROWS = 5
-W = TILE * COLS   # 128
-H = TILE * ROWS   # 160
+COLS = ROWS = 4
+W = H = TILE * COLS   # 128x128
 
-# --- Palette ---
-BLANK   = (  0,   0,   0,   0)
-RK_VDK  = ( 22,   8,   2, 255)
-RK_DK   = ( 42,  18,   5, 255)
-RK_MD   = ( 70,  33,  10, 255)
-RK_LT   = (100,  52,  20, 255)
-RK_HI   = (135,  75,  32, 255)
-LV_DK   = (150,  22,   0, 255)
-LV_MD   = (220,  72,   0, 255)
-LV_BR   = (255, 150,  10, 255)
-LV_GL   = (255, 218,  55, 255)
-BG_VDK  = (  7,   2,   0, 255)
-BG_DK   = ( 18,   7,   1, 255)
+# --- Fire/Volcano Palette ---
+BLANK  = (  0,   0,   0,   0)
+RK_VDK = ( 22,   8,   2, 255)   # very dark volcanic rock
+RK_DK  = ( 42,  18,   5, 255)   # dark rock
+RK_MD  = ( 70,  33,  10, 255)   # mid rock
+RK_LT  = (100,  52,  20, 255)   # light rock surface
+RK_HI  = (135,  75,  32, 255)   # brightest highlight
+LV_DK  = (150,  22,   0, 255)   # dark lava vein
+LV_MD  = (220,  72,   0, 255)   # bright lava vein
 
 img = Image.new("RGBA", (W, H), BLANK)
 px  = img.load()
 
 def sp(col, row, x, y, c):
     gx, gy = col * TILE + x, row * TILE + y
-    if 0 <= gx < W and 0 <= gy < H and row < ROWS:
+    if 0 <= gx < W and 0 <= gy < H:
         px[gx, gy] = c
 
-def rock_fill(col, row, base=RK_DK):
+# ── Surface gradient: distance 0 = outermost exposed edge ──
+SD = 4   # surface depth in pixels
+M  = TILE // 2   # half-tile pivot for L-tiles
+
+def surf(d):
+    r = random.random()
+    if d == 0: return RK_HI if r > 0.25 else RK_LT
+    if d == 1: return RK_LT if r > 0.35 else RK_HI
+    if d == 2: return RK_MD if r > 0.30 else RK_LT
+    return      RK_DK if r > 0.40 else RK_MD
+
+def fill(col, row):
+    """Dark volcanic rock interior with rare lava veins."""
     for y in range(TILE):
         for x in range(TILE):
             r = random.random()
-            c = RK_VDK if r < 0.08 else RK_MD if r < 0.15 else base
+            if   r < 0.03: c = LV_DK
+            elif r < 0.38: c = RK_VDK
+            elif r < 0.74: c = RK_DK
+            else:          c = RK_MD
             sp(col, row, x, y, c)
 
-def bg_fill(col, row):
-    for y in range(TILE):
-        for x in range(TILE):
-            r = random.random()
-            c = BG_VDK if r < 0.7 else BG_DK if r < 0.92 else RK_VDK
-            sp(col, row, x, y, c)
+def etop(col, row, x0=0, x1=TILE):
+    for y in range(SD):
+        for x in range(x0, x1):
+            sp(col, row, x, y, surf(y))
 
-# ──────────────────────────────────────────────
-# (0,0)  Solid rock fill — interior
-# ──────────────────────────────────────────────
-rock_fill(0, 0)
-for (vx, vy) in [(5,4),(6,5),(7,6),(8,7),(18,12),(19,13),(24,21),(25,22)]:
-    sp(0, 0, vx, vy, LV_DK)
-    if vx + 1 < TILE: sp(0, 0, vx+1, vy, LV_MD)
+def ebot(col, row, x0=0, x1=TILE):
+    for y in range(SD):
+        for x in range(x0, x1):
+            sp(col, row, x, TILE - 1 - y, surf(y))
 
-# ──────────────────────────────────────────────
-# (1,0)  Ground top — walkable surface
-# ──────────────────────────────────────────────
-rock_fill(1, 0)
-for y in range(5):
-    for x in range(TILE):
-        if y == 0:
-            c = RK_HI if random.random() > 0.25 else RK_LT
-        elif y == 1:
-            c = RK_LT if random.random() > 0.35 else RK_HI
-        elif y == 2:
-            c = RK_MD if random.random() > 0.3 else RK_LT
-        elif y == 3:
-            c = RK_DK if random.random() > 0.4 else RK_MD
-        else:
-            c = RK_VDK if random.random() > 0.5 else RK_DK
-        sp(1, 0, x, y, c)
+def eleft(col, row, y0=0, y1=TILE):
+    for x in range(SD):
+        for y in range(y0, y1):
+            sp(col, row, x, y, surf(x))
 
-# ──────────────────────────────────────────────
-# (2,0)  Ground top-left corner
-# ──────────────────────────────────────────────
-rock_fill(2, 0)
-# surface only on right portion
-for y in range(5):
-    start_x = max(0, 14 - y * 3)
-    for x in range(start_x, TILE):
-        if y == 0:
-            c = RK_HI if random.random() > 0.25 else RK_LT
-        elif y == 1:
-            c = RK_LT if random.random() > 0.35 else RK_HI
-        elif y == 2:
-            c = RK_MD
-        else:
-            c = RK_DK
-        sp(2, 0, x, y, c)
-# left edge shadow + transparent cut
-for y in range(TILE):
-    drop_x = max(0, 6 - y // 4)
-    for x in range(drop_x):
-        sp(2, 0, x, y, BLANK)
-    if drop_x < TILE:
-        sp(2, 0, drop_x, y, RK_VDK)
+def eright(col, row, y0=0, y1=TILE):
+    for x in range(SD):
+        for y in range(y0, y1):
+            sp(col, row, TILE - 1 - x, y, surf(x))
 
-# ──────────────────────────────────────────────
-# (3,0)  Ground top-right corner
-# ──────────────────────────────────────────────
-rock_fill(3, 0)
-for y in range(5):
-    end_x = min(TILE, TILE - 14 + y * 3)
-    for x in range(end_x):
-        if y == 0:
-            c = RK_HI if random.random() > 0.25 else RK_LT
-        elif y == 1:
-            c = RK_LT if random.random() > 0.35 else RK_HI
-        elif y == 2:
-            c = RK_MD
-        else:
-            c = RK_DK
-        sp(3, 0, x, y, c)
-for y in range(TILE):
-    drop_x = min(TILE - 1, TILE - 1 - max(0, 6 - y // 4))
-    for x in range(drop_x + 1, TILE):
-        sp(3, 0, x, y, BLANK)
-    sp(3, 0, drop_x, y, RK_VDK)
+def corner_accent(col, row, px_x, px_y):
+    """Extra warm pixel at inner-corner junction."""
+    sp(col, row, px_x, px_y, RK_LT)
 
-# ──────────────────────────────────────────────
-# (0,1)  Platform solid fill
-# ──────────────────────────────────────────────
-PSLAB_TOP = 10
-PSLAB_BOT = 21
-for y in range(TILE):
-    for x in range(TILE):
-        if PSLAB_TOP <= y <= PSLAB_BOT:
-            r = random.random()
-            c = RK_MD if r < 0.5 else RK_DK if r < 0.82 else RK_LT
-            sp(0, 1, x, y, c)
+# ══════════════════════════════════════════════════════════
+# ROW 0
+# ══════════════════════════════════════════════════════════
 
-# ──────────────────────────────────────────────
-# (1,1)  Platform top — standing surface
-# ──────────────────────────────────────────────
-for y in range(TILE):
-    for x in range(TILE):
-        if y == PSLAB_TOP:
-            c = RK_HI if random.random() > 0.3 else RK_LT
-            sp(1, 1, x, y, c)
-        elif y == PSLAB_TOP + 1:
-            sp(1, 1, x, y, RK_LT)
-        elif PSLAB_TOP + 2 <= y <= PSLAB_BOT:
-            r = random.random()
-            c = RK_MD if r < 0.5 else RK_DK if r < 0.82 else RK_LT
-            sp(1, 1, x, y, c)
+# (0,0)  Canto inferior esquerdo — exposed: BOTTOM + LEFT
+fill(0, 0)
+ebot(0, 0)
+eleft(0, 0)
 
-# ──────────────────────────────────────────────
-# (2,1)  Platform left edge
-# ──────────────────────────────────────────────
-for y in range(TILE):
-    for x in range(TILE):
-        if PSLAB_TOP <= y <= PSLAB_BOT:
-            if x < 3:
-                sp(2, 1, x, y, BLANK)
-            elif x < 6:
-                sp(2, 1, x, y, RK_VDK)
-            elif x < 9:
-                sp(2, 1, x, y, RK_DK)
-            else:
-                r = random.random()
-                sp(2, 1, x, y, RK_MD if r < 0.5 else RK_DK)
-            if y == PSLAB_TOP and x >= 3:
-                sp(2, 1, x, y, RK_HI if x >= 6 else RK_LT)
+# (1,0)  Lateral direita da coluna lisa — exposed: RIGHT
+fill(1, 0)
+eright(1, 0)
 
-# ──────────────────────────────────────────────
-# (3,1)  Platform right edge
-# ──────────────────────────────────────────────
-for y in range(TILE):
-    for x in range(TILE):
-        if PSLAB_TOP <= y <= PSLAB_BOT:
-            rx = TILE - 1 - x
-            if rx < 3:
-                sp(3, 1, x, y, BLANK)
-            elif rx < 6:
-                sp(3, 1, x, y, RK_VDK)
-            elif rx < 9:
-                sp(3, 1, x, y, RK_DK)
-            else:
-                r = random.random()
-                sp(3, 1, x, y, RK_MD if r < 0.5 else RK_DK)
-            if y == PSLAB_TOP and rx >= 3:
-                sp(3, 1, x, y, RK_HI if rx >= 6 else RK_LT)
+# (2,0)  L da coluna com chão do lado direito
+# inner corner: right face of left column (y 0→M) + top face of right floor (x M→TILE)
+fill(2, 0)
+eright(2, 0, y0=0, y1=M)
+etop(2, 0, x0=M, x1=TILE)
+corner_accent(2, 0, TILE - 1, M)   # junction pixel
 
-# ──────────────────────────────────────────────
-# (0,2)  Background dark — cave wall
-# ──────────────────────────────────────────────
-bg_fill(0, 2)
+# (3,0)  Plataforma reta — exposed: TOP
+fill(3, 0)
+etop(3, 0)
 
-# ──────────────────────────────────────────────
-# (1,2)  Lava pool
-# ──────────────────────────────────────────────
-import math
-for y in range(TILE):
-    for x in range(TILE):
-        wave = int(3 * math.sin(x * 0.45) + 3 * math.sin(x * 0.9 + 1.2))
-        surf = 8 + wave
-        if y < surf - 2:
-            sp(1, 2, x, y, BG_VDK)
-        elif y < surf:
-            c = LV_GL if random.random() > 0.4 else LV_BR
-            sp(1, 2, x, y, c)
-        elif y < surf + 5:
-            c = LV_BR if random.random() > 0.45 else LV_MD
-            sp(1, 2, x, y, c)
-        elif y < surf + 14:
-            c = LV_MD if random.random() > 0.4 else LV_BR if random.random() > 0.6 else LV_DK
-            sp(1, 2, x, y, c)
-        else:
-            c = LV_DK if random.random() > 0.35 else LV_MD
-            sp(1, 2, x, y, c)
+# ══════════════════════════════════════════════════════════
+# ROW 1
+# ══════════════════════════════════════════════════════════
 
-# ──────────────────────────────────────────────
-# (2,2)  Flame decoration
-# ──────────────────────────────────────────────
-bg_fill(2, 2)
-CX = 16
-for y in range(TILE):
-    iy = TILE - 1 - y  # 0=bottom, 31=top
-    hw = max(0, int(10 * math.pow(max(0, 1 - iy / 26.0), 0.7)) - 1)
-    if hw <= 0:
-        continue
-    for x in range(CX - hw, CX + hw + 1):
-        if 0 <= x < TILE:
-            d = abs(x - CX) / max(hw, 1)
-            if d < 0.25:
-                c = LV_GL if iy > 10 else LV_BR
-            elif d < 0.55:
-                c = LV_BR if iy > 6 else LV_MD
-            else:
-                c = LV_MD if iy > 4 else LV_DK
-            sp(2, 2, x, y, c)
+# (0,1)  Canto superior esquerdo com canto inferior direito
+# upper-left quadrant: TOP + LEFT; lower-right quadrant: BOTTOM + RIGHT
+fill(0, 1)
+etop(0, 1, x0=0, x1=M)
+eleft(0, 1, y0=0, y1=M)
+ebot(0, 1, x0=M, x1=TILE)
+eright(0, 1, y0=M, y1=TILE)
 
-# ──────────────────────────────────────────────
-# (3,2)  Stalactite — rock hanging from ceiling
-# ──────────────────────────────────────────────
-bg_fill(3, 2)
-SCX = 16
-for y in range(TILE):
-    w = max(0, int(13 * (1.0 - y / 23.0)))
-    if y > 23:
-        break
-    for x in range(SCX - w, SCX + w + 1):
-        if 0 <= x < TILE:
-            d = abs(x - SCX) / max(w, 1) if w > 0 else 0
-            if y == 0:
-                c = RK_HI
-            elif d < 0.25:
-                c = RK_LT if y < 6 else RK_MD
-            elif d < 0.6:
-                c = RK_MD if y < 8 else RK_DK
-            else:
-                c = RK_DK if y < 8 else RK_VDK
-            sp(3, 2, x, y, c)
+# (1,1)  L da coluna com chão do lado esquerdo
+# inner corner: left face of right column (y 0→M) + top face of left floor (x 0→M)
+fill(1, 1)
+eleft(1, 1, y0=0, y1=M)
+etop(1, 1, x0=0, x1=M)
+corner_accent(1, 1, 0, M)
 
-# ──────────────────────────────────────────────
-# (0,3)  Transparent — empty tile
-# ──────────────────────────────────────────────
-# already BLANK
+# (2,1)  Centro do tile — miolo de preenchimento todo preenchido (no exposed faces)
+fill(2, 1)
 
-# ──────────────────────────────────────────────
-# (1,3)  Rock bottom — underside
-# ──────────────────────────────────────────────
-rock_fill(1, 3)
-for y in range(26, TILE):
-    for x in range(TILE):
-        depth = y - 25
-        c = RK_VDK if random.random() > 0.35 or depth > 4 else RK_DK
-        sp(1, 3, x, y, c)
-# jagged bottom edge hints
-for x in range(0, TILE, 4):
-    jag = random.randint(28, 31)
-    for y in range(jag, TILE):
-        sp(1, 3, x, y, RK_VDK)
+# (3,1)  L da coluna com teto do lado direito
+# inner corner: right face of left column (y M→TILE) + bottom face of right ceiling (x M→TILE)
+fill(3, 1)
+eright(3, 1, y0=M, y1=TILE)
+ebot(3, 1, x0=M, x1=TILE)
+corner_accent(3, 1, TILE - 1, M - 1)
 
-# ──────────────────────────────────────────────
-# (2,3)  Lava drip
-# ──────────────────────────────────────────────
-bg_fill(2, 3)
-for drip_x, length in [(10, 14), (22, 19)]:
-    for y in range(length):
-        hw = 2 if y < length - 4 else max(1, 2 - (y - (length - 4)))
-        for x in range(drip_x - hw, drip_x + hw + 1):
-            if 0 <= x < TILE:
-                d = abs(x - drip_x)
-                c = LV_GL if d == 0 else LV_BR if d == 1 else LV_MD
-                sp(2, 3, x, y, c)
-    # teardrop tip
-    for dy in range(4):
-        hw2 = max(0, 2 - dy)
-        for x in range(drip_x - hw2, drip_x + hw2 + 1):
-            ty = length + dy
-            if 0 <= x < TILE and ty < TILE:
-                d = abs(x - drip_x)
-                c = LV_BR if d == 0 and dy < 2 else LV_MD if d <= 1 else LV_DK
-                sp(2, 3, x, ty, c)
+# ══════════════════════════════════════════════════════════
+# ROW 2
+# ══════════════════════════════════════════════════════════
 
-# ──────────────────────────────────────────────
-# (3,3)  Ember sparks
-# ──────────────────────────────────────────────
-bg_fill(3, 3)
-clusters = [
-    (8, 24, 3), (16, 18, 2), (22, 26, 2),
-    (5, 13, 2), (25, 9, 2), (13, 5, 3),
-    (28, 20, 2), (3, 28, 2), (20, 3, 2),
-    (11, 30, 1), (29, 4, 1),
-]
-for (ex, ey, size) in clusters:
-    c_center = LV_GL
-    c_mid    = LV_BR
-    c_outer  = LV_MD
-    for dy in range(-size+1, size):
-        for dx in range(-size+1, size):
-            d = abs(dx) + abs(dy)
-            nx, ny = ex + dx, ey + dy
-            if 0 <= nx < TILE and 0 <= ny < TILE:
-                if d == 0:
-                    sp(3, 3, nx, ny, c_center)
-                elif d == 1:
-                    sp(3, 3, nx, ny, c_mid)
-                elif d == 2 and size >= 3:
-                    sp(3, 3, nx, ny, c_outer)
+# (0,2)  Canto superior direito — exposed: TOP + RIGHT
+fill(0, 2)
+etop(0, 2)
+eright(0, 2)
 
-# ──────────────────────────────────────────────
-# (0,4)  Wall left — face direita visível
-# (player encosta à esquerda e pula na face direita)
-# ──────────────────────────────────────────────
-rock_fill(0, 4)
-# lava seams
-for (vx, vy) in [(4, 6), (5, 14), (3, 22), (6, 28)]:
-    sp(0, 4, vx, vy, LV_DK)
-    if vx + 1 < TILE: sp(0, 4, vx + 1, vy, LV_MD)
-# highlight na borda direita (face exposta)
-for y in range(TILE):
-    sp(0, 4, TILE - 1, y, RK_HI if random.random() > 0.25 else RK_LT)
-    sp(0, 4, TILE - 2, y, RK_LT if random.random() > 0.35 else RK_HI)
-    sp(0, 4, TILE - 3, y, RK_MD)
-    sp(0, 4, TILE - 4, y, RK_DK if random.random() > 0.4 else RK_MD)
+# (1,2)  Teto reto — exposed: BOTTOM
+fill(1, 2)
+ebot(1, 2)
 
-# ──────────────────────────────────────────────
-# (1,4)  Wall right — face esquerda visível
-# (player encosta à direita e pula na face esquerda)
-# ──────────────────────────────────────────────
-rock_fill(1, 4)
-for (vx, vy) in [(26, 5), (27, 13), (25, 21), (28, 27)]:
-    sp(1, 4, vx, vy, LV_DK)
-    if vx + 1 < TILE: sp(1, 4, vx + 1, vy, LV_MD)
-for y in range(TILE):
-    sp(1, 4, 0, y, RK_HI if random.random() > 0.25 else RK_LT)
-    sp(1, 4, 1, y, RK_LT if random.random() > 0.35 else RK_HI)
-    sp(1, 4, 2, y, RK_MD)
-    sp(1, 4, 3, y, RK_DK if random.random() > 0.4 else RK_MD)
+# (2,2)  L da coluna com teto do lado esquerdo
+# inner corner: left face of right column (y M→TILE) + bottom face of left ceiling (x 0→M)
+fill(2, 2)
+eleft(2, 2, y0=M, y1=TILE)
+ebot(2, 2, x0=0, x1=M)
+corner_accent(2, 2, 0, M - 1)
 
-# ──────────────────────────────────────────────
-# (2,4)  Canto parede-esquerda + teto
-# (junção entre parede esquerda e teto)
-# ──────────────────────────────────────────────
-rock_fill(2, 4)
-# face direita (parede)
-for y in range(TILE):
-    sp(2, 4, TILE - 1, y, RK_HI if random.random() > 0.25 else RK_LT)
-    sp(2, 4, TILE - 2, y, RK_LT)
-    sp(2, 4, TILE - 3, y, RK_MD)
-# face inferior (teto)
-for x in range(TILE):
-    sp(2, 4, x, TILE - 1, RK_HI if random.random() > 0.25 else RK_LT)
-    sp(2, 4, x, TILE - 2, RK_LT)
-    sp(2, 4, x, TILE - 3, RK_MD)
-# canto em diagonal
-for d in range(8):
-    sp(2, 4, TILE - 1 - d, TILE - 1 - (7 - d), RK_VDK)
+# (3,2)  Lateral esquerda da coluna lisa — exposed: LEFT
+fill(3, 2)
+eleft(3, 2)
 
-# ──────────────────────────────────────────────
-# (3,4)  Canto parede-direita + teto
-# (junção entre parede direita e teto)
-# ──────────────────────────────────────────────
-rock_fill(3, 4)
-# face esquerda (parede)
-for y in range(TILE):
-    sp(3, 4, 0, y, RK_HI if random.random() > 0.25 else RK_LT)
-    sp(3, 4, 1, y, RK_LT)
-    sp(3, 4, 2, y, RK_MD)
-# face inferior (teto)
-for x in range(TILE):
-    sp(3, 4, x, TILE - 1, RK_HI if random.random() > 0.25 else RK_LT)
-    sp(3, 4, x, TILE - 2, RK_LT)
-    sp(3, 4, x, TILE - 3, RK_MD)
-# canto em diagonal
-for d in range(8):
-    sp(3, 4, d, TILE - 1 - (7 - d), RK_VDK)
+# ══════════════════════════════════════════════════════════
+# ROW 3
+# ══════════════════════════════════════════════════════════
 
-# ──────────────────────────────────────────────
+# (0,3)  Transparente — tile vazio (already BLANK, nothing to draw)
+
+# (1,3)  Canto inferior direito — exposed: BOTTOM + RIGHT
+fill(1, 3)
+ebot(1, 3)
+eright(1, 3)
+
+# (2,3)  Canto inferior esquerdo com canto superior direito
+# lower-left quadrant: BOTTOM + LEFT; upper-right quadrant: TOP + RIGHT
+fill(2, 3)
+ebot(2, 3, x0=0, x1=M)
+eleft(2, 3, y0=M, y1=TILE)
+etop(2, 3, x0=M, x1=TILE)
+eright(2, 3, y0=0, y1=M)
+
+# (3,3)  Canto superior esquerdo — exposed: TOP + LEFT
+fill(3, 3)
+etop(3, 3)
+eleft(3, 3)
+
+# ══════════════════════════════════════════════════════════
 # Save
-# ──────────────────────────────────────────────
+# ══════════════════════════════════════════════════════════
 out = os.path.join("stages", "stage_01", "Stage_01T.png")
 img.save(out)
 print(f"Saved: {out}  ({W}x{H})")

@@ -12,7 +12,7 @@ const _SPRITES: Array = [
 
 const _TILESETS: Array = [
     {"name": "Stage_00T", "path": "res://stages/stage_00/Stage_00T.png", "cols": 4, "rows": 4, "tile_size": 32},
-    {"name": "Stage_01T", "path": "res://stages/stage_01/Stage_01T.png", "cols": 4, "rows": 5, "tile_size": 32},
+    {"name": "Stage_01T", "path": "res://stages/stage_01/Stage_01T.png", "cols": 4, "rows": 4, "tile_size": 32},
 ]
 
 const _TILE_DESCS: Dictionary = {
@@ -33,28 +33,23 @@ const _TILE_DESCS: Dictionary = {
     "Stage_00T:1,3": "Canto inferior direito",
     "Stage_00T:2,3": "Canto inferior esquerdo com canto superior direito",
     "Stage_00T:3,3": "Canto superior esquerdo",
-    # Stage_01T — fogo/vulcão
-    "Stage_01T:0,0": "Rocha sólida — fill interior, veios de lava",
-    "Stage_01T:1,0": "Superfície de chão — topo rugoso transitando para rocha",
-    "Stage_01T:2,0": "Canto superior esquerdo do chão",
-    "Stage_01T:3,0": "Canto superior direito do chão",
-    "Stage_01T:0,1": "Plataforma sólida — fill interno da laje",
-    "Stage_01T:1,1": "Plataforma topo — superfície onde o player pisa",
-    "Stage_01T:2,1": "Plataforma borda esquerda",
-    "Stage_01T:3,1": "Plataforma borda direita",
-    "Stage_01T:0,2": "Fundo escuro — parede de caverna",
-    "Stage_01T:1,2": "Poça de lava — brilho ondulante",
-    "Stage_01T:2,2": "Chama decorativa — língua de fogo",
-    "Stage_01T:3,2": "Estalactite — rocha pendurada do teto",
+    # Stage_01T — fogo/vulcão (mesma estrutura funcional do Stage_00T)
+    "Stage_01T:0,0": "Canto inferior esquerdo",
+    "Stage_01T:1,0": "Lateral direita da coluna lisa",
+    "Stage_01T:2,0": "L da coluna com chão do lado direito",
+    "Stage_01T:3,0": "Plataforma reta",
+    "Stage_01T:0,1": "Canto superior esquerdo com canto inferior direito",
+    "Stage_01T:1,1": "L da coluna com chão do lado esquerdo",
+    "Stage_01T:2,1": "Centro do tile — miolo de preenchimento todo preenchido",
+    "Stage_01T:3,1": "L da coluna com teto do lado direito",
+    "Stage_01T:0,2": "Canto superior direito",
+    "Stage_01T:1,2": "Teto reto",
+    "Stage_01T:2,2": "L da coluna com teto do lado esquerdo",
+    "Stage_01T:3,2": "Lateral esquerda da coluna lisa",
     "Stage_01T:0,3": "Transparente — tile vazio (alpha = 0), não utilizado",
-    "Stage_01T:1,3": "Rocha inferior — parte de baixo do bloco de chão",
-    "Stage_01T:2,3": "Gota de lava — lava escorrendo",
-    "Stage_01T:3,3": "Brasas — faíscas flutuantes",
-    # row 4 — paredes laterais
-    "Stage_01T:0,4": "Parede esquerda — face direita exposta (player encosta e pula)",
-    "Stage_01T:1,4": "Parede direita — face esquerda exposta (player encosta e pula)",
-    "Stage_01T:2,4": "Canto parede-esquerda + teto — junção interna",
-    "Stage_01T:3,4": "Canto parede-direita + teto — junção interna",
+    "Stage_01T:1,3": "Canto inferior direito",
+    "Stage_01T:2,3": "Canto inferior esquerdo com canto superior direito",
+    "Stage_01T:3,3": "Canto superior esquerdo",
 }
 
 const _FRAME_SIZE   := 68
