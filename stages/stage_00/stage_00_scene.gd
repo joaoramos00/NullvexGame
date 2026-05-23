@@ -403,8 +403,8 @@ func _tile_at(col: int, cols: int, row: int, rows: int) -> Vector2i:
 
 	# Linha única (plataforma fina): cantos + topo reto
 	if rows == 1:
-		if is_left:  return Vector2i(3, 3)    # TOP+LEFT
-		if is_right: return Vector2i(0, 2)    # TOP+RIGHT
+		if is_left:  return Vector2i(0, 0)    # BOT+LEFT  (canto visual direito)
+		if is_right: return Vector2i(1, 3)    # BOT+RIGHT (canto visual esquerdo)
 		return Vector2i(3, 0)                 # TOP
 
 	if is_top:
