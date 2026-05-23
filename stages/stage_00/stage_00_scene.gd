@@ -4,7 +4,8 @@ extends Node2D
 const ZAEL_SCENE   := preload("res://characters/ranged/zael.tscn")
 const ZARA_SCENE   := preload("res://characters/melee/zara.tscn")
 const _TILESET     := preload("res://stages/stage_00/Stage_00T.png")
-const _TS          := 64
+const _TS          := 64  # tamanho de destino no mundo
+const _SRC_TS      := 32  # tamanho real do tile no PNG
 const _GRUNT_SCENE := preload("res://characters/enemies/enemy_base.tscn")
 const _FLYER_SCENE := preload("res://characters/enemies/enemy_flyer.tscn")
 const _BOSS_SCENE  := preload("res://characters/bosses/intro_boss.tscn")
@@ -374,19 +375,18 @@ func _draw_platforms() -> void:
 			_draw_platform_tiles(Rect2(center - size * 0.5, size))
 
 func _draw_platform_tiles(rect: Rect2) -> void:
-	var ts := _TS
+	var ts     := _TS
+	var src_ts := _SRC_TS
 	var cols := ceili(rect.size.x / ts)
 	var rows := ceili(rect.size.y / ts)
 	for row in rows:
 		for col in cols:
 			var tile := _tile_at(col, cols, row, rows)
-			var src := Rect2(tile.x * ts, tile.y * ts, ts, ts)
 			var dx := rect.position.x + col * ts
 			var dy := rect.position.y + row * ts
 			var dw := minf(ts, rect.position.x + rect.size.x - dx)
 			var dh := minf(ts, rect.position.y + rect.size.y - dy)
-			src.size.x = src.size.x * dw / ts
-			src.size.y = src.size.y * dh / ts
+			var src := Rect2(tile.x * src_ts, tile.y * src_ts, src_ts * dw / ts, src_ts * dh / ts)
 			draw_texture_rect_region(_TILESET, Rect2(dx, dy, dw, dh), src)
 
 func _tile_at(col: int, cols: int, row: int, rows: int) -> Vector2i:
