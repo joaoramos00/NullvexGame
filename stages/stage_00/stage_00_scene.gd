@@ -390,10 +390,10 @@ func _draw_platform_tiles(rect: Rect2) -> void:
 			draw_texture_rect_region(_TILESET, Rect2(dx, dy, dw, dh), src)
 
 func _tile_at(col: int, cols: int, row: int, rows: int) -> Vector2i:
-	var is_left   := col == 0
-	var is_right  := col == cols - 1
-	var is_top    := row == 0
-	var is_bottom := row == rows - 1
+	var is_left   := col == cols - 1
+	var is_right  := col == 0
+	var is_top    := row == rows - 1
+	var is_bottom := row == 0
 
 	# Coluna única (parede/pilar): tampa com TOP/BOT, miolo com FILL
 	if cols == 1:
