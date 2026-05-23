@@ -26,9 +26,15 @@ func _ready() -> void:
         visible = true
     else:
         visible = false
-    $Panel/VBox/HBox/ZaelCol/ZaelButton.pressed.connect(func(): _choose("zael"))
-    $Panel/VBox/HBox/ZaraCol/ZaraButton.pressed.connect(func(): _choose("zara"))
+    var zael_btn: Button = $Panel/VBox/HBox/ZaelCol/ZaelButton
+    var zara_btn: Button = $Panel/VBox/HBox/ZaraCol/ZaraButton
+    zael_btn.pressed.connect(func(): _choose("zael"))
+    zara_btn.pressed.connect(func(): _choose("zara"))
     $Panel/VBox/CancelButton.pressed.connect(_on_cancel)
+    zael_btn.focus_neighbor_right = zara_btn.get_path()
+    zara_btn.focus_neighbor_left = zael_btn.get_path()
+    if _standalone:
+        zael_btn.grab_focus()
     _setup_previews()
 
 func _setup_previews() -> void:
@@ -64,6 +70,7 @@ func _process(delta: float) -> void:
 func show_for_stage(stage_id: int, boss_name: String) -> void:
     _stage_label.text = "Stage %d — %s" % [stage_id, boss_name]
     visible = true
+    $Panel/VBox/HBox/ZaelCol/ZaelButton.grab_focus()
 
 func _choose(character: String) -> void:
     if _standalone:
