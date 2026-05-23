@@ -103,6 +103,18 @@ size = Vector2(64, 1280)
 [sub_resource type="RectangleShape2D" id="shape_GoalZone"]
 size = Vector2(400, 240)
 
+[sub_resource type="RectangleShape2D" id="shape_StepUp1"]
+size = Vector2(128, 64)
+
+[sub_resource type="RectangleShape2D" id="shape_StepUp2"]
+size = Vector2(128, 64)
+
+[sub_resource type="RectangleShape2D" id="shape_StepUp3"]
+size = Vector2(128, 64)
+
+[sub_resource type="RectangleShape2D" id="shape_LBoundary"]
+size = Vector2(64, 2400)
+
 [node name="Stage00" type="Node2D"]
 script = ExtResource("1_script")
 
@@ -309,6 +321,30 @@ shape = SubResource("shape_GoalZone")
 [node name="PauseMenu" parent="." instance=ExtResource("4_pause")]
 [node name="GameOver" parent="." instance=ExtResource("5_gameover")]
 [node name="StageComplete" parent="." instance=ExtResource("6_scom")]
+
+[node name="Step_Up1" type="StaticBody2D" parent="."]
+position = Vector2(6565, 896)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Step_Up1"]
+shape = SubResource("shape_StepUp1")
+
+[node name="Step_Up2" type="StaticBody2D" parent="."]
+position = Vector2(6550, 704)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Step_Up2"]
+shape = SubResource("shape_StepUp2")
+
+[node name="Step_Up3" type="StaticBody2D" parent="."]
+position = Vector2(6600, 512)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Step_Up3"]
+shape = SubResource("shape_StepUp3")
+
+[node name="LBoundary" type="StaticBody2D" parent="."]
+position = Vector2(-32, 100)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="LBoundary"]
+shape = SubResource("shape_LBoundary")
 
 [node name="Camera2D" type="Camera2D" parent="."]
 limit_left = 0
