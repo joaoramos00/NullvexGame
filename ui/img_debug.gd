@@ -140,7 +140,7 @@ func _rebuild_anim_tabs() -> void:
     for i in char_sprites.size():
         var btn := Button.new()
         btn.text = char_sprites[i].anim
-        btn.add_theme_font_size_override("font_size", 16)
+        btn.add_theme_font_size_override("font_size", 20)
         btn.pressed.connect(_select_anim.bind(i))
         _anim_tabs_box.add_child(btn)
         _anim_btns.append(btn)
@@ -235,14 +235,14 @@ func _build_ui() -> void:
 
     var title_lbl := Label.new()
     title_lbl.text = "ImgDebug"
-    title_lbl.add_theme_font_size_override("font_size", 26)
+    title_lbl.add_theme_font_size_override("font_size", 30)
     title_lbl.add_theme_color_override("font_color", Color(0.8, 0.75, 1.0))
     title_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
     header.add_child(title_lbl)
 
     var close_btn := Button.new()
     close_btn.text = "✕ Fechar"
-    close_btn.add_theme_font_size_override("font_size", 18)
+    close_btn.add_theme_font_size_override("font_size", 22)
     close_btn.pressed.connect(queue_free)
     header.add_child(close_btn)
 
@@ -254,14 +254,14 @@ func _build_ui() -> void:
     for s in ["SPRITES", "TILES"]:
         var btn := Button.new()
         btn.text = s
-        btn.add_theme_font_size_override("font_size", 18)
+        btn.add_theme_font_size_override("font_size", 22)
         btn.pressed.connect(_show_section.bind(s))
         section_row.add_child(btn)
         _section_btns[s] = btn
 
     var mov_btn := Button.new()
     mov_btn.text = "MOVIMENTOS"
-    mov_btn.add_theme_font_size_override("font_size", 18)
+    mov_btn.add_theme_font_size_override("font_size", 22)
     mov_btn.pressed.connect(func(): get_tree().change_scene_to_file("res://ui/debug_movement.tscn"))
     section_row.add_child(mov_btn)
 
@@ -277,7 +277,7 @@ func _build_ui() -> void:
     for c in ["ZAEL", "ZARA"]:
         var btn := Button.new()
         btn.text = c
-        btn.add_theme_font_size_override("font_size", 18)
+        btn.add_theme_font_size_override("font_size", 22)
         btn.pressed.connect(_select_char.bind(c))
         char_row.add_child(btn)
         _char_btns[c] = btn
@@ -303,7 +303,7 @@ func _build_ui() -> void:
     preview_row.add_child(right_col)
 
     _info_label = Label.new()
-    _info_label.add_theme_font_size_override("font_size", 16)
+    _info_label.add_theme_font_size_override("font_size", 20)
     _info_label.add_theme_color_override("font_color", Color(0.85, 0.85, 0.85))
     right_col.add_child(_info_label)
 
@@ -313,7 +313,7 @@ func _build_ui() -> void:
 
     var hint_lbl := Label.new()
     hint_lbl.text = "strip: clicar pausa  ·  preview: clicar retoma"
-    hint_lbl.add_theme_font_size_override("font_size", 12)
+    hint_lbl.add_theme_font_size_override("font_size", 16)
     hint_lbl.add_theme_color_override("font_color", Color(0.45, 0.45, 0.45))
     right_col.add_child(hint_lbl)
 
@@ -330,13 +330,13 @@ func _refresh_tiles() -> void:
     for ts_data in _TILESETS:
         var lbl := Label.new()
         lbl.text = "%s  (%dx%d, %dpx cada)" % [ts_data.name, ts_data.cols, ts_data.rows, ts_data.tile_size]
-        lbl.add_theme_font_size_override("font_size", 16)
+        lbl.add_theme_font_size_override("font_size", 20)
         lbl.add_theme_color_override("font_color", Color(0.6, 0.85, 1.0))
         _tiles_box.add_child(lbl)
 
         _tile_info_label = Label.new()
         _tile_info_label.text = "clique num tile para zoom"
-        _tile_info_label.add_theme_font_size_override("font_size", 13)
+        _tile_info_label.add_theme_font_size_override("font_size", 17)
         _tile_info_label.add_theme_color_override("font_color", Color(0.5, 0.5, 0.5))
         _tiles_box.add_child(_tile_info_label)
 
@@ -368,7 +368,7 @@ func _refresh_tiles() -> void:
 
         _tile_desc_label = Label.new()
         _tile_desc_label.text = ""
-        _tile_desc_label.add_theme_font_size_override("font_size", 14)
+        _tile_desc_label.add_theme_font_size_override("font_size", 18)
         _tile_desc_label.add_theme_color_override("font_color", Color(0.85, 0.85, 0.6))
         _tile_desc_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
         _tiles_box.add_child(_tile_desc_label)
@@ -419,7 +419,7 @@ func _refresh_tiles() -> void:
                 var is_blank: bool = _TILE_DESCS.get("%s:%d,%d" % [ts_data.name, col, row], "").begins_with("Transparente")
                 var coord_lbl := Label.new()
                 coord_lbl.text = "—" if is_blank else "%d,%d" % [col, row]
-                coord_lbl.add_theme_font_size_override("font_size", 11)
+                coord_lbl.add_theme_font_size_override("font_size", 15)
                 coord_lbl.add_theme_color_override(
                     "font_color",
                     Color(0.3, 0.3, 0.3) if is_blank else Color(0.6, 0.6, 0.6)

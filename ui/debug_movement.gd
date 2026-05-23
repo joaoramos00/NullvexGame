@@ -28,6 +28,39 @@ func _ready() -> void:
 func _process(_delta: float) -> void:
     if is_instance_valid(_player):
         $Camera2D.global_position = _player.global_position
+        queue_redraw()
+
+func _draw() -> void:
+    if not is_instance_valid(_player):
+        return
+    var pos := _player.global_position + Vector2(0.0, -90.0)
+    _draw_pose(pos, _player.is_on_floor())
+
+func _draw_pose(pos: Vector2, on_floor: bool) -> void:
+    var c    := Color(0.92, 0.92, 1.0, 0.85)
+    var tw   := 2.5
+
+    # Fundo semi-transparente para contraste
+    draw_circle(pos + Vector2(0.0, 6.0), 34.0, Color(0.0, 0.0, 0.0, 0.38))
+
+    # Cabeça
+    draw_circle(pos + Vector2(0.0, -16.0), 7.0, c)
+    # Tronco
+    draw_line(pos + Vector2(0.0, -9.0), pos + Vector2(0.0, 8.0), c, tw)
+
+    if on_floor:
+        # Braços horizontais
+        draw_line(pos + Vector2(-12.0, 0.0), pos + Vector2(12.0, 0.0), c, 2.0)
+        # Pernas simétricas (no chão)
+        draw_line(pos + Vector2(0.0, 8.0), pos + Vector2(-9.0, 23.0), c, tw)
+        draw_line(pos + Vector2(0.0, 8.0), pos + Vector2( 9.0, 23.0), c, tw)
+    else:
+        # Braços em movimento (assimétricos)
+        draw_line(pos + Vector2(-13.0, -7.0), pos + Vector2(0.0,  1.0), c, 2.0)
+        draw_line(pos + Vector2(  0.0,  1.0), pos + Vector2(13.0, 6.0), c, 2.0)
+        # Perna traseira (baixa) e dianteira (elevada) — "pé mais para cima que o outro"
+        draw_line(pos + Vector2(0.0, 8.0), pos + Vector2(-13.0, 21.0), c, tw)
+        draw_line(pos + Vector2(0.0, 8.0), pos + Vector2( 13.0,  3.0), c, tw)
 
 func _setup_game_manager() -> void:
     GameManager.active_character = "zael"
