@@ -28,7 +28,7 @@ func _ready() -> void:
 
 func _draw() -> void:
 	var c := Color.WHITE if _hit_flash_timer > 0.0 else Color.ORANGE_RED
-	draw_rect(Rect2(-14, -32, 28, 64), c)
+	draw_rect(Rect2(-20, -40, 40, 80), c)
 
 func _physics_process(delta: float) -> void:
 	if is_dead:
@@ -52,8 +52,8 @@ func _physics_process(delta: float) -> void:
 
 func _has_floor_ahead() -> bool:
 	var space := get_world_2d().direct_space_state
-	var start := Vector2(global_position.x + _direction * 20.0, global_position.y - 8.0)
-	var end   := Vector2(global_position.x + _direction * 20.0, global_position.y + 72.0)
+	var start := Vector2(global_position.x + _direction * 26.0, global_position.y - 8.0)
+	var end   := Vector2(global_position.x + _direction * 26.0, global_position.y + 88.0)
 	var params := PhysicsRayQueryParameters2D.create(start, end)
 	return not space.intersect_ray(params).is_empty()
 
