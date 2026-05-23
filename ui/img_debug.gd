@@ -51,10 +51,10 @@ const _TILE_DESCS: Dictionary = {
 }
 
 const _FRAME_SIZE   := 68
-const _PREVIEW_SIZE := 136
-const _STRIP_SIZE   := 40
-const _TILE_DISPLAY := 52
-const _PLAT_CELL    := 56   # tamanho de cada célula na aba plataforma
+const _PREVIEW_SIZE := 160
+const _STRIP_SIZE   := 48
+const _TILE_DISPLAY := 64
+const _PLAT_CELL    := 80   # tamanho de cada célula na aba plataforma
 
 var _section: String   = "SPRITES"
 var _char: String      = "ZAEL"
@@ -311,7 +311,7 @@ func _rebuild_plat_grid() -> void:
 
 			var coord_lbl := Label.new()
 			coord_lbl.text = "%d,%d" % [tile.x, tile.y]
-			coord_lbl.add_theme_font_size_override("font_size", 11)
+			coord_lbl.add_theme_font_size_override("font_size", 16)
 			coord_lbl.add_theme_color_override("font_color", Color(0.5, 0.85, 0.5))
 			coord_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 			cell.add_child(coord_lbl)
@@ -364,26 +364,26 @@ func _build_ui() -> void:
 
 	var title_lbl := Label.new()
 	title_lbl.text = "ImgDebug"
-	title_lbl.add_theme_font_size_override("font_size", 26)
+	title_lbl.add_theme_font_size_override("font_size", 32)
 	title_lbl.add_theme_color_override("font_color", Color(0.8, 0.75, 1.0))
 	title_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	header.add_child(title_lbl)
 
 	var close_btn := Button.new()
 	close_btn.text = "✕ Fechar"
-	close_btn.add_theme_font_size_override("font_size", 18)
+	close_btn.add_theme_font_size_override("font_size", 22)
 	close_btn.pressed.connect(queue_free)
 	header.add_child(close_btn)
 
 	# Section tabs
 	var section_row := HBoxContainer.new()
-	section_row.add_theme_constant_override("separation", 6)
+	section_row.add_theme_constant_override("separation", 8)
 	main.add_child(section_row)
 
 	for s in ["SPRITES", "TILES", "PLATAFORMA"]:
 		var btn := Button.new()
 		btn.text = s
-		btn.add_theme_font_size_override("font_size", 18)
+		btn.add_theme_font_size_override("font_size", 22)
 		btn.pressed.connect(_show_section.bind(s))
 		section_row.add_child(btn)
 		_section_btns[s] = btn
@@ -400,13 +400,13 @@ func _build_ui() -> void:
 	for c in ["ZAEL", "ZARA"]:
 		var btn := Button.new()
 		btn.text = c
-		btn.add_theme_font_size_override("font_size", 18)
+		btn.add_theme_font_size_override("font_size", 22)
 		btn.pressed.connect(_select_char.bind(c))
 		char_row.add_child(btn)
 		_char_btns[c] = btn
 
 	_anim_tabs_box = HBoxContainer.new()
-	_anim_tabs_box.add_theme_constant_override("separation", 4)
+	_anim_tabs_box.add_theme_constant_override("separation", 6)
 	_sprites_box.add_child(_anim_tabs_box)
 
 	var preview_row := HBoxContainer.new()
@@ -426,17 +426,17 @@ func _build_ui() -> void:
 	preview_row.add_child(right_col)
 
 	_info_label = Label.new()
-	_info_label.add_theme_font_size_override("font_size", 16)
+	_info_label.add_theme_font_size_override("font_size", 20)
 	_info_label.add_theme_color_override("font_color", Color(0.85, 0.85, 0.85))
 	right_col.add_child(_info_label)
 
 	_strip_box = HBoxContainer.new()
-	_strip_box.add_theme_constant_override("separation", 4)
+	_strip_box.add_theme_constant_override("separation", 6)
 	right_col.add_child(_strip_box)
 
 	var hint_lbl := Label.new()
 	hint_lbl.text = "strip: clicar pausa  ·  preview: clicar retoma"
-	hint_lbl.add_theme_font_size_override("font_size", 12)
+	hint_lbl.add_theme_font_size_override("font_size", 15)
 	hint_lbl.add_theme_color_override("font_color", Color(0.45, 0.45, 0.45))
 	right_col.add_child(hint_lbl)
 
@@ -447,23 +447,24 @@ func _build_ui() -> void:
 
 	# ── PLATAFORMA BOX ───────────────────────────────────────────────────────
 	_plat_box = VBoxContainer.new()
-	_plat_box.add_theme_constant_override("separation", 10)
+	_plat_box.add_theme_constant_override("separation", 12)
+	_plat_box.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	main.add_child(_plat_box)
 
 	# Tileset selector
 	var ts_row := HBoxContainer.new()
-	ts_row.add_theme_constant_override("separation", 6)
+	ts_row.add_theme_constant_override("separation", 8)
 	_plat_box.add_child(ts_row)
 
 	var ts_lbl := Label.new()
 	ts_lbl.text = "Tileset:"
-	ts_lbl.add_theme_font_size_override("font_size", 15)
+	ts_lbl.add_theme_font_size_override("font_size", 20)
 	ts_row.add_child(ts_lbl)
 
 	for t in _TILESETS:
 		var btn := Button.new()
 		btn.text = t.name
-		btn.add_theme_font_size_override("font_size", 15)
+		btn.add_theme_font_size_override("font_size", 20)
 		btn.pressed.connect(_on_plat_ts_changed.bind(t.name))
 		ts_row.add_child(btn)
 		_plat_ts_btns[t.name] = btn
@@ -472,7 +473,7 @@ func _build_ui() -> void:
 
 	# Cols / Rows spinner row
 	var size_row := HBoxContainer.new()
-	size_row.add_theme_constant_override("separation", 12)
+	size_row.add_theme_constant_override("separation", 14)
 	_plat_box.add_child(size_row)
 
 	_make_spinner(size_row, "Cols:", _plat_cols, func(d): _on_plat_cols_changed(d))
@@ -482,28 +483,29 @@ func _build_ui() -> void:
 	_plat_rows_lbl = _get_last_spinner_label(size_row)
 
 	var hint2 := Label.new()
-	hint2.text = "clicar num tile mostra qual posição do tileset está sendo usada"
-	hint2.add_theme_font_size_override("font_size", 12)
+	hint2.text = "clique num tile para ver o mapeamento"
+	hint2.add_theme_font_size_override("font_size", 15)
 	hint2.add_theme_color_override("font_color", Color(0.4, 0.4, 0.4))
 	size_row.add_child(hint2)
 
 	# Scrollable grid area
 	var scroll := ScrollContainer.new()
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
 	scroll.vertical_scroll_mode   = ScrollContainer.SCROLL_MODE_AUTO
 	_plat_box.add_child(scroll)
 
 	_plat_grid = GridContainer.new()
 	_plat_grid.columns = _plat_cols
-	_plat_grid.add_theme_constant_override("h_separation", 4)
-	_plat_grid.add_theme_constant_override("v_separation", 4)
+	_plat_grid.add_theme_constant_override("h_separation", 6)
+	_plat_grid.add_theme_constant_override("v_separation", 6)
 	scroll.add_child(_plat_grid)
 
 	# Status label
 	_plat_status = Label.new()
 	_plat_status.text = "← clique num tile para ver o mapeamento"
-	_plat_status.add_theme_font_size_override("font_size", 14)
+	_plat_status.add_theme_font_size_override("font_size", 18)
 	_plat_status.add_theme_color_override("font_color", Color(0.7, 0.9, 0.7))
 	_plat_box.add_child(_plat_status)
 
@@ -514,29 +516,29 @@ var _last_spinner_label: Label = null
 func _make_spinner(parent: HBoxContainer, label: String, initial: int, callback: Callable) -> void:
 	var lbl := Label.new()
 	lbl.text = label
-	lbl.add_theme_font_size_override("font_size", 15)
+	lbl.add_theme_font_size_override("font_size", 20)
 	parent.add_child(lbl)
 
 	var minus := Button.new()
 	minus.text = "−"
-	minus.add_theme_font_size_override("font_size", 16)
-	minus.custom_minimum_size = Vector2(32, 0)
+	minus.add_theme_font_size_override("font_size", 20)
+	minus.custom_minimum_size = Vector2(40, 0)
 	minus.pressed.connect(func(): callback.call(-1))
 	parent.add_child(minus)
 
 	var val_lbl := Label.new()
 	val_lbl.text = str(initial)
-	val_lbl.add_theme_font_size_override("font_size", 16)
+	val_lbl.add_theme_font_size_override("font_size", 20)
 	val_lbl.add_theme_color_override("font_color", Color(1, 1, 0))
-	val_lbl.custom_minimum_size = Vector2(28, 0)
+	val_lbl.custom_minimum_size = Vector2(36, 0)
 	val_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	parent.add_child(val_lbl)
 	_last_spinner_label = val_lbl
 
 	var plus := Button.new()
 	plus.text = "+"
-	plus.add_theme_font_size_override("font_size", 16)
-	plus.custom_minimum_size = Vector2(32, 0)
+	plus.add_theme_font_size_override("font_size", 20)
+	plus.custom_minimum_size = Vector2(40, 0)
 	plus.pressed.connect(func(): callback.call(1))
 	parent.add_child(plus)
 
