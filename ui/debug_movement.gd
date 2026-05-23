@@ -24,10 +24,11 @@ func _ready() -> void:
     _build_ui()
     _spawn_player()
     _spawn_enemy()
+    $Camera2D.global_position = Vector2(_PLAYER_X, _GROUND_Y - 24.0 + 120.0)
 
 func _process(_delta: float) -> void:
     if is_instance_valid(_player):
-        $Camera2D.global_position = _player.global_position
+        $Camera2D.global_position = _player.global_position + Vector2(0.0, 120.0)
         queue_redraw()
 
 func _draw() -> void:
