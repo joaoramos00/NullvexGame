@@ -18,7 +18,8 @@ const _FRAME_W := 68
 const _FRAME_H := 68
 const _ROW_RIGHT := 0
 
-const _SPAWN_OFFSET := Vector2(60.0, -10.0)
+const _SPAWN_OFFSET_Y := -10.0
+const _SPAWN_OFFSET_X := [0.0, 60.0, 65.0, 85.0]  # por nível: L1/L2/L3
 
 # Absorção: bolinhas partem do círculo externo e espiralam para o centro
 const _CHARGE_SPEED    := 0.6
@@ -217,8 +218,8 @@ func _fire(level: int) -> void:
     bullet.scale = BULLET_SCALE[level]
     bullet.source_id = GameManager.zael_selected_shot
     get_parent().add_child(bullet)
-    var offset_x := _SPAWN_OFFSET.x if facing_right else -_SPAWN_OFFSET.x
-    bullet.global_position = global_position + Vector2(offset_x, _SPAWN_OFFSET.y)
+    var offset_x := _SPAWN_OFFSET_X[level] if facing_right else -_SPAWN_OFFSET_X[level]
+    bullet.global_position = global_position + Vector2(offset_x, _SPAWN_OFFSET_Y)
 
 func _notification(what: int) -> void:
     if what == NOTIFICATION_APPLICATION_FOCUS_OUT:
