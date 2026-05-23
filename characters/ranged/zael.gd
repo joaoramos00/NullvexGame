@@ -18,7 +18,7 @@ const _FRAME_W := 68
 const _FRAME_H := 68
 const _ROW_RIGHT := 0
 
-const _SPAWN_OFFSET := Vector2(60.0, -28.0)
+const _SPAWN_OFFSET := Vector2(60.0, -24.0)
 
 # Absorção: bolinhas partem do círculo externo e espiralam para o centro
 const _CHARGE_SPEED    := 0.6
