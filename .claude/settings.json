@@ -1,0 +1,12 @@
+{
+  "enabledPlugins": {
+    "superpowers@claude-plugins-official": true
+  },
+  "skills": {
+    "new-enemy":  ".claude/skills/new-enemy.md",
+    "new-boss":   ".claude/skills/new-boss.md",
+    "new-stage":  ".claude/skills/new-stage.md",
+    "run-tests":  ".claude/skills/run-tests.md",
+    "web-export": ".claude/skills/web-export.md"
+  }
+}
