@@ -218,7 +218,7 @@ func _fire(level: int) -> void:
     bullet.scale = BULLET_SCALE[level]
     bullet.source_id = GameManager.zael_selected_shot
     get_parent().add_child(bullet)
-    var offset_x := _SPAWN_OFFSET_X[level] if facing_right else -_SPAWN_OFFSET_X[level]
+    var offset_x: float = _SPAWN_OFFSET_X[level] if facing_right else -_SPAWN_OFFSET_X[level]
     bullet.global_position = global_position + Vector2(offset_x, _SPAWN_OFFSET_Y)
 
 func _notification(what: int) -> void:
