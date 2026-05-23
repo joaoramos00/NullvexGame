@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://img_debug_tiles_preview"]
+
+[ext_resource type="Script" path="res://ui/img_debug_tiles_preview.gd" id="1_script"]
+
+[node name="Root" type="Node2D"]
+script = ExtResource("1_script")
