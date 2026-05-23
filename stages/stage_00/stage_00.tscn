@@ -104,6 +104,7 @@ size = Vector2(32, 640)
 size = Vector2(200, 120)
 
 [node name="Stage00" type="Node2D"]
+scale = Vector2(2, 2)
 script = ExtResource("1_script")
 
 [node name="PlayerSpawn" type="Node2D" parent="."]
@@ -312,7 +313,8 @@ shape = SubResource("shape_GoalZone")
 
 [node name="Camera2D" type="Camera2D" parent="."]
 limit_left = 0
-limit_top = -600
-limit_bottom = 700
+limit_top = -1200
+limit_bottom = 1400
+limit_right = 18800
 position_smoothing_enabled = true
 position_smoothing_speed = 8.0
