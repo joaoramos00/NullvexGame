@@ -23,6 +23,11 @@ var _invincibility_timer: float = 0.0
 var _anim_timer:          float = 0.0
 var _anim_frame:          int   = 0
 
+var show_hitbox: bool = false:
+	set(value):
+		show_hitbox = value
+		queue_redraw()
+
 @onready var _sprite := $Sprite2D
 
 func _ready() -> void:
@@ -75,6 +80,14 @@ func take_damage(amount: int, _source: String = "") -> void:
 	damaged.emit(amount)
 	if current_hp == 0:
 		_die()
+
+func _draw() -> void:
+	if not show_hitbox:
+		return
+	# CapsuleShape2D radius=20, height=40 → bounding rect (-20,-40,40,80)
+	var bounds := Rect2(-20.0, -40.0, 40.0, 80.0)
+	draw_rect(bounds, Color(1.0, 0.25, 0.25, 0.25))
+	draw_rect(bounds, Color(1.0, 0.25, 0.25, 1.0), false, 2.0)
 
 func _die() -> void:
 	is_dead = true
