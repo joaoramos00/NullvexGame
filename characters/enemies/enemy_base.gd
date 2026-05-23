@@ -4,31 +4,34 @@ class_name EnemyBase
 signal died
 signal damaged(amount: int)
 
-const GRAVITY := 980.0
-const PATROL_SPEED := 80.0
+const GRAVITY                := 980.0
+const PATROL_SPEED           := 80.0
 const INVINCIBILITY_DURATION := 0.3
-const HIT_FLASH_DURATION := 0.1
+const ANIM_FPS               := 5.0
+const WALK_FRAMES            := 6
+const HIT_FRAMES             := 5
 
 const _DEATH_EFFECT_SCENE := preload("res://effects/death_effect.tscn")
+const _WALK_TEX := preload("res://characters/enemies/GruntCorrendo.png")
+const _HIT_TEX  := preload("res://characters/enemies/GruntHit.png")
 
-@export var max_hp: int = 4
+@export var max_hp:         int = 8
 @export var contact_damage: int = 8
 
-var current_hp: int = 4
-var is_dead: bool = false
-var _direction: float = 1.0
-var _invincible: bool = false
+var current_hp:           int   = 8
+var is_dead:              bool  = false
+var _direction:           float = 1.0
+var _invincible:          bool  = false
 var _invincibility_timer: float = 0.0
-var _hit_flash_timer: float = 0.0
+var _anim_timer:          float = 0.0
+var _anim_frame:          int   = 0
+var _hit_playing:         bool  = false
+
+@onready var _sprite := $Sprite2D
 
 func _ready() -> void:
 	current_hp = max_hp
 	$ContactZone.body_entered.connect(_on_contact)
-	queue_redraw()
-
-func _draw() -> void:
-	var c := Color.WHITE if _hit_flash_timer > 0.0 else Color.ORANGE_RED
-	draw_rect(Rect2(-20, -40, 40, 80), c)
 
 func _physics_process(delta: float) -> void:
 	if is_dead:
@@ -37,10 +40,6 @@ func _physics_process(delta: float) -> void:
 		_invincibility_timer -= delta
 		if _invincibility_timer <= 0.0:
 			_invincible = false
-	if _hit_flash_timer > 0.0:
-		_hit_flash_timer -= delta
-		if _hit_flash_timer <= 0.0:
-			queue_redraw()
 	if not is_on_floor():
 		velocity.y += GRAVITY * delta
 	if is_on_floor() and not _has_floor_ahead():
@@ -49,6 +48,20 @@ func _physics_process(delta: float) -> void:
 	move_and_slide()
 	if is_on_wall():
 		_direction = -_direction
+	_anim_timer += delta
+	if _anim_timer >= 1.0 / ANIM_FPS:
+		_anim_timer -= 1.0 / ANIM_FPS
+		if _hit_playing:
+			_anim_frame += 1
+			if _anim_frame >= HIT_FRAMES:
+				_hit_playing = false
+				_sprite.texture = _WALK_TEX
+				_sprite.hframes = WALK_FRAMES
+				_anim_frame = 0
+		else:
+			_anim_frame = (_anim_frame + 1) % WALK_FRAMES
+	_sprite.frame  = _anim_frame
+	_sprite.flip_h = (_direction < 0)
 
 func _has_floor_ahead() -> bool:
 	var space := get_world_2d().direct_space_state
@@ -67,8 +80,11 @@ func take_damage(amount: int, _source: String = "") -> void:
 	current_hp = max(0, current_hp - amount)
 	_invincible = true
 	_invincibility_timer = INVINCIBILITY_DURATION
-	_hit_flash_timer = HIT_FLASH_DURATION
-	queue_redraw()
+	_hit_playing        = true
+	_sprite.texture     = _HIT_TEX
+	_sprite.hframes     = HIT_FRAMES
+	_anim_frame         = 0
+	_anim_timer         = 0.0
 	damaged.emit(amount)
 	if current_hp == 0:
 		_die()
