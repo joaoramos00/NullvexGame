@@ -4,34 +4,34 @@ extends Node2D
 const ZAEL_SCENE   := preload("res://characters/ranged/zael.tscn")
 const ZARA_SCENE   := preload("res://characters/melee/zara.tscn")
 const _TILESET     := preload("res://stages/stage_00/Stage_00T.png")
-const _TS          := 32
+const _TS          := 64
 const _GRUNT_SCENE := preload("res://characters/enemies/enemy_base.tscn")
 const _FLYER_SCENE := preload("res://characters/enemies/enemy_flyer.tscn")
 const _BOSS_SCENE  := preload("res://characters/bosses/intro_boss.tscn")
 const _DOOR_SCENE  := preload("res://stages/checkpoint_door.tscn")
 
 const ZONE1_GRUNTS := [
-	Vector2(400, 520), Vector2(700, 520), Vector2(1700, 452),
-	Vector2(1900, 520), Vector2(2200, 440), Vector2(2700, 520)
+	Vector2(800, 1040), Vector2(1400, 1040), Vector2(3400, 904),
+	Vector2(3800, 1040), Vector2(4400, 880), Vector2(5400, 1040)
 ]
-const ZONE1_FLYERS := [Vector2(1050, 380), Vector2(2450, 400)]
+const ZONE1_FLYERS := [Vector2(2100, 760), Vector2(4900, 800)]
 
 const ZONE2_GRUNTS := [
-	Vector2(3500, 204), Vector2(3900, 204), Vector2(4650, 140),
-	Vector2(4980, 200), Vector2(5900, 360)
+	Vector2(7000, 408), Vector2(7800, 408), Vector2(9300, 280),
+	Vector2(9960, 400), Vector2(11800, 720)
 ]
-const ZONE2_FLYERS := [Vector2(3700, 160), Vector2(4250, 180), Vector2(5600, 380)]
+const ZONE2_FLYERS := [Vector2(7400, 320), Vector2(8500, 360), Vector2(11200, 760)]
 
 const ZONE3_GRUNTS := [
-	Vector2(6100, 520), Vector2(6800, 460), Vector2(7100, 520), Vector2(7600, 520)
+	Vector2(12200, 1040), Vector2(13600, 920), Vector2(14200, 1040), Vector2(15200, 1040)
 ]
-const ZONE3_FLYERS := [Vector2(6600, 400), Vector2(7300, 380)]
+const ZONE3_FLYERS := [Vector2(13200, 800), Vector2(14600, 760)]
 
-const BOSS_SPAWN := Vector2(9100, 400)
-const CP1_ENTRY_X := 2900.0
-const CP1_EXIT_X  := 3200.0
-const CP2_ENTRY_X := 8000.0
-const CP2_EXIT_X  := 8300.0
+const BOSS_SPAWN := Vector2(18200, 800)
+const CP1_ENTRY_X := 5800.0
+const CP1_EXIT_X  := 6400.0
+const CP2_ENTRY_X := 16000.0
+const CP2_EXIT_X  := 16600.0
 
 var _player: CharacterBase = null
 var _zone1_enemies: Array[Node] = []
@@ -105,30 +105,30 @@ func _spawn_player() -> void:
 func _setup_doors() -> void:
 	# CP1 entry — at CP1_ENTRY_X (left side of corridor 1)
 	var cp1_entry: Node2D = _DOOR_SCENE.instantiate()
-	cp1_entry.position = Vector2(CP1_ENTRY_X, 496)
+	cp1_entry.position = Vector2(CP1_ENTRY_X, 992)
 	add_child(cp1_entry)
 	cp1_entry.connect("door_opened", _on_cp1_entry_opened.bind(cp1_entry))
 
 	# CP1 exit — at CP1_EXIT_X (right side of corridor 1)
 	var cp1_exit: Node2D = _DOOR_SCENE.instantiate()
-	cp1_exit.position = Vector2(CP1_EXIT_X, 496)
+	cp1_exit.position = Vector2(CP1_EXIT_X, 992)
 	add_child(cp1_exit)
 
 	# CP2 entry — at CP2_ENTRY_X (left side of corridor 2)
 	var cp2_entry: Node2D = _DOOR_SCENE.instantiate()
-	cp2_entry.position = Vector2(CP2_ENTRY_X, 496)
+	cp2_entry.position = Vector2(CP2_ENTRY_X, 992)
 	add_child(cp2_entry)
 	cp2_entry.connect("door_opened", _on_cp2_entry_opened.bind(cp2_entry))
 
 	# CP2 exit / boss door — at CP2_EXIT_X (right side of corridor 2)
 	var boss_door: Node2D = _DOOR_SCENE.instantiate()
-	boss_door.position = Vector2(CP2_EXIT_X, 496)
+	boss_door.position = Vector2(CP2_EXIT_X, 992)
 	add_child(boss_door)
 	boss_door.connect("door_opened", _on_boss_door_opened.bind(boss_door))
 
 func _on_cp1_entry_opened(door: Node2D) -> void:
 	# Save checkpoint so player respawns at CP1 exit if they die
-	StageManager.save_checkpoint(Vector2(CP1_EXIT_X + 64, 496), 1)
+	StageManager.save_checkpoint(Vector2(CP1_EXIT_X + 128, 992), 1)
 	# Heal player fully
 	if is_instance_valid(_player):
 		_player.heal(_player.max_hp)
@@ -140,7 +140,7 @@ func _on_cp1_entry_opened(door: Node2D) -> void:
 
 func _on_cp2_entry_opened(door: Node2D) -> void:
 	# Save checkpoint so player respawns at CP2 exit if they die (before boss)
-	StageManager.save_checkpoint(Vector2(CP2_EXIT_X + 64, 496), 2)
+	StageManager.save_checkpoint(Vector2(CP2_EXIT_X + 128, 992), 2)
 	# Heal player fully
 	if is_instance_valid(_player):
 		_player.heal(_player.max_hp)
@@ -168,9 +168,9 @@ func _spawn_boss() -> void:
 	_boss.global_position = BOSS_SPAWN
 	_boss.player = _player
 	# Arena bounds for the boss room (x: 8301–9301, floor: ~560)
-	_boss.arena_left  = 8340.0
-	_boss.arena_right = 9260.0
-	_boss.arena_floor = 540.0
+	_boss.arena_left  = 16680.0
+	_boss.arena_right = 18520.0
+	_boss.arena_floor = 1080.0
 	add_child(_boss)
 	_boss.boss_defeated.connect(_on_boss_defeated)
 
@@ -181,20 +181,20 @@ func _on_boss_defeated(_ability_id: String) -> void:
 # ─── Zone Triggers ───────────────────────────────────────────────────────────
 
 func _setup_zone_triggers() -> void:
-	# Zone 1: x 0–2900
-	var z1 := _make_zone_trigger(1450, 400, 2900, 600)
+	# Zone 1: x 0–5800
+	var z1 := _make_zone_trigger(2900, 800, 5800, 1200)
 	z1.body_entered.connect(_on_zone1_entered)
 	z1.body_exited.connect(_on_zone1_exited)
 	add_child(z1)
 
-	# Zone 2: x 3200–5700
-	var z2 := _make_zone_trigger(4450, 300, 2500, 600)
+	# Zone 2: x 6400–11400
+	var z2 := _make_zone_trigger(8900, 600, 5000, 1200)
 	z2.body_entered.connect(_on_zone2_entered)
 	z2.body_exited.connect(_on_zone2_exited)
 	add_child(z2)
 
-	# Zone 3: x 5700–8000
-	var z3 := _make_zone_trigger(6850, 400, 2300, 600)
+	# Zone 3: x 11400–16000
+	var z3 := _make_zone_trigger(13700, 800, 4600, 1200)
 	z3.body_entered.connect(_on_zone3_entered)
 	z3.body_exited.connect(_on_zone3_exited)
 	add_child(z3)
@@ -303,62 +303,62 @@ func _draw() -> void:
 
 func _draw_background() -> void:
 	# Sky — dark night with orange/red tones (destroyed city at dusk)
-	draw_rect(Rect2(0, -600, 10000, 1300), Color(0.08, 0.05, 0.06))
+	draw_rect(Rect2(0, -1200, 20000, 2600), Color(0.08, 0.05, 0.06))
 
 	# Distant city silhouette — large ruined buildings
 	var buildings := [
-		Rect2(0,    240, 220, 320),
-		Rect2(260,  160, 160, 400),
-		Rect2(500,  200, 120, 360),
-		Rect2(700,  100, 200, 460),
-		Rect2(980,  180, 180, 380),
-		Rect2(1240, 220, 140, 340),
-		Rect2(1450, 140, 260, 420),
-		Rect2(1800, 200, 180, 360),
-		Rect2(2100, 160, 200, 400),
-		Rect2(2400, 220, 160, 340),
-		Rect2(2650, 100, 220, 460),
-		Rect2(3000, 180, 180, 380),
-		Rect2(3300, 150, 200, 410),
-		Rect2(3600, 200, 160, 360),
-		Rect2(3850, 120, 240, 440),
-		Rect2(4200, 180, 180, 380),
-		Rect2(4500, 200, 200, 360),
-		Rect2(4800, 140, 220, 420),
-		Rect2(5100, 200, 160, 360),
-		Rect2(5400, 160, 200, 400),
-		Rect2(5700, 200, 180, 360),
-		Rect2(6000, 140, 240, 420),
-		Rect2(6300, 180, 180, 380),
-		Rect2(6600, 200, 200, 360),
-		Rect2(6900, 160, 220, 400),
-		Rect2(7200, 200, 180, 360),
-		Rect2(7500, 140, 260, 420),
-		Rect2(7800, 200, 200, 360),
+		Rect2(0,     480, 440, 640),
+		Rect2(520,   320, 320, 800),
+		Rect2(1000,  400, 240, 720),
+		Rect2(1400,  200, 400, 920),
+		Rect2(1960,  360, 360, 760),
+		Rect2(2480,  440, 280, 680),
+		Rect2(2900,  280, 520, 840),
+		Rect2(3600,  400, 360, 720),
+		Rect2(4200,  320, 400, 800),
+		Rect2(4800,  440, 320, 680),
+		Rect2(5300,  200, 440, 920),
+		Rect2(6000,  360, 360, 760),
+		Rect2(6600,  300, 400, 820),
+		Rect2(7200,  400, 320, 720),
+		Rect2(7700,  240, 480, 880),
+		Rect2(8400,  360, 360, 760),
+		Rect2(9000,  400, 400, 720),
+		Rect2(9600,  280, 440, 840),
+		Rect2(10200, 400, 320, 720),
+		Rect2(10800, 320, 400, 800),
+		Rect2(11400, 400, 360, 720),
+		Rect2(12000, 280, 480, 840),
+		Rect2(12600, 360, 360, 760),
+		Rect2(13200, 400, 400, 720),
+		Rect2(13800, 320, 440, 800),
+		Rect2(14400, 400, 360, 720),
+		Rect2(15000, 280, 520, 840),
+		Rect2(15600, 400, 400, 720),
 	]
 	var building_color := Color(0.12, 0.08, 0.09)
 	for b: Rect2 in buildings:
 		draw_rect(b, building_color)
 		# Orange windows
-		var win_cols: int = max(1, int(b.size.x / 40))
-		var win_rows: int = max(1, int(b.size.y / 48))
+		var win_cols: int = max(1, int(b.size.x / 80))
+		var win_rows: int = max(1, int(b.size.y / 96))
 		for wr: int in win_rows:
 			for wc: int in win_cols:
 				if (wr + wc) % 3 == 0:
 					continue  # skip some for ruined look
-				var wx: float = b.position.x + 8.0 + wc * 40.0
-				var wy: float = b.position.y + 8.0 + wr * 48.0
-				draw_rect(Rect2(wx, wy, 14, 18), Color(0.9, 0.4, 0.05, 0.7))
+				var wx: float = b.position.x + 16.0 + wc * 80.0
+				var wy: float = b.position.y + 16.0 + wr * 96.0
+				draw_rect(Rect2(wx, wy, 28, 36), Color(0.9, 0.4, 0.05, 0.7))
 
 	# Boss room background — tech panels in dark blue tones
-	var boss_room := Rect2(8301, -600, 1000, 1300)
+	var boss_room := Rect2(16602, -1200, 2000, 2600)
 	draw_rect(boss_room, Color(0.05, 0.05, 0.12))
 	for i in 8:
-		var panel_y := -600 + i * 140
-		draw_rect(Rect2(8320, panel_y, 960, 128), Color(0.07, 0.07, 0.18))
+		var panel_y := -1200 + i * 280
+		draw_rect(Rect2(16640, panel_y, 1920, 256), Color(0.07, 0.07, 0.18))
 		# Alternating accent stripe
 		var stripe_color := Color(0.1, 0.1, 0.25) if i % 2 == 0 else Color(0.08, 0.08, 0.20)
-		draw_rect(Rect2(8320, panel_y + 124, 960, 4), stripe_color)
+		draw_rect(Rect2(16640, panel_y + 248, 1920, 8), stripe_color)
 
 func _draw_platforms() -> void:
 	for child in get_children():
