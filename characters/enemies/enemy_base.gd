@@ -11,10 +11,10 @@ const HIT_FLASH_DURATION := 0.1
 
 const _DEATH_EFFECT_SCENE := preload("res://effects/death_effect.tscn")
 
-@export var max_hp: int = 30
+@export var max_hp: int = 8
 @export var contact_damage: int = 8
 
-var current_hp: int = 30
+var current_hp: int = 8
 var is_dead: bool = false
 var _direction: float = 1.0
 var _invincible: bool = false
@@ -28,7 +28,7 @@ func _ready() -> void:
 
 func _draw() -> void:
 	var c := Color.WHITE if _hit_flash_timer > 0.0 else Color.ORANGE_RED
-	draw_rect(Rect2(-10, -28, 20, 48), c)
+	draw_rect(Rect2(-14, -32, 28, 64), c)
 
 func _physics_process(delta: float) -> void:
 	if is_dead:
@@ -43,10 +43,22 @@ func _physics_process(delta: float) -> void:
 			queue_redraw()
 	if not is_on_floor():
 		velocity.y += GRAVITY * delta
+	if is_on_floor() and not _has_floor_ahead():
+		_direction = -_direction
 	velocity.x = PATROL_SPEED * _direction
 	move_and_slide()
 	if is_on_wall():
 		_direction = -_direction
+
+func _has_floor_ahead() -> bool:
+	var space := get_world_2d().direct_space_state
+	var params := PhysicsRayQueryParameters2D.create(
+		global_position + Vector2(_direction * 22.0, 28.0),
+		global_position + Vector2(_direction * 22.0, 80.0),
+		collision_mask
+	)
+	params.exclude = [get_rid()]
+	return not space.intersect_ray(params).is_empty()
 
 func _on_contact(body: Node) -> void:
 	if body.has_method("take_damage"):

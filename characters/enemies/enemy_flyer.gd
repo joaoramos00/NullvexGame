@@ -22,4 +22,4 @@ func _physics_process(delta: float) -> void:
 		_direction = -_direction
 
 func _draw() -> void:
-	draw_rect(Rect2(-10, -20, 20, 32), Color(0.2, 0.4, 0.9))
+	draw_rect(Rect2(-14, -22, 28, 44), Color(0.2, 0.4, 0.9))
