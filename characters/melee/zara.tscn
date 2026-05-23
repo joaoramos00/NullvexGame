@@ -7,5 +7,5 @@
 script = ExtResource("2_zara")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
-position = Vector2(0, -24)
+position = Vector2(0, -8)
 scale = Vector2(2, 2)
