@@ -61,7 +61,7 @@ func _on_contact(body: Node) -> void:
 	if body.has_method("take_damage"):
 		body.take_damage(contact_damage)
 
-func take_damage(amount: int) -> void:
+func take_damage(amount: int, _source: String = "") -> void:
 	if is_dead or _invincible:
 		return
 	current_hp = max(0, current_hp - amount)
