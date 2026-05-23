@@ -395,19 +395,28 @@ func _tile_at(col: int, cols: int, row: int, rows: int) -> Vector2i:
 	var is_top    := row == 0
 	var is_bottom := row == rows - 1
 
+	# Coluna única (parede/pilar): tampa com TOP/BOT, miolo com FILL
+	if cols == 1:
+		if is_top:    return Vector2i(3, 0)   # TOP
+		if is_bottom: return Vector2i(1, 2)   # BOTTOM
+		return Vector2i(2, 1)                 # FILL
+
+	# Linha única (plataforma fina): cantos + topo reto
 	if rows == 1:
-		return Vector2i(3, 0)  # flat platform
+		if is_left:  return Vector2i(3, 3)    # TOP+LEFT
+		if is_right: return Vector2i(0, 2)    # TOP+RIGHT
+		return Vector2i(3, 0)                 # TOP
 
 	if is_top:
-		if is_left:  return Vector2i(3, 3)
-		if is_right: return Vector2i(0, 2)
-		return Vector2i(3, 0)
+		if is_left:  return Vector2i(3, 3)    # TOP+LEFT
+		if is_right: return Vector2i(0, 2)    # TOP+RIGHT
+		return Vector2i(3, 0)                 # TOP
 
 	if is_bottom:
-		if is_left:  return Vector2i(0, 0)
-		if is_right: return Vector2i(1, 3)
-		return Vector2i(1, 2)
+		if is_left:  return Vector2i(0, 0)    # BOT+LEFT
+		if is_right: return Vector2i(1, 3)    # BOT+RIGHT
+		return Vector2i(1, 2)                 # BOTTOM
 
-	if is_left:  return Vector2i(3, 2)
-	if is_right: return Vector2i(1, 0)
-	return Vector2i(2, 1)
+	if is_left:  return Vector2i(3, 2)        # LEFT
+	if is_right: return Vector2i(1, 0)        # RIGHT
+	return Vector2i(2, 1)                     # FILL
