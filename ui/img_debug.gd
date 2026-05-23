@@ -232,8 +232,8 @@ func _plat_tile_at(col: int, cols: int, row: int, rows: int) -> Vector2i:
 	var is_bottom := row == 0
 
 	if cols == 1:
-		if is_top:    return Vector2i(3, 0)
-		if is_bottom: return Vector2i(1, 2)
+		if is_top:    return Vector2i(1, 2)
+		if is_bottom: return Vector2i(3, 0)
 		return Vector2i(2, 1)
 
 	if rows == 1:
@@ -244,12 +244,12 @@ func _plat_tile_at(col: int, cols: int, row: int, rows: int) -> Vector2i:
 	if is_top:
 		if is_left:  return Vector2i(3, 3)
 		if is_right: return Vector2i(0, 2)
-		return Vector2i(3, 0)
+		return Vector2i(1, 2)
 
 	if is_bottom:
 		if is_left:  return Vector2i(0, 0)
 		if is_right: return Vector2i(1, 3)
-		return Vector2i(1, 2)
+		return Vector2i(3, 0)
 
 	if is_left:  return Vector2i(3, 2)
 	if is_right: return Vector2i(1, 0)

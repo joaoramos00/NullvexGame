@@ -397,8 +397,8 @@ func _tile_at(col: int, cols: int, row: int, rows: int) -> Vector2i:
 
 	# Coluna única (parede/pilar): tampa com TOP/BOT, miolo com FILL
 	if cols == 1:
-		if is_top:    return Vector2i(3, 0)   # TOP
-		if is_bottom: return Vector2i(1, 2)   # BOTTOM
+		if is_top:    return Vector2i(1, 2)   # BOTTOM (is_top = row visual inferior)
+		if is_bottom: return Vector2i(3, 0)   # TOP    (is_bottom = row visual superior)
 		return Vector2i(2, 1)                 # FILL
 
 	# Linha única (plataforma fina): cantos + topo reto
@@ -408,14 +408,14 @@ func _tile_at(col: int, cols: int, row: int, rows: int) -> Vector2i:
 		return Vector2i(3, 0)                 # TOP
 
 	if is_top:
-		if is_left:  return Vector2i(3, 3)    # TOP+LEFT
+		if is_left:  return Vector2i(3, 3)    # TOP+LEFT  (cantos corretos — não mudar)
 		if is_right: return Vector2i(0, 2)    # TOP+RIGHT
-		return Vector2i(3, 0)                 # TOP
+		return Vector2i(1, 2)                 # BOTTOM (is_top = linha visual inferior)
 
 	if is_bottom:
-		if is_left:  return Vector2i(0, 0)    # BOT+LEFT
+		if is_left:  return Vector2i(0, 0)    # BOT+LEFT  (cantos corretos — não mudar)
 		if is_right: return Vector2i(1, 3)    # BOT+RIGHT
-		return Vector2i(1, 2)                 # BOTTOM
+		return Vector2i(3, 0)                 # TOP    (is_bottom = linha visual superior)
 
 	if is_left:  return Vector2i(3, 2)        # LEFT
 	if is_right: return Vector2i(1, 0)        # RIGHT
