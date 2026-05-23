@@ -66,7 +66,7 @@ func _ready() -> void:
 	# Disconnect GoalZone — stage completion is handled via boss defeat
 	# (BossBase calls GameManager.complete_stage(stage_id) automatically)
 
-	$Camera2D.zoom = Vector2(2.5, 2.5)
+	$Camera2D.zoom = Vector2(2.2, 2.2)
 	AudioManager.play_bgm(AudioLibrary.bgm_intro)
 
 	_setup_doors()
