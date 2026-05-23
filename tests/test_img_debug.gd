@@ -20,11 +20,16 @@ func test_sprite_data() -> void:
     print("PASS: sprite_data")
 
 func test_tile_data() -> void:
-    assert(ImgDebug._TILESETS.size() == 1, "deve ter 1 tileset")
-    assert(ImgDebug._TILESETS[0].name == "Stage_00T", "nome deve ser Stage_00T")
-    assert(ImgDebug._TILESETS[0].cols == 4, "deve ter 4 colunas")
-    assert(ImgDebug._TILESETS[0].rows == 4, "deve ter 4 linhas")
-    assert(ImgDebug._TILESETS[0].tile_size == 32, "tile_size deve ser 32")
+    assert(ImgDebug._TILESETS.size() == 2, "deve ter 2 tilesets")
+    assert(ImgDebug._TILESETS[0].name == "Stage_00T", "índice 0 deve ser Stage_00T")
+    assert(ImgDebug._TILESETS[0].cols == 4, "Stage_00T deve ter 4 colunas")
+    assert(ImgDebug._TILESETS[0].rows == 4, "Stage_00T deve ter 4 linhas")
+    assert(ImgDebug._TILESETS[0].tile_size == 32, "Stage_00T tile_size deve ser 32")
+    assert(ImgDebug._TILESETS[1].name == "Stage_01T", "índice 1 deve ser Stage_01T")
+    assert(ImgDebug._TILESETS[1].cols == 4, "Stage_01T deve ter 4 colunas")
+    assert(ImgDebug._TILESETS[1].tile_size == 32, "Stage_01T tile_size deve ser 32")
+    assert(ImgDebug._TILE_DESCS.has("Stage_01T:0,0"), "deve ter desc Stage_01T:0,0")
+    assert(ImgDebug._TILE_DESCS.has("Stage_00T:0,0"), "deve ter desc Stage_00T:0,0")
     print("PASS: tile_data")
 
 func test_initial_state() -> void:

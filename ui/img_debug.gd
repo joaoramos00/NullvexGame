@@ -12,25 +12,44 @@ const _SPRITES: Array = [
 
 const _TILESETS: Array = [
     {"name": "Stage_00T", "path": "res://stages/stage_00/Stage_00T.png", "cols": 4, "rows": 4, "tile_size": 32},
+    {"name": "Stage_01T", "path": "res://stages/stage_01/Stage_01T.png", "cols": 4, "rows": 4, "tile_size": 32},
 ]
 
 const _TILE_DESCS: Dictionary = {
-    "0,0": "Canto inferior esquerdo",
-    "1,0": "Lateral direita da coluna lisa",
-    "2,0": "L da coluna com chão do lado direito",
-    "3,0": "Plataforma reta",
-    "0,1": "Canto superior esquerdo com canto inferior direito",
-    "1,1": "L da coluna com chão do lado esquerdo",
-    "2,1": "Centro do tile — miolo de preenchimento todo preenchido",
-    "3,1": "L da coluna com teto do lado direito",
-    "0,2": "Canto superior direito",
-    "1,2": "Teto reto",
-    "2,2": "L da coluna com teto do lado esquerdo",
-    "3,2": "Lateral esquerda da coluna lisa",
-    "0,3": "Transparente — tile vazio (alpha = 0), não utilizado",
-    "1,3": "Canto inferior direito",
-    "2,3": "Canto inferior esquerdo com canto superior direito",
-    "3,3": "Canto superior esquerdo",
+    # Stage_00T
+    "Stage_00T:0,0": "Canto inferior esquerdo",
+    "Stage_00T:1,0": "Lateral direita da coluna lisa",
+    "Stage_00T:2,0": "L da coluna com chão do lado direito",
+    "Stage_00T:3,0": "Plataforma reta",
+    "Stage_00T:0,1": "Canto superior esquerdo com canto inferior direito",
+    "Stage_00T:1,1": "L da coluna com chão do lado esquerdo",
+    "Stage_00T:2,1": "Centro do tile — miolo de preenchimento todo preenchido",
+    "Stage_00T:3,1": "L da coluna com teto do lado direito",
+    "Stage_00T:0,2": "Canto superior direito",
+    "Stage_00T:1,2": "Teto reto",
+    "Stage_00T:2,2": "L da coluna com teto do lado esquerdo",
+    "Stage_00T:3,2": "Lateral esquerda da coluna lisa",
+    "Stage_00T:0,3": "Transparente — tile vazio (alpha = 0), não utilizado",
+    "Stage_00T:1,3": "Canto inferior direito",
+    "Stage_00T:2,3": "Canto inferior esquerdo com canto superior direito",
+    "Stage_00T:3,3": "Canto superior esquerdo",
+    # Stage_01T — fogo/vulcão
+    "Stage_01T:0,0": "Rocha sólida — fill interior, veios de lava",
+    "Stage_01T:1,0": "Superfície de chão — topo rugoso transitando para rocha",
+    "Stage_01T:2,0": "Canto superior esquerdo do chão",
+    "Stage_01T:3,0": "Canto superior direito do chão",
+    "Stage_01T:0,1": "Plataforma sólida — fill interno da laje",
+    "Stage_01T:1,1": "Plataforma topo — superfície onde o player pisa",
+    "Stage_01T:2,1": "Plataforma borda esquerda",
+    "Stage_01T:3,1": "Plataforma borda direita",
+    "Stage_01T:0,2": "Fundo escuro — parede de caverna",
+    "Stage_01T:1,2": "Poça de lava — brilho ondulante",
+    "Stage_01T:2,2": "Chama decorativa — língua de fogo",
+    "Stage_01T:3,2": "Estalactite — rocha pendurada do teto",
+    "Stage_01T:0,3": "Transparente — tile vazio (alpha = 0), não utilizado",
+    "Stage_01T:1,3": "Rocha inferior — parte de baixo do bloco de chão",
+    "Stage_01T:2,3": "Gota de lava — lava escorrendo",
+    "Stage_01T:3,3": "Brasas — faíscas flutuantes",
 }
 
 const _FRAME_SIZE   := 68
@@ -60,6 +79,7 @@ var _strip_box: HBoxContainer
 var _tile_info_label: Label
 var _tile_preview_rect: TextureRect
 var _tile_desc_label: Label
+var _tile_displays: Dictionary = {}
 
 func _ready() -> void:
     texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
@@ -297,6 +317,7 @@ func _build_ui() -> void:
     main.add_child(_tiles_box)
 
 func _refresh_tiles() -> void:
+    _tile_displays.clear()
     for child in _tiles_box.get_children():
         child.queue_free()
 
@@ -341,10 +362,17 @@ func _refresh_tiles() -> void:
 
         _tile_desc_label = Label.new()
         _tile_desc_label.text = ""
-        _tile_desc_label.add_theme_font_size_override("font_size", 40)
+        _tile_desc_label.add_theme_font_size_override("font_size", 14)
         _tile_desc_label.add_theme_color_override("font_color", Color(0.85, 0.85, 0.6))
         _tile_desc_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
         _tiles_box.add_child(_tile_desc_label)
+
+        _tile_displays[ts_data.name] = {
+            "info":    _tile_info_label,
+            "preview": _tile_preview_rect,
+            "desc":    _tile_desc_label,
+            "data":    ts_data,
+        }
 
         var tex    := load(ts_data.path) as Texture2D
         var ts_px: int = ts_data.tile_size
@@ -370,7 +398,8 @@ func _refresh_tiles() -> void:
                 tile_panel.add_theme_stylebox_override("panel", tile_style)
                 var c: int = col
                 var r: int = row
-                tile_panel.gui_input.connect(func(ev): _on_tile_input(ev, c, r))
+                var ts_n: String = ts_data.name
+                tile_panel.gui_input.connect(func(ev): _on_tile_input(ev, c, r, ts_n))
                 cell.add_child(tile_panel)
 
                 var tile_rect := TextureRect.new()
@@ -381,30 +410,36 @@ func _refresh_tiles() -> void:
                 tile_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
                 tile_panel.add_child(tile_rect)
 
+                var is_blank: bool = _TILE_DESCS.get("%s:%d,%d" % [ts_data.name, col, row], "").begins_with("Transparente")
                 var coord_lbl := Label.new()
-                coord_lbl.text = "—" if (col == 0 and row == 3) else "%d,%d" % [col, row]
+                coord_lbl.text = "—" if is_blank else "%d,%d" % [col, row]
                 coord_lbl.add_theme_font_size_override("font_size", 11)
                 coord_lbl.add_theme_color_override(
                     "font_color",
-                    Color(0.3, 0.3, 0.3) if (col == 0 and row == 3) else Color(0.6, 0.6, 0.6)
+                    Color(0.3, 0.3, 0.3) if is_blank else Color(0.6, 0.6, 0.6)
                 )
                 coord_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
                 cell.add_child(coord_lbl)
 
-func _on_tile_input(event: InputEvent, col: int, row: int) -> void:
-    if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
-        if is_instance_valid(_tile_info_label):
-            if col == 0 and row == 3:
-                _tile_info_label.text = "Tile (0,3) — transparente (alpha = 0)"
-            else:
-                _tile_info_label.text = "Tile selecionado: (%d, %d)" % [col, row]
-        if is_instance_valid(_tile_preview_rect):
-            var ts_data: Dictionary = _TILESETS[0]
-            var ts_px: int = ts_data.tile_size
-            var at := AtlasTexture.new()
-            at.atlas = load(ts_data.path) as Texture2D
-            at.filter_clip = true
-            at.region = Rect2(col * ts_px, row * ts_px, ts_px, ts_px)
-            _tile_preview_rect.texture = at
-        if is_instance_valid(_tile_desc_label):
-            _tile_desc_label.text = _TILE_DESCS.get("%d,%d" % [col, row], "")
+func _on_tile_input(event: InputEvent, col: int, row: int, ts_name: String) -> void:
+    if not (event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT):
+        return
+    if not _tile_displays.has(ts_name):
+        return
+    var d: Dictionary = _tile_displays[ts_name]
+    var ts_data: Dictionary = d.data
+    var is_empty: bool = _TILE_DESCS.get("%s:%d,%d" % [ts_name, col, row], "").begins_with("Transparente")
+    if is_instance_valid(d.info):
+        if is_empty:
+            d.info.text = "Tile (%d,%d) — transparente (alpha = 0)" % [col, row]
+        else:
+            d.info.text = "Tile selecionado: (%d, %d)" % [col, row]
+    if is_instance_valid(d.preview) and not is_empty:
+        var ts_px: int = ts_data.tile_size
+        var at := AtlasTexture.new()
+        at.atlas = load(ts_data.path) as Texture2D
+        at.filter_clip = true
+        at.region = Rect2(col * ts_px, row * ts_px, ts_px, ts_px)
+        d.preview.texture = at
+    if is_instance_valid(d.desc):
+        d.desc.text = _TILE_DESCS.get("%s:%d,%d" % [ts_name, col, row], "")
