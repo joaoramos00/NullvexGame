@@ -1,10 +1,14 @@
 # stages/stage_00/stage_00_scene.gd
 extends Node2D
 
-const ZAEL_SCENE := preload("res://characters/ranged/zael.tscn")
-const ZARA_SCENE := preload("res://characters/melee/zara.tscn")
-const _TILESET   := preload("res://stages/stage_00/Stage_00T.png")
-const _TS        := 32
+const ZAEL_SCENE   := preload("res://characters/ranged/zael.tscn")
+const ZARA_SCENE   := preload("res://characters/melee/zara.tscn")
+const _TILESET     := preload("res://stages/stage_00/Stage_00T.png")
+const _TS          := 32
+const _GRUNT_SCENE := preload("res://characters/enemies/enemy_base.tscn")
+const _FLYER_SCENE := preload("res://characters/enemies/enemy_flyer.tscn")
+const _BOSS_SCENE  := preload("res://characters/bosses/intro_boss.tscn")
+const _DOOR_SCENE  := preload("res://stages/checkpoint_door.tscn")
 
 const ZONE1_GRUNTS := [
 	Vector2(400, 520), Vector2(700, 520), Vector2(1700, 452),
@@ -39,21 +43,11 @@ var _zone3_entered := false
 var _boss: Node = null
 var _boss_spawned := false
 
-var _grunt_scene: PackedScene
-var _flyer_scene: PackedScene
-var _boss_scene: PackedScene
-var _door_scene: PackedScene
 
 # ─── Lifecycle ──────────────────────────────────────────────────────────────
 
 func _ready() -> void:
 	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-
-	# Load enemy / boss / door scenes
-	_grunt_scene = load("res://characters/enemies/enemy_base.tscn")
-	_flyer_scene = load("res://characters/enemies/enemy_flyer.tscn")
-	_boss_scene  = load("res://characters/bosses/intro_boss.tscn")
-	_door_scene  = load("res://stages/checkpoint_door.tscn")
 
 	# Boss_LWall collision starts disabled — only re-enabled once boss door opens
 	var lwall := $Boss_LWall
@@ -109,24 +103,24 @@ func _spawn_player() -> void:
 
 func _setup_doors() -> void:
 	# CP1 entry — at CP1_ENTRY_X (left side of corridor 1)
-	var cp1_entry: Node2D = _door_scene.instantiate()
+	var cp1_entry: Node2D = _DOOR_SCENE.instantiate()
 	cp1_entry.position = Vector2(CP1_ENTRY_X, 496)
 	add_child(cp1_entry)
 	cp1_entry.connect("door_opened", _on_cp1_entry_opened.bind(cp1_entry))
 
 	# CP1 exit — at CP1_EXIT_X (right side of corridor 1)
-	var cp1_exit: Node2D = _door_scene.instantiate()
+	var cp1_exit: Node2D = _DOOR_SCENE.instantiate()
 	cp1_exit.position = Vector2(CP1_EXIT_X, 496)
 	add_child(cp1_exit)
 
 	# CP2 entry — at CP2_ENTRY_X (left side of corridor 2)
-	var cp2_entry: Node2D = _door_scene.instantiate()
+	var cp2_entry: Node2D = _DOOR_SCENE.instantiate()
 	cp2_entry.position = Vector2(CP2_ENTRY_X, 496)
 	add_child(cp2_entry)
 	cp2_entry.connect("door_opened", _on_cp2_entry_opened.bind(cp2_entry))
 
 	# CP2 exit / boss door — at CP2_EXIT_X (right side of corridor 2)
-	var boss_door: Node2D = _door_scene.instantiate()
+	var boss_door: Node2D = _DOOR_SCENE.instantiate()
 	boss_door.position = Vector2(CP2_EXIT_X, 496)
 	add_child(boss_door)
 	boss_door.connect("door_opened", _on_boss_door_opened.bind(boss_door))
@@ -169,7 +163,7 @@ func _spawn_boss() -> void:
 	if _boss_spawned:
 		return
 	_boss_spawned = true
-	_boss = _boss_scene.instantiate()
+	_boss = _BOSS_SCENE.instantiate()
 	_boss.global_position = BOSS_SPAWN
 	_boss.player = _player
 	# Arena bounds for the boss room (x: 8301–9301, floor: ~560)
@@ -280,15 +274,15 @@ func _spawn_zone_enemies(zone: int) -> void:
 
 	var arr := _get_zone_array(zone)
 	for pos in grunt_positions:
-		if _grunt_scene != null:
-			var e: Node2D = _grunt_scene.instantiate()
+		if _GRUNT_SCENE != null:
+			var e: Node2D = _GRUNT_SCENE.instantiate()
 			e.global_position = pos
 			add_child(e)
 			arr.append(e)
 
 	for pos in flyer_positions:
-		if _flyer_scene != null:
-			var e: Node2D = _flyer_scene.instantiate()
+		if _FLYER_SCENE != null:
+			var e: Node2D = _FLYER_SCENE.instantiate()
 			e.global_position = pos
 			add_child(e)
 			arr.append(e)

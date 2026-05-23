@@ -25,6 +25,10 @@ func _ready() -> void:
 	_add_btn(root, "attack",     1.0, 1.0, -200, -210, 160, 160, _COLOR_ATTACK)
 	_add_btn(root, "pause",      1.0, 0.0, -100,   30,  68,  50, _COLOR_PAUSE)
 
+func _process(_delta: float) -> void:
+	var scene := get_tree().current_scene
+	visible = scene != null and not scene.scene_file_path.contains("/ui/")
+
 func _add_btn(parent: Control, action: String, ax: float, ay: float, ol: float, ot: float, w: float, h: float, color: Color) -> void:
 	var btn := ColorRect.new()
 	btn.anchor_left   = ax
