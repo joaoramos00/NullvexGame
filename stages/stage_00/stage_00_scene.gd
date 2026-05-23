@@ -168,7 +168,7 @@ func _spawn_boss() -> void:
 	_boss = _BOSS_SCENE.instantiate()
 	_boss.global_position = BOSS_SPAWN
 	_boss.player = _player
-	# Arena bounds for the boss room (x: 8301–9301, floor: ~560)
+	# Arena bounds for the boss room (x: 16680–18520, floor: 1080)
 	_boss.arena_left  = 16680.0
 	_boss.arena_right = 18520.0
 	_boss.arena_floor = 1080.0
