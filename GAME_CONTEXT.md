@@ -60,8 +60,9 @@ StageManager.load_stage(id: int)
 
 ### AudioManager
 ```gdscript
-AudioManager.play_bgm(stream)   # null = silêncio (safe)
-AudioManager.play_sfx(stream)   # null = no-op (safe)
+AudioManager.play_bgm(stream, fade_in: float = 0.5)  # null = silêncio (safe); fade_in em segundos
+AudioManager.stop_bgm(fade_out: float = 0.5)          # fade out e para a música
+AudioManager.play_sfx(stream)                          # null = no-op (safe)
 ```
 
 ### AudioLibrary (streams, atribuir no editor)
@@ -105,7 +106,7 @@ extends EnemyBase
 class_name EnemyXxx
 
 func _draw() -> void:
-    var c := Color.WHITE if _hit_flash_timer > 0.0 else Color(R, G, B)
+    var c := Color.WHITE if _hit_flash_timer > 0.0 else Color(0.8, 0.4, 0.1)  # substituir pela cor do inimigo
     draw_rect(Rect2(-20, -40, 40, 80), c)  # tamanho padrão grunt
 ```
 
@@ -136,6 +137,7 @@ func _draw() -> void:
 @export var stage_id: int = -1
 @export var max_hp: int = 200
 @export var boss_color: Color = Color.DARK_RED
+@export var player: CharacterBase = null  # atribuir via stage script ou inspector
 ```
 
 **@exports opcionais (com defaults razoáveis):**
@@ -274,7 +276,7 @@ script = ExtResource("1")
 | Tipo | Exemplo GD | Exemplo TSCN | Pasta |
 |------|-----------|-------------|-------|
 | Inimigo | `enemy_jumper.gd` | `enemy_jumper.tscn` | `characters/enemies/` |
-| Boss | `pyrovex.gd` | `pyrovex.tscn` | `characters/bosses/` |
+| Boss | `ignarath.gd` | `ignarath.tscn` | `characters/bosses/` |
 | Stage simples | — | `stage_12.tscn` | `stages/stage_12/` |
 | Stage complexo | `stage_12_scene.gd` | `stage_12.tscn` | `stages/stage_12/` |
 | Teste | `test_enemy_jumper.gd` | `test_enemy_jumper.tscn` | `tests/` |
