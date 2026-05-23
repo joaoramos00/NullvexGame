@@ -11,10 +11,10 @@ const HIT_FLASH_DURATION := 0.1
 
 const _DEATH_EFFECT_SCENE := preload("res://effects/death_effect.tscn")
 
-@export var max_hp: int = 8
+@export var max_hp: int = 4
 @export var contact_damage: int = 8
 
-var current_hp: int = 8
+var current_hp: int = 4
 var is_dead: bool = false
 var _direction: float = 1.0
 var _invincible: bool = false
@@ -52,12 +52,9 @@ func _physics_process(delta: float) -> void:
 
 func _has_floor_ahead() -> bool:
 	var space := get_world_2d().direct_space_state
-	var params := PhysicsRayQueryParameters2D.create(
-		global_position + Vector2(_direction * 22.0, 28.0),
-		global_position + Vector2(_direction * 22.0, 80.0),
-		collision_mask
-	)
-	params.exclude = [get_rid()]
+	var start := Vector2(global_position.x + _direction * 20.0, global_position.y - 8.0)
+	var end   := Vector2(global_position.x + _direction * 20.0, global_position.y + 72.0)
+	var params := PhysicsRayQueryParameters2D.create(start, end)
 	return not space.intersect_ray(params).is_empty()
 
 func _on_contact(body: Node) -> void:
