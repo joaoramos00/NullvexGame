@@ -22,4 +22,9 @@ func _physics_process(delta: float) -> void:
 		_direction = -_direction
 
 func _draw() -> void:
-	draw_rect(Rect2(-20, -28, 40, 56), Color(0.2, 0.4, 0.9))
+	if not show_hitbox:
+		return
+	# CapsuleShape2D radius=10, height=20 → bounding rect (-10,-20,20,40)
+	var bounds := Rect2(-10.0, -20.0, 20.0, 40.0)
+	draw_rect(bounds, Color(0.2, 0.5, 1.0, 0.25))
+	draw_rect(bounds, Color(0.2, 0.5, 1.0, 1.0), false, 2.0)
