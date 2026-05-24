@@ -139,6 +139,37 @@ class _PlatformView extends Control:
                 draw_texture_rect_region(tile_tex,
                     Rect2(col * _TD, row * _TD, _TD, _TD),
                     Rect2(t.x * _TS, t.y * _TS, _TS, _TS))
+        if cols >= 2 and rows >= 2:
+            _draw_corner_offsets()
+
+    # Crosshair (+) amarelo em cada canto: player acessível com offset -28px
+    # 28px game / 64px tile * 48px display ≈ 21px
+    func _draw_corner_offsets() -> void:
+        const OFS := 21.0
+        const ARM := 5.0
+        var yellow := Color(1.0, 0.9, 0.0, 0.9)
+        var w := cols * _TD
+        var h := rows * _TD
+        if mode == "platform":
+            # Cantos externos da plataforma: offset a partir das arestas do bloco
+            for pt: Vector2 in [
+                Vector2(OFS, OFS),
+                Vector2(w - OFS, OFS),
+                Vector2(OFS, h - OFS),
+                Vector2(w - OFS, h - OFS),
+            ]:
+                draw_line(pt - Vector2(ARM, 0.0), pt + Vector2(ARM, 0.0), yellow, 1.5)
+                draw_line(pt - Vector2(0.0, ARM), pt + Vector2(0.0, ARM), yellow, 1.5)
+        else:  # "room"
+            # Cantos internos da sala: offset a partir da face interna de cada parede (1 tile)
+            for pt: Vector2 in [
+                Vector2(_TD + OFS, _TD + OFS),
+                Vector2(w - _TD - OFS, _TD + OFS),
+                Vector2(_TD + OFS, h - _TD - OFS),
+                Vector2(w - _TD - OFS, h - _TD - OFS),
+            ]:
+                draw_line(pt - Vector2(ARM, 0.0), pt + Vector2(ARM, 0.0), yellow, 1.5)
+                draw_line(pt - Vector2(0.0, ARM), pt + Vector2(0.0, ARM), yellow, 1.5)
 
     func _room_at(col: int, c: int, row: int, r: int) -> Vector2i:
         var is_left   := col == c - 1
