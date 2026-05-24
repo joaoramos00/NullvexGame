@@ -669,6 +669,31 @@ func _refresh_tiles() -> void:
             pview.queue_redraw())
         plat_ts_row.add_child(ts_btn)
 
+    # Modo: Plataforma | Sala
+    var mode_row := HBoxContainer.new()
+    mode_row.add_theme_constant_override("separation", 6)
+    plat_panel.add_child(mode_row)
+
+    var mode_lbl := Label.new()
+    mode_lbl.text = "Modo:"
+    mode_lbl.add_theme_font_size_override("font_size", 18)
+    mode_row.add_child(mode_lbl)
+
+    var mode_btns: Array = []
+    for mode_entry in [["Plataforma", "platform"], ["Sala", "room"]]:
+        var mbtn := Button.new()
+        mbtn.text = mode_entry[0]
+        mbtn.add_theme_font_size_override("font_size", 18)
+        var mkey: String = mode_entry[1]
+        mbtn.pressed.connect(func():
+            pview.mode = mkey
+            pview.queue_redraw()
+            for b in mode_btns:
+                b.modulate = Color(1.0, 1.0, 0.0) if b.text == mode_entry[0] else Color(0.6, 0.6, 0.6))
+        mode_row.add_child(mbtn)
+        mode_btns.append(mbtn)
+    mode_btns[0].modulate = Color(1.0, 1.0, 0.0)
+
     var ctrl_row := HBoxContainer.new()
     ctrl_row.add_theme_constant_override("separation", 20)
     plat_panel.add_child(ctrl_row)
