@@ -42,9 +42,12 @@ const _CHARGE_COLOR_L3     := Color(1.0, 0.22, 0.18, 0.85)
 
 const _CHARGE_BIG_SPEED := 0.4  # bolinhas grandes mais lentas
 
+const _SQUAT_DURATION := 0.1
+
 var _charge_timer: float = 0.0
 var _is_charging: bool = false
 var _is_shooting: bool = false
+var _jump_squat_timer: float = -1.0
 var _spiral_phases: Array = []
 var _spiral_phases_big: Array = []
 var _draw_orbs: Array = []  # [{pos, color, radius}]
@@ -125,7 +128,24 @@ func _setup_sprite_frames() -> void:
     _sprite.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
     _sprite.play("idle")
 
+func _handle_jump() -> void:
+    if _is_dashing or _jump_squat_timer >= 0.0:
+        return
+    if Input.is_action_just_pressed("jump"):
+        if _is_wall_sliding:
+            _apply_wall_jump()
+            return
+        if is_on_floor() or _coyote_timer > 0.0:
+            _jump_squat_timer = 0.0
+            _coyote_timer = 0.0
+
 func _physics_process(delta: float) -> void:
+    if _jump_squat_timer >= 0.0:
+        _jump_squat_timer += delta
+        if _jump_squat_timer >= _SQUAT_DURATION:
+            velocity.y = JUMP_VELOCITY
+            _jump_squat_timer = -1.0
+            AudioManager.play_sfx(AudioLibrary.sfx_jump)
     super._physics_process(delta)
     if is_dead:
         return
@@ -190,11 +210,16 @@ func _on_shoot_finished() -> void:
 func _update_animation() -> void:
     if not _is_shooting:
         _sprite.flip_h = not facing_right
-    if not is_on_floor():
+    if _jump_squat_timer >= 0.0:
         if not _is_shooting:
             _sprite.stop()
             _sprite.animation = "jump"
-            _sprite.frame = 2
+            _sprite.frame = 0 if _jump_squat_timer < _SQUAT_DURATION * 0.5 else 1
+    elif not is_on_floor():
+        if not _is_shooting:
+            _sprite.stop()
+            _sprite.animation = "jump"
+            _sprite.frame = 3 if velocity.y > 0.0 else 2
     elif _is_shooting:
         pass
     elif velocity.x != 0.0:
