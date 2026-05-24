@@ -29,11 +29,12 @@ func _ready() -> void:
 
 func _process(_delta: float) -> void:
     if is_instance_valid(_player):
-        $Camera2D.global_position = _player.global_position + Vector2(0.0, 120.0)
+        var cam_y := clamp(_player.global_position.y + 120.0, _GROUND_Y - 400.0, _GROUND_Y + 200.0)
+        $Camera2D.global_position = Vector2(_player.global_position.x, cam_y)
         queue_redraw()
 
 func _draw() -> void:
-    draw_rect(Rect2(-8000.0, -4000.0, 16000.0, 8000.0), Color(0.07, 0.08, 0.16))
+    draw_rect(Rect2(-32000.0, -32000.0, 64000.0, 64000.0), Color(0.07, 0.08, 0.16))
     if not is_instance_valid(_player):
         return
     var pos      := _player.global_position + Vector2(0.0, -90.0)
