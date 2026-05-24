@@ -34,6 +34,14 @@ const CP1_EXIT_X  := 6370.0   # 6398 (face interna Corr1_Wall_R) − 28px
 const CP2_ENTRY_X := 15910.0  # 15938 (face externa Corr2_Wall_L) − 28px
 const CP2_EXIT_X  := 16570.0  # 16598 (face interna Corr2_Wall_R) − 28px
 
+# Offset vertical das portas: mesmo -28px aplicado às laterais, agora nos cantos sup/inf
+const _CORR_CEIL_Y  := 832.0    # face interna Corr_Ceil
+const _CORR_FLOOR_Y := 1088.0   # face interna Corr_Floor
+const _DOOR_MARGIN  := 28.0
+const _DOOR_H       := _CORR_FLOOR_Y - _CORR_CEIL_Y - _DOOR_MARGIN * 2.0  # 200px
+const _DOOR_CY      := (_CORR_CEIL_Y + _CORR_FLOOR_Y) * 0.5               # 960
+const _DOOR_OPEN_Y  := (_CORR_CEIL_Y - _DOOR_CY) - _DOOR_H - 2.0         # -330
+
 var _player: CharacterBase = null
 var _zone1_enemies: Array[Node] = []
 var _zone2_enemies: Array[Node] = []
@@ -109,28 +117,37 @@ func _spawn_player() -> void:
 
 # ─── Checkpoint Doors ────────────────────────────────────────────────────────
 
+func _make_door(x: float) -> CheckpointDoor:
+	var door := _DOOR_SCENE.instantiate() as CheckpointDoor
+	door.position    = Vector2(x, _DOOR_CY)
+	door.open_offset = _DOOR_OPEN_Y
+	# Redimensiona collision body antes de _ready()
+	var col := door.get_node("CollisionShape2D") as CollisionShape2D
+	var body_shape := (col.shape as RectangleShape2D).duplicate() as RectangleShape2D
+	body_shape.size = Vector2(32.0, _DOOR_H)
+	col.shape = body_shape
+	# Redimensiona trigger
+	var trig := door.get_node("TriggerArea/CollisionShape2D") as CollisionShape2D
+	var trig_shape := (trig.shape as RectangleShape2D).duplicate() as RectangleShape2D
+	trig_shape.size = Vector2(48.0, _DOOR_H + 32.0)
+	trig.shape = trig_shape
+	add_child(door)
+	# Redimensiona sprite depois de _ready() (que executa em add_child)
+	var sprite := door.get_node("ColorRect") as ColorRect
+	sprite.offset_top    = -_DOOR_H * 0.5
+	sprite.offset_bottom =  _DOOR_H * 0.5
+	return door
+
 func _setup_doors() -> void:
-	# CP1 entry — at CP1_ENTRY_X (left side of corridor 1)
-	var cp1_entry: Node2D = _DOOR_SCENE.instantiate()
-	cp1_entry.position = Vector2(CP1_ENTRY_X, 992)
-	add_child(cp1_entry)
+	var cp1_entry := _make_door(CP1_ENTRY_X)
 	cp1_entry.connect("door_opened", _on_cp1_entry_opened.bind(cp1_entry))
 
-	# CP1 exit — at CP1_EXIT_X (right side of corridor 1)
-	var cp1_exit: Node2D = _DOOR_SCENE.instantiate()
-	cp1_exit.position = Vector2(CP1_EXIT_X, 992)
-	add_child(cp1_exit)
+	_make_door(CP1_EXIT_X)
 
-	# CP2 entry — at CP2_ENTRY_X (left side of corridor 2)
-	var cp2_entry: Node2D = _DOOR_SCENE.instantiate()
-	cp2_entry.position = Vector2(CP2_ENTRY_X, 992)
-	add_child(cp2_entry)
+	var cp2_entry := _make_door(CP2_ENTRY_X)
 	cp2_entry.connect("door_opened", _on_cp2_entry_opened.bind(cp2_entry))
 
-	# CP2 exit / boss door — at CP2_EXIT_X (right side of corridor 2)
-	var boss_door: Node2D = _DOOR_SCENE.instantiate()
-	boss_door.position = Vector2(CP2_EXIT_X, 992)
-	add_child(boss_door)
+	var boss_door := _make_door(CP2_EXIT_X)
 	boss_door.connect("door_opened", _on_boss_door_opened.bind(boss_door))
 
 func _on_cp1_entry_opened(door: Node2D) -> void:
