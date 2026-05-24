@@ -181,6 +181,9 @@ func _die() -> void:
     is_dead = true
     velocity = Vector2.ZERO
     AudioManager.play_sfx(AudioLibrary.sfx_player_death)
+    _play_death_animation()
+
+func _play_death_animation() -> void:
     died.emit()
 
 func respawn(position: Vector2) -> void:
