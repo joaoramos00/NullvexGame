@@ -153,8 +153,8 @@ class _PlatformView extends Control:
         if is_top    and is_right: return Vector2i(2, 0)   # Inner-TR (visual bot-right de sala)
         if is_bottom: return Vector2i(1, 2)   # teto visto de baixo
         if is_top:    return Vector2i(3, 0)   # chão visto de cima
-        if is_left:   return Vector2i(3, 2)   # parede esquerda
-        if is_right:  return Vector2i(1, 0)   # parede direita
+        if is_left:   return Vector2i(1, 0)   # face interna da parede esquerda = RIGHT
+        if is_right:  return Vector2i(3, 2)   # face interna da parede direita  = LEFT
         return _EMPTY
 
     func _tile_at(col: int, c: int, row: int, r: int) -> Vector2i:
