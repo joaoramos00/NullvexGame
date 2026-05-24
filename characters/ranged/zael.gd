@@ -42,6 +42,7 @@ const _CHARGE_COLOR_L3     := Color(1.0, 0.22, 0.18, 0.85)
 
 const _CHARGE_BIG_SPEED := 0.4  # bolinhas grandes mais lentas
 
+const HURT_DURATION       := 0.3
 const _SQUAT_DURATION     := 0.1
 const _DASH_JUMP_BUFFER   := 0.2   # janela após o dash terminar para ainda fazer dash-jump
 const _DASH_JUMP_SPEED    := 620.0 # velocidade horizontal do dash-jump (< DASH_SPEED=720)
@@ -56,6 +57,8 @@ var _dash_jump_dir: float = 0.0
 var _was_dashing_timer: float = 0.0
 var _jump_buffer_timer: float = 0.0
 var _landing_timer: float = 0.0
+var _is_hurt: bool = false
+var _hurt_timer: float = 0.0
 var _was_on_floor: bool = true
 var _spiral_phases: Array = []
 var _spiral_phases_big: Array = []
@@ -67,7 +70,8 @@ var _orb_canvas: Node2D    # filho com z_index alto para desenhar por cima
 func _ready() -> void:
     super._ready()
     _setup_sprite_frames()
-    _sprite.animation_finished.connect(_on_shoot_finished)
+    _sprite.animation_finished.connect(_on_animation_finished)
+    damaged.connect(_on_damaged)
     for i in _CHARGE_COUNT_L3:
         _spiral_phases.append(randf())
     for i in _CHARGE_BIG_COUNT_L3:
@@ -262,6 +266,10 @@ func _physics_process(delta: float) -> void:
     if _landing_timer > 0.0:
         _landing_timer = max(0.0, _landing_timer - delta)
     _handle_shooting(delta)
+    if _is_hurt:
+        _hurt_timer += delta
+        if _hurt_timer >= HURT_DURATION:
+            _is_hurt = false
     _update_charge_effect(delta)
     _update_animation()
 
@@ -315,9 +323,24 @@ func _update_charge_effect(delta: float) -> void:
 
     _orb_canvas.queue_redraw()
 
-func _on_shoot_finished() -> void:
-    if _sprite.animation.begins_with("shoot_"):
-        _is_shooting = false
+func _on_animation_finished() -> void:
+    match _sprite.animation:
+        "shoot_1", "shoot_2", "shoot_3":
+            _is_shooting = false
+        "hurt":
+            _is_hurt = false
+        "death":
+            died.emit()
+
+func _on_damaged(_amount: int) -> void:
+    if is_dead:
+        return
+    _is_hurt = true
+    _hurt_timer = 0.0
+    _sprite.play("hurt")
+
+func _play_death_animation() -> void:
+    _sprite.play("death")
 
 func _update_animation() -> void:
     if not _is_shooting:
