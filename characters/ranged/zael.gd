@@ -146,7 +146,8 @@ func _handle_jump() -> void:
             return
         if is_on_floor() or _coyote_timer > 0.0:
             _jump_squat_timer = 0.0
-            _jump_buffer_timer = 0.0
+            if not _is_dashing:
+                _jump_buffer_timer = 0.0
             _coyote_timer = 0.0
 
 func _handle_movement() -> void:
@@ -174,8 +175,10 @@ func _physics_process(delta: float) -> void:
     elif _jump_buffer_timer > 0.0:
         _jump_buffer_timer = max(0.0, _jump_buffer_timer - delta)
     # Dispara dash-jump se pulo foi pressionado (agora ou no buffer) com dash ativo/recente
-    if _jump_buffer_timer > 0.0 and not _dash_jump and _jump_squat_timer < 0.0:
+    # _jump_squat_timer pode estar ativo (press simultâneo): cancelamos o squat normal
+    if _jump_buffer_timer > 0.0 and not _dash_jump:
         if _is_dashing or (_was_dashing_timer > 0.0 and is_on_floor()):
+            _jump_squat_timer = -1.0
             _dash_jump = true
             _dash_jump_dir = _dash_direction
             _is_dashing = false
