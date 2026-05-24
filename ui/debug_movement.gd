@@ -29,7 +29,7 @@ func _ready() -> void:
 
 func _process(_delta: float) -> void:
     if is_instance_valid(_player):
-        var cam_y := clamp(_player.global_position.y + 120.0, _GROUND_Y - 400.0, _GROUND_Y + 200.0)
+        var cam_y: float = clamp(_player.global_position.y + 120.0, _GROUND_Y - 400.0, _GROUND_Y + 200.0)
         $Camera2D.global_position = Vector2(_player.global_position.x, cam_y)
         queue_redraw()
 
@@ -48,12 +48,11 @@ func _draw() -> void:
 func _draw_wall_pose(pos: Vector2, wall_normal: Vector2) -> void:
     var c  := Color(0.92, 0.92, 1.0, 0.85)
     var tw := 2.5
-    var kd := -sign(wall_normal.x)  # direção do chute (em direção à parede)
+    var kd: float = -sign(wall_normal.x)
 
     draw_circle(pos + Vector2(0.0, 6.0), 36.0, Color(0.0, 0.0, 0.0, 0.38))
 
-    # Linha indicando a parede
-    var wx := kd * 35.0
+    var wx: float = kd * 35.0
     draw_line(pos + Vector2(wx, -30.0), pos + Vector2(wx, 30.0), Color(0.55, 0.55, 0.75, 0.7), 3.0)
 
     # Cabeça afastada da parede
