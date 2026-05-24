@@ -110,6 +110,57 @@ class _LateralView extends Control:
             Vector2(_TILE_X2, _MT + _TILE_W * 2.0 + 8.0),
             Color(1.0, 0.9, 0.0, 0.85), 2.0)
 
+# Visualização de plataformas: monta bloco N×M com _tile_at
+class _PlatformView extends Control:
+    var tile_tex: Texture2D
+    var rows: int = 2
+    var cols: int = 3
+
+    const _TS := 32.0   # tamanho source
+    const _TD := 48.0   # tamanho exibido
+
+    func set_dims(r: int, c: int) -> void:
+        rows = r
+        cols = c
+        custom_minimum_size = Vector2(c * _TD, r * _TD)
+        queue_redraw()
+
+    func _draw() -> void:
+        draw_rect(Rect2(Vector2.ZERO, size), Color(0.04, 0.06, 0.14))
+        if not tile_tex:
+            return
+        for row in rows:
+            for col in cols:
+                var t := _tile_at(col, cols, row, rows)
+                draw_texture_rect_region(tile_tex,
+                    Rect2(col * _TD, row * _TD, _TD, _TD),
+                    Rect2(t.x * _TS, t.y * _TS, _TS, _TS))
+
+    func _tile_at(col: int, c: int, row: int, r: int) -> Vector2i:
+        var is_left   := col == c - 1
+        var is_right  := col == 0
+        var is_top    := row == r - 1
+        var is_bottom := row == 0
+        if c == 1:
+            if is_top:    return Vector2i(1, 2)
+            if is_bottom: return Vector2i(3, 0)
+            return Vector2i(2, 1)
+        if r == 1:
+            if is_left:  return Vector2i(0, 0)
+            if is_right: return Vector2i(1, 3)
+            return Vector2i(3, 0)
+        if is_top:
+            if is_left:  return Vector2i(3, 3)
+            if is_right: return Vector2i(0, 2)
+            return Vector2i(1, 2)
+        if is_bottom:
+            if is_left:  return Vector2i(0, 0)
+            if is_right: return Vector2i(1, 3)
+            return Vector2i(3, 0)
+        if is_left:  return Vector2i(3, 2)
+        if is_right: return Vector2i(1, 0)
+        return Vector2i(2, 1)
+
 const _FRAME_SIZE   := 68
 const _PREVIEW_SIZE := 136
 const _STRIP_SIZE   := 40
@@ -551,6 +602,101 @@ func _refresh_tiles() -> void:
     add_info.call("Sprite Zael:", Color(1.0, 0.9, 0.3))
     add_info.call("  68px x escala 2 = 136 px", Color(0.8, 0.8, 0.8))
     add_info.call("  offset Y: -4 px", Color(0.8, 0.8, 0.8))
+
+    # Plataformas tab
+    var plat_tab_idx: int = panels.size()
+
+    var plat_tab_btn := Button.new()
+    plat_tab_btn.text = "Plataformas"
+    plat_tab_btn.add_theme_font_size_override("font_size", 20)
+    plat_tab_btn.pressed.connect(show_tab.bind(plat_tab_idx))
+    tab_row.add_child(plat_tab_btn)
+
+    var plat_panel := VBoxContainer.new()
+    plat_panel.add_theme_constant_override("separation", 8)
+    plat_panel.visible = false
+    _tiles_box.add_child(plat_panel)
+    panels.append(plat_panel)
+
+    var pview := _PlatformView.new()
+    pview.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+    pview.tile_tex = load(_TILESETS[0].path) as Texture2D
+
+    var plat_ts_row := HBoxContainer.new()
+    plat_ts_row.add_theme_constant_override("separation", 6)
+    plat_panel.add_child(plat_ts_row)
+
+    var plat_ts_lbl := Label.new()
+    plat_ts_lbl.text = "Tileset:"
+    plat_ts_lbl.add_theme_font_size_override("font_size", 18)
+    plat_ts_row.add_child(plat_ts_lbl)
+
+    for ts_data2 in _TILESETS:
+        var ts_btn := Button.new()
+        ts_btn.text = ts_data2.name.trim_suffix("T")
+        ts_btn.add_theme_font_size_override("font_size", 18)
+        var ts_path2: String = ts_data2.path
+        ts_btn.pressed.connect(func():
+            pview.tile_tex = load(ts_path2) as Texture2D
+            pview.queue_redraw())
+        plat_ts_row.add_child(ts_btn)
+
+    var ctrl_row := HBoxContainer.new()
+    ctrl_row.add_theme_constant_override("separation", 20)
+    plat_panel.add_child(ctrl_row)
+
+    var cols_lbl := Label.new()
+    cols_lbl.text = "Cols: 3"
+    cols_lbl.add_theme_font_size_override("font_size", 18)
+    cols_lbl.custom_minimum_size = Vector2(80.0, 0.0)
+    var cols_hb := HBoxContainer.new()
+    cols_hb.add_theme_constant_override("separation", 4)
+    var cols_m := Button.new()
+    cols_m.text = "−"
+    cols_m.add_theme_font_size_override("font_size", 18)
+    cols_m.pressed.connect(func():
+        if pview.cols > 1:
+            pview.set_dims(pview.rows, pview.cols - 1)
+            cols_lbl.text = "Cols: %d" % pview.cols)
+    var cols_p := Button.new()
+    cols_p.text = "+"
+    cols_p.add_theme_font_size_override("font_size", 18)
+    cols_p.pressed.connect(func():
+        if pview.cols < 8:
+            pview.set_dims(pview.rows, pview.cols + 1)
+            cols_lbl.text = "Cols: %d" % pview.cols)
+    cols_hb.add_child(cols_m)
+    cols_hb.add_child(cols_lbl)
+    cols_hb.add_child(cols_p)
+    ctrl_row.add_child(cols_hb)
+
+    var rows_lbl := Label.new()
+    rows_lbl.text = "Rows: 2"
+    rows_lbl.add_theme_font_size_override("font_size", 18)
+    rows_lbl.custom_minimum_size = Vector2(80.0, 0.0)
+    var rows_hb := HBoxContainer.new()
+    rows_hb.add_theme_constant_override("separation", 4)
+    var rows_m := Button.new()
+    rows_m.text = "−"
+    rows_m.add_theme_font_size_override("font_size", 18)
+    rows_m.pressed.connect(func():
+        if pview.rows > 1:
+            pview.set_dims(pview.rows - 1, pview.cols)
+            rows_lbl.text = "Rows: %d" % pview.rows)
+    var rows_p := Button.new()
+    rows_p.text = "+"
+    rows_p.add_theme_font_size_override("font_size", 18)
+    rows_p.pressed.connect(func():
+        if pview.rows < 8:
+            pview.set_dims(pview.rows + 1, pview.cols)
+            rows_lbl.text = "Rows: %d" % pview.rows)
+    rows_hb.add_child(rows_m)
+    rows_hb.add_child(rows_lbl)
+    rows_hb.add_child(rows_p)
+    ctrl_row.add_child(rows_hb)
+
+    plat_panel.add_child(pview)
+    pview.set_dims(2, 3)
 
     show_tab.call(0)
 
