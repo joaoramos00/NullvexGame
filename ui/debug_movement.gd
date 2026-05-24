@@ -1,5 +1,6 @@
 extends Node2D
 
+const _PLAYER_SCENE := preload("res://characters/ranged/zael.tscn")
 const _ENEMY_SCENES: Array[PackedScene] = [
     preload("res://characters/enemies/enemy_base.tscn"),
     preload("res://characters/enemies/enemy_flyer.tscn"),
@@ -19,8 +20,8 @@ var _label_enemy: Label
 
 func _ready() -> void:
     _setup_game_manager()
-    _build_background()
     _build_ground()
+    _build_walls()
     _build_ui()
     _spawn_player()
     _spawn_enemy()
@@ -34,8 +35,36 @@ func _process(_delta: float) -> void:
 func _draw() -> void:
     if not is_instance_valid(_player):
         return
-    var pos := _player.global_position + Vector2(0.0, -90.0)
-    _draw_pose(pos, _player.is_on_floor())
+    var pos      := _player.global_position + Vector2(0.0, -90.0)
+    var on_floor := _player.is_on_floor()
+    var on_wall  := _player.is_on_wall() and not on_floor
+    if on_wall:
+        _draw_wall_pose(pos, _player.get_wall_normal())
+    else:
+        _draw_pose(pos, on_floor)
+
+func _draw_wall_pose(pos: Vector2, wall_normal: Vector2) -> void:
+    var c  := Color(0.92, 0.92, 1.0, 0.85)
+    var tw := 2.5
+    var kd := -sign(wall_normal.x)  # direção do chute (em direção à parede)
+
+    draw_circle(pos + Vector2(0.0, 6.0), 36.0, Color(0.0, 0.0, 0.0, 0.38))
+
+    # Linha indicando a parede
+    var wx := kd * 35.0
+    draw_line(pos + Vector2(wx, -30.0), pos + Vector2(wx, 30.0), Color(0.55, 0.55, 0.75, 0.7), 3.0)
+
+    # Cabeça afastada da parede
+    draw_circle(pos + Vector2(-kd * 4.0, -16.0), 7.0, c)
+    # Tronco ligeiramente inclinado
+    draw_line(pos + Vector2(-kd * 3.0, -9.0), pos + Vector2(0.0, 8.0), c, tw)
+    # Braço em direção à parede (apoio / impulso)
+    draw_line(pos + Vector2(-kd * 12.0, -3.0), pos + Vector2(0.0, 1.0), c, 2.0)
+    draw_line(pos + Vector2(0.0, 1.0),          pos + Vector2(kd * 11.0, -7.0), c, 2.0)
+    # Perna de chute — estendida horizontalmente contra a parede
+    draw_line(pos + Vector2(0.0, 8.0), pos + Vector2(kd * 22.0, 3.0), c, tw)
+    # Perna traseira — dobrada para trás e levemente abaixo
+    draw_line(pos + Vector2(0.0, 8.0), pos + Vector2(-kd * 9.0, 21.0), c, tw)
 
 func _draw_pose(pos: Vector2, on_floor: bool) -> void:
     var c    := Color(0.92, 0.92, 1.0, 0.85)
@@ -68,15 +97,6 @@ func _setup_game_manager() -> void:
     GameManager.max_hp = 8
     GameManager.zael_selected_shot = "single"
 
-func _build_background() -> void:
-    var bg_layer := CanvasLayer.new()
-    bg_layer.layer = -1
-    add_child(bg_layer)
-    var bg := ColorRect.new()
-    bg.color = Color(0.07, 0.08, 0.16)
-    bg.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-    bg_layer.add_child(bg)
-
 func _build_ground() -> void:
     var body := StaticBody2D.new()
     body.collision_layer = 1
@@ -94,6 +114,24 @@ func _build_ground() -> void:
     line.width = 3.0
     line.default_color = Color(0.4, 0.42, 0.55)
     add_child(line)
+
+func _build_walls() -> void:
+    for wx: float in [100.0, 1400.0]:
+        var body := StaticBody2D.new()
+        body.collision_layer = 1
+        add_child(body)
+        var cs := CollisionShape2D.new()
+        var seg := SegmentShape2D.new()
+        seg.a = Vector2(wx, _GROUND_Y - 400.0)
+        seg.b = Vector2(wx, _GROUND_Y)
+        cs.shape = seg
+        body.add_child(cs)
+        var line := Line2D.new()
+        line.add_point(Vector2(wx, _GROUND_Y - 400.0))
+        line.add_point(Vector2(wx, _GROUND_Y))
+        line.width = 3.0
+        line.default_color = Color(0.4, 0.42, 0.55)
+        add_child(line)
 
 func _build_ui() -> void:
     var ui := CanvasLayer.new()
@@ -175,8 +213,7 @@ func _build_ui() -> void:
 func _spawn_player() -> void:
     if is_instance_valid(_player):
         _player.queue_free()
-    var scene := load("res://characters/ranged/zael.tscn") as PackedScene
-    _player = scene.instantiate() as CharacterBase
+    _player = _PLAYER_SCENE.instantiate() as CharacterBase
     add_child(_player)
     # Zael: capsule radius=10, height=28 → bottom at origin+24
     _player.global_position = Vector2(_PLAYER_X, _GROUND_Y - 24.0)
