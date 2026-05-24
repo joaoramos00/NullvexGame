@@ -33,6 +33,7 @@ func _process(_delta: float) -> void:
         queue_redraw()
 
 func _draw() -> void:
+    draw_rect(Rect2(-8000.0, -4000.0, 16000.0, 8000.0), Color(0.07, 0.08, 0.16))
     if not is_instance_valid(_player):
         return
     var pos      := _player.global_position + Vector2(0.0, -90.0)
@@ -116,7 +117,7 @@ func _build_ground() -> void:
     add_child(line)
 
 func _build_walls() -> void:
-    for wx: float in [100.0, 1400.0]:
+    for wx in [100.0, 1400.0]:
         var body := StaticBody2D.new()
         body.collision_layer = 1
         add_child(body)
