@@ -136,32 +136,24 @@ func _setup_sprite_frames() -> void:
     _sprite.play("idle")
 
 func _handle_jump() -> void:
-    if _jump_squat_timer >= 0.0:
+    if _jump_squat_timer >= 0.0 or _dash_jump:
         return
     if Input.is_action_just_pressed("jump"):
         if _is_wall_sliding:
             _apply_wall_jump()
-            return
-        if _is_dashing or (_was_dashing_timer > 0.0 and is_on_floor()):
-            # Dash-jump: pulo imediato sem squat, mantém velocidade do dash
-            _dash_jump = true
-            _dash_jump_dir = _dash_direction
-            _is_dashing = false
-            _was_dashing_timer = 0.0
-            velocity.y = JUMP_VELOCITY
-            velocity.x = _DASH_JUMP_SPEED * _dash_jump_dir
-            AudioManager.play_sfx(AudioLibrary.sfx_jump)
             return
         if is_on_floor() or _coyote_timer > 0.0:
             _jump_squat_timer = 0.0
             _coyote_timer = 0.0
 
 func _handle_movement() -> void:
-    if _dash_jump and not is_on_floor():
-        var dir := Input.get_axis("move_left", "move_right")
-        if dir != 0.0:
-            velocity.x = dir * SPEED
-        # sem input: mantém o momentum do dash
+    if _dash_jump:
+        if is_on_floor():
+            velocity.x = _DASH_JUMP_SPEED * _dash_jump_dir
+        else:
+            var dir := Input.get_axis("move_left", "move_right")
+            if dir != 0.0:
+                velocity.x = dir * SPEED
         return
     super._handle_movement()
 
@@ -171,6 +163,15 @@ func _physics_process(delta: float) -> void:
         if _jump_squat_timer >= _SQUAT_DURATION:
             velocity.y = JUMP_VELOCITY
             _jump_squat_timer = -1.0
+            AudioManager.play_sfx(AudioLibrary.sfx_jump)
+    # Detecta dash-jump ANTES do super para garantir leitura correta do estado
+    if Input.is_action_just_pressed("jump") and not _dash_jump and _jump_squat_timer < 0.0:
+        if _is_dashing or (_was_dashing_timer > 0.0 and is_on_floor()):
+            _dash_jump = true
+            _dash_jump_dir = _dash_direction
+            _is_dashing = false
+            _was_dashing_timer = 0.0
+            velocity.y = JUMP_VELOCITY
             AudioManager.play_sfx(AudioLibrary.sfx_jump)
     # Rastreia tempo desde o último dash para a janela de buffer
     if _is_dashing:
