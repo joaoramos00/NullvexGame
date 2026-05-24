@@ -380,22 +380,44 @@ func _refresh_tiles() -> void:
     for child in _tiles_box.get_children():
         child.queue_free()
 
-    for ts_data in _TILESETS:
-        var lbl := Label.new()
-        lbl.text = "%s  (%dx%d, %dpx cada)" % [ts_data.name, ts_data.cols, ts_data.rows, ts_data.tile_size]
-        lbl.add_theme_font_size_override("font_size", 20)
-        lbl.add_theme_color_override("font_color", Color(0.6, 0.85, 1.0))
-        _tiles_box.add_child(lbl)
+    # Tab bar
+    var tab_row := HBoxContainer.new()
+    tab_row.add_theme_constant_override("separation", 4)
+    _tiles_box.add_child(tab_row)
 
-        _tile_info_label = Label.new()
-        _tile_info_label.text = "clique num tile para zoom"
-        _tile_info_label.add_theme_font_size_override("font_size", 17)
-        _tile_info_label.add_theme_color_override("font_color", Color(0.5, 0.5, 0.5))
-        _tiles_box.add_child(_tile_info_label)
+    var panels: Array = []
+
+    var show_tab := func(idx: int) -> void:
+        for i in panels.size():
+            panels[i].visible = (i == idx)
+        for i in tab_row.get_child_count():
+            tab_row.get_child(i).modulate = Color(1.0, 1.0, 0.0) if i == idx else Color(0.6, 0.6, 0.6)
+
+    # One tab per tileset
+    for ts_idx in _TILESETS.size():
+        var ts_data: Dictionary = _TILESETS[ts_idx]
+
+        var tab_btn := Button.new()
+        tab_btn.text = ts_data.name.trim_suffix("T")
+        tab_btn.add_theme_font_size_override("font_size", 20)
+        tab_btn.pressed.connect(show_tab.bind(ts_idx))
+        tab_row.add_child(tab_btn)
+
+        var panel := VBoxContainer.new()
+        panel.add_theme_constant_override("separation", 8)
+        panel.visible = (ts_idx == 0)
+        _tiles_box.add_child(panel)
+        panels.append(panel)
+
+        var info_lbl := Label.new()
+        info_lbl.text = "clique num tile para zoom  ·  %dx%d, %dpx cada" % [ts_data.cols, ts_data.rows, ts_data.tile_size]
+        info_lbl.add_theme_font_size_override("font_size", 17)
+        info_lbl.add_theme_color_override("font_color", Color(0.5, 0.5, 0.5))
+        panel.add_child(info_lbl)
 
         var content_row := HBoxContainer.new()
         content_row.add_theme_constant_override("separation", 16)
-        _tiles_box.add_child(content_row)
+        panel.add_child(content_row)
 
         var grid := GridContainer.new()
         grid.columns = ts_data.cols
@@ -412,24 +434,24 @@ func _refresh_tiles() -> void:
         zoom_panel.add_theme_stylebox_override("panel", zoom_style)
         content_row.add_child(zoom_panel)
 
-        _tile_preview_rect = TextureRect.new()
-        _tile_preview_rect.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-        _tile_preview_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-        _tile_preview_rect.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-        _tile_preview_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
-        zoom_panel.add_child(_tile_preview_rect)
+        var preview_rect := TextureRect.new()
+        preview_rect.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+        preview_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+        preview_rect.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+        preview_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+        zoom_panel.add_child(preview_rect)
 
-        _tile_desc_label = Label.new()
-        _tile_desc_label.text = ""
-        _tile_desc_label.add_theme_font_size_override("font_size", 18)
-        _tile_desc_label.add_theme_color_override("font_color", Color(0.85, 0.85, 0.6))
-        _tile_desc_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-        _tiles_box.add_child(_tile_desc_label)
+        var desc_lbl := Label.new()
+        desc_lbl.text = ""
+        desc_lbl.add_theme_font_size_override("font_size", 18)
+        desc_lbl.add_theme_color_override("font_color", Color(0.85, 0.85, 0.6))
+        desc_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+        panel.add_child(desc_lbl)
 
         _tile_displays[ts_data.name] = {
-            "info":    _tile_info_label,
-            "preview": _tile_preview_rect,
-            "desc":    _tile_desc_label,
+            "info":    info_lbl,
+            "preview": preview_rect,
+            "desc":    desc_lbl,
             "data":    ts_data,
         }
 
@@ -480,15 +502,24 @@ func _refresh_tiles() -> void:
                 coord_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
                 cell.add_child(coord_lbl)
 
-    var col_lbl := Label.new()
-    col_lbl.text = "── Colisão Lateral ──"
-    col_lbl.add_theme_font_size_override("font_size", 22)
-    col_lbl.add_theme_color_override("font_color", Color(0.6, 0.85, 1.0))
-    _tiles_box.add_child(col_lbl)
+    # Colisões tab
+    var col_tab_idx: int = panels.size()
+
+    var col_tab_btn := Button.new()
+    col_tab_btn.text = "Colisões"
+    col_tab_btn.add_theme_font_size_override("font_size", 20)
+    col_tab_btn.pressed.connect(show_tab.bind(col_tab_idx))
+    tab_row.add_child(col_tab_btn)
+
+    var col_panel := VBoxContainer.new()
+    col_panel.add_theme_constant_override("separation", 8)
+    col_panel.visible = false
+    _tiles_box.add_child(col_panel)
+    panels.append(col_panel)
 
     var col_row := HBoxContainer.new()
     col_row.add_theme_constant_override("separation", 24)
-    _tiles_box.add_child(col_row)
+    col_panel.add_child(col_row)
 
     var lview := _LateralView.new()
     lview.tile_tex   = load("res://stages/stage_00/Stage_00T.png") as Texture2D
@@ -515,6 +546,8 @@ func _refresh_tiles() -> void:
     add_info.call("Sprite Zael:", Color(1.0, 0.9, 0.3))
     add_info.call("  68px x escala 2 = 136 px", Color(0.8, 0.8, 0.8))
     add_info.call("  offset Y: -4 px", Color(0.8, 0.8, 0.8))
+
+    show_tab.call(0)
 
 func _on_tile_input(event: InputEvent, col: int, row: int, ts_name: String) -> void:
     if not (event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT):
