@@ -343,15 +343,22 @@ func _play_death_animation() -> void:
     _sprite.play("death")
 
 func _update_animation() -> void:
-    if not _is_shooting:
+    if not _is_shooting and not is_dead and not _is_hurt:
         _sprite.flip_h = not facing_right
-    if _jump_squat_timer >= 0.0:
+
+    if is_dead:
+        pass  # animação death não deve ser interrompida
+    elif _is_hurt:
+        pass  # animação hurt não deve ser interrompida
+    elif _jump_squat_timer >= 0.0:
         if not _is_shooting:
             _sprite.stop()
             _sprite.animation = "jump"
             _sprite.frame = 0 if _jump_squat_timer < _SQUAT_DURATION * 0.5 else 1
     elif not is_on_floor():
-        if not _is_shooting:
+        if _is_wall_sliding:
+            _sprite.play("wall_slide")
+        elif not _is_shooting:
             _sprite.stop()
             _sprite.animation = "jump"
             _sprite.frame = 2
@@ -360,8 +367,12 @@ func _update_animation() -> void:
             _sprite.stop()
             _sprite.animation = "jump"
             _sprite.frame = 3
+    elif _is_dashing:
+        _sprite.play("dash")
+    elif _is_shooting and velocity.x != 0.0:
+        _sprite.play("run_shoot")
     elif _is_shooting:
-        pass
+        pass  # shoot_1/2/3 já está tocando
     elif velocity.x != 0.0:
         _sprite.play("run")
     else:
