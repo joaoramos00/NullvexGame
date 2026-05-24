@@ -44,6 +44,7 @@ const _CHARGE_BIG_SPEED := 0.4  # bolinhas grandes mais lentas
 
 const _SQUAT_DURATION     := 0.1
 const _DASH_JUMP_BUFFER   := 0.15  # janela após o dash terminar para ainda fazer dash-jump
+const _DASH_JUMP_SPEED    := 480.0 # velocidade horizontal do dash-jump (< DASH_SPEED=720)
 
 var _charge_timer: float = 0.0
 var _is_charging: bool = false
@@ -148,6 +149,7 @@ func _handle_jump() -> void:
             _is_dashing = false
             _was_dashing_timer = 0.0
             velocity.y = JUMP_VELOCITY
+            velocity.x = _DASH_JUMP_SPEED * _dash_jump_dir
             AudioManager.play_sfx(AudioLibrary.sfx_jump)
             return
         if is_on_floor() or _coyote_timer > 0.0:
@@ -179,7 +181,7 @@ func _physics_process(delta: float) -> void:
         return
     # Mantém velocidade horizontal do dash durante todo o tempo aéreo
     if _dash_jump and not is_on_floor():
-        velocity.x = DASH_SPEED * _dash_jump_dir
+        velocity.x = _DASH_JUMP_SPEED * _dash_jump_dir
     var just_landed: bool = is_on_floor() and not _was_on_floor
     _was_on_floor = is_on_floor()
     if just_landed:
