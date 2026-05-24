@@ -147,10 +147,10 @@ class _PlatformView extends Control:
         var is_bottom := row == 0
         if not is_left and not is_right and not is_top and not is_bottom:
             return _EMPTY
-        if is_bottom and is_left:  return Vector2i(1, 1)   # Inner-TL
-        if is_bottom and is_right: return Vector2i(2, 0)   # Inner-TR
-        if is_top    and is_left:  return Vector2i(2, 2)   # Inner-BL
-        if is_top    and is_right: return Vector2i(3, 1)   # Inner-BR
+        if is_bottom and is_left:  return Vector2i(2, 2)   # Inner-BL (visual top-left de sala)
+        if is_bottom and is_right: return Vector2i(3, 1)   # Inner-BR (visual top-right de sala)
+        if is_top    and is_left:  return Vector2i(1, 1)   # Inner-TL (visual bot-left de sala)
+        if is_top    and is_right: return Vector2i(2, 0)   # Inner-TR (visual bot-right de sala)
         if is_bottom: return Vector2i(1, 2)   # teto visto de baixo
         if is_top:    return Vector2i(3, 0)   # chão visto de cima
         if is_left:   return Vector2i(3, 2)   # parede esquerda
