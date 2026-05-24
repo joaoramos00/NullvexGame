@@ -349,6 +349,13 @@ func _build_ui() -> void:
     title_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
     header.add_child(title_lbl)
 
+    if OS.get_name() == "Web":
+        var reload_btn := Button.new()
+        reload_btn.text = "↺ Hard Refresh"
+        reload_btn.add_theme_font_size_override("font_size", 22)
+        reload_btn.pressed.connect(func(): JavaScriptBridge.eval("location.reload(true)"))
+        header.add_child(reload_btn)
+
     var close_btn := Button.new()
     close_btn.text = "✕ Fechar"
     close_btn.add_theme_font_size_override("font_size", 22)
