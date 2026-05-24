@@ -52,7 +52,7 @@ const _TILE_DESCS: Dictionary = {
     "Stage_01T:3,3": "Canto superior esquerdo",
 }
 
-# Visualização da colisão lateral: tile de parede + sprite Zael + cápsula
+# Visualização da colisão lateral: dois Zaels, um em cada parede
 class _LateralView extends Control:
     var tile_tex: Texture2D
     var sprite_tex: Texture2D
@@ -66,44 +66,47 @@ class _LateralView extends Control:
     const _SPR_OFS_Y := -4.0
     const _ML        := 20.0
     const _MT        := 44.0
+    const _TILE_X2   := 196.0  # borda esquerda da parede direita (simétrica a _ML)
 
     func _draw() -> void:
         draw_rect(Rect2(Vector2.ZERO, size), Color(0.04, 0.06, 0.14))
 
-        # Parede: tile LEFT (col=3, row=2) × 2 em altura
+        var cy := _MT + _TILE_W
+
         if tile_tex:
-            var src := Rect2(3.0 * _TILE_SRC, 2.0 * _TILE_SRC, _TILE_SRC, _TILE_SRC)
+            var src_l := Rect2(3.0 * _TILE_SRC, 2.0 * _TILE_SRC, _TILE_SRC, _TILE_SRC)
+            var src_r := Rect2(1.0 * _TILE_SRC, 0.0 * _TILE_SRC, _TILE_SRC, _TILE_SRC)
             for i in 2:
-                draw_texture_rect_region(
-                    tile_tex,
-                    Rect2(_ML, _MT + i * _TILE_W, _TILE_W, _TILE_W),
-                    src
-                )
+                draw_texture_rect_region(tile_tex, Rect2(_ML, _MT + i * _TILE_W, _TILE_W, _TILE_W), src_l)
+                draw_texture_rect_region(tile_tex, Rect2(_TILE_X2, _MT + i * _TILE_W, _TILE_W, _TILE_W), src_r)
 
-        # Centro do personagem: cápsula 28px para dentro da borda do tile
-        var cx := _ML + _TILE_W + _CAP_R - 28.0
-        var cy := _MT + _TILE_W  # meio da parede de 2 tiles
+        var sd := _SPR_SRC * _SPR_SCL
 
-        # Sprite Zael idle frame 0
+        # Zael 1: encostando na parede esquerda (vindo da direita)
+        var cx1 := _ML + _TILE_W + _CAP_R - 28.0
         if sprite_tex:
-            var sd := _SPR_SRC * _SPR_SCL
-            draw_texture_rect_region(
-                sprite_tex,
-                Rect2(cx - sd * 0.5, cy + _SPR_OFS_Y - sd * 0.5, sd, sd),
-                Rect2(0.0, 0.0, _SPR_SRC, _SPR_SRC)
-            )
-
-        # Cápsula de colisão (ciano)
-        var cap_rect := Rect2(cx - _CAP_R, cy - _CAP_TOT * 0.5, _CAP_R * 2.0, _CAP_TOT)
-        draw_rect(cap_rect, Color(0.0, 1.0, 1.0, 0.25))
-        draw_rect(cap_rect, Color(0.0, 1.0, 1.0, 1.0), false, 2.0)
-
-        # Linha amarela: borda do tile
-        draw_line(
-            Vector2(_ML + _TILE_W, _MT - 8.0),
+            draw_texture_rect_region(sprite_tex,
+                Rect2(cx1 - sd * 0.5, cy + _SPR_OFS_Y - sd * 0.5, sd, sd),
+                Rect2(0.0, 0.0, _SPR_SRC, _SPR_SRC))
+        var cap1 := Rect2(cx1 - _CAP_R, cy - _CAP_TOT * 0.5, _CAP_R * 2.0, _CAP_TOT)
+        draw_rect(cap1, Color(0.0, 1.0, 1.0, 0.25))
+        draw_rect(cap1, Color(0.0, 1.0, 1.0, 1.0), false, 2.0)
+        draw_line(Vector2(_ML + _TILE_W, _MT - 8.0),
             Vector2(_ML + _TILE_W, _MT + _TILE_W * 2.0 + 8.0),
-            Color(1.0, 0.9, 0.0, 0.85), 2.0
-        )
+            Color(1.0, 0.9, 0.0, 0.85), 2.0)
+
+        # Zael 2: encostando na parede direita (vindo da esquerda, espelhado)
+        var cx2 := _TILE_X2 - _CAP_R + 28.0
+        if sprite_tex:
+            draw_texture_rect_region(sprite_tex,
+                Rect2(cx2 + sd * 0.5, cy + _SPR_OFS_Y - sd * 0.5, -sd, sd),
+                Rect2(0.0, 0.0, _SPR_SRC, _SPR_SRC))
+        var cap2 := Rect2(cx2 - _CAP_R, cy - _CAP_TOT * 0.5, _CAP_R * 2.0, _CAP_TOT)
+        draw_rect(cap2, Color(0.0, 1.0, 1.0, 0.25))
+        draw_rect(cap2, Color(0.0, 1.0, 1.0, 1.0), false, 2.0)
+        draw_line(Vector2(_TILE_X2, _MT - 8.0),
+            Vector2(_TILE_X2, _MT + _TILE_W * 2.0 + 8.0),
+            Color(1.0, 0.9, 0.0, 0.85), 2.0)
 
 const _FRAME_SIZE   := 68
 const _PREVIEW_SIZE := 136
