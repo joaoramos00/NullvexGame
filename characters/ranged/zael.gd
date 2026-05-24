@@ -43,8 +43,9 @@ const _CHARGE_COLOR_L3     := Color(1.0, 0.22, 0.18, 0.85)
 const _CHARGE_BIG_SPEED := 0.4  # bolinhas grandes mais lentas
 
 const _SQUAT_DURATION     := 0.1
-const _DASH_JUMP_BUFFER   := 0.15  # janela após o dash terminar para ainda fazer dash-jump
+const _DASH_JUMP_BUFFER   := 0.2   # janela após o dash terminar para ainda fazer dash-jump
 const _DASH_JUMP_SPEED    := 620.0 # velocidade horizontal do dash-jump (< DASH_SPEED=720)
+const _JUMP_BUFFER_TIME   := 0.15  # buffer de input: pulo pressionado antes do dash ainda dispara
 
 var _charge_timer: float = 0.0
 var _is_charging: bool = false
@@ -53,6 +54,7 @@ var _jump_squat_timer: float = -1.0
 var _dash_jump: bool = false
 var _dash_jump_dir: float = 0.0
 var _was_dashing_timer: float = 0.0
+var _jump_buffer_timer: float = 0.0
 var _landing_timer: float = 0.0
 var _was_on_floor: bool = true
 var _spiral_phases: Array = []
@@ -144,6 +146,7 @@ func _handle_jump() -> void:
             return
         if is_on_floor() or _coyote_timer > 0.0:
             _jump_squat_timer = 0.0
+            _jump_buffer_timer = 0.0
             _coyote_timer = 0.0
 
 func _handle_movement() -> void:
@@ -165,12 +168,19 @@ func _physics_process(delta: float) -> void:
             _jump_squat_timer = -1.0
             AudioManager.play_sfx(AudioLibrary.sfx_jump)
     # Detecta dash-jump ANTES do super para garantir leitura correta do estado
-    if Input.is_action_just_pressed("jump") and not _dash_jump and _jump_squat_timer < 0.0:
+    # Buffer de input: registra que pulo foi pressionado recentemente
+    if Input.is_action_just_pressed("jump"):
+        _jump_buffer_timer = _JUMP_BUFFER_TIME
+    elif _jump_buffer_timer > 0.0:
+        _jump_buffer_timer = max(0.0, _jump_buffer_timer - delta)
+    # Dispara dash-jump se pulo foi pressionado (agora ou no buffer) com dash ativo/recente
+    if _jump_buffer_timer > 0.0 and not _dash_jump and _jump_squat_timer < 0.0:
         if _is_dashing or (_was_dashing_timer > 0.0 and is_on_floor()):
             _dash_jump = true
             _dash_jump_dir = _dash_direction
             _is_dashing = false
             _was_dashing_timer = 0.0
+            _jump_buffer_timer = 0.0
             velocity.y = JUMP_VELOCITY
             AudioManager.play_sfx(AudioLibrary.sfx_jump)
     # Rastreia tempo desde o último dash para a janela de buffer
