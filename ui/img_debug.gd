@@ -80,8 +80,8 @@ class _LateralView extends Control:
                     src
                 )
 
-        # Centro do personagem: cápsula 30px para dentro da borda do tile
-        var cx := _ML + _TILE_W + _CAP_R - 30.0
+        # Centro do personagem: cápsula 28px para dentro da borda do tile
+        var cx := _ML + _TILE_W + _CAP_R - 28.0
         var cy := _MT + _TILE_W  # meio da parede de 2 tiles
 
         # Sprite Zael idle frame 0
