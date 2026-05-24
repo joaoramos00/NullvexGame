@@ -4,7 +4,7 @@ class_name ImgDebug
 const _SPRITES: Array = [
     {"char": "ZAEL", "anim": "Idle",  "path": "res://characters/ranged/ZaelIdle.png",     "frames": 8, "fps": 8.0},
     {"char": "ZAEL", "anim": "Run",   "path": "res://characters/ranged/ZaelCorrendo.png", "frames": 6, "fps": 10.0},
-    {"char": "ZAEL", "anim": "Jump",  "path": "res://characters/ranged/ZaelJump.png",     "frames": 9, "fps": 10.0},
+    {"char": "ZAEL", "anim": "Jump",  "path": "res://characters/ranged/ZaelJump_new.png", "frames": 4, "fps": 10.0},
     {"char": "ZAEL", "anim": "Shot",  "path": "res://characters/ranged/ZaelAtirando.png", "frames": 9, "fps": 10.0},
     {"char": "ZARA", "anim": "Walk",  "path": "res://characters/melee/ZaraAndando.png",   "frames": 5, "fps": 8.0},
     {"char": "ZARA", "anim": "Run",   "path": "res://characters/melee/ZaraCorrendo.png",  "frames": 3, "fps": 10.0},
@@ -110,14 +110,16 @@ class _LateralView extends Control:
             Vector2(_TILE_X2, _MT + _TILE_W * 2.0 + 8.0),
             Color(1.0, 0.9, 0.0, 0.85), 2.0)
 
-# Visualização de plataformas: monta bloco N×M com _tile_at
+# Visualização de plataformas e salas: monta bloco N×M com _tile_at ou _room_at
 class _PlatformView extends Control:
     var tile_tex: Texture2D
     var rows: int = 2
     var cols: int = 3
+    var mode: String = "platform"   # "platform" | "room"
 
     const _TS := 32.0   # tamanho source
     const _TD := 48.0   # tamanho exibido
+    const _EMPTY := Vector2i(0, 3)
 
     func set_dims(r: int, c: int) -> void:
         rows = r
@@ -131,10 +133,29 @@ class _PlatformView extends Control:
             return
         for row in rows:
             for col in cols:
-                var t := _tile_at(col, cols, row, rows)
+                var t := _room_at(col, cols, row, rows) if mode == "room" else _tile_at(col, cols, row, rows)
+                if t == _EMPTY:
+                    continue
                 draw_texture_rect_region(tile_tex,
                     Rect2(col * _TD, row * _TD, _TD, _TD),
                     Rect2(t.x * _TS, t.y * _TS, _TS, _TS))
+
+    func _room_at(col: int, c: int, row: int, r: int) -> Vector2i:
+        var is_left   := col == c - 1
+        var is_right  := col == 0
+        var is_top    := row == r - 1
+        var is_bottom := row == 0
+        if not is_left and not is_right and not is_top and not is_bottom:
+            return _EMPTY
+        if is_bottom and is_left:  return Vector2i(1, 1)   # Inner-TL
+        if is_bottom and is_right: return Vector2i(2, 0)   # Inner-TR
+        if is_top    and is_left:  return Vector2i(2, 2)   # Inner-BL
+        if is_top    and is_right: return Vector2i(3, 1)   # Inner-BR
+        if is_bottom: return Vector2i(1, 2)   # teto visto de baixo
+        if is_top:    return Vector2i(3, 0)   # chão visto de cima
+        if is_left:   return Vector2i(3, 2)   # parede esquerda
+        if is_right:  return Vector2i(1, 0)   # parede direita
+        return _EMPTY
 
     func _tile_at(col: int, c: int, row: int, r: int) -> Vector2i:
         var is_left   := col == c - 1
