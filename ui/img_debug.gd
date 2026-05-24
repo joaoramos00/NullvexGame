@@ -98,9 +98,11 @@ class _LateralView extends Control:
         # Zael 2: encostando na parede direita (vindo da esquerda, espelhado)
         var cx2 := _TILE_X2 - _CAP_R + 28.0
         if sprite_tex:
+            draw_set_transform(Vector2(cx2 * 2.0, 0.0), 0.0, Vector2(-1.0, 1.0))
             draw_texture_rect_region(sprite_tex,
-                Rect2(cx2 + sd * 0.5, cy + _SPR_OFS_Y - sd * 0.5, -sd, sd),
+                Rect2(cx2 - sd * 0.5, cy + _SPR_OFS_Y - sd * 0.5, sd, sd),
                 Rect2(0.0, 0.0, _SPR_SRC, _SPR_SRC))
+            draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
         var cap2 := Rect2(cx2 - _CAP_R, cy - _CAP_TOT * 0.5, _CAP_R * 2.0, _CAP_TOT)
         draw_rect(cap2, Color(0.0, 1.0, 1.0, 0.25))
         draw_rect(cap2, Color(0.0, 1.0, 1.0, 1.0), false, 2.0)
