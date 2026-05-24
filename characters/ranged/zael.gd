@@ -192,7 +192,9 @@ func _update_animation() -> void:
         _sprite.flip_h = not facing_right
     if not is_on_floor():
         if not _is_shooting:
-            _sprite.play("jump")
+            _sprite.stop()
+            _sprite.animation = "jump"
+            _sprite.frame = 2
     elif _is_shooting:
         pass
     elif velocity.x != 0.0:
