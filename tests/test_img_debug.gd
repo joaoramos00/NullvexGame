@@ -3,6 +3,8 @@ extends Node
 func _ready() -> void:
     test_sprite_data()
     test_tile_data()
+    test_tile_descs_complete()
+    test_tile_displays_populated()
     test_initial_state()
     test_char_change_resets_anim()
     test_frame_cycling()
@@ -34,6 +36,25 @@ func test_tile_data() -> void:
     assert(ImgDebug._TILE_DESCS.has("Stage_01T:2,1"), "deve ter desc Stage_01T:2,1 (centro fill)")
     assert(ImgDebug._TILE_DESCS.has("Stage_00T:0,0"), "deve ter desc Stage_00T:0,0")
     print("PASS: tile_data")
+
+func test_tile_descs_complete() -> void:
+    for ts in ImgDebug._TILESETS:
+        for row in ts.rows:
+            for col in ts.cols:
+                var key := "%s:%d,%d" % [ts.name, col, row]
+                assert(ImgDebug._TILE_DESCS.has(key), "faltando desc: " + key)
+    print("PASS: tile_descs_complete")
+
+func test_tile_displays_populated() -> void:
+    var panel = load("res://ui/img_debug.tscn").instantiate()
+    add_child(panel)
+    assert(panel._tile_displays.size() == ImgDebug._TILESETS.size(),
+        "_tile_displays deve ter uma entrada por tileset")
+    for ts in ImgDebug._TILESETS:
+        assert(panel._tile_displays.has(ts.name),
+            "_tile_displays deve conter " + ts.name)
+    panel.queue_free()
+    print("PASS: tile_displays_populated")
 
 func test_initial_state() -> void:
     var panel = load("res://ui/img_debug.tscn").instantiate()
