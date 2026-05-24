@@ -243,9 +243,9 @@ func _spawn_enemy() -> void:
     _label_enemy.text = _ENEMY_NAMES[_enemy_index]
 
 func _on_prev() -> void:
-    _enemy_index = (_enemy_index - 1 + _ENEMY_SCENES.size()) % _ENEMY_SCENES.size()
+    _enemy_index = (_enemy_index - 1 + _ENEMY_PATHS.size()) % _ENEMY_PATHS.size()
     _spawn_enemy()
 
 func _on_next() -> void:
-    _enemy_index = (_enemy_index + 1) % _ENEMY_SCENES.size()
+    _enemy_index = (_enemy_index + 1) % _ENEMY_PATHS.size()
     _spawn_enemy()
