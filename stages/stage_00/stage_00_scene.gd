@@ -29,10 +29,10 @@ const ZONE3_GRUNTS := [
 const ZONE3_FLYERS := [Vector2(13200, 800), Vector2(14600, 760)]
 
 const BOSS_SPAWN := Vector2(18200, 800)
-const CP1_ENTRY_X := 5800.0
-const CP1_EXIT_X  := 6400.0
-const CP2_ENTRY_X := 16000.0
-const CP2_EXIT_X  := 16600.0
+const CP1_ENTRY_X := 5710.0   # 5738 (face externa Corr1_Wall_L) − 28px
+const CP1_EXIT_X  := 6370.0   # 6398 (face interna Corr1_Wall_R) − 28px
+const CP2_ENTRY_X := 15910.0  # 15938 (face externa Corr2_Wall_L) − 28px
+const CP2_EXIT_X  := 16570.0  # 16598 (face interna Corr2_Wall_R) − 28px
 
 var _player: CharacterBase = null
 var _zone1_enemies: Array[Node] = []
@@ -53,6 +53,12 @@ func _ready() -> void:
 	# Boss_LWall collision starts disabled — only re-enabled once boss door opens
 	var lwall := $Boss_LWall
 	lwall.get_node("CollisionShape2D").disabled = true
+
+	# Paredes de corredor são visuais — as portas de checkpoint fazem a barreira
+	for _cwall_name in ["Corr1_Wall_L", "Corr1_Wall_R", "Corr2_Wall_L", "Corr2_Wall_R"]:
+		var _cwall := get_node_or_null(_cwall_name)
+		if _cwall:
+			(_cwall as Node).get_node("CollisionShape2D").set("disabled", true)
 
 	# Guard against running without GameManager/StageManager (e.g. test opens scene directly)
 	if StageManager.current_stage_id < 0:
