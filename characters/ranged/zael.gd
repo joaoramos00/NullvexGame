@@ -44,7 +44,7 @@ const _CHARGE_BIG_SPEED := 0.4  # bolinhas grandes mais lentas
 
 const _SQUAT_DURATION     := 0.1
 const _DASH_JUMP_BUFFER   := 0.15  # janela após o dash terminar para ainda fazer dash-jump
-const _DASH_JUMP_SPEED    := 480.0 # velocidade horizontal do dash-jump (< DASH_SPEED=720)
+const _DASH_JUMP_SPEED    := 620.0 # velocidade horizontal do dash-jump (< DASH_SPEED=720)
 
 var _charge_timer: float = 0.0
 var _is_charging: bool = false
