@@ -110,6 +110,117 @@ class _LateralView extends Control:
             Vector2(_TILE_X2, _MT + _TILE_W * 2.0 + 8.0),
             Color(1.0, 0.9, 0.0, 0.85), 2.0)
 
+# Visualização da interação do Zael com cantos de plataforma (28px offset em X e Y)
+class _CornerView extends Control:
+    var tile_tex: Texture2D
+    var sprite_tex: Texture2D
+    var corner: int = 0  # 0=topo-dir  1=topo-esq  2=base-dir  3=base-esq
+
+    const _TW   := 64.0
+    const _SRC  := 32.0
+    const _CR   := 10.0    # display capsule radius
+    const _CH   := 48.0    # display capsule height
+    const _CHH  := 24.0    # half of _CH (dist center→foot/head)
+    const _OFS  := 28.0    # player offset from wall face (game pixels)
+    const _SPR  := 68.0
+    const _SCL  := 2.0
+    const _SOFY := -4.0
+
+    func _blit(src: Vector2i, dst: Rect2) -> void:
+        if not tile_tex:
+            return
+        draw_texture_rect_region(tile_tex, dst,
+            Rect2(src.x * _SRC, src.y * _SRC, _SRC, _SRC))
+
+    func _draw() -> void:
+        draw_rect(Rect2(Vector2.ZERO, size), Color(0.04, 0.06, 0.14))
+        var W := size.x
+        var H := size.y
+        var wx := W * 0.54   # wall face x
+        var fy := H * 0.55   # floor/ceil face y
+
+        # tile coords (col, row no spritesheet 32px)
+        var t_corner: Vector2i
+        var t_surf: Vector2i
+        var t_side: Vector2i
+        var t_fill := Vector2i(2, 1)
+        var rc: Rect2; var rs: Rect2; var rw: Rect2; var rf: Rect2
+        var px: float; var py: float; var flip := false
+
+        match corner:
+            0:  # topo-dir — plataforma sup-dir, player inf-esq
+                t_corner = Vector2i(0, 0)   # BOT+LEFT
+                t_surf   = Vector2i(3, 0)   # TOP
+                t_side   = Vector2i(3, 2)   # LEFT (face dir da plataforma)
+                rc = Rect2(wx,      fy - _TW, _TW, _TW)
+                rs = Rect2(wx - _TW, fy - _TW, _TW, _TW)
+                rw = Rect2(wx,      fy,        _TW, _TW)
+                rf = Rect2(wx - _TW, fy,       _TW, _TW)
+                px = wx - _OFS;  py = fy - _CHH;  flip = false
+            1:  # topo-esq — plataforma sup-esq, player inf-dir
+                t_corner = Vector2i(1, 3)   # BOT+RIGHT
+                t_surf   = Vector2i(3, 0)   # TOP
+                t_side   = Vector2i(1, 0)   # RIGHT (face esq da plataforma)
+                rc = Rect2(wx - _TW, fy - _TW, _TW, _TW)
+                rs = Rect2(wx,       fy - _TW, _TW, _TW)
+                rw = Rect2(wx - _TW, fy,        _TW, _TW)
+                rf = Rect2(wx,       fy,        _TW, _TW)
+                px = wx + _OFS;  py = fy - _CHH;  flip = true
+            2:  # base-dir — plataforma inf-dir, player sup-esq
+                t_corner = Vector2i(3, 3)   # TOP+LEFT
+                t_surf   = Vector2i(1, 2)   # BOTTOM
+                t_side   = Vector2i(3, 2)   # LEFT
+                rc = Rect2(wx,       fy,       _TW, _TW)
+                rs = Rect2(wx - _TW, fy,       _TW, _TW)
+                rw = Rect2(wx,       fy - _TW, _TW, _TW)
+                rf = Rect2(wx - _TW, fy - _TW, _TW, _TW)
+                px = wx - _OFS;  py = fy + _CHH;  flip = false
+            3:  # base-esq — plataforma inf-esq, player sup-dir
+                t_corner = Vector2i(0, 2)   # TOP+RIGHT
+                t_surf   = Vector2i(1, 2)   # BOTTOM
+                t_side   = Vector2i(1, 0)   # RIGHT
+                rc = Rect2(wx - _TW, fy,       _TW, _TW)
+                rs = Rect2(wx,       fy,       _TW, _TW)
+                rw = Rect2(wx - _TW, fy - _TW, _TW, _TW)
+                rf = Rect2(wx,       fy - _TW, _TW, _TW)
+                px = wx + _OFS;  py = fy + _CHH;  flip = true
+            _:
+                return
+
+        _blit(t_fill, rf)
+        _blit(t_surf, rs)
+        _blit(t_corner, rc)
+        _blit(t_side, rw)
+
+        # Linhas amarelas: face da parede e face do chão
+        var yel := Color(1.0, 0.9, 0.0, 0.85)
+        draw_line(Vector2(wx, 0.0), Vector2(wx, H), yel, 2.0)
+        draw_line(Vector2(0.0, fy), Vector2(W, fy), yel, 2.0)
+
+        # Marcadores verdes: px no eixo Y (posição lateral do player) e py no eixo X
+        var grn := Color(0.0, 1.0, 0.5, 0.85)
+        draw_line(Vector2(px - 9.0, fy), Vector2(px + 9.0, fy), grn, 2.0)
+        draw_line(Vector2(wx, py - 9.0), Vector2(wx, py + 9.0), grn, 2.0)
+        # X no canto acessível
+        draw_line(Vector2(px - 5.0, py - 5.0), Vector2(px + 5.0, py + 5.0), grn, 1.5)
+        draw_line(Vector2(px + 5.0, py - 5.0), Vector2(px - 5.0, py + 5.0), grn, 1.5)
+
+        # Sprite do Zael
+        if sprite_tex:
+            var sd := _SPR * _SCL
+            if flip:
+                draw_set_transform(Vector2(px * 2.0, 0.0), 0.0, Vector2(-1.0, 1.0))
+            draw_texture_rect_region(sprite_tex,
+                Rect2(px - sd * 0.5, py + _SOFY - sd * 0.5, sd, sd),
+                Rect2(0.0, 0.0, _SPR, _SPR))
+            if flip:
+                draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+
+        # Cápsula do Zael
+        var cap := Rect2(px - _CR, py - _CHH, _CR * 2.0, _CH)
+        draw_rect(cap, Color(0.0, 1.0, 1.0, 0.25))
+        draw_rect(cap, Color(0.0, 1.0, 1.0, 1.0), false, 2.0)
+
 # Visualização de plataformas e salas: monta bloco N×M com _tile_at ou _room_at
 class _PlatformView extends Control:
     var tile_tex: Texture2D
@@ -681,6 +792,13 @@ func _refresh_tiles() -> void:
     pview.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
     pview.tile_tex = load(_TILESETS[0].path) as Texture2D
 
+    var cview := _CornerView.new()
+    cview.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+    cview.tile_tex   = load(_TILESETS[0].path) as Texture2D
+    cview.sprite_tex = load("res://characters/ranged/ZaelIdle.png") as Texture2D
+    cview.custom_minimum_size = Vector2(320.0, 260.0)
+    cview.visible = false
+
     var plat_ts_row := HBoxContainer.new()
     plat_ts_row.add_theme_constant_override("separation", 6)
     plat_panel.add_child(plat_ts_row)
@@ -697,10 +815,12 @@ func _refresh_tiles() -> void:
         var ts_path2: String = ts_data2.path
         ts_btn.pressed.connect(func():
             pview.tile_tex = load(ts_path2) as Texture2D
-            pview.queue_redraw())
+            pview.queue_redraw()
+            cview.tile_tex = load(ts_path2) as Texture2D
+            cview.queue_redraw())
         plat_ts_row.add_child(ts_btn)
 
-    # Modo: Plataforma | Sala
+    # Modo: Plataforma | Sala | Cantos
     var mode_row := HBoxContainer.new()
     mode_row.add_theme_constant_override("separation", 6)
     plat_panel.add_child(mode_row)
@@ -710,23 +830,48 @@ func _refresh_tiles() -> void:
     mode_lbl.add_theme_font_size_override("font_size", 18)
     mode_row.add_child(mode_lbl)
 
+    var ctrl_row := HBoxContainer.new()
+    ctrl_row.add_theme_constant_override("separation", 20)
+
+    var corner_row := HBoxContainer.new()
+    corner_row.add_theme_constant_override("separation", 6)
+    corner_row.visible = false
+    var corner_lbl := Label.new()
+    corner_lbl.text = "Canto:"
+    corner_lbl.add_theme_font_size_override("font_size", 18)
+    corner_row.add_child(corner_lbl)
+    for ci: Array in [["↗ topo-dir", 0], ["↖ topo-esq", 1], ["↘ base-dir", 2], ["↙ base-esq", 3]]:
+        var cbtn := Button.new()
+        cbtn.text = ci[0]
+        cbtn.add_theme_font_size_override("font_size", 18)
+        var cidx: int = ci[1]
+        cbtn.pressed.connect(func(): cview.corner = cidx; cview.queue_redraw())
+        corner_row.add_child(cbtn)
+
     var mode_btns: Array = []
-    for mode_entry in [["Plataforma", "platform"], ["Sala", "room"]]:
-        var mbtn := Button.new()
-        mbtn.text = mode_entry[0]
-        mbtn.add_theme_font_size_override("font_size", 18)
-        var mkey: String = mode_entry[1]
-        mbtn.pressed.connect(func():
+    var _sw := func(mkey: String, mlbl: String) -> void:
+        var is_c := mkey == "cantos"
+        pview.visible = not is_c
+        cview.visible = is_c
+        ctrl_row.visible = not is_c
+        corner_row.visible = is_c
+        if not is_c:
             pview.mode = mkey
             pview.queue_redraw()
-            for b in mode_btns:
-                b.modulate = Color(1.0, 1.0, 0.0) if b.text == mode_entry[0] else Color(0.6, 0.6, 0.6))
+        for b: Button in mode_btns:
+            b.modulate = Color(1.0, 1.0, 0.0) if b.text == mlbl else Color(0.6, 0.6, 0.6)
+
+    for me: Array in [["Plataforma", "platform"], ["Sala", "room"], ["Cantos", "cantos"]]:
+        var mbtn := Button.new()
+        mbtn.text = me[0]
+        mbtn.add_theme_font_size_override("font_size", 18)
+        var mk: String = me[1]
+        var ml: String = me[0]
+        mbtn.pressed.connect(func(): _sw.call(mk, ml))
         mode_row.add_child(mbtn)
         mode_btns.append(mbtn)
     mode_btns[0].modulate = Color(1.0, 1.0, 0.0)
 
-    var ctrl_row := HBoxContainer.new()
-    ctrl_row.add_theme_constant_override("separation", 20)
     plat_panel.add_child(ctrl_row)
 
     var cols_lbl := Label.new()
@@ -779,7 +924,9 @@ func _refresh_tiles() -> void:
     rows_hb.add_child(rows_p)
     ctrl_row.add_child(rows_hb)
 
+    plat_panel.add_child(corner_row)
     plat_panel.add_child(pview)
+    plat_panel.add_child(cview)
     pview.set_dims(2, 3)
 
     show_tab.call(0)
