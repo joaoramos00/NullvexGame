@@ -372,7 +372,12 @@ func _draw_platforms() -> void:
 				continue
 			var size: Vector2 = (shape_child.shape as RectangleShape2D).size
 			var center: Vector2 = (child as Node2D).position + (shape_child as Node2D).position
-			_draw_platform_tiles(Rect2(center - size * 0.5, size))
+			var rect := Rect2(center - size * 0.5, size)
+			var n: String = child.name
+			if n.begins_with("Corr") or n.begins_with("Boss_"):
+				_draw_room_tiles(rect, n)
+			else:
+				_draw_platform_tiles(rect)
 
 func _draw_platform_tiles(rect: Rect2) -> void:
 	var ts     := _TS
@@ -382,6 +387,41 @@ func _draw_platform_tiles(rect: Rect2) -> void:
 	for row in rows:
 		for col in cols:
 			var tile := _tile_at(col, cols, row, rows)
+			var dx := rect.position.x + col * ts
+			var dy := rect.position.y + row * ts
+			var dw := minf(ts, rect.position.x + rect.size.x - dx)
+			var dh := minf(ts, rect.position.y + rect.size.y - dy)
+			var src := Rect2(tile.x * src_ts, tile.y * src_ts, src_ts * dw / ts, src_ts * dh / ts)
+			draw_texture_rect_region(_TILESET, Rect2(dx, dy, dw, dh), src)
+
+func _draw_room_tiles(rect: Rect2, piece_name: String) -> void:
+	var ts     := _TS
+	var src_ts := _SRC_TS
+	var cols := ceili(rect.size.x / ts)
+	var rows := ceili(rect.size.y / ts)
+	for row in rows:
+		for col in cols:
+			var is_left   := col == cols - 1
+			var is_right  := col == 0
+			var is_top    := row == rows - 1
+			var is_bottom := row == 0
+			var tile: Vector2i
+			if piece_name.ends_with("_Ceil"):
+				if is_left:        tile = Vector2i(2, 2)   # Inner-BL
+				elif is_right:     tile = Vector2i(3, 1)   # Inner-BR
+				else:              tile = Vector2i(1, 2)   # BOTTOM — teto
+			elif piece_name.ends_with("_Wall_L") or piece_name.ends_with("LWall"):
+				if is_bottom:      tile = Vector2i(2, 2)   # Inner-BL — topo da parede
+				elif is_top:       tile = Vector2i(1, 1)   # Inner-TL — base da parede
+				else:              tile = Vector2i(1, 0)   # RIGHT — face interna
+			elif piece_name.ends_with("_Wall_R") or piece_name.ends_with("RWall"):
+				if is_bottom:      tile = Vector2i(3, 1)   # Inner-BR — topo da parede
+				elif is_top:       tile = Vector2i(2, 0)   # Inner-TR — base da parede
+				else:              tile = Vector2i(3, 2)   # LEFT — face interna
+			else:  # _Floor
+				if is_left:        tile = Vector2i(1, 1)   # Inner-TL
+				elif is_right:     tile = Vector2i(2, 0)   # Inner-TR
+				else:              tile = Vector2i(3, 0)   # TOP — chão
 			var dx := rect.position.x + col * ts
 			var dy := rect.position.y + row * ts
 			var dw := minf(ts, rect.position.x + rect.size.x - dx)
