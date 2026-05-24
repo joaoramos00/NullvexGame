@@ -52,6 +52,59 @@ const _TILE_DESCS: Dictionary = {
     "Stage_01T:3,3": "Canto superior esquerdo",
 }
 
+# Visualização da colisão lateral: tile de parede + sprite Zael + cápsula
+class _LateralView extends Control:
+    var tile_tex: Texture2D
+    var sprite_tex: Texture2D
+
+    const _TILE_SRC  := 32.0
+    const _TILE_W    := 64.0
+    const _CAP_R     := 10.0
+    const _CAP_TOT   := 48.0   # height(28) + 2×radius(10)
+    const _SPR_SRC   := 68.0
+    const _SPR_SCL   := 2.0
+    const _SPR_OFS_Y := -4.0
+    const _ML        := 20.0
+    const _MT        := 44.0
+
+    func _draw() -> void:
+        draw_rect(Rect2(Vector2.ZERO, size), Color(0.04, 0.06, 0.14))
+
+        # Parede: tile LEFT (col=3, row=2) × 2 em altura
+        if tile_tex:
+            var src := Rect2(3.0 * _TILE_SRC, 2.0 * _TILE_SRC, _TILE_SRC, _TILE_SRC)
+            for i in 2:
+                draw_texture_rect_region(
+                    tile_tex,
+                    Rect2(_ML, _MT + i * _TILE_W, _TILE_W, _TILE_W),
+                    src
+                )
+
+        # Centro do personagem: cápsula encostada na borda direita do tile
+        var cx := _ML + _TILE_W + _CAP_R
+        var cy := _MT + _TILE_W  # meio da parede de 2 tiles
+
+        # Sprite Zael idle frame 0
+        if sprite_tex:
+            var sd := _SPR_SRC * _SPR_SCL
+            draw_texture_rect_region(
+                sprite_tex,
+                Rect2(cx - sd * 0.5, cy + _SPR_OFS_Y - sd * 0.5, sd, sd),
+                Rect2(0.0, 0.0, _SPR_SRC, _SPR_SRC)
+            )
+
+        # Cápsula de colisão (ciano)
+        var cap_rect := Rect2(cx - _CAP_R, cy - _CAP_TOT * 0.5, _CAP_R * 2.0, _CAP_TOT)
+        draw_rect(cap_rect, Color(0.0, 1.0, 1.0, 0.25))
+        draw_rect(cap_rect, Color(0.0, 1.0, 1.0, 1.0), false, 2.0)
+
+        # Linha amarela: borda do tile
+        draw_line(
+            Vector2(_ML + _TILE_W, _MT - 8.0),
+            Vector2(_ML + _TILE_W, _MT + _TILE_W * 2.0 + 8.0),
+            Color(1.0, 0.9, 0.0, 0.85), 2.0
+        )
+
 const _FRAME_SIZE   := 68
 const _PREVIEW_SIZE := 136
 const _STRIP_SIZE   := 40
@@ -426,6 +479,42 @@ func _refresh_tiles() -> void:
                 )
                 coord_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
                 cell.add_child(coord_lbl)
+
+    var col_lbl := Label.new()
+    col_lbl.text = "── Colisão Lateral ──"
+    col_lbl.add_theme_font_size_override("font_size", 22)
+    col_lbl.add_theme_color_override("font_color", Color(0.6, 0.85, 1.0))
+    _tiles_box.add_child(col_lbl)
+
+    var col_row := HBoxContainer.new()
+    col_row.add_theme_constant_override("separation", 24)
+    _tiles_box.add_child(col_row)
+
+    var lview := _LateralView.new()
+    lview.tile_tex   = load("res://stages/stage_00/Stage_00T.png") as Texture2D
+    lview.sprite_tex = load("res://characters/ranged/ZaelIdle.png") as Texture2D
+    lview.custom_minimum_size = Vector2(280, 220)
+    lview.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+    col_row.add_child(lview)
+
+    var col_info := VBoxContainer.new()
+    col_info.add_theme_constant_override("separation", 4)
+    col_row.add_child(col_info)
+
+    var add_info := func(text: String, color: Color) -> void:
+        var il := Label.new()
+        il.text = text
+        il.add_theme_font_size_override("font_size", 18)
+        il.add_theme_color_override("font_color", color)
+        col_info.add_child(il)
+
+    add_info.call("Tile world: 64 x 64 px", Color(0.8, 0.8, 0.8))
+    add_info.call("Capsula (ciano):", Color(0.0, 1.0, 1.0))
+    add_info.call("  largura: 20 px  (raio 10)", Color(0.8, 0.8, 0.8))
+    add_info.call("  altura: 48 px  (h28 + 2xr10)", Color(0.8, 0.8, 0.8))
+    add_info.call("Sprite Zael:", Color(1.0, 0.9, 0.3))
+    add_info.call("  68px x escala 2 = 136 px", Color(0.8, 0.8, 0.8))
+    add_info.call("  offset Y: -4 px", Color(0.8, 0.8, 0.8))
 
 func _on_tile_input(event: InputEvent, col: int, row: int, ts_name: String) -> void:
     if not (event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT):
