@@ -743,9 +743,19 @@ func _refresh_tiles() -> void:
     _tiles_box.add_child(col_panel)
     panels.append(col_panel)
 
+    var col_mode_row := HBoxContainer.new()
+    col_mode_row.add_theme_constant_override("separation", 6)
+    col_panel.add_child(col_mode_row)
+    var col_mode_lbl := Label.new()
+    col_mode_lbl.text = "Modo:"
+    col_mode_lbl.add_theme_font_size_override("font_size", 18)
+    col_mode_row.add_child(col_mode_lbl)
+
+    var lateral_box := VBoxContainer.new()
+    col_panel.add_child(lateral_box)
     var col_row := HBoxContainer.new()
     col_row.add_theme_constant_override("separation", 24)
-    col_panel.add_child(col_row)
+    lateral_box.add_child(col_row)
 
     var lview := _LateralView.new()
     lview.tile_tex   = load("res://stages/stage_00/Stage_00T.png") as Texture2D
@@ -773,6 +783,47 @@ func _refresh_tiles() -> void:
     add_info.call("  68px x escala 2 = 136 px", Color(0.8, 0.8, 0.8))
     add_info.call("  offset Y: -4 px", Color(0.8, 0.8, 0.8))
 
+    var cview_col := _CornerView.new()
+    cview_col.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+    cview_col.tile_tex   = load("res://stages/stage_00/Stage_00T.png") as Texture2D
+    cview_col.sprite_tex = load("res://characters/ranged/ZaelIdle.png") as Texture2D
+    cview_col.custom_minimum_size = Vector2(320.0, 260.0)
+    cview_col.visible = false
+    col_panel.add_child(cview_col)
+
+    var col_corner_row := HBoxContainer.new()
+    col_corner_row.add_theme_constant_override("separation", 6)
+    col_corner_row.visible = false
+    var col_corner_lbl := Label.new()
+    col_corner_lbl.text = "Canto:"
+    col_corner_lbl.add_theme_font_size_override("font_size", 18)
+    col_corner_row.add_child(col_corner_lbl)
+    for ci: Array in [["↗ topo-dir", 0], ["↖ topo-esq", 1], ["↘ base-dir", 2], ["↙ base-esq", 3]]:
+        var cbtn := Button.new()
+        cbtn.text = ci[0]
+        cbtn.add_theme_font_size_override("font_size", 18)
+        var cidx: int = ci[1]
+        cbtn.pressed.connect(func(): cview_col.corner = cidx; cview_col.queue_redraw())
+        col_corner_row.add_child(cbtn)
+    col_panel.add_child(col_corner_row)
+
+    var col_mode_btns: Array = []
+    var _col_sw := func(is_corners: bool) -> void:
+        lateral_box.visible = not is_corners
+        cview_col.visible = is_corners
+        col_corner_row.visible = is_corners
+        for b: Button in col_mode_btns:
+            b.modulate = Color(1.0, 1.0, 0.0) if (b.text == "Cantos") == is_corners else Color(0.6, 0.6, 0.6)
+    for ml: Array in [["Lateral", false], ["Cantos", true]]:
+        var mbtn := Button.new()
+        mbtn.text = ml[0]
+        mbtn.add_theme_font_size_override("font_size", 18)
+        var is_c: bool = ml[1]
+        mbtn.pressed.connect(func(): _col_sw.call(is_c))
+        col_mode_row.add_child(mbtn)
+        col_mode_btns.append(mbtn)
+    col_mode_btns[0].modulate = Color(1.0, 1.0, 0.0)
+
     # Plataformas tab
     var plat_tab_idx: int = panels.size()
 
@@ -792,13 +843,6 @@ func _refresh_tiles() -> void:
     pview.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
     pview.tile_tex = load(_TILESETS[0].path) as Texture2D
 
-    var cview := _CornerView.new()
-    cview.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-    cview.tile_tex   = load(_TILESETS[0].path) as Texture2D
-    cview.sprite_tex = load("res://characters/ranged/ZaelIdle.png") as Texture2D
-    cview.custom_minimum_size = Vector2(320.0, 260.0)
-    cview.visible = false
-
     var plat_ts_row := HBoxContainer.new()
     plat_ts_row.add_theme_constant_override("separation", 6)
     plat_panel.add_child(plat_ts_row)
@@ -815,12 +859,10 @@ func _refresh_tiles() -> void:
         var ts_path2: String = ts_data2.path
         ts_btn.pressed.connect(func():
             pview.tile_tex = load(ts_path2) as Texture2D
-            pview.queue_redraw()
-            cview.tile_tex = load(ts_path2) as Texture2D
-            cview.queue_redraw())
+            pview.queue_redraw())
         plat_ts_row.add_child(ts_btn)
 
-    # Modo: Plataforma | Sala | Cantos
+    # Modo: Plataforma | Sala
     var mode_row := HBoxContainer.new()
     mode_row.add_theme_constant_override("separation", 6)
     plat_panel.add_child(mode_row)
@@ -833,35 +875,14 @@ func _refresh_tiles() -> void:
     var ctrl_row := HBoxContainer.new()
     ctrl_row.add_theme_constant_override("separation", 20)
 
-    var corner_row := HBoxContainer.new()
-    corner_row.add_theme_constant_override("separation", 6)
-    corner_row.visible = false
-    var corner_lbl := Label.new()
-    corner_lbl.text = "Canto:"
-    corner_lbl.add_theme_font_size_override("font_size", 18)
-    corner_row.add_child(corner_lbl)
-    for ci: Array in [["↗ topo-dir", 0], ["↖ topo-esq", 1], ["↘ base-dir", 2], ["↙ base-esq", 3]]:
-        var cbtn := Button.new()
-        cbtn.text = ci[0]
-        cbtn.add_theme_font_size_override("font_size", 18)
-        var cidx: int = ci[1]
-        cbtn.pressed.connect(func(): cview.corner = cidx; cview.queue_redraw())
-        corner_row.add_child(cbtn)
-
     var mode_btns: Array = []
     var _sw := func(mkey: String, mlbl: String) -> void:
-        var is_c := mkey == "cantos"
-        pview.visible = not is_c
-        cview.visible = is_c
-        ctrl_row.visible = not is_c
-        corner_row.visible = is_c
-        if not is_c:
-            pview.mode = mkey
-            pview.queue_redraw()
+        pview.mode = mkey
+        pview.queue_redraw()
         for b: Button in mode_btns:
             b.modulate = Color(1.0, 1.0, 0.0) if b.text == mlbl else Color(0.6, 0.6, 0.6)
 
-    for me: Array in [["Plataforma", "platform"], ["Sala", "room"], ["Cantos", "cantos"]]:
+    for me: Array in [["Plataforma", "platform"], ["Sala", "room"]]:
         var mbtn := Button.new()
         mbtn.text = me[0]
         mbtn.add_theme_font_size_override("font_size", 18)
@@ -924,9 +945,7 @@ func _refresh_tiles() -> void:
     rows_hb.add_child(rows_p)
     ctrl_row.add_child(rows_hb)
 
-    plat_panel.add_child(corner_row)
     plat_panel.add_child(pview)
-    plat_panel.add_child(cview)
     pview.set_dims(2, 3)
 
     show_tab.call(0)
