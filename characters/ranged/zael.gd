@@ -83,10 +83,15 @@ func _on_orb_canvas_draw() -> void:
 
 func _setup_sprite_frames() -> void:
     var frames := SpriteFrames.new()
-    var idle_tex  := load("res://characters/ranged/ZaelIdle.png")     as Texture2D
-    var run_tex   := load("res://characters/ranged/ZaelCorrendo.png") as Texture2D
-    var jump_tex  := load("res://characters/ranged/ZaelJump_new.png") as Texture2D
-    var shoot_tex := load("res://characters/ranged/ZaelAtirando.png") as Texture2D
+    var idle_tex      := load("res://characters/ranged/ZaelIdle.png")      as Texture2D
+    var run_tex       := load("res://characters/ranged/ZaelCorrendo.png")  as Texture2D
+    var jump_tex      := load("res://characters/ranged/ZaelJump_new.png")  as Texture2D
+    var shoot_tex     := load("res://characters/ranged/ZaelAtirando.png")  as Texture2D
+    var dash_tex      := load("res://characters/ranged/ZaelDash.png")      as Texture2D
+    var wall_tex      := load("res://characters/ranged/ZaelWallSlide.png") as Texture2D
+    var hurt_tex      := load("res://characters/ranged/ZaelHurt.png")      as Texture2D
+    var death_tex     := load("res://characters/ranged/ZaelDeath.png")     as Texture2D
+    var run_shoot_tex := load("res://characters/ranged/ZaelRunShoot.png")  as Texture2D
     var fw := _FRAME_W
     var fh := _FRAME_H
 
@@ -132,6 +137,56 @@ func _setup_sprite_frames() -> void:
             at.filter_clip = true
             at.region = Rect2(i * fw, 0, fw, fh)
             frames.add_frame(anim, at)
+
+    frames.add_animation("dash")
+    frames.set_animation_loop("dash", false)
+    frames.set_animation_speed("dash", 12.0)
+    for i in 2:
+        var at := AtlasTexture.new()
+        at.atlas = dash_tex
+        at.filter_clip = true
+        at.region = Rect2(i * fw, 0, fw, fh)
+        frames.add_frame("dash", at)
+
+    frames.add_animation("wall_slide")
+    frames.set_animation_loop("wall_slide", true)
+    frames.set_animation_speed("wall_slide", 6.0)
+    for i in 2:
+        var at := AtlasTexture.new()
+        at.atlas = wall_tex
+        at.filter_clip = true
+        at.region = Rect2(i * fw, 0, fw, fh)
+        frames.add_frame("wall_slide", at)
+
+    frames.add_animation("hurt")
+    frames.set_animation_loop("hurt", false)
+    frames.set_animation_speed("hurt", 15.0)
+    for i in 3:
+        var at := AtlasTexture.new()
+        at.atlas = hurt_tex
+        at.filter_clip = true
+        at.region = Rect2(i * fw, 0, fw, fh)
+        frames.add_frame("hurt", at)
+
+    frames.add_animation("death")
+    frames.set_animation_loop("death", false)
+    frames.set_animation_speed("death", 10.0)
+    for i in 6:
+        var at := AtlasTexture.new()
+        at.atlas = death_tex
+        at.filter_clip = true
+        at.region = Rect2(i * fw, 0, fw, fh)
+        frames.add_frame("death", at)
+
+    frames.add_animation("run_shoot")
+    frames.set_animation_loop("run_shoot", true)
+    frames.set_animation_speed("run_shoot", 10.0)
+    for i in 6:
+        var at := AtlasTexture.new()
+        at.atlas = run_shoot_tex
+        at.filter_clip = true
+        at.region = Rect2(i * fw, 0, fw, fh)
+        frames.add_frame("run_shoot", at)
 
     _sprite.sprite_frames = frames
     _sprite.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
