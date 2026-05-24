@@ -73,7 +73,7 @@ func _setup_sprite_frames() -> void:
     var frames := SpriteFrames.new()
     var idle_tex  := load("res://characters/ranged/ZaelIdle.png")     as Texture2D
     var run_tex   := load("res://characters/ranged/ZaelCorrendo.png") as Texture2D
-    var jump_tex  := load("res://characters/ranged/ZaelJump.png")     as Texture2D
+    var jump_tex  := load("res://characters/ranged/ZaelJump_new.png") as Texture2D
     var shoot_tex := load("res://characters/ranged/ZaelAtirando.png") as Texture2D
     var fw := _FRAME_W
     var fh := _FRAME_H
@@ -101,7 +101,7 @@ func _setup_sprite_frames() -> void:
     frames.add_animation("jump")
     frames.set_animation_loop("jump", false)
     frames.set_animation_speed("jump", 10.0)
-    for i in 9:
+    for i in 4:
         var at := AtlasTexture.new()
         at.atlas = jump_tex
         at.filter_clip = true
