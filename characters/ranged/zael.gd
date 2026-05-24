@@ -48,6 +48,10 @@ var _charge_timer: float = 0.0
 var _is_charging: bool = false
 var _is_shooting: bool = false
 var _jump_squat_timer: float = -1.0
+var _dash_jump: bool = false
+var _dash_jump_dir: float = 0.0
+var _landing_timer: float = 0.0
+var _was_on_floor: bool = true
 var _spiral_phases: Array = []
 var _spiral_phases_big: Array = []
 var _draw_orbs: Array = []  # [{pos, color, radius}]
@@ -129,26 +133,51 @@ func _setup_sprite_frames() -> void:
     _sprite.play("idle")
 
 func _handle_jump() -> void:
-    if _is_dashing or _jump_squat_timer >= 0.0:
+    if _jump_squat_timer >= 0.0:
         return
     if Input.is_action_just_pressed("jump"):
         if _is_wall_sliding:
             _apply_wall_jump()
             return
+        if _is_dashing:
+            _dash_jump = true
+            _dash_jump_dir = _dash_direction
+            _is_dashing = false
+            _jump_squat_timer = 0.0
+            return
         if is_on_floor() or _coyote_timer > 0.0:
             _jump_squat_timer = 0.0
             _coyote_timer = 0.0
 
+func _handle_movement() -> void:
+    if _dash_jump and not is_on_floor():
+        return
+    super._handle_movement()
+
 func _physics_process(delta: float) -> void:
+    var fired_dash_jump := false
     if _jump_squat_timer >= 0.0:
         _jump_squat_timer += delta
         if _jump_squat_timer >= _SQUAT_DURATION:
             velocity.y = JUMP_VELOCITY
             _jump_squat_timer = -1.0
             AudioManager.play_sfx(AudioLibrary.sfx_jump)
+            if _dash_jump:
+                fired_dash_jump = true
     super._physics_process(delta)
     if is_dead:
         return
+    if fired_dash_jump:
+        velocity.x = DASH_SPEED * _dash_jump_dir
+    var just_landed: bool = is_on_floor() and not _was_on_floor
+    _was_on_floor = is_on_floor()
+    if just_landed:
+        _landing_timer = 0.15
+        _dash_jump = false
+    elif is_on_floor():
+        _dash_jump = false
+    if _landing_timer > 0.0:
+        _landing_timer = max(0.0, _landing_timer - delta)
     _handle_shooting(delta)
     _update_charge_effect(delta)
     _update_animation()
@@ -219,7 +248,12 @@ func _update_animation() -> void:
         if not _is_shooting:
             _sprite.stop()
             _sprite.animation = "jump"
-            _sprite.frame = 3 if velocity.y > 0.0 else 2
+            _sprite.frame = 2
+    elif _landing_timer > 0.0:
+        if not _is_shooting:
+            _sprite.stop()
+            _sprite.animation = "jump"
+            _sprite.frame = 3
     elif _is_shooting:
         pass
     elif velocity.x != 0.0:
