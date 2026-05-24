@@ -43,6 +43,7 @@ const _CHARGE_COLOR_L3     := Color(1.0, 0.22, 0.18, 0.85)
 const _CHARGE_BIG_SPEED := 0.4  # bolinhas grandes mais lentas
 
 const HURT_DURATION       := 0.3
+const _SHOOT_DURATIONS    := [0.1, 0.2, 0.3]  # duração de shoot_1/2/3 a 10fps
 const _SQUAT_DURATION     := 0.1
 const _DASH_JUMP_BUFFER   := 0.2   # janela após o dash terminar para ainda fazer dash-jump
 const _DASH_JUMP_SPEED    := 620.0 # velocidade horizontal do dash-jump (< DASH_SPEED=720)
@@ -59,6 +60,7 @@ var _jump_buffer_timer: float = 0.0
 var _landing_timer: float = 0.0
 var _is_hurt: bool = false
 var _hurt_timer: float = 0.0
+var _shoot_timer: float = -1.0
 var _was_on_floor: bool = true
 var _spiral_phases: Array = []
 var _spiral_phases_big: Array = []
@@ -266,6 +268,11 @@ func _physics_process(delta: float) -> void:
     if _landing_timer > 0.0:
         _landing_timer = max(0.0, _landing_timer - delta)
     _handle_shooting(delta)
+    if _shoot_timer > 0.0:
+        _shoot_timer -= delta
+        if _shoot_timer <= 0.0:
+            _shoot_timer = -1.0
+            _is_shooting = false
     if _is_hurt:
         _hurt_timer += delta
         if _hurt_timer >= HURT_DURATION:
@@ -327,6 +334,7 @@ func _on_animation_finished() -> void:
     match _sprite.animation:
         "shoot_1", "shoot_2", "shoot_3":
             _is_shooting = false
+            _shoot_timer = -1.0
         "hurt":
             _is_hurt = false
         "death":
@@ -389,6 +397,7 @@ func _fire(level: int) -> void:
     assert(level >= 1 and level <= 3, "charge level deve ser 1, 2 ou 3")
     AudioManager.play_sfx(AudioLibrary.sfx_shoot)
     _is_shooting = true
+    _shoot_timer = _SHOOT_DURATIONS[level - 1]
     _sprite.play("shoot_%d" % level)
     var bullet: ZaelBullet = _BULLET_SCENE.instantiate()
     bullet.damage = BULLET_DAMAGE[level]
