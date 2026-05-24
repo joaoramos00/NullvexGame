@@ -158,6 +158,10 @@ func _handle_jump() -> void:
 
 func _handle_movement() -> void:
     if _dash_jump and not is_on_floor():
+        var dir := Input.get_axis("move_left", "move_right")
+        if dir != 0.0:
+            velocity.x = dir * SPEED
+        # sem input: mantém o momentum do dash
         return
     super._handle_movement()
 
@@ -179,9 +183,6 @@ func _physics_process(delta: float) -> void:
     super._physics_process(delta)
     if is_dead:
         return
-    # Mantém velocidade horizontal do dash durante todo o tempo aéreo
-    if _dash_jump and not is_on_floor():
-        velocity.x = _DASH_JUMP_SPEED * _dash_jump_dir
     var just_landed: bool = is_on_floor() and not _was_on_floor
     _was_on_floor = is_on_floor()
     if just_landed:
