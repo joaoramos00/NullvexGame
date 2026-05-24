@@ -80,15 +80,17 @@ func _build_background() -> void:
 func _build_ground() -> void:
     var body := StaticBody2D.new()
     body.collision_layer = 1
-    body.position.y = _GROUND_Y
     add_child(body)
     var cs := CollisionShape2D.new()
-    cs.shape = WorldBoundaryShape2D.new()
+    var seg := SegmentShape2D.new()
+    seg.a = Vector2(-8000.0, _GROUND_Y)
+    seg.b = Vector2( 8000.0, _GROUND_Y)
+    cs.shape = seg
     body.add_child(cs)
 
     var line := Line2D.new()
     line.add_point(Vector2(-8000.0, _GROUND_Y))
-    line.add_point(Vector2(8000.0,  _GROUND_Y))
+    line.add_point(Vector2( 8000.0, _GROUND_Y))
     line.width = 3.0
     line.default_color = Color(0.4, 0.42, 0.55)
     add_child(line)
@@ -190,6 +192,9 @@ func _spawn_enemy() -> void:
     _current_enemy.show_hitbox = true
     _current_enemy.max_hp     = 99999
     _current_enemy.current_hp = 99999
+    var spr := _current_enemy.get_node_or_null("Sprite2D") as Sprite2D
+    if spr:
+        spr.flip_h = true
     _label_enemy.text = _ENEMY_NAMES[_enemy_index]
 
 func _on_prev() -> void:
