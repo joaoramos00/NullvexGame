@@ -42,7 +42,8 @@ const _CHARGE_COLOR_L3     := Color(1.0, 0.22, 0.18, 0.85)
 
 const _CHARGE_BIG_SPEED := 0.4  # bolinhas grandes mais lentas
 
-const _SQUAT_DURATION := 0.1
+const _SQUAT_DURATION     := 0.1
+const _DASH_JUMP_BUFFER   := 0.15  # janela após o dash terminar para ainda fazer dash-jump
 
 var _charge_timer: float = 0.0
 var _is_charging: bool = false
@@ -50,6 +51,7 @@ var _is_shooting: bool = false
 var _jump_squat_timer: float = -1.0
 var _dash_jump: bool = false
 var _dash_jump_dir: float = 0.0
+var _was_dashing_timer: float = 0.0
 var _landing_timer: float = 0.0
 var _was_on_floor: bool = true
 var _spiral_phases: Array = []
@@ -139,11 +141,14 @@ func _handle_jump() -> void:
         if _is_wall_sliding:
             _apply_wall_jump()
             return
-        if _is_dashing:
+        if _is_dashing or (_was_dashing_timer > 0.0 and is_on_floor()):
+            # Dash-jump: pulo imediato sem squat, mantém velocidade do dash
             _dash_jump = true
             _dash_jump_dir = _dash_direction
             _is_dashing = false
-            _jump_squat_timer = 0.0
+            _was_dashing_timer = 0.0
+            velocity.y = JUMP_VELOCITY
+            AudioManager.play_sfx(AudioLibrary.sfx_jump)
             return
         if is_on_floor() or _coyote_timer > 0.0:
             _jump_squat_timer = 0.0
@@ -155,19 +160,25 @@ func _handle_movement() -> void:
     super._handle_movement()
 
 func _physics_process(delta: float) -> void:
-    var fired_dash_jump := false
     if _jump_squat_timer >= 0.0:
         _jump_squat_timer += delta
         if _jump_squat_timer >= _SQUAT_DURATION:
             velocity.y = JUMP_VELOCITY
             _jump_squat_timer = -1.0
             AudioManager.play_sfx(AudioLibrary.sfx_jump)
-            if _dash_jump:
-                fired_dash_jump = true
+    # Rastreia tempo desde o último dash para a janela de buffer
+    if _is_dashing:
+        _was_dashing_timer = _DASH_JUMP_BUFFER
+    elif _was_dashing_timer > 0.0:
+        if is_on_floor():
+            _was_dashing_timer = max(0.0, _was_dashing_timer - delta)
+        else:
+            _was_dashing_timer = 0.0
     super._physics_process(delta)
     if is_dead:
         return
-    if fired_dash_jump:
+    # Mantém velocidade horizontal do dash durante todo o tempo aéreo
+    if _dash_jump and not is_on_floor():
         velocity.x = DASH_SPEED * _dash_jump_dir
     var just_landed: bool = is_on_floor() and not _was_on_floor
     _was_on_floor = is_on_floor()
