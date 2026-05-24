@@ -1,9 +1,9 @@
 extends Node2D
 
-const _PLAYER_SCENE := preload("res://characters/ranged/zael.tscn")
-const _ENEMY_SCENES: Array[PackedScene] = [
-    preload("res://characters/enemies/enemy_base.tscn"),
-    preload("res://characters/enemies/enemy_flyer.tscn"),
+const _PLAYER_PATH := "res://characters/ranged/zael.tscn"
+const _ENEMY_PATHS := [
+    "res://characters/enemies/enemy_base.tscn",
+    "res://characters/enemies/enemy_flyer.tscn",
 ]
 const _ENEMY_NAMES := ["Grunt", "Flyer"]
 const _GROUND_Y    := 600.0
@@ -215,7 +215,10 @@ func _build_ui() -> void:
 func _spawn_player() -> void:
     if is_instance_valid(_player):
         _player.queue_free()
-    _player = _PLAYER_SCENE.instantiate() as CharacterBase
+    var scene := load(_PLAYER_PATH) as PackedScene
+    if scene == null:
+        return
+    _player = scene.instantiate() as CharacterBase
     add_child(_player)
     # Zael: capsule radius=10, height=28 → bottom at origin+24
     _player.global_position = Vector2(_PLAYER_X, _GROUND_Y - 24.0)
@@ -224,7 +227,10 @@ func _spawn_player() -> void:
 func _spawn_enemy() -> void:
     if is_instance_valid(_current_enemy):
         _current_enemy.queue_free()
-    _current_enemy = _ENEMY_SCENES[_enemy_index].instantiate() as EnemyBase
+    var scene := load(_ENEMY_PATHS[_enemy_index]) as PackedScene
+    if scene == null:
+        return
+    _current_enemy = scene.instantiate() as EnemyBase
     add_child(_current_enemy)
     _current_enemy.global_position = Vector2(_ENEMY_X, _ENEMY_Y[_enemy_index])
     _current_enemy.set_physics_process(false)
