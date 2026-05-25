@@ -1,0 +1,90 @@
+<h2>Stage 00 — Como integrar o wall jump no layout?</h2>
+<p class="subtitle">Wall jump será implementado no CharacterBase. As 3 abordagens diferem em como a mecânica é apresentada.</p>
+
+<div class="cards">
+
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div style="font-family:monospace;font-size:9px;background:#0a0a14;padding:10px;border-radius:6px;overflow-x:auto;white-space:nowrap">
+        <div style="color:#888;margin-bottom:5px">~5000px · wall jump opcional (tem rota no chão como alternativa)</div>
+        <div style="display:flex;align-items:flex-end;gap:3px">
+          <div style="background:#1a3a1a;border:1px solid #0f0;color:#0f0;padding:2px 5px;border-radius:2px;font-size:8px">Spawn</div>
+          <div style="color:#333">──</div>
+          <div style="background:#1a1a3a;border:1px solid #44f;color:#88f;padding:2px 5px;border-radius:2px;font-size:8px">Grunts<br>+ gap</div>
+          <div style="color:#333">──</div>
+          <div style="background:#1a1a2a;border:1px solid #888;color:#aaa;padding:2px 5px;border-radius:2px;font-size:8px">Pilar<br>wall↑<br>ou rota</div>
+          <div style="color:#333">──</div>
+          <div style="background:#2a1a1a;border:1px solid #f80;color:#f80;padding:2px 5px;border-radius:2px;font-size:8px">CP1</div>
+          <div style="color:#333">──</div>
+          <div style="background:#1a1a3a;border:1px solid #44f;color:#88f;padding:2px 5px;border-radius:2px;font-size:8px">Flyers<br>+ blocos</div>
+          <div style="color:#333">──</div>
+          <div style="background:#2a1a1a;border:1px solid #f80;color:#f80;padding:2px 5px;border-radius:2px;font-size:8px">CP2</div>
+          <div style="color:#333">──</div>
+          <div style="background:#3a1a1a;border:1px solid #f44;color:#f44;padding:2px 5px;border-radius:2px;font-size:8px">Boss<br>🚪</div>
+        </div>
+        <div style="color:#555;font-size:8px;margin-top:5px">Wall jump útil mas o piso oferece rota alternativa</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A — Wall Jump Opcional</h3>
+      <p>Uma seção com pilar alto — wall jump encurta o caminho mas o piso tem rota alternativa mais longa. Introdução suave para quem não conhece a mecânica.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div style="font-family:monospace;font-size:9px;background:#0a0a14;padding:10px;border-radius:6px;overflow-x:auto;white-space:nowrap">
+        <div style="color:#888;margin-bottom:5px">~5000px · wall jump obrigatório numa seção específica</div>
+        <div style="display:flex;align-items:flex-end;gap:3px">
+          <div style="background:#1a3a1a;border:1px solid #0f0;color:#0f0;padding:2px 5px;border-radius:2px;font-size:8px">Spawn</div>
+          <div style="color:#333">──</div>
+          <div style="background:#1a1a3a;border:1px solid #44f;color:#88f;padding:2px 5px;border-radius:2px;font-size:8px">Grunts<br>+ gaps</div>
+          <div style="color:#333">──</div>
+          <div style="background:#2a1a1a;border:1px solid #f80;color:#f80;padding:2px 5px;border-radius:2px;font-size:8px">CP1</div>
+          <div style="color:#333">──</div>
+          <div style="background:#1a1f2a;border:1px solid #f0f;color:#f0f;padding:2px 5px;border-radius:2px;font-size:8px">⬆ SHAFT<br>wall jump<br>obrigatório</div>
+          <div style="color:#333">──</div>
+          <div style="background:#1a1a3a;border:1px solid #44f;color:#88f;padding:2px 5px;border-radius:2px;font-size:8px">Flyers<br>+ blocos</div>
+          <div style="color:#333">──</div>
+          <div style="background:#2a1a1a;border:1px solid #f80;color:#f80;padding:2px 5px;border-radius:2px;font-size:8px">CP2</div>
+          <div style="color:#333">──</div>
+          <div style="background:#3a1a1a;border:1px solid #f44;color:#f44;padding:2px 5px;border-radius:2px;font-size:8px">Boss<br>🚪</div>
+        </div>
+        <div style="color:#555;font-size:8px;margin-top:5px">Shaft vertical: 2 paredes paralelas, jogador sobe alternando os saltos</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B — Shaft Vertical (recomendado)</h3>
+      <p>Uma seção de shaft vertical após o CP1 onde wall jump é obrigatório — 2 paredes paralelas, jogador aprende a técnica antes de continuar. Claro e memorável.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div style="font-family:monospace;font-size:9px;background:#0a0a14;padding:10px;border-radius:6px;overflow-x:auto;white-space:nowrap">
+        <div style="color:#888;margin-bottom:5px">~5000px · wall jump em múltiplas seções</div>
+        <div style="display:flex;align-items:flex-end;gap:3px">
+          <div style="background:#1a3a1a;border:1px solid #0f0;color:#0f0;padding:2px 5px;border-radius:2px;font-size:8px">Spawn</div>
+          <div style="color:#333">─</div>
+          <div style="background:#1a1a3a;border:1px solid #44f;color:#88f;padding:2px 4px;border-radius:2px;font-size:8px">Grunt<br>+wall↑</div>
+          <div style="color:#333">─</div>
+          <div style="background:#2a1a1a;border:1px solid #f80;color:#f80;padding:2px 4px;border-radius:2px;font-size:8px">CP1</div>
+          <div style="color:#333">─</div>
+          <div style="background:#1a1a3a;border:1px solid #44f;color:#88f;padding:2px 4px;border-radius:2px;font-size:8px">Flyer<br>+wall↑</div>
+          <div style="color:#333">─</div>
+          <div style="background:#1a1f2a;border:1px solid #f0f;color:#f0f;padding:2px 4px;border-radius:2px;font-size:8px">⬆Shaft<br>longo</div>
+          <div style="color:#333">─</div>
+          <div style="background:#2a1a1a;border:1px solid #f80;color:#f80;padding:2px 4px;border-radius:2px;font-size:8px">CP2</div>
+          <div style="color:#333">─</div>
+          <div style="background:#3a1a1a;border:1px solid #f44;color:#f44;padding:2px 4px;border-radius:2px;font-size:8px">Boss<br>🚪</div>
+        </div>
+        <div style="color:#555;font-size:8px;margin-top:5px">Wall jump aparece cedo, reaparece antes do boss</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C — Wall Jump Recorrente</h3>
+      <p>Wall jump aparece na Zona 1, reaparece em shaft mais longo antes do CP2. A mecânica é praticada várias vezes antes do boss.</p>
+    </div>
+  </div>
+
+</div>

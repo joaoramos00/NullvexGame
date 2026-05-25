@@ -1,0 +1,76 @@
+<h2>Stage 00 — Estilo de plataformas</h2>
+<p class="subtitle">Como devem ser os desafios de plataforma ao longo da fase?</p>
+
+<div class="cards">
+
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div style="font-family:monospace;font-size:10px;background:#0a0a14;padding:10px;border-radius:6px;position:relative;height:120px;overflow:hidden">
+        <!-- Floor sections with gaps -->
+        <div style="position:absolute;bottom:10px;left:0;width:160px;height:8px;background:#2a4a2a;border-top:1px solid #0f0"></div>
+        <div style="position:absolute;bottom:10px;left:190px;width:140px;height:8px;background:#2a4a2a;border-top:1px solid #0f0"></div>
+        <div style="position:absolute;bottom:10px;left:360px;width:120px;height:8px;background:#2a4a2a;border-top:1px solid #0f0"></div>
+        <!-- Stepping platforms -->
+        <div style="position:absolute;bottom:40px;left:170px;width:30px;height:6px;background:#2a4a2a;border-top:1px solid #0f0"></div>
+        <div style="position:absolute;bottom:55px;left:340px;width:30px;height:6px;background:#2a4a2a;border-top:1px solid #0f0"></div>
+        <!-- Player -->
+        <div style="position:absolute;bottom:18px;left:20px;width:10px;height:14px;background:#ff0;border-radius:2px"></div>
+        <!-- Labels -->
+        <div style="position:absolute;bottom:2px;left:60px;color:#555;font-size:9px">chão</div>
+        <div style="position:absolute;bottom:32px;left:162px;color:#0f0;font-size:9px">degrau</div>
+        <div style="position:absolute;bottom:47px;left:332px;color:#0f0;font-size:9px">degrau</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A — Degraus e Gaps</h3>
+      <p>Piso com buracos, plataformas em degrau progressivo. Clássico Mega Man. Simples de fazer, funciona bem como intro.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div style="font-family:monospace;font-size:10px;background:#0a0a14;padding:10px;border-radius:6px;position:relative;height:120px;overflow:hidden">
+        <!-- Main floor -->
+        <div style="position:absolute;bottom:10px;left:0;width:200px;height:8px;background:#2a4a2a;border-top:1px solid #0f0"></div>
+        <div style="position:absolute;bottom:10px;left:280px;width:220px;height:8px;background:#2a4a2a;border-top:1px solid #0f0"></div>
+        <!-- Tall platforms like walls -->
+        <div style="position:absolute;bottom:10px;left:210px;width:20px;height:60px;background:#2a4a2a;border:1px solid #0f0"></div>
+        <!-- Top platform -->
+        <div style="position:absolute;bottom:72px;left:230px;width:60px;height:8px;background:#2a4a2a;border-top:1px solid #0f0"></div>
+        <!-- Player climbing -->
+        <div style="position:absolute;bottom:18px;left:20px;width:10px;height:14px;background:#ff0;border-radius:2px"></div>
+        <div style="position:absolute;bottom:2px;left:195px;color:#0f0;font-size:9px">▲pilar</div>
+        <div style="position:absolute;top:10px;left:240px;color:#0f0;font-size:9px">plat. alta</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B — Vertical + Horizontal</h3>
+      <p>Mistura seções no chão com plataformas elevadas. Força o jogador a subir e descer, usando o pulo duplo/dash para progredir.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div style="font-family:monospace;font-size:10px;background:#0a0a14;padding:10px;border-radius:6px;position:relative;height:120px;overflow:hidden">
+        <!-- Varied sections -->
+        <div style="position:absolute;bottom:10px;left:0;width:100px;height:8px;background:#2a4a2a;border-top:1px solid #0f0"></div>
+        <!-- Gap with floating platforms -->
+        <div style="position:absolute;bottom:35px;left:115px;width:40px;height:6px;background:#2a4a2a;border-top:1px solid #0f0"></div>
+        <div style="position:absolute;bottom:55px;left:170px;width:40px;height:6px;background:#2a4a2a;border-top:1px solid #0f0"></div>
+        <div style="position:absolute;bottom:35px;left:225px;width:40px;height:6px;background:#2a4a2a;border-top:1px solid #0f0"></div>
+        <!-- Tall section -->
+        <div style="position:absolute;bottom:10px;left:280px;width:70px;height:50px;background:#2a4a2a;border:1px solid #0f0"></div>
+        <div style="position:absolute;bottom:62px;left:280px;width:220px;height:8px;background:#2a4a2a;border-top:1px solid #0f0"></div>
+        <!-- Player -->
+        <div style="position:absolute;bottom:18px;left:20px;width:10px;height:14px;background:#ff0;border-radius:2px"></div>
+        <div style="position:absolute;bottom:2px;left:102px;color:#0f0;font-size:9px">gap</div>
+        <div style="position:absolute;bottom:2px;left:282px;color:#0f0;font-size:9px">bloco</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C — Variado (gaps + blocos + altura)</h3>
+      <p>Cada seção tem um desafio diferente: gap com flutuantes, bloco sólido alto, corredor no chão. Mais rico visualmente.</p>
+    </div>
+  </div>
+
+</div>

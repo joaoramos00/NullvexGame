@@ -1,0 +1,136 @@
+<h2>Stage 00 — Layout v6</h2>
+<p class="subtitle">Sala do boss estilo Mega Man X. Clique para aprovar.</p>
+
+<!-- Detalhe da Boss Room estilo MMX -->
+<div class="section" style="margin-bottom:16px">
+  <h3>Boss Room — estilo Mega Man X</h3>
+  <div style="font-family:monospace;font-size:10px;background:#0a0a14;padding:14px;border-radius:6px;border:1px solid #222">
+
+    <!-- Vista da sala completa -->
+    <div style="position:relative;width:500px;height:160px;background:#080810;border:3px solid #1a1a40;border-radius:2px;margin-bottom:8px">
+
+      <!-- Teto -->
+      <div style="position:absolute;top:0;left:0;width:500px;height:12px;background:#1a1a40;border-bottom:2px solid #2a2a60"></div>
+      <!-- Chão -->
+      <div style="position:absolute;bottom:0;left:0;width:500px;height:14px;background:#1a1a40;border-top:2px solid #2a2a60"></div>
+      <!-- Parede esquerda (fechada ao entrar) -->
+      <div style="position:absolute;top:0;left:0;width:12px;height:160px;background:#1a1a40;border-right:2px solid #2a2a60"></div>
+      <!-- Parede direita -->
+      <div style="position:absolute;top:0;right:0;width:12px;height:160px;background:#1a1a40;border-left:2px solid #2a2a60"></div>
+
+      <!-- Porta de entrada (esquerda) — fecha atrás do jogador -->
+      <div style="position:absolute;top:12px;left:12px;width:20px;height:134px;background:#0e0e28;border-right:2px solid #3a3a80"></div>
+      <div style="position:absolute;top:85px;left:16px;color:#3a3a80;font-size:8px">🚪</div>
+      <div style="position:absolute;top:72px;left:4px;color:#3a3a80;font-size:7px;writing-mode:vertical-rl">fecha</div>
+
+      <!-- Jogador -->
+      <div style="position:absolute;bottom:14px;left:44px;width:12px;height:20px;background:#ff0;border-radius:2px"></div>
+      <div style="position:absolute;bottom:36px;left:44px;color:#ff0;font-size:7px;text-align:center;width:12px">PJ</div>
+
+      <!-- Boss (entra pela direita, caminha para o centro) -->
+      <div style="position:absolute;bottom:14px;right:55px;width:40px;height:55px;background:#1a0505;border:2px solid #f44;border-radius:3px"></div>
+      <div style="position:absolute;bottom:72px;right:58px;color:#f44;font-size:8px;text-align:center;width:46px">BOSS<br>entra ▶</div>
+      <!-- Olhos do boss -->
+      <div style="position:absolute;bottom:46px;right:78px;width:6px;height:6px;background:#f44;border-radius:50%"></div>
+      <div style="position:absolute;bottom:46px;right:66px;width:6px;height:6px;background:#f44;border-radius:50%"></div>
+
+      <!-- Barras de HP -->
+      <div style="position:absolute;top:14px;left:36px;right:36px;height:8px;background:#222">
+        <div style="height:8px;width:80%;background:#0f0"></div>
+      </div>
+      <div style="position:absolute;top:14px;right:36px;width:80px;height:8px;background:#222;transform:scaleX(-1)">
+        <div style="height:8px;width:90%;background:#f44"></div>
+      </div>
+      <div style="position:absolute;top:8px;left:36px;color:#0f0;font-size:6px">HP</div>
+      <div style="position:absolute;top:8px;right:36px;color:#f44;font-size:6px">BOSS</div>
+
+      <!-- Decoração chão: linhas estilo MMX -->
+      <div style="position:absolute;bottom:14px;left:36px;right:36px;height:4px;background:repeating-linear-gradient(90deg,#1a1a40 0px,#1a1a40 20px,#222055 20px,#222055 40px)"></div>
+
+      <!-- Seta indicando boss caminha do fundo -->
+      <div style="position:absolute;bottom:35px;right:100px;color:#555;font-size:12px">←</div>
+      <div style="position:absolute;bottom:35px;right:115px;color:#555;font-size:12px">←</div>
+
+    </div>
+
+    <!-- Legenda do que é estilo MMX -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:11px;color:#888">
+      <div>✓ Sala completamente fechada (teto + paredes + chão)</div>
+      <div>✓ Chão plano, sem plataformas ou buracos</div>
+      <div>✓ Porta fecha atrás do jogador ao entrar</div>
+      <div>✓ Boss entra pelo lado oposto caminhando</div>
+      <div>✓ Barras de HP aparecem no topo</div>
+      <div>✓ Dimensão: ~800px wide × ~600px tall</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Mapa completo -->
+<div class="mockup">
+  <div class="mockup-header">Fluxo completo da fase</div>
+  <div class="mockup-body" style="font-family:monospace;font-size:10px;padding:12px">
+
+    <div style="font-size:12px;color:#aaa;font-family:monospace;line-height:2.4;background:#0d0d1a;padding:14px;border-radius:6px;border:1px solid #1a1a2a">
+
+      <span style="color:#0f0">▶ Spawn</span>
+      <span style="color:#555"> ──────── </span>
+      <span style="color:#0f0">ZONA 1</span>
+      <span style="color:#888"> (6G + 2F · plataformas variadas)</span>
+      <br>
+
+      <span style="color:#555"> ──────── </span>
+      <span style="color:#0cf">🚪 CP1</span>
+      <span style="color:#555"> [porta↓ · corredor safe · porta↓] </span>
+      <br>
+
+      <span style="color:#555"> ──────── </span>
+      <span style="color:#f0f">PILAR</span>
+      <span style="color:#888"> wall jump mesmo lado (MMX)</span>
+      <br>
+
+      <span style="color:#555"> ──────── </span>
+      <span style="color:#0f0">ZONA 2</span>
+      <span style="color:#888"> (5G + 3F · nível elevado)</span>
+      <br>
+
+      <span style="color:#555"> ──────── </span>
+      <span style="color:#0f0">ZONA 3</span>
+      <span style="color:#888"> (4G + 2F · desce ao chão)</span>
+      <br>
+
+      <span style="color:#555"> ──────── </span>
+      <span style="color:#0cf">🚪 CP2</span>
+      <span style="color:#555"> [porta↓ · corredor safe · </span><span style="color:#f44">porta boss↓</span><span style="color:#555">]</span>
+      <br>
+
+      <span style="color:#555"> ──────── </span>
+      <span style="color:#f44">BOSS ROOM</span>
+      <span style="color:#888"> sala fechada · chão plano · ~800px · boss entra pelo fundo</span>
+
+    </div>
+
+    <div style="margin-top:14px;font-size:12px;color:#666">
+      <strong style="color:#aaa">Tamanho:</strong> variável — o layout define o comprimento, sem teto fixo.<br>
+      <strong style="color:#aaa">Respawn:</strong> inimigos de cada zona reaparecem ao sair e voltar (trigger Area2D por zona).
+    </div>
+
+  </div>
+</div>
+
+<div class="options" style="margin-top:16px">
+  <div class="option" data-choice="approve" onclick="toggleSelect(this)">
+    <div class="letter">✓</div>
+    <div class="content">
+      <h3>Aprovar este design</h3>
+      <p>Avançar para escrever a spec e o plano de implementação.</p>
+    </div>
+  </div>
+  <div class="option" data-choice="revise" onclick="toggleSelect(this)">
+    <div class="letter">↺</div>
+    <div class="content">
+      <h3>Revisar novamente</h3>
+      <p>Quero ajustar mais alguma coisa.</p>
+    </div>
+  </div>
+</div>

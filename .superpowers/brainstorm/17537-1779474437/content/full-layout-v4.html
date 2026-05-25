@@ -1,0 +1,241 @@
+<h2>Stage 00 — Layout v4</h2>
+<p class="subtitle">~9000px · checkpoints estilo Mega Man X (porta ↓ → corredor → porta ↓). Clique para aprovar.</p>
+
+<!-- Detalhe do checkpoint MMX -->
+<div class="section" style="margin-bottom:16px">
+  <h3>Detalhe: Checkpoint estilo MMX</h3>
+  <div style="font-family:monospace;font-size:10px;background:#0a0a14;padding:12px;border-radius:6px;display:inline-flex;align-items:flex-end;gap:0;border:1px solid #222">
+
+    <!-- Fase normal à esquerda -->
+    <div style="display:flex;align-items:flex-end">
+      <div style="width:40px;height:8px;background:#2a4a2a;border-top:2px solid #0f0;position:relative">
+        <div style="position:absolute;bottom:8px;left:4px;width:10px;height:16px;background:#ff0;border-radius:2px"></div>
+      </div>
+    </div>
+
+    <!-- Porta entrada (shutter desce) -->
+    <div style="display:flex;flex-direction:column;align-items:center;margin:0 4px">
+      <div style="color:#0ff;font-size:8px;margin-bottom:2px">↓</div>
+      <div style="width:6px;height:40px;background:#0a1a2a;border:1px solid #0cf"></div>
+      <div style="width:18px;height:6px;background:#0a1a2a;border:1px solid #0cf"></div>
+      <div style="color:#0cf;font-size:7px;margin-top:2px">entrada</div>
+    </div>
+
+    <!-- Corredor (safe room) -->
+    <div style="position:relative;width:80px;height:40px;background:#0a1a0a;border-top:2px solid #0cf;border-bottom:2px solid #444;display:flex;align-items:center;justify-content:center;flex-direction:column">
+      <div style="color:#0cf;font-size:8px;font-weight:bold">SAFE</div>
+      <div style="color:#f80;font-size:9px;margin-top:2px">⚑ SAVE</div>
+      <div style="position:absolute;bottom:-14px;left:0;width:80px;color:#555;font-size:7px;text-align:center">corredor ~300px</div>
+    </div>
+
+    <!-- Porta saída -->
+    <div style="display:flex;flex-direction:column;align-items:center;margin:0 4px">
+      <div style="color:#0ff;font-size:8px;margin-bottom:2px">↓</div>
+      <div style="width:6px;height:40px;background:#0a1a2a;border:1px solid #0cf"></div>
+      <div style="width:18px;height:6px;background:#0a1a2a;border:1px solid #0cf"></div>
+      <div style="color:#0cf;font-size:7px;margin-top:2px">saída</div>
+    </div>
+
+    <!-- Próxima área -->
+    <div style="display:flex;align-items:flex-end">
+      <div style="width:40px;height:8px;background:#2a4a2a;border-top:2px solid #0f0;position:relative">
+        <div style="position:absolute;bottom:8px;right:4px;color:#f88;font-size:8px">G</div>
+      </div>
+    </div>
+
+  </div>
+  <p style="color:#888;font-size:12px;margin-top:8px">Porta desce quando o jogador encosta nela. Corredor = sem inimigos, sem fall damage. Checkpoint salva ao entrar.</p>
+</div>
+
+<div class="mockup">
+  <div class="mockup-header">Visão geral — 9000px horizontais</div>
+  <div class="mockup-body" style="font-family:monospace;font-size:10px;overflow-x:auto;padding:12px">
+
+    <!-- Ruler -->
+    <div style="display:flex;color:#555;font-size:8px;margin-bottom:4px">
+      <div style="width:55px">0</div>
+      <div style="width:86px">1000</div>
+      <div style="width:86px">2000</div>
+      <div style="width:86px">3000</div>
+      <div style="width:86px">4000</div>
+      <div style="width:86px">5000</div>
+      <div style="width:86px">6000</div>
+      <div style="width:86px">7000</div>
+      <div style="width:86px">8000</div>
+      <div style="width:55px">9000</div>
+    </div>
+
+    <!-- Stage map: 796px wide ≈ 9000px game -->
+    <div style="position:relative;width:796px;height:280px;background:#07070f;border:1px solid #222;border-radius:4px;overflow:hidden">
+
+      <!-- ===== BACKGROUND: cidade destruída ===== -->
+      <div style="position:absolute;bottom:24px;left:20px;width:44px;height:90px;background:#0f0f1e;border-top:2px solid #1a1a35;opacity:0.65"></div>
+      <div style="position:absolute;bottom:75px;left:26px;width:9px;height:7px;background:#f84;opacity:0.8"></div>
+      <div style="position:absolute;bottom:24px;left:90px;width:55px;height:110px;background:#0e0e1d;border-top:2px solid #1a1a35;opacity:0.65"></div>
+      <div style="position:absolute;bottom:100px;left:110px;width:22px;height:38px;background:#07070f;opacity:0.9"></div>
+      <div style="position:absolute;bottom:78px;left:93px;width:9px;height:7px;background:#f84;opacity:0.9"></div>
+      <div style="position:absolute;bottom:24px;left:175px;width:38px;height:78px;background:#0f0f1e;border-top:2px solid #1a1a35;opacity:0.65"></div>
+      <div style="position:absolute;bottom:24px;left:250px;width:65px;height:130px;background:#0e0e1c;border-top:2px solid #1a1a35;opacity:0.65"></div>
+      <div style="position:absolute;bottom:110px;left:278px;width:24px;height:55px;background:#07070f;opacity:0.9"></div>
+      <div style="position:absolute;bottom:86px;left:254px;width:9px;height:7px;background:#f84;opacity:0.9"></div>
+      <div style="position:absolute;bottom:24px;left:360px;width:48px;height:95px;background:#0f0f1e;border-top:2px solid #1a1a35;opacity:0.65"></div>
+      <div style="position:absolute;bottom:68px;left:366px;width:9px;height:7px;background:#f84;opacity:0.8"></div>
+      <div style="position:absolute;bottom:24px;left:445px;width:58px;height:105px;background:#0e0e1d;border-top:2px solid #1a1a35;opacity:0.65"></div>
+      <div style="position:absolute;bottom:90px;left:462px;width:30px;height:45px;background:#07070f;opacity:0.9"></div>
+      <div style="position:absolute;bottom:24px;left:545px;width:42px;height:82px;background:#0f0f1e;border-top:2px solid #1a1a35;opacity:0.65"></div>
+      <div style="position:absolute;bottom:54px;left:551px;width:9px;height:7px;background:#f84;opacity:0.7"></div>
+      <div style="position:absolute;bottom:24px;left:630px;width:50px;height:98px;background:#0e0e1d;border-top:2px solid #1a1a35;opacity:0.65"></div>
+      <div style="position:absolute;bottom:24px;left:706px;width:90px;height:125px;background:#1a0e0e;border-top:2px solid #2a1515;opacity:0.65"></div>
+      <div style="position:absolute;bottom:105px;left:718px;width:42px;height:60px;background:#07070f;opacity:0.9"></div>
+      <div style="position:absolute;bottom:80px;left:724px;width:9px;height:7px;background:#f44;opacity:0.9"></div>
+      <div style="position:absolute;bottom:0;left:0;width:796px;height:22px;background:linear-gradient(to top,#0a0a18,transparent);opacity:0.8"></div>
+
+      <!-- ===== ZONA 1: 0–2500px ===== -->
+      <div style="position:absolute;bottom:262px;left:0;width:220px;height:2px;border-top:1px dashed #0a0;opacity:0.4"></div>
+      <div style="position:absolute;bottom:264px;left:2px;color:#0a0;font-size:7px;opacity:0.7">◀ ZONA 1 ▶</div>
+      <div style="position:absolute;bottom:0;left:0;width:95px;height:24px;background:#1a3a1a;border-top:2px solid #0f0"></div>
+      <div style="position:absolute;bottom:52px;left:95px;width:24px;height:8px;background:#1a3a1a;border-top:2px solid #0f0"></div>
+      <div style="position:absolute;bottom:0;left:122px;width:81px;height:24px;background:#1a3a1a;border-top:2px solid #0f0"></div>
+      <div style="position:absolute;bottom:24px;left:150px;width:34px;height:52px;background:#1a3a1a;border:2px solid #0f0"></div>
+      <div style="position:absolute;bottom:50px;left:203px;width:27px;height:8px;background:#1a3a1a;border-top:2px solid #0f0"></div>
+      <div style="position:absolute;bottom:0;left:230px;width:41px;height:24px;background:#1a3a1a;border-top:2px solid #0f0"></div>
+      <div style="position:absolute;bottom:0;left:271px;width:27px;height:24px;background:#1a3a1a;border-top:2px solid #0f0"></div>
+      <!-- Inimigos Zona 1 -->
+      <div style="position:absolute;bottom:32px;left:40px;color:#f88;font-size:8px">G</div>
+      <div style="position:absolute;bottom:32px;left:65px;color:#f88;font-size:8px">G</div>
+      <div style="position:absolute;bottom:32px;left:140px;color:#f88;font-size:8px">G</div>
+      <div style="position:absolute;bottom:80px;left:155px;color:#f88;font-size:8px">G</div>
+      <div style="position:absolute;bottom:32px;left:215px;color:#f88;font-size:8px">G</div>
+      <div style="position:absolute;bottom:32px;left:258px;color:#f88;font-size:8px">G</div>
+      <div style="position:absolute;bottom:85px;left:108px;color:#f8f;font-size:8px">F</div>
+      <div style="position:absolute;bottom:78px;left:240px;color:#f8f;font-size:8px">F</div>
+
+      <!-- ===== CHECKPOINT 1 (porta MMX) ===== -->
+      <!-- Corredor: 2500–3050px → ~298px no mapa = ~27px -->
+      <!-- Porta entrada -->
+      <div style="position:absolute;bottom:0;left:298px;width:5px;height:52px;background:#0a1a2a;border-left:2px solid #0cf;border-right:1px solid #0cf"></div>
+      <div style="position:absolute;bottom:52px;left:296px;width:9px;height:4px;background:#0cf"></div>
+      <div style="position:absolute;bottom:56px;left:300px;color:#0cf;font-size:8px">↓</div>
+      <!-- Corredor safe room -->
+      <div style="position:absolute;bottom:0;left:303px;width:27px;height:52px;background:#060e06;border-top:2px solid #0cf"></div>
+      <div style="position:absolute;bottom:28px;left:305px;color:#f80;font-size:8px">⚑</div>
+      <div style="position:absolute;bottom:18px;left:304px;color:#0cf;font-size:6px">SAFE</div>
+      <!-- Porta saída -->
+      <div style="position:absolute;bottom:0;left:330px;width:5px;height:52px;background:#0a1a2a;border-left:1px solid #0cf;border-right:2px solid #0cf"></div>
+      <div style="position:absolute;bottom:52px;left:328px;width:9px;height:4px;background:#0cf"></div>
+      <div style="position:absolute;bottom:56px;left:332px;color:#0cf;font-size:8px">↓</div>
+
+      <!-- ===== WALL JUMP PILAR (3050–3800px) ===== -->
+      <div style="position:absolute;bottom:0;left:335px;width:11px;height:220px;background:#1a3a1a;border-right:2px solid #0f0;border-top:2px solid #0f0"></div>
+      <div style="position:absolute;bottom:0;left:346px;width:54px;height:24px;background:#1a3a1a;border-top:2px solid #0f0"></div>
+      <div style="position:absolute;bottom:220px;left:335px;width:44px;height:8px;background:#1a3a1a;border-top:2px solid #0f0"></div>
+      <div style="position:absolute;bottom:32px;left:349px;color:#f0f;font-size:9px">→</div>
+      <div style="position:absolute;bottom:62px;left:337px;color:#f0f;font-size:9px">↑</div>
+      <div style="position:absolute;bottom:95px;left:351px;color:#f0f;font-size:9px">→</div>
+      <div style="position:absolute;bottom:125px;left:337px;color:#f0f;font-size:9px">↑</div>
+      <div style="position:absolute;bottom:158px;left:351px;color:#f0f;font-size:9px">→</div>
+      <div style="position:absolute;bottom:188px;left:337px;color:#f0f;font-size:9px">↑</div>
+      <div style="position:absolute;bottom:110px;left:358px;color:#f0f;font-size:7px;width:44px;line-height:1.4">PILAR<br>wall jump<br>MMX</div>
+
+      <!-- ===== ZONA 2: 3800–6200px (nível elevado) ===== -->
+      <div style="position:absolute;bottom:264px;left:400px;width:195px;height:2px;border-top:1px dashed #0a0;opacity:0.4"></div>
+      <div style="position:absolute;bottom:266px;left:402px;color:#0a0;font-size:7px;opacity:0.7">◀ ZONA 2 ▶</div>
+      <div style="position:absolute;bottom:228px;left:400px;width:78px;height:24px;background:#1a3a1a;border-top:2px solid #0f0"></div>
+      <div style="position:absolute;bottom:250px;left:448px;width:27px;height:8px;background:#1a3a1a;border-top:2px solid #0f0"></div>
+      <div style="position:absolute;bottom:228px;left:481px;width:32px;height:54px;background:#1a3a1a;border:2px solid #0f0"></div>
+      <div style="position:absolute;bottom:148px;left:468px;width:20px;height:8px;background:#1a3a1a;border-top:2px solid #0f0"></div>
+      <div style="position:absolute;bottom:240px;left:519px;width:24px;height:8px;background:#1a3a1a;border-top:2px solid #0f0"></div>
+      <div style="position:absolute;bottom:228px;left:543px;width:24px;height:8px;background:#1a3a1a;border-top:2px solid #0f0"></div>
+      <div style="position:absolute;bottom:0;left:567px;width:85px;height:24px;background:#1a3a1a;border-top:2px solid #0f0"></div>
+      <div style="position:absolute;bottom:60px;left:545px;width:20px;height:8px;background:#1a3a1a;border-top:2px solid #0f0"></div>
+      <!-- Inimigos Zona 2 -->
+      <div style="position:absolute;bottom:260px;left:412px;color:#f88;font-size:8px">G</div>
+      <div style="position:absolute;bottom:260px;left:435px;color:#f88;font-size:8px">G</div>
+      <div style="position:absolute;bottom:286px;left:455px;color:#f88;font-size:8px">G</div>
+      <div style="position:absolute;bottom:260px;left:495px;color:#f88;font-size:8px">G</div>
+      <div style="position:absolute;bottom:32px;left:585px;color:#f88;font-size:8px">G</div>
+      <div style="position:absolute;bottom:278px;left:422px;color:#f8f;font-size:8px">F</div>
+      <div style="position:absolute;bottom:274px;left:470px;color:#f8f;font-size:8px">F</div>
+      <div style="position:absolute;bottom:60px;left:570px;color:#f8f;font-size:8px">F</div>
+
+      <!-- ===== CHECKPOINT 2 (porta MMX) ===== -->
+      <!-- Porta entrada -->
+      <div style="position:absolute;bottom:0;left:652px;width:5px;height:52px;background:#0a1a2a;border-left:2px solid #0cf;border-right:1px solid #0cf"></div>
+      <div style="position:absolute;bottom:52px;left:650px;width:9px;height:4px;background:#0cf"></div>
+      <div style="position:absolute;bottom:56px;left:654px;color:#0cf;font-size:8px">↓</div>
+      <!-- Corredor -->
+      <div style="position:absolute;bottom:0;left:657px;width:27px;height:52px;background:#060e06;border-top:2px solid #0cf"></div>
+      <div style="position:absolute;bottom:28px;left:659px;color:#f80;font-size:8px">⚑</div>
+      <div style="position:absolute;bottom:18px;left:658px;color:#0cf;font-size:6px">SAFE</div>
+      <!-- Porta saída -->
+      <div style="position:absolute;bottom:0;left:684px;width:5px;height:52px;background:#0a1a2a;border-left:1px solid #0cf;border-right:2px solid #0cf"></div>
+      <div style="position:absolute;bottom:52px;left:682px;width:9px;height:4px;background:#0cf"></div>
+      <div style="position:absolute;bottom:56px;left:686px;color:#0cf;font-size:8px">↓</div>
+
+      <!-- ===== ZONA 3: 6600–8200px ===== -->
+      <div style="position:absolute;bottom:262px;left:689px;width:80px;height:2px;border-top:1px dashed #0a0;opacity:0.4"></div>
+      <div style="position:absolute;bottom:264px;left:691px;color:#0a0;font-size:7px;opacity:0.7">◀ ZONA 3 ▶</div>
+      <div style="position:absolute;bottom:0;left:689px;width:70px;height:24px;background:#1a3a1a;border-top:2px solid #0f0"></div>
+      <div style="position:absolute;bottom:44px;left:706px;width:27px;height:8px;background:#1a3a1a;border-top:2px solid #0f0"></div>
+      <!-- Inimigos Zona 3 -->
+      <div style="position:absolute;bottom:32px;left:697px;color:#f88;font-size:8px">G</div>
+      <div style="position:absolute;bottom:80px;left:710px;color:#f88;font-size:8px">G</div>
+      <div style="position:absolute;bottom:32px;left:730px;color:#f88;font-size:8px">G</div>
+      <div style="position:absolute;bottom:32px;left:748px;color:#f88;font-size:8px">G</div>
+      <div style="position:absolute;bottom:64px;left:720px;color:#f8f;font-size:8px">F</div>
+      <div style="position:absolute;bottom:56px;left:742px;color:#f8f;font-size:8px">F</div>
+
+      <!-- ===== BOSS ROOM: 8200–9000px ===== -->
+      <div style="position:absolute;bottom:0;left:759px;width:37px;height:24px;background:#2a1a1a;border-top:2px solid #f44"></div>
+      <div style="position:absolute;bottom:0;left:757px;width:6px;height:130px;background:#2a1a1a;border:1px solid #f44"></div>
+      <div style="position:absolute;bottom:0;right:0;width:6px;height:130px;background:#2a1a1a;border:1px solid #f44"></div>
+      <div style="position:absolute;bottom:110px;left:758px;color:#f44;font-size:8px">🚪</div>
+      <div style="position:absolute;bottom:30px;left:766px;color:#f44;font-size:9px">BOSS</div>
+
+      <!-- Spawn -->
+      <div style="position:absolute;bottom:24px;left:4px;color:#0f0;font-size:9px">▶</div>
+
+    </div>
+
+    <!-- Legend -->
+    <div style="display:flex;gap:14px;margin-top:8px;flex-wrap:wrap;font-size:11px">
+      <div><span style="color:#0f0">█</span> Plataforma</div>
+      <div><span style="color:#f88">G</span> Grunt</div>
+      <div><span style="color:#f8f">F</span> Flyer</div>
+      <div><span style="color:#f0f">↑→</span> Wall Jump (pilar)</div>
+      <div><span style="color:#0cf">█↓</span> Porta MMX (shutter)</div>
+      <div><span style="color:#f80">⚑</span> Checkpoint (dentro do corredor)</div>
+      <div><span style="color:#0a0">- -</span> Trigger zona (respawn)</div>
+      <div><span style="color:#f44">█</span> Boss Room</div>
+    </div>
+
+  </div>
+</div>
+
+<div class="section" style="margin-top:16px">
+  <h3>Como funciona o corredor de checkpoint</h3>
+  <ul style="font-size:13px;color:#aaa;padding-left:18px;line-height:2">
+    <li>Jogador encosta na porta → shutter desce (animação)</li>
+    <li>Entra no corredor → checkpoint salva automaticamente + HP refill parcial</li>
+    <li>Corredor ~300px, sem inimigos, sem queda</li>
+    <li>Segunda porta abre → jogador sai para a próxima zona</li>
+    <li>Ao morrer, respawna na saída do corredor do último checkpoint</li>
+  </ul>
+</div>
+
+<div class="options" style="margin-top:16px">
+  <div class="option" data-choice="approve" onclick="toggleSelect(this)">
+    <div class="letter">✓</div>
+    <div class="content">
+      <h3>Aprovar este design</h3>
+      <p>Avançar para escrever a spec e o plano de implementação.</p>
+    </div>
+  </div>
+  <div class="option" data-choice="revise" onclick="toggleSelect(this)">
+    <div class="letter">↺</div>
+    <div class="content">
+      <h3>Revisar novamente</h3>
+      <p>Quero ajustar mais alguma coisa.</p>
+    </div>
+  </div>
+</div>
