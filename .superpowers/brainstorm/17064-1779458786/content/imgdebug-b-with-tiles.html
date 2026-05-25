@@ -1,0 +1,88 @@
+<h2>ImgDebug — Opção B com Tilesets</h2>
+<p class="subtitle">Como organizar sprites animados + tilesets num painel de abas?</p>
+
+<div class="cards">
+
+  <div class="card" data-choice="b1" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div style="background:#0a0a14;padding:10px;border-radius:6px;font-family:monospace;font-size:10px">
+        <!-- Tab row -->
+        <div style="display:flex;gap:4px;margin-bottom:8px;flex-wrap:wrap">
+          <div style="background:#1a3a1a;border:1px solid #0f0;color:#0f0;padding:2px 7px;border-radius:3px">Idle</div>
+          <div style="background:#1a1a2e;border:1px solid #333;color:#555;padding:2px 7px;border-radius:3px">Run</div>
+          <div style="background:#1a1a2e;border:1px solid #333;color:#555;padding:2px 7px;border-radius:3px">Jump</div>
+          <div style="background:#1a1a2e;border:1px solid #333;color:#555;padding:2px 7px;border-radius:3px">Shot</div>
+          <div style="background:#1a1a2e;border:1px solid #333;color:#555;padding:2px 7px;border-radius:3px">Zara Walk</div>
+          <div style="background:#1a1a2e;border:1px solid #333;color:#555;padding:2px 7px;border-radius:3px">Zara Run</div>
+          <div style="background:#1a1a2e;border:1px solid #555;color:#aaa;padding:2px 7px;border-radius:3px">Stage_00T ★</div>
+        </div>
+        <!-- Preview -->
+        <div style="display:flex;gap:8px;align-items:flex-start">
+          <div style="width:68px;height:68px;background:#1a1a2e;border:2px solid #0f0;border-radius:3px;display:flex;align-items:center;justify-content:center;color:#0f0;font-size:28px">▶</div>
+          <div style="color:#555">
+            Zael Idle<br>Frame 3/8<br>8 fps<br><br>
+            <span style="color:#0f0">● animando</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B1 — Tudo numa fila de abas</h3>
+      <p>Sprites e tilesets em abas horizontais. Aba de tileset mostra o grid 4×4 com índices. Simples, uma única fila de abas.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="b2" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div style="background:#0a0a14;padding:10px;border-radius:6px;font-family:monospace;font-size:10px">
+        <!-- Two tab groups -->
+        <div style="display:flex;gap:6px;margin-bottom:6px">
+          <div style="color:#ff0">SPRITES</div>
+          <div style="color:#555">|</div>
+          <div style="color:#aaa">TILES</div>
+        </div>
+        <div style="display:flex;gap:4px;margin-bottom:8px">
+          <div style="background:#1a3a1a;border:1px solid #0f0;color:#0f0;padding:2px 7px;border-radius:3px">Idle</div>
+          <div style="background:#1a1a2e;border:1px solid #333;color:#555;padding:2px 7px;border-radius:3px">Run</div>
+          <div style="background:#1a1a2e;border:1px solid #333;color:#555;padding:2px 7px;border-radius:3px">Jump</div>
+          <div style="background:#1a1a2e;border:1px solid #333;color:#555;padding:2px 7px;border-radius:3px">Shot</div>
+          <div style="background:#1a1a2e;border:1px solid #333;color:#555;padding:2px 7px;border-radius:3px">Zara…</div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:flex-start">
+          <div style="width:68px;height:68px;background:#1a1a2e;border:2px solid #0f0;border-radius:3px;display:flex;align-items:center;justify-content:center;color:#0f0;font-size:28px">▶</div>
+          <div style="color:#555">Zael Idle<br>Frame 3/8<br>8 fps<br><span style="color:#0f0">● animando</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B2 — Dois grupos: Sprites | Tiles</h3>
+      <p>Cabeçalho separa "SPRITES" e "TILES". Clicar em TILES troca toda a área para o grid do tileset. Clicar em SPRITES volta às abas de animação.</p>
+    </div>
+  </div>
+
+</div>
+
+<div class="section" style="margin-top:24px">
+  <h3>Preview da aba Tileset (em ambas as opções)</h3>
+  <p class="subtitle">Grid 4×4 de tiles 32×32 com coordenadas (col, row)</p>
+  <div style="background:#0a0a14;padding:12px;border-radius:6px;display:inline-block">
+    <div style="display:grid;grid-template-columns:repeat(4,52px);gap:4px">
+      <div style="width:52px;height:52px;background:#1a1a2e;border:1px solid #444;display:flex;align-items:center;justify-content:center;flex-direction:column;color:#888;font-size:9px;font-family:monospace">tile<br>0,0</div>
+      <div style="width:52px;height:52px;background:#1a1a2e;border:1px solid #444;display:flex;align-items:center;justify-content:center;flex-direction:column;color:#888;font-size:9px;font-family:monospace">tile<br>1,0</div>
+      <div style="width:52px;height:52px;background:#1a1a2e;border:1px solid #444;display:flex;align-items:center;justify-content:center;flex-direction:column;color:#888;font-size:9px;font-family:monospace">tile<br>2,0</div>
+      <div style="width:52px;height:52px;background:#1a1a2e;border:1px solid #444;display:flex;align-items:center;justify-content:center;flex-direction:column;color:#888;font-size:9px;font-family:monospace">tile<br>3,0</div>
+      <div style="width:52px;height:52px;background:#1a1a2e;border:1px solid #444;display:flex;align-items:center;justify-content:center;flex-direction:column;color:#888;font-size:9px;font-family:monospace">tile<br>0,1</div>
+      <div style="width:52px;height:52px;background:#1a1a2e;border:1px solid #444;display:flex;align-items:center;justify-content:center;flex-direction:column;color:#888;font-size:9px;font-family:monospace">tile<br>1,1</div>
+      <div style="width:52px;height:52px;background:#1a1a2e;border:1px solid #444;display:flex;align-items:center;justify-content:center;flex-direction:column;color:#888;font-size:9px;font-family:monospace">tile<br>2,1</div>
+      <div style="width:52px;height:52px;background:#1a1a2e;border:1px solid #444;display:flex;align-items:center;justify-content:center;flex-direction:column;color:#888;font-size:9px;font-family:monospace">tile<br>3,1</div>
+      <div style="width:52px;height:52px;background:#1a1a2e;border:1px solid #444;display:flex;align-items:center;justify-content:center;flex-direction:column;color:#888;font-size:9px;font-family:monospace">tile<br>0,2</div>
+      <div style="width:52px;height:52px;background:#1a1a2e;border:1px solid #444;display:flex;align-items:center;justify-content:center;flex-direction:column;color:#888;font-size:9px;font-family:monospace">tile<br>1,2</div>
+      <div style="width:52px;height:52px;background:#1a1a2e;border:1px solid #444;display:flex;align-items:center;justify-content:center;flex-direction:column;color:#888;font-size:9px;font-family:monospace">tile<br>2,2</div>
+      <div style="width:52px;height:52px;background:#1a1a2e;border:1px solid #444;display:flex;align-items:center;justify-content:center;flex-direction:column;color:#888;font-size:9px;font-family:monospace">tile<br>3,2</div>
+      <div style="width:52px;height:52px;background:#1a1a2e;border:1px solid #333;display:flex;align-items:center;justify-content:center;flex-direction:column;color:#444;font-size:9px;font-family:monospace;font-style:italic">vazio<br>0,3</div>
+      <div style="width:52px;height:52px;background:#1a1a2e;border:1px solid #444;display:flex;align-items:center;justify-content:center;flex-direction:column;color:#888;font-size:9px;font-family:monospace">tile<br>1,3</div>
+      <div style="width:52px;height:52px;background:#1a1a2e;border:1px solid #444;display:flex;align-items:center;justify-content:center;flex-direction:column;color:#888;font-size:9px;font-family:monospace">tile<br>2,3</div>
+      <div style="width:52px;height:52px;background:#1a1a2e;border:1px solid #444;display:flex;align-items:center;justify-content:center;flex-direction:column;color:#888;font-size:9px;font-family:monospace">tile<br>3,3</div>
+    </div>
+  </div>
+</div>

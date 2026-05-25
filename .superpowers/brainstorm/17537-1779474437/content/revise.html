@@ -1,0 +1,60 @@
+<h2>Stage 00 — O que deseja revisar?</h2>
+<p class="subtitle">Design atual resumido abaixo. Selecione o que quer mudar.</p>
+
+<div class="section" style="margin-bottom:16px;font-size:13px;background:#0d0d1a;border:1px solid #222;border-radius:6px;padding:12px">
+  <p class="label" style="margin-bottom:8px">Design atual</p>
+  <ul style="margin:0;padding-left:18px;color:#aaa;line-height:1.8">
+    <li>~5000px, câmera 0→5200</li>
+    <li>2 zonas de combate — 2 Grunts + 1 Flyer cada</li>
+    <li>CP1 perto do shaft (~1800px), CP2 antes do boss (~3800px)</li>
+    <li>Shaft vertical (~2000–2400px) — wall jump obrigatório para subir</li>
+    <li>Boss introdutório único em sala fechada (paredes fecham ao entrar)</li>
+    <li>Plataformas variadas: gaps + blocos + altura</li>
+  </ul>
+</div>
+
+<div class="cards">
+
+  <div class="card" data-choice="boss" onclick="toggleSelect(this)">
+    <div class="card-body">
+      <h3>Boss</h3>
+      <p>Mudar o boss — identidade, posição, ou tipo de sala.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="enemies" onclick="toggleSelect(this)">
+    <div class="card-body">
+      <h3>Inimigos</h3>
+      <p>Quantidade, tipo ou distribuição dos inimigos nas zonas.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="platforms" onclick="toggleSelect(this)">
+    <div class="card-body">
+      <h3>Plataformas</h3>
+      <p>Layout das plataformas, gaps, altura ou estrutura geral.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="shaft" onclick="toggleSelect(this)">
+    <div class="card-body">
+      <h3>Shaft / Wall Jump</h3>
+      <p>Posição ou estrutura do shaft vertical, como a mecânica é apresentada.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="size" onclick="toggleSelect(this)">
+    <div class="card-body">
+      <h3>Tamanho / Checkpoints</h3>
+      <p>Comprimento total da fase ou posição dos checkpoints.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="other" onclick="toggleSelect(this)">
+    <div class="card-body">
+      <h3>Outro</h3>
+      <p>Algo diferente dos itens acima.</p>
+    </div>
+  </div>
+
+</div>

@@ -1,0 +1,96 @@
+<h2>Qual layout de controles touch você prefere?</h2>
+<p class="subtitle">Pense em como o jogador vai segurar o celular e apertar os botões</p>
+
+<div class="cards">
+
+  <div class="card" data-choice="classic" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div style="background:#1a1a2e;border-radius:12px;padding:16px;font-family:monospace;position:relative;height:180px;display:flex;flex-direction:column;justify-content:space-between;">
+        <!-- Screen area -->
+        <div style="background:#0f3460;border-radius:6px;flex:1;margin-bottom:12px;display:flex;align-items:center;justify-content:center;color:#888;font-size:12px;">área do jogo</div>
+        <!-- Controls row -->
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <!-- D-pad left -->
+          <div style="display:grid;grid-template-columns:repeat(3,28px);grid-template-rows:repeat(3,28px);gap:2px;">
+            <div></div>
+            <div style="background:#e94560;border-radius:4px;display:flex;align-items:center;justify-content:center;color:white;font-size:10px;">▲</div>
+            <div></div>
+            <div style="background:#e94560;border-radius:4px;display:flex;align-items:center;justify-content:center;color:white;font-size:10px;">◀</div>
+            <div style="background:#533;border-radius:4px;"></div>
+            <div style="background:#e94560;border-radius:4px;display:flex;align-items:center;justify-content:center;color:white;font-size:10px;">▶</div>
+            <div></div>
+            <div style="background:#e94560;border-radius:4px;display:flex;align-items:center;justify-content:center;color:white;font-size:10px;">▼</div>
+            <div></div>
+          </div>
+          <!-- Action buttons right -->
+          <div style="display:grid;grid-template-columns:repeat(2,32px);grid-template-rows:repeat(2,32px);gap:4px;">
+            <div></div>
+            <div style="background:#e94560;border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-size:9px;">Z</div>
+            <div style="background:#4a90d9;border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-size:9px;">J</div>
+            <div style="background:#27ae60;border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-size:9px;">X</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A — D-pad Clássico</h3>
+      <p>Setas direcionais à esquerda, botões de ação à direita. Familiar, próximo ao controle físico. Ocupa bastante espaço na tela.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="joystick" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div style="background:#1a1a2e;border-radius:12px;padding:16px;font-family:monospace;position:relative;height:180px;display:flex;flex-direction:column;justify-content:space-between;">
+        <div style="background:#0f3460;border-radius:6px;flex:1;margin-bottom:12px;display:flex;align-items:center;justify-content:center;color:#888;font-size:12px;">área do jogo</div>
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <!-- Joystick left -->
+          <div style="position:relative;width:70px;height:70px;display:flex;align-items:center;justify-content:center;">
+            <div style="width:64px;height:64px;background:#2c2c3e;border-radius:50%;border:2px solid #444;display:flex;align-items:center;justify-content:center;">
+              <div style="width:28px;height:28px;background:#e94560;border-radius:50%;"></div>
+            </div>
+          </div>
+          <!-- Action buttons right -->
+          <div style="display:flex;flex-direction:column;gap:4px;align-items:center;">
+            <div style="display:flex;gap:4px;">
+              <div style="background:#e94560;border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;color:white;font-size:9px;">Z</div>
+            </div>
+            <div style="display:flex;gap:4px;">
+              <div style="background:#4a90d9;border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;color:white;font-size:9px;">J</div>
+              <div style="background:#27ae60;border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;color:white;font-size:9px;">X</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B — Joystick Virtual</h3>
+      <p>Analógico virtual à esquerda (arrasta o dedo), botões à direita. Movimento mais fluido, mas pode escorregar o dedo.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="split" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div style="background:#1a1a2e;border-radius:12px;padding:16px;font-family:monospace;position:relative;height:180px;display:flex;flex-direction:column;justify-content:space-between;">
+        <div style="background:#0f3460;border-radius:6px;flex:1;margin-bottom:12px;display:flex;align-items:center;justify-content:center;color:#888;font-size:12px;">área do jogo</div>
+        <div style="display:flex;justify-content:space-between;align-items:flex-end;">
+          <!-- Left side: split esquerda/direita + pulo -->
+          <div style="display:flex;gap:3px;">
+            <div style="background:#e94560;border-radius:6px;width:44px;height:44px;display:flex;align-items:center;justify-content:center;color:white;font-size:11px;">◀</div>
+            <div style="background:#e94560;border-radius:6px;width:44px;height:44px;display:flex;align-items:center;justify-content:center;color:white;font-size:11px;">▶</div>
+          </div>
+          <!-- Right side: pulo + ataque + dash -->
+          <div style="display:flex;gap:3px;">
+            <div style="background:#27ae60;border-radius:6px;width:40px;height:40px;display:flex;align-items:center;justify-content:center;color:white;font-size:9px;">X</div>
+            <div style="background:#4a90d9;border-radius:6px;width:40px;height:40px;display:flex;align-items:center;justify-content:center;color:white;font-size:9px;">J</div>
+            <div style="background:#e94560;border-radius:6px;width:40px;height:40px;display:flex;align-items:center;justify-content:center;color:white;font-size:9px;">Z</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C — Botões Separados</h3>
+      <p>Esquerda/Direita como dois botões grandes, sem setas para cima/baixo. Botões de ação agrupados à direita. Simples e robusto para plataforma.</p>
+    </div>
+  </div>
+
+</div>

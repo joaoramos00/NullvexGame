@@ -1,0 +1,231 @@
+<h2>Stage 00 — Layout Revisado</h2>
+<p class="subtitle">~7000px · 3 zonas de combate · wall jump no mesmo lado (estilo MMX). Clique para aprovar.</p>
+
+<div class="mockup">
+  <div class="mockup-header">Visão geral — 7000px horizontais</div>
+  <div class="mockup-body" style="font-family:monospace;font-size:10px;overflow-x:auto;padding:12px">
+
+    <!-- Ruler -->
+    <div style="display:flex;color:#555;font-size:8px;margin-bottom:4px">
+      <div style="width:60px">0</div>
+      <div style="width:100px">1000</div>
+      <div style="width:100px">2000</div>
+      <div style="width:100px">3000</div>
+      <div style="width:100px">4000</div>
+      <div style="width:100px">5000</div>
+      <div style="width:100px">6000</div>
+      <div style="width:60px">7000</div>
+    </div>
+
+    <!-- Stage map: 720px wide ≈ 7000px game -->
+    <div style="position:relative;width:720px;height:260px;background:#07070f;border:1px solid #222;border-radius:4px;overflow:hidden">
+
+      <!-- ===== BACKGROUND PARALLAX (cidade destruída) ===== -->
+      <!-- Silhueta de prédios ao fundo (camada mais distante) -->
+      <div style="position:absolute;bottom:24px;left:0;width:720px;height:120px;background:transparent">
+        <!-- Prédio 1 -->
+        <div style="position:absolute;bottom:0;left:30px;width:40px;height:80px;background:#0f0f1e;border-top:2px solid #1a1a35;opacity:0.7"></div>
+        <!-- Janelas prédio 1 (algumas acesas = incêndio) -->
+        <div style="position:absolute;bottom:50px;left:36px;width:8px;height:6px;background:#f84;opacity:0.8"></div>
+        <div style="position:absolute;bottom:38px;left:50px;width:8px;height:6px;background:#333;opacity:0.6"></div>
+        <!-- Prédio 2 (parcialmente destruído) -->
+        <div style="position:absolute;bottom:0;left:100px;width:50px;height:100px;background:#0e0e1d;border-top:2px solid #1a1a35;opacity:0.7"></div>
+        <div style="position:absolute;bottom:90px;left:120px;width:20px;height:30px;background:#07070f;opacity:0.9"></div><!-- topo destruído -->
+        <div style="position:absolute;bottom:65px;left:104px;width:8px;height:6px;background:#f84;opacity:0.9"></div>
+        <!-- Prédio 3 -->
+        <div style="position:absolute;bottom:0;left:180px;width:35px;height:70px;background:#0f0f1e;border-top:2px solid #1a1a35;opacity:0.7"></div>
+        <div style="position:absolute;bottom:42px;left:186px;width:8px;height:6px;background:#444;opacity:0.5"></div>
+        <!-- Prédio 4 (alto, central) -->
+        <div style="position:absolute;bottom:0;left:260px;width:60px;height:120px;background:#0e0e1c;border-top:2px solid #1a1a35;opacity:0.7"></div>
+        <div style="position:absolute;bottom:90px;left:290px;width:20px;height:50px;background:#07070f;opacity:0.9"></div><!-- destruído -->
+        <div style="position:absolute;bottom:70px;left:264px;width:8px;height:6px;background:#f84;opacity:0.9"></div>
+        <div style="position:absolute;bottom:55px;left:280px;width:8px;height:6px;background:#f84;opacity:0.7"></div>
+        <!-- Prédio 5 -->
+        <div style="position:absolute;bottom:0;left:360px;width:45px;height:85px;background:#0f0f1e;border-top:2px solid #1a1a35;opacity:0.7"></div>
+        <div style="position:absolute;bottom:55px;left:368px;width:8px;height:6px;background:#f84;opacity:0.8"></div>
+        <!-- Prédio 6 -->
+        <div style="position:absolute;bottom:0;left:440px;width:55px;height:95px;background:#0e0e1d;border-top:2px solid #1a1a35;opacity:0.7"></div>
+        <div style="position:absolute;bottom:80px;left:455px;width:30px;height:40px;background:#07070f;opacity:0.9"></div><!-- destruído -->
+        <!-- Prédio 7 -->
+        <div style="position:absolute;bottom:0;left:540px;width:40px;height:75px;background:#0f0f1e;border-top:2px solid #1a1a35;opacity:0.7"></div>
+        <div style="position:absolute;bottom:48px;left:546px;width:8px;height:6px;background:#f84;opacity:0.6"></div>
+        <!-- Prédio 8 (boss area background) -->
+        <div style="position:absolute;bottom:0;left:620px;width:80px;height:110px;background:#1a0e0e;border-top:2px solid #2a1515;opacity:0.7"></div>
+        <div style="position:absolute;bottom:90px;left:630px;width:40px;height:60px;background:#07070f;opacity:0.9"></div>
+        <div style="position:absolute;bottom:65px;left:640px;width:8px;height:6px;background:#f44;opacity:0.9"></div>
+        <div style="position:absolute;bottom:50px;left:658px;width:8px;height:6px;background:#f44;opacity:0.7"></div>
+        <!-- Fumaça / névoa (linha de fundo) -->
+        <div style="position:absolute;bottom:0;left:0;width:720px;height:20px;background:linear-gradient(to top,#0a0a18,transparent);opacity:0.8"></div>
+      </div>
+
+      <!-- ===== FLOOR / PLATAFORMAS ===== -->
+
+      <!-- ZONA 1: 0–2000px (low level) -->
+      <!-- Chão contínuo 0–700 -->
+      <div style="position:absolute;bottom:0;left:0;width:100px;height:24px;background:#1a3a1a;border-top:2px solid #0f0"></div>
+      <!-- Gap 700–900 -->
+      <!-- Plataforma flutuante 700–850 -->
+      <div style="position:absolute;bottom:50px;left:100px;width:21px;height:8px;background:#1a3a1a;border-top:2px solid #0f0"></div>
+      <!-- Chão 900–1400 -->
+      <div style="position:absolute;bottom:0;left:129px;width:72px;height:24px;background:#1a3a1a;border-top:2px solid #0f0"></div>
+      <!-- Bloco sólido 1100–1300 h=3 tiles -->
+      <div style="position:absolute;bottom:24px;left:157px;width:29px;height:48px;background:#1a3a1a;border:2px solid #0f0"></div>
+      <!-- Plataforma 1400–1600 em altura media -->
+      <div style="position:absolute;bottom:48px;left:200px;width:29px;height:8px;background:#1a3a1a;border-top:2px solid #0f0"></div>
+      <!-- Gap 1600–1800 -->
+      <!-- Chão 1800–2000 (pré-wall) -->
+      <div style="position:absolute;bottom:0;left:257px;width:29px;height:24px;background:#1a3a1a;border-top:2px solid #0f0"></div>
+
+      <!-- CP1 -->
+      <div style="position:absolute;bottom:24px;left:252px;color:#f80;font-size:9px">⚑CP1</div>
+
+      <!-- ===== WALL JUMP (mesmo lado — pilar único) 2000–2600px ===== -->
+      <!-- Pilar alto à esquerda (parede para wall jump) -->
+      <div style="position:absolute;bottom:0;left:286px;width:10px;height:200px;background:#1a3a1a;border-right:2px solid #0f0;border-top:2px solid #0f0"></div>
+      <!-- Chão à direita do pilar (jogador corre aqui) -->
+      <div style="position:absolute;bottom:0;left:296px;width:57px;height:24px;background:#1a3a1a;border-top:2px solid #0f0"></div>
+      <!-- Plataforma no topo do pilar (saída) -->
+      <div style="position:absolute;bottom:200px;left:286px;width:40px;height:8px;background:#1a3a1a;border-top:2px solid #0f0"></div>
+      <!-- Setas MMX-style: mesmo lado -->
+      <div style="position:absolute;bottom:30px;left:300px;color:#f0f;font-size:9px">→</div>
+      <div style="position:absolute;bottom:55px;left:289px;color:#f0f;font-size:9px">↑</div>
+      <div style="position:absolute;bottom:80px;left:304px;color:#f0f;font-size:9px">→</div>
+      <div style="position:absolute;bottom:105px;left:289px;color:#f0f;font-size:9px">↑</div>
+      <div style="position:absolute;bottom:130px;left:304px;color:#f0f;font-size:9px">→</div>
+      <div style="position:absolute;bottom:155px;left:289px;color:#f0f;font-size:9px">↑</div>
+      <!-- Label pilar -->
+      <div style="position:absolute;bottom:100px;left:308px;color:#f0f;font-size:7px;width:50px">PILAR<br>wall jump<br>mesmo lado</div>
+
+      <!-- ===== ZONA 2: 2600–4500px (nível elevado) ===== -->
+      <!-- Chão elevado pós-pilar -->
+      <div style="position:absolute;bottom:208px;left:326px;width:72px;height:24px;background:#1a3a1a;border-top:2px solid #0f0"></div>
+      <!-- Plataforma 2900–3100 -->
+      <div style="position:absolute;bottom:230px;left:377px;width:29px;height:8px;background:#1a3a1a;border-top:2px solid #0f0"></div>
+      <!-- Bloco sólido 3200–3400 alto -->
+      <div style="position:absolute;bottom:208px;left:415px;width:29px;height:50px;background:#1a3a1a;border:2px solid #0f0"></div>
+      <!-- Gap 3400–3600 -->
+      <!-- Plataformas em degrau 3600–3900 -->
+      <div style="position:absolute;bottom:230px;left:451px;width:21px;height:8px;background:#1a3a1a;border-top:2px solid #0f0"></div>
+      <div style="position:absolute;bottom:216px;left:472px;width:21px;height:8px;background:#1a3a1a;border-top:2px solid #0f0"></div>
+      <!-- Chão 3900–4500 (desce de volta ao nível baixo) -->
+      <div style="position:absolute;bottom:0;left:493px;width:86px;height:24px;background:#1a3a1a;border-top:2px solid #0f0"></div>
+
+      <!-- Rampas de descida após pilar (gap + plat intermediária) -->
+      <div style="position:absolute;bottom:130px;left:398px;width:18px;height:8px;background:#1a3a1a;border-top:2px solid #0f0"></div>
+      <div style="position:absolute;bottom:60px;left:444px;width:18px;height:8px;background:#1a3a1a;border-top:2px solid #0f0"></div>
+
+      <!-- CP2 -->
+      <div style="position:absolute;bottom:24px;left:540px;color:#f80;font-size:9px">⚑CP2</div>
+
+      <!-- ===== ZONA 3: 4500–6000px ===== -->
+      <!-- Chão 4500–5200 -->
+      <div style="position:absolute;bottom:0;left:579px;width:72px;height:24px;background:#1a3a1a;border-top:2px solid #0f0"></div>
+      <!-- Gap + plataforma média -->
+      <div style="position:absolute;bottom:40px;left:600px;width:25px;height:8px;background:#1a3a1a;border-top:2px solid #0f0"></div>
+      <!-- Chão 5200–6000 -->
+      <div style="position:absolute;bottom:0;left:651px;width:57px;height:24px;background:#1a3a1a;border-top:2px solid #0f0"></div>
+
+      <!-- ===== BOSS ROOM 6000–7000px ===== -->
+      <div style="position:absolute;bottom:0;left:620px;width:100px;height:24px;background:#2a1a1a;border-top:2px solid #f44"></div>
+      <div style="position:absolute;bottom:0;left:618px;width:6px;height:120px;background:#2a1a1a;border:1px solid #f44"></div>
+      <div style="position:absolute;bottom:0;right:0;width:6px;height:120px;background:#2a1a1a;border:1px solid #f44"></div>
+
+      <!-- ===== INIMIGOS ===== -->
+      <!-- Zona 1: 3 Grunts + 2 Flyers -->
+      <div style="position:absolute;bottom:32px;left:60px;color:#f88;font-size:8px">G</div>
+      <div style="position:absolute;bottom:32px;left:148px;color:#f88;font-size:8px">G</div>
+      <div style="position:absolute;bottom:80px;left:195px;color:#f88;font-size:8px">G</div>
+      <div style="position:absolute;bottom:90px;left:113px;color:#f8f;font-size:8px">F</div>
+      <div style="position:absolute;bottom:80px;left:232px;color:#f8f;font-size:8px">F</div>
+
+      <!-- Zona 2: 3 Grunts + 2 Flyers (nível alto) -->
+      <div style="position:absolute;bottom:240px;left:345px;color:#f88;font-size:8px">G</div>
+      <div style="position:absolute;bottom:270px;left:387px;color:#f88;font-size:8px">G</div>
+      <div style="position:absolute;bottom:240px;left:460px;color:#f88;font-size:8px">G</div>
+      <div style="position:absolute;bottom:260px;left:367px;color:#f8f;font-size:8px">F</div>
+      <div style="position:absolute;bottom:256px;left:428px;color:#f8f;font-size:8px">F</div>
+
+      <!-- Zona 3: 2 Grunts + 1 Flyer -->
+      <div style="position:absolute;bottom:32px;left:595px;color:#f88;font-size:8px">G</div>
+      <div style="position:absolute;bottom:32px;left:630px;color:#f88;font-size:8px">G</div>
+      <div style="position:absolute;bottom:60px;left:612px;color:#f8f;font-size:8px">F</div>
+
+      <!-- Spawn -->
+      <div style="position:absolute;bottom:24px;left:4px;color:#0f0;font-size:9px">▶</div>
+
+      <!-- Boss -->
+      <div style="position:absolute;bottom:28px;left:652px;color:#f44;font-size:9px">BOSS</div>
+      <div style="position:absolute;bottom:100px;left:620px;color:#f44;font-size:8px">🚪</div>
+
+    </div>
+
+    <!-- Legend -->
+    <div style="display:flex;gap:16px;margin-top:8px;flex-wrap:wrap;font-size:11px">
+      <div><span style="color:#0f0">█</span> Plataforma/Piso</div>
+      <div><span style="color:#f88">G</span> Grunt (8 total)</div>
+      <div><span style="color:#f8f">F</span> Flyer (5 total)</div>
+      <div><span style="color:#f0f">↑→</span> Wall Jump (pilar único)</div>
+      <div><span style="color:#f80">⚑</span> Checkpoint</div>
+      <div><span style="color:#f44">█</span> Boss Room</div>
+      <div><span style="color:#f84">█</span> Prédio em chamas (BG)</div>
+    </div>
+
+  </div>
+</div>
+
+<div class="section" style="margin-top:16px">
+  <h3>Mudanças em relação ao v1</h3>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;font-size:13px">
+    <div>
+      <p class="label">Tamanho</p>
+      <ul style="margin:4px 0;padding-left:18px;color:#aaa">
+        <li>5000px → ~7000px (+40%)</li>
+        <li>3 zonas de combate (era 2)</li>
+        <li>Câmera 0→7200</li>
+      </ul>
+    </div>
+    <div>
+      <p class="label">Inimigos</p>
+      <ul style="margin:4px 0;padding-left:18px;color:#aaa">
+        <li>4 Grunts → <strong>8 Grunts</strong></li>
+        <li>2 Flyers → <strong>5 Flyers</strong></li>
+        <li>Zona 3 nova antes do boss</li>
+      </ul>
+    </div>
+    <div>
+      <p class="label">Wall Jump (estilo MMX)</p>
+      <ul style="margin:4px 0;padding-left:18px;color:#aaa">
+        <li>Shaft duplo → <strong>pilar único</strong></li>
+        <li>Jogador salta contra o pilar repetidamente</li>
+        <li>Mesmo lado — igual Mega Man X</li>
+        <li>Plataforma no topo como recompensa</li>
+      </ul>
+    </div>
+    <div>
+      <p class="label">Background</p>
+      <ul style="margin:4px 0;padding-left:18px;color:#aaa">
+        <li>Cidade destruída com prédios em silhueta</li>
+        <li>Janelas laranja = incêndios</li>
+        <li>Topos destruídos / irregulares</li>
+        <li>Névoa na base (separação chão/BG)</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="options" style="margin-top:16px">
+  <div class="option" data-choice="approve" onclick="toggleSelect(this)">
+    <div class="letter">✓</div>
+    <div class="content">
+      <h3>Aprovar este design</h3>
+      <p>Avançar para escrever a spec e o plano de implementação.</p>
+    </div>
+  </div>
+  <div class="option" data-choice="revise" onclick="toggleSelect(this)">
+    <div class="letter">↺</div>
+    <div class="content">
+      <h3>Revisar novamente</h3>
+      <p>Quero ajustar mais alguma coisa.</p>
+    </div>
+  </div>
+</div>

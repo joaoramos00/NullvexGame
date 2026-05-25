@@ -1,0 +1,169 @@
+<h2>Stage 00 — Layout Completo</h2>
+<p class="subtitle">Mapa da fase (~5000px). Lido da esquerda para direita. Clique para aprovar.</p>
+
+<div class="mockup">
+  <div class="mockup-header">Visão geral — 5000px horizontais</div>
+  <div class="mockup-body" style="font-family:monospace;font-size:10px;overflow-x:auto;padding:12px">
+
+    <!-- Stage ruler -->
+    <div style="display:flex;color:#333;font-size:8px;margin-bottom:4px">
+      <div style="width:100px">0</div>
+      <div style="width:180px">1000</div>
+      <div style="width:180px">2000</div>
+      <div style="width:180px">3000</div>
+      <div style="width:180px">4000</div>
+      <div style="width:100px">5000</div>
+    </div>
+
+    <!-- Stage map (600px wide = 5000px game) -->
+    <div style="position:relative;width:920px;height:220px;background:#07070f;border:1px solid #222;border-radius:4px;overflow:hidden">
+
+      <!-- FLOOR SECTIONS -->
+      <!-- Section A: Spawn floor (0-800) -->
+      <div style="position:absolute;bottom:0;left:0;width:148px;height:24px;background:#1a3a1a;border-top:2px solid #0f0"></div>
+      <!-- Gap 800-1000 -->
+      <!-- Section B: Mid floor (1000-1600) -->
+      <div style="position:absolute;bottom:0;left:185px;width:110px;height:24px;background:#1a3a1a;border-top:2px solid #0f0"></div>
+      <!-- Gap 1600-1800 -->
+      <!-- Section C: Pre-shaft (1800-2000) -->
+      <div style="position:absolute;bottom:0;left:333px;width:37px;height:24px;background:#1a3a1a;border-top:2px solid #0f0"></div>
+
+      <!-- SHAFT VERTICAL (2000-2400) -->
+      <div style="position:absolute;bottom:0;left:370px;width:8px;height:180px;background:#1a3a1a;border-right:2px solid #0f0;border-top:2px solid #0f0"></div>
+      <div style="position:absolute;bottom:0;left:442px;width:8px;height:180px;background:#1a3a1a;border-left:2px solid #0f0;border-top:2px solid #0f0"></div>
+      <!-- Shaft label -->
+      <div style="position:absolute;bottom:80px;left:378px;color:#f0f;font-size:8px;width:60px;text-align:center">⬆ SHAFT<br>wall jump</div>
+
+      <!-- TOP of shaft connects to upper platform -->
+      <div style="position:absolute;bottom:180px;left:370px;width:370px;height:16px;background:#1a3a1a;border-top:2px solid #0f0"></div>
+
+      <!-- Post-shaft section floor (2400-4200) at upper height -->
+      <!-- Then drops back down -->
+
+      <!-- PLATFORMS (Zone 1 - lower) -->
+      <!-- Plat 1: floating step 600-760 at Y=680 -->
+      <div style="position:absolute;bottom:60px;left:110px;width:30px;height:8px;background:#1a3a1a;border-top:2px solid #0f0"></div>
+      <!-- Plat 2: 900-1080 at Y=720 -->
+      <div style="position:absolute;bottom:45px;left:166px;width:33px;height:8px;background:#1a3a1a;border-top:2px solid #0f0"></div>
+      <!-- Plat 3: tall block 1200-1400 at Y=760 -->
+      <div style="position:absolute;bottom:24px;left:220px;width:37px;height:50px;background:#1a3a1a;border:2px solid #0f0"></div>
+      <!-- Plat 4: floating 1550-1700 at Y=700 -->
+      <div style="position:absolute;bottom:55px;left:285px;width:28px;height:8px;background:#1a3a1a;border-top:2px solid #0f0"></div>
+
+      <!-- PLATFORMS (Zone 2 - upper, post-shaft) -->
+      <!-- Plat 5: 2600-2800 -->
+      <div style="position:absolute;bottom:170px;left:480px;width:37px;height:8px;background:#1a3a1a;border-top:2px solid #0f0"></div>
+      <!-- Plat 6: 2900-3100 -->
+      <div style="position:absolute;bottom:155px;left:536px;width:37px;height:8px;background:#1a3a1a;border-top:2px solid #0f0"></div>
+      <!-- Tall block 3200-3400 -->
+      <div style="position:absolute;bottom:150px;left:592px;width:37px;height:46px;background:#1a3a1a;border:2px solid #0f0"></div>
+
+      <!-- Floor drops back down after 3400 -->
+      <div style="position:absolute;bottom:0;left:629px;width:100px;height:24px;background:#1a3a1a;border-top:2px solid #0f0"></div>
+      <!-- Gap -->
+      <div style="position:absolute;bottom:0;left:755px;width:55px;height:24px;background:#1a3a1a;border-top:2px solid #0f0"></div>
+
+      <!-- BOSS ROOM floor -->
+      <div style="position:absolute;bottom:0;left:820px;width:100px;height:24px;background:#2a1a1a;border-top:2px solid #f44"></div>
+
+      <!-- Boss room walls (closed) -->
+      <div style="position:absolute;bottom:0;left:816px;width:6px;height:110px;background:#2a1a1a;border:1px solid #f44"></div>
+      <div style="position:absolute;bottom:0;right:0;width:6px;height:110px;background:#2a1a1a;border:1px solid #f44"></div>
+
+      <!-- ENEMIES Zone 1 -->
+      <div style="position:absolute;bottom:32px;left:90px;color:#f88;font-size:8px">G</div>
+      <div style="position:absolute;bottom:32px;left:255px;color:#f88;font-size:8px">G</div>
+      <div style="position:absolute;bottom:85px;left:190px;color:#f8f;font-size:8px">F</div>
+
+      <!-- ENEMIES Zone 2 -->
+      <div style="position:absolute;bottom:202px;left:500px;color:#f88;font-size:8px">G</div>
+      <div style="position:absolute;bottom:202px;left:610px;color:#f88;font-size:8px">G</div>
+      <div style="position:absolute;bottom:220px;left:555px;color:#f8f;font-size:8px">F</div>
+
+      <!-- CHECKPOINTS -->
+      <div style="position:absolute;bottom:24px;left:330px;color:#f80;font-size:9px">⚑CP1</div>
+      <div style="position:absolute;bottom:24px;left:750px;color:#f80;font-size:9px">⚑CP2</div>
+
+      <!-- SPAWN -->
+      <div style="position:absolute;bottom:24px;left:6px;color:#0f0;font-size:9px">▶ Spawn</div>
+
+      <!-- BOSS -->
+      <div style="position:absolute;bottom:28px;left:835px;color:#f44;font-size:9px">BOSS</div>
+      <div style="position:absolute;bottom:90px;left:816px;color:#f44;font-size:8px">🚪</div>
+
+      <!-- Wall jump arrows in shaft -->
+      <div style="position:absolute;bottom:40px;left:383px;color:#f0f;font-size:10px">↗</div>
+      <div style="position:absolute;bottom:70px;left:426px;color:#f0f;font-size:10px">↖</div>
+      <div style="position:absolute;bottom:100px;left:383px;color:#f0f;font-size:10px">↗</div>
+      <div style="position:absolute;bottom:130px;left:426px;color:#f0f;font-size:10px">↖</div>
+
+    </div>
+
+    <!-- Legend -->
+    <div style="display:flex;gap:20px;margin-top:10px;flex-wrap:wrap">
+      <div><span style="color:#0f0">█</span> Plataforma/Piso</div>
+      <div><span style="color:#f88">G</span> Grunt</div>
+      <div><span style="color:#f8f">F</span> Flyer</div>
+      <div><span style="color:#f0f">↗↖</span> Wall Jump</div>
+      <div><span style="color:#f80">⚑</span> Checkpoint</div>
+      <div><span style="color:#f44">█</span> Boss Room (sala fechada)</div>
+    </div>
+
+  </div>
+</div>
+
+<div class="section" style="margin-top:16px">
+  <h3>Resumo do design</h3>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;font-size:13px">
+    <div>
+      <p class="label">Estrutura</p>
+      <ul style="margin:4px 0;padding-left:18px;color:#aaa">
+        <li>~5000px, câmera 0→5200</li>
+        <li>2 checkpoints</li>
+        <li>2 zonas de combate (antes e depois do shaft)</li>
+        <li>Sala de boss fechada no fim</li>
+      </ul>
+    </div>
+    <div>
+      <p class="label">Inimigos</p>
+      <ul style="margin:4px 0;padding-left:18px;color:#aaa">
+        <li>4 Grunts (2 por zona)</li>
+        <li>2 Flyers (1 por zona)</li>
+        <li>1 Boss introdutório único</li>
+      </ul>
+    </div>
+    <div>
+      <p class="label">Mecânicas novas</p>
+      <ul style="margin:4px 0;padding-left:18px;color:#aaa">
+        <li>Wall jump no CharacterBase</li>
+        <li>Shaft vertical obrigatório (2000–2400px)</li>
+        <li>Sala fechada: paredes spawnam ao entrar</li>
+      </ul>
+    </div>
+    <div>
+      <p class="label">Boss</p>
+      <ul style="margin:4px 0;padding-left:18px;color:#aaa">
+        <li>Boss introdutório único (nome a definir)</li>
+        <li>Arena ~800px, paredes fecham ao entrar</li>
+        <li>2–3 padrões de ataque simples</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="options" style="margin-top:16px">
+  <div class="option" data-choice="approve" onclick="toggleSelect(this)">
+    <div class="letter">✓</div>
+    <div class="content">
+      <h3>Aprovar este design</h3>
+      <p>Avançar para escrever a spec e o plano de implementação.</p>
+    </div>
+  </div>
+  <div class="option" data-choice="revise" onclick="toggleSelect(this)">
+    <div class="letter">↺</div>
+    <div class="content">
+      <h3>Revisar</h3>
+      <p>Quero mudar algo no layout ou nas mecânicas.</p>
+    </div>
+  </div>
+</div>

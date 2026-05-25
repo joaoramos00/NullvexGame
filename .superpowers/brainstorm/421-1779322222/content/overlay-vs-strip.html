@@ -1,0 +1,100 @@
+<h2>Controles em cima do jogo ou embaixo?</h2>
+<p class="subtitle">Os dois funcionam — a diferença é quanto da tela fica visível</p>
+
+<div class="split">
+
+  <div class="mockup">
+    <div class="mockup-header">A — Overlay (recomendado)</div>
+    <div class="mockup-body" style="padding:0;overflow:hidden;">
+      <div style="position:relative;background:#0f3460;height:220px;border-radius:4px;overflow:hidden;">
+        <!-- Game fills full area -->
+        <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;">
+          <div style="color:#4a90d9;font-size:12px;text-align:center;opacity:0.6;">jogo ocupa<br>100% da tela</div>
+        </div>
+        <!-- Platforms drawn as rectangles -->
+        <div style="position:absolute;bottom:40px;left:20px;width:60px;height:8px;background:#27ae60;border-radius:2px;opacity:0.6;"></div>
+        <div style="position:absolute;bottom:80px;left:90px;width:50px;height:8px;background:#27ae60;border-radius:2px;opacity:0.6;"></div>
+        <div style="position:absolute;bottom:30px;right:30px;width:70px;height:8px;background:#27ae60;border-radius:2px;opacity:0.6;"></div>
+        <!-- Character -->
+        <div style="position:absolute;bottom:48px;left:30px;width:14px;height:20px;background:#e94560;border-radius:2px;opacity:0.8;"></div>
+
+        <!-- Overlay controls — semitransparent -->
+        <!-- D-pad bottom left -->
+        <div style="position:absolute;bottom:8px;left:8px;opacity:0.65;">
+          <div style="display:grid;grid-template-columns:repeat(3,26px);grid-template-rows:repeat(3,26px);gap:2px;">
+            <div></div>
+            <div style="background:rgba(233,69,96,0.85);border-radius:4px;display:flex;align-items:center;justify-content:center;color:white;font-size:9px;">▲</div>
+            <div></div>
+            <div style="background:rgba(233,69,96,0.85);border-radius:4px;display:flex;align-items:center;justify-content:center;color:white;font-size:9px;">◀</div>
+            <div style="background:rgba(80,80,80,0.5);border-radius:4px;"></div>
+            <div style="background:rgba(233,69,96,0.85);border-radius:4px;display:flex;align-items:center;justify-content:center;color:white;font-size:9px;">▶</div>
+            <div></div>
+            <div style="background:rgba(233,69,96,0.85);border-radius:4px;display:flex;align-items:center;justify-content:center;color:white;font-size:9px;">▼</div>
+            <div></div>
+          </div>
+        </div>
+        <!-- Action buttons bottom right -->
+        <div style="position:absolute;bottom:12px;right:8px;opacity:0.65;display:flex;flex-direction:column;gap:4px;align-items:center;">
+          <div style="display:flex;gap:4px;">
+            <div style="background:rgba(233,69,96,0.85);border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;color:white;font-size:9px;">Z</div>
+          </div>
+          <div style="display:flex;gap:4px;">
+            <div style="background:rgba(74,144,217,0.85);border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;color:white;font-size:9px;">J</div>
+            <div style="background:rgba(39,174,96,0.85);border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;color:white;font-size:9px;">X</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style="padding:10px 12px;">
+      <div class="pros-cons">
+        <div class="pros"><h4>Prós</h4><ul><li>Jogo ocupa tela inteira</li><li>Mais imersivo</li><li>Padrão da indústria</li></ul></div>
+        <div class="cons"><h4>Contras</h4><ul><li>Botões cobrem parte do jogo</li><li>Requer opacidade bem calibrada</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="mockup">
+    <div class="mockup-header">B — Faixa separada</div>
+    <div class="mockup-body" style="padding:0;overflow:hidden;">
+      <div style="display:flex;flex-direction:column;height:220px;">
+        <!-- Game area smaller -->
+        <div style="background:#0f3460;flex:1;border-radius:4px 4px 0 0;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;">
+          <div style="color:#4a90d9;font-size:11px;text-align:center;opacity:0.6;">jogo ocupa<br>~65% da tela</div>
+          <div style="position:absolute;bottom:10px;left:20px;width:50px;height:7px;background:#27ae60;border-radius:2px;opacity:0.6;"></div>
+          <div style="position:absolute;bottom:10px;right:20px;width:50px;height:7px;background:#27ae60;border-radius:2px;opacity:0.6;"></div>
+          <div style="position:absolute;bottom:17px;left:30px;width:12px;height:16px;background:#e94560;border-radius:2px;opacity:0.8;"></div>
+        </div>
+        <!-- Control strip -->
+        <div style="background:#1a1a2e;border-top:2px solid #333;height:72px;display:flex;justify-content:space-between;align-items:center;padding:0 12px;">
+          <div style="display:grid;grid-template-columns:repeat(3,24px);grid-template-rows:repeat(3,24px);gap:2px;">
+            <div></div>
+            <div style="background:#e94560;border-radius:4px;display:flex;align-items:center;justify-content:center;color:white;font-size:8px;">▲</div>
+            <div></div>
+            <div style="background:#e94560;border-radius:4px;display:flex;align-items:center;justify-content:center;color:white;font-size:8px;">◀</div>
+            <div style="background:#533;border-radius:4px;"></div>
+            <div style="background:#e94560;border-radius:4px;display:flex;align-items:center;justify-content:center;color:white;font-size:8px;">▶</div>
+            <div></div>
+            <div style="background:#e94560;border-radius:4px;display:flex;align-items:center;justify-content:center;color:white;font-size:8px;">▼</div>
+            <div></div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:4px;align-items:center;">
+            <div style="background:#e94560;border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;color:white;font-size:8px;">Z</div>
+            <div style="display:flex;gap:4px;">
+              <div style="background:#4a90d9;border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;color:white;font-size:8px;">J</div>
+              <div style="background:#27ae60;border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;color:white;font-size:8px;">X</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style="padding:10px 12px;">
+      <div class="pros-cons">
+        <div class="pros"><h4>Prós</h4><ul><li>Botões nunca cobrem o jogo</li><li>Área de toque bem definida</li></ul></div>
+        <div class="cons"><h4>Contras</h4><ul><li>Jogo fica menor</li><li>Menos imersivo</li><li>Raro em jogos modernos</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<p style="text-align:center;margin-top:16px;color:#aaa;font-size:13px;">Na opção A os botões ficam com ~65% de opacidade — visíveis mas sem bloquear a visão do jogo.</p>
