@@ -411,7 +411,7 @@ func _draw_platform_tiles(rect: Rect2) -> void:
 		for col in cols:
 			var tile := _tile_at(col, cols, row, rows)
 			var dx := rect.position.x + col * ts
-			var dy := rect.position.y + row * ts
+			var dy := rect.position.y + row * ts - src_ts  # alinha face sólida com física
 			var dw := minf(ts, rect.position.x + rect.size.x - dx)
 			var dh := minf(ts, rect.position.y + rect.size.y - dy)
 			var src := Rect2(tile.x * src_ts, tile.y * src_ts, src_ts * dw / ts, src_ts * dh / ts)
@@ -420,6 +420,8 @@ func _draw_platform_tiles(rect: Rect2) -> void:
 func _draw_room_tiles(rect: Rect2, piece_name: String) -> void:
 	var ts     := _TS
 	var src_ts := _SRC_TS
+	# Peças de chão têm face sólida em baixo do tile TOP → deslocar -src_ts para alinhar com física
+	var y_shift := -src_ts if piece_name.ends_with("_Floor") else 0
 	var cols := ceili(rect.size.x / ts)
 	var rows := ceili(rect.size.y / ts)
 	for row in rows:
@@ -446,7 +448,7 @@ func _draw_room_tiles(rect: Rect2, piece_name: String) -> void:
 				elif is_right:     tile = Vector2i(2, 0)   # Inner-TR
 				else:              tile = Vector2i(3, 0)   # TOP — chão
 			var dx := rect.position.x + col * ts
-			var dy := rect.position.y + row * ts
+			var dy := rect.position.y + row * ts + y_shift
 			var dw := minf(ts, rect.position.x + rect.size.x - dx)
 			var dh := minf(ts, rect.position.y + rect.size.y - dy)
 			var src := Rect2(tile.x * src_ts, tile.y * src_ts, src_ts * dw / ts, src_ts * dh / ts)
