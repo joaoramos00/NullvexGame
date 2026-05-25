@@ -332,35 +332,152 @@ class _PlatformView extends Control:
         if is_right: return Vector2i(1, 0)
         return Vector2i(2, 1)
 
-# Arena de movimentos: chão + paredes com tiles do Stage_00T
-class _MovView extends Control:
-    const _TS   := 32.0
-    const _TW   := 64.0
+# Nó que vive dentro do SubViewport — desenha fundo e tiles no _draw()
+class _MovWorld extends Node2D:
+    const _TS := 32.0
+    const _TW := 64.0
     var tile_tex: Texture2D
+    var ground_y: float = 400.0
+    var wall_l:   float = 100.0
+    var wall_r:   float = 1820.0
 
     func _draw() -> void:
-        var w := size.x
-        var h := size.y
-        draw_rect(Rect2(Vector2.ZERO, size), Color(0.07, 0.08, 0.16))
+        draw_rect(Rect2(-32000.0, -32000.0, 64000.0, 64000.0), Color(0.07, 0.08, 0.16))
         if not tile_tex:
             return
-        var ground_y := h * 0.72
-        var wall_l   := _TW
-        var wall_r   := w - _TW
-        var src_top  := Rect2(3.0 * _TS, 0.0,         _TS, _TS)
-        var src_fill := Rect2(2.0 * _TS, 1.0 * _TS,   _TS, _TS)
-        var src_left := Rect2(3.0 * _TS, 2.0 * _TS,   _TS, _TS)
-        var src_rght := Rect2(1.0 * _TS, 0.0,          _TS, _TS)
+        var src_top  := Rect2(3.0 * _TS, 0.0,        _TS, _TS)
+        var src_fill := Rect2(2.0 * _TS, 1.0 * _TS,  _TS, _TS)
+        var src_left := Rect2(3.0 * _TS, 2.0 * _TS,  _TS, _TS)
+        var src_rght := Rect2(1.0 * _TS, 0.0,         _TS, _TS)
         var tx := wall_l
-        while tx < wall_r:
+        while tx <= wall_r:
             draw_texture_rect_region(tile_tex, Rect2(tx, ground_y,       _TW, _TW), src_top)
             draw_texture_rect_region(tile_tex, Rect2(tx, ground_y + _TW, _TW, _TW), src_fill)
             tx += _TW
-        var wy := ground_y - _TW * 6.0
-        while wy < ground_y:
-            draw_texture_rect_region(tile_tex, Rect2(wall_l - _TW, wy, _TW, _TW), src_left)
-            draw_texture_rect_region(tile_tex, Rect2(wall_r,       wy, _TW, _TW), src_rght)
-            wy += _TW
+        for i: int in 10:
+            var ty := ground_y - float(i + 1) * _TW
+            draw_texture_rect_region(tile_tex, Rect2(wall_l - _TW, ty, _TW, _TW), src_left)
+            draw_texture_rect_region(tile_tex, Rect2(wall_r,       ty, _TW, _TW), src_rght)
+
+# Arena jogável: SubViewport com Zael, inimigo, física e câmera
+class _MovView extends Control:
+    const _PLAYER_PATH := "res://characters/ranged/zael.tscn"
+    const _ENEMY_PATHS := [
+        "res://characters/enemies/enemy_base.tscn",
+        "res://characters/enemies/enemy_flyer.tscn",
+    ]
+    const _ENEMY_NAMES := ["Grunt", "Flyer"]
+    const _GROUND_Y    := 400.0
+    const _PLAYER_X    := 280.0
+    const _ENEMY_X     := 680.0
+    const _ENEMY_Y     := [360.0, 200.0]
+    const _WALL_L      := 100.0
+    const _WALL_R      := 1820.0
+
+    var _player: CharacterBase = null
+    var _enemy: EnemyBase = null
+    var _enemy_index: int = 0
+    var _camera: Camera2D = null
+    var _world: Node2D = null
+    var label_enemy: Label = null  # definido externamente antes de add_child
+
+    func _ready() -> void:
+        GameManager.active_character = "zael"
+        GameManager.max_hp = 8
+        GameManager.zael_selected_shot = "single"
+        _build()
+
+    func _build() -> void:
+        var ctr := SubViewportContainer.new()
+        ctr.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+        ctr.stretch = true
+        add_child(ctr)
+
+        var svp := SubViewport.new()
+        svp.size = Vector2i(1280, 480)
+        svp.handle_input_locally = false
+        ctr.add_child(svp)
+
+        var mw := ImgDebug._MovWorld.new()
+        mw.tile_tex  = load("res://stages/stage_00/Stage_00T.png") as Texture2D
+        mw.ground_y  = _GROUND_Y
+        mw.wall_l    = _WALL_L
+        mw.wall_r    = _WALL_R
+        mw.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+        svp.add_child(mw)
+        _world = mw
+
+        _camera = Camera2D.new()
+        _camera.global_position = Vector2(_PLAYER_X, _GROUND_Y + 80.0)
+        _world.add_child(_camera)
+
+        _build_physics()
+        _spawn_player()
+        _spawn_enemy()
+
+    func _build_physics() -> void:
+        var ground := StaticBody2D.new()
+        ground.collision_layer = 1
+        _world.add_child(ground)
+        var gcs := CollisionShape2D.new()
+        var gseg := SegmentShape2D.new()
+        gseg.a = Vector2(-8000.0, _GROUND_Y)
+        gseg.b = Vector2( 8000.0, _GROUND_Y)
+        gcs.shape = gseg
+        ground.add_child(gcs)
+        for wx: float in [_WALL_L, _WALL_R]:
+            var wall := StaticBody2D.new()
+            wall.collision_layer = 1
+            _world.add_child(wall)
+            var wcs := CollisionShape2D.new()
+            var wseg := SegmentShape2D.new()
+            wseg.a = Vector2(wx, _GROUND_Y - 800.0)
+            wseg.b = Vector2(wx, _GROUND_Y)
+            wcs.shape = wseg
+            wall.add_child(wcs)
+
+    func _spawn_player() -> void:
+        if is_instance_valid(_player):
+            _player.queue_free()
+        var scene := load(_PLAYER_PATH) as PackedScene
+        if not scene:
+            return
+        _player = scene.instantiate() as CharacterBase
+        _world.add_child(_player)
+        _player.global_position = Vector2(_PLAYER_X, _GROUND_Y - 24.0)
+        _player.died.connect(func(): call_deferred("_spawn_player"))
+
+    func _spawn_enemy() -> void:
+        if is_instance_valid(_enemy):
+            _enemy.queue_free()
+        var scene := load(_ENEMY_PATHS[_enemy_index]) as PackedScene
+        if not scene:
+            return
+        _enemy = scene.instantiate() as EnemyBase
+        _world.add_child(_enemy)
+        _enemy.global_position = Vector2(_ENEMY_X, _ENEMY_Y[_enemy_index])
+        _enemy.set_physics_process(false)
+        _enemy.show_hitbox = true
+        _enemy.max_hp     = 99999
+        _enemy.current_hp = 99999
+        var spr := _enemy.get_node_or_null("Sprite2D") as Sprite2D
+        if spr:
+            spr.flip_h = true
+        if is_instance_valid(label_enemy):
+            label_enemy.text = _ENEMY_NAMES[_enemy_index]
+
+    func on_prev() -> void:
+        _enemy_index = (_enemy_index - 1 + _ENEMY_PATHS.size()) % _ENEMY_PATHS.size()
+        _spawn_enemy()
+
+    func on_next() -> void:
+        _enemy_index = (_enemy_index + 1) % _ENEMY_PATHS.size()
+        _spawn_enemy()
+
+    func _process(_delta: float) -> void:
+        if is_instance_valid(_player) and is_instance_valid(_camera):
+            var cam_y := clampf(_player.global_position.y + 120.0, _GROUND_Y - 400.0, _GROUND_Y + 200.0)
+            _camera.global_position = Vector2(_player.global_position.x, cam_y)
 
 const _FRAME_SIZE   := 68
 const _PREVIEW_SIZE := 136
@@ -649,17 +766,51 @@ func _build_ui() -> void:
     main.add_child(_moves_box)
 
 func _build_moves_box() -> void:
+    var top_bar := HBoxContainer.new()
+    top_bar.add_theme_constant_override("separation", 8)
+    _moves_box.add_child(top_bar)
+
     var hint := Label.new()
-    hint.text = "Arena com tiles do Stage_00 — chão (TOP + FILL) e paredes (LEFT / RIGHT)"
+    hint.text = "A/D: mover  ·  Z: pular  ·  X: dash  ·  J: atirar"
     hint.add_theme_font_size_override("font_size", 17)
     hint.add_theme_color_override("font_color", Color(0.5, 0.5, 0.5))
-    _moves_box.add_child(hint)
+    hint.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+    hint.vertical_alignment    = VERTICAL_ALIGNMENT_CENTER
+    top_bar.add_child(hint)
+
+    var enemy_lbl := Label.new()
+    enemy_lbl.text = "Inimigo:"
+    enemy_lbl.add_theme_font_size_override("font_size", 18)
+    enemy_lbl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+    top_bar.add_child(enemy_lbl)
 
     var mview := _MovView.new()
-    mview.tile_tex = load("res://stages/stage_00/Stage_00T.png") as Texture2D
-    mview.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-    mview.custom_minimum_size = Vector2(800.0, 420.0)
-    mview.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+    mview.custom_minimum_size        = Vector2(0.0, 480.0)
+    mview.size_flags_horizontal      = Control.SIZE_EXPAND_FILL
+    mview.size_flags_vertical        = Control.SIZE_EXPAND_FILL
+
+    var btn_prev := Button.new()
+    btn_prev.text = "◄"
+    btn_prev.add_theme_font_size_override("font_size", 18)
+    btn_prev.pressed.connect(mview.on_prev)
+    top_bar.add_child(btn_prev)
+
+    var lbl_name := Label.new()
+    lbl_name.custom_minimum_size.x = 80.0
+    lbl_name.add_theme_font_size_override("font_size", 18)
+    lbl_name.add_theme_color_override("font_color", Color(0.9, 0.9, 0.3))
+    lbl_name.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+    lbl_name.vertical_alignment   = VERTICAL_ALIGNMENT_CENTER
+    lbl_name.text = "Grunt"
+    top_bar.add_child(lbl_name)
+
+    var btn_next := Button.new()
+    btn_next.text = "►"
+    btn_next.add_theme_font_size_override("font_size", 18)
+    btn_next.pressed.connect(mview.on_next)
+    top_bar.add_child(btn_next)
+
+    mview.label_enemy = lbl_name
     _moves_box.add_child(mview)
 
 func _refresh_tiles() -> void:
