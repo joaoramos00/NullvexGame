@@ -14,5 +14,5 @@ script = ExtResource("2_zael")
 shape = SubResource("CapsuleShape2D_zael")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
-position = Vector2(0, -4)
+position = Vector2(0, 12)
 scale = Vector2(2, 2)
