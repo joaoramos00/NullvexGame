@@ -420,13 +420,13 @@ func _draw_platform_tiles(rect: Rect2) -> void:
 func _draw_room_tiles(rect: Rect2, piece_name: String) -> void:
 	var ts     := _TS
 	var src_ts := _SRC_TS
-	# Cada face de contato desloca o tile para expor a metade transparente ao jogador
-	var x_shift := 0
-	var y_shift := 0
-	if   piece_name.ends_with("_Floor"):                                       y_shift = -src_ts
-	elif piece_name.ends_with("_Ceil"):                                        y_shift =  src_ts
-	elif piece_name.ends_with("_Wall_L") or piece_name.ends_with("LWall"):    x_shift =  src_ts
-	elif piece_name.ends_with("_Wall_R") or piece_name.ends_with("RWall"):    x_shift = -src_ts
+	# Shifts base por peça (face de contato → expõe metade transparente ao jogador)
+	var base_xs := 0
+	var base_ys := 0
+	if   piece_name.ends_with("_Floor"):                                      base_ys = -src_ts
+	elif piece_name.ends_with("_Ceil"):                                       base_ys =  src_ts
+	elif piece_name.ends_with("_Wall_L") or piece_name.ends_with("LWall"):   base_xs =  src_ts
+	elif piece_name.ends_with("_Wall_R") or piece_name.ends_with("RWall"):   base_xs = -src_ts
 	var cols := ceili(rect.size.x / ts)
 	var rows := ceili(rect.size.y / ts)
 	for row in rows:
@@ -452,8 +452,23 @@ func _draw_room_tiles(rect: Rect2, piece_name: String) -> void:
 				if is_left:        tile = Vector2i(1, 1)   # Inner-TL
 				elif is_right:     tile = Vector2i(2, 0)   # Inner-TR
 				else:              tile = Vector2i(3, 0)   # TOP — chão
-			var dx := rect.position.x + col * ts + x_shift
-			var dy := rect.position.y + row * ts + y_shift
+			# Cantos: aplicar shift da peça adjacente no eixo perpendicular
+			var tx := base_xs
+			var ty := base_ys
+			if piece_name.ends_with("_Wall_L") or piece_name.ends_with("LWall"):
+				if is_bottom:   ty = -src_ts   # junção com Floor
+				elif is_top:    ty =  src_ts   # junção com Ceil
+			elif piece_name.ends_with("_Wall_R") or piece_name.ends_with("RWall"):
+				if is_bottom:   ty = -src_ts
+				elif is_top:    ty =  src_ts
+			elif piece_name.ends_with("_Ceil"):
+				if is_left:     tx =  src_ts   # junção com Wall_L
+				elif is_right:  tx = -src_ts   # junção com Wall_R
+			else:  # _Floor
+				if is_left:     tx =  src_ts
+				elif is_right:  tx = -src_ts
+			var dx := rect.position.x + col * ts + tx
+			var dy := rect.position.y + row * ts + ty
 			var dw := minf(ts, rect.position.x + rect.size.x - dx)
 			var dh := minf(ts, rect.position.y + rect.size.y - dy)
 			var src := Rect2(tile.x * src_ts, tile.y * src_ts, src_ts * dw / ts, src_ts * dh / ts)
