@@ -362,12 +362,12 @@ class _MovWorld extends Node2D:
             draw_texture_rect_region(tile_tex, Rect2(tx, floor_y,        _TW, _TW), src_top)
             draw_texture_rect_region(tile_tex, Rect2(tx, floor_y + _TW,  _TW, _TW), src_fill)
             tx += _TW
+        draw_texture_rect_region(tile_tex, Rect2(wall_l - _TW, floor_y, _TW, _TW), src_corn_l)
+        draw_texture_rect_region(tile_tex, Rect2(wall_r,       floor_y, _TW, _TW), src_corn_r)
         for i: int in 10:
             var ty := floor_y - float(i + 1) * _TW
-            var sl := src_corn_l if i == 0 else src_left
-            var sr := src_corn_r if i == 0 else src_rght
-            draw_texture_rect_region(tile_tex, Rect2(wall_l - _TW, ty, _TW, _TW), sl)
-            draw_texture_rect_region(tile_tex, Rect2(wall_r,       ty, _TW, _TW), sr)
+            draw_texture_rect_region(tile_tex, Rect2(wall_l - _TW, ty, _TW, _TW), src_left)
+            draw_texture_rect_region(tile_tex, Rect2(wall_r,       ty, _TW, _TW), src_rght)
         # Linhas amarelas de colisão (mesmo padrão do tab Colisões)
         var yel := Color(1.0, 0.9, 0.0, 0.85)
         draw_line(Vector2(-8000.0, ground_y),  Vector2(8000.0,    ground_y),  yel, 2.0)
@@ -382,10 +382,10 @@ class _MovView extends Control:
         "res://characters/enemies/enemy_flyer.tscn",
     ]
     const _ENEMY_NAMES := ["Grunt", "Flyer"]
-    const _GROUND_Y    := 336.0
+    const _GROUND_Y    := 208.0
     const _PLAYER_X    := 280.0
     const _ENEMY_X     := 680.0
-    const _ENEMY_Y     := [296.0, 136.0]
+    const _ENEMY_Y     := [168.0, 108.0]
     const _WALL_L      := 100.0
     const _WALL_R      := 1820.0
 
