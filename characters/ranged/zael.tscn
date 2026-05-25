@@ -15,5 +15,5 @@ position = Vector2(0, 42)
 shape = SubResource("CapsuleShape2D_zael")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
-position = Vector2(0, 42)
+position = Vector2(0, 34)
 scale = Vector2(2, 2)
