@@ -26,6 +26,7 @@ var _label_enemy: Label
 
 func _ready() -> void:
     _setup_game_manager()
+    _build_background()
     _build_ground()
     _build_walls()
     _build_tile_sprites()
@@ -40,8 +41,16 @@ func _process(_delta: float) -> void:
         $Camera2D.global_position = Vector2(_player.global_position.x, cam_y)
         queue_redraw()
 
+func _build_background() -> void:
+    var cl := CanvasLayer.new()
+    cl.layer = -10
+    add_child(cl)
+    var bg := ColorRect.new()
+    bg.color = Color(0.07, 0.08, 0.16)
+    bg.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+    cl.add_child(bg)
+
 func _draw() -> void:
-    draw_rect(Rect2(-32000.0, -32000.0, 64000.0, 64000.0), Color(0.07, 0.08, 0.16))
     if not is_instance_valid(_player):
         return
     var pos      := _player.global_position + Vector2(0.0, -90.0)
@@ -53,30 +62,28 @@ func _draw() -> void:
         _draw_pose(pos, on_floor)
 
 func _build_tile_sprites() -> void:
-    var container := Node2D.new()
-    container.z_index = 1
-    add_child(container)
-
-    # Teste: polígono vermelho na posição do primeiro tile — confirma que filhos renderizam
+    # Teste: polígono vermelho direto no root — posição do player, impossível de perder
     var poly := Polygon2D.new()
     poly.polygon = PackedVector2Array([
-        Vector2(_WALL_L, _GROUND_Y), Vector2(_WALL_L + _TILE_W, _GROUND_Y),
-        Vector2(_WALL_L + _TILE_W, _GROUND_Y + _TILE_W), Vector2(_WALL_L, _GROUND_Y + _TILE_W),
+        Vector2(_PLAYER_X - 40.0, _GROUND_Y - 120.0),
+        Vector2(_PLAYER_X + 40.0, _GROUND_Y - 120.0),
+        Vector2(_PLAYER_X + 40.0, _GROUND_Y - 40.0),
+        Vector2(_PLAYER_X - 40.0, _GROUND_Y - 40.0),
     ])
-    poly.color = Color(1.0, 0.0, 0.0, 0.7)
-    container.add_child(poly)
+    poly.color = Color(1.0, 0.0, 0.0, 0.9)
+    add_child(poly)
 
     var tx := _WALL_L
     while tx <= _WALL_R:
-        _add_tile(container, tx, _GROUND_Y,           3, 0)  # TOP
-        _add_tile(container, tx, _GROUND_Y + _TILE_W, 2, 1)  # FILL
+        _add_tile(tx, _GROUND_Y,           3, 0)
+        _add_tile(tx, _GROUND_Y + _TILE_W, 2, 1)
         tx += _TILE_W
     for i: int in 10:
         var ty := _GROUND_Y - float(i + 1) * _TILE_W
-        _add_tile(container, _WALL_L - _TILE_W, ty, 3, 2)    # LEFT
-        _add_tile(container, _WALL_R,            ty, 1, 0)    # RIGHT
+        _add_tile(_WALL_L - _TILE_W, ty, 3, 2)
+        _add_tile(_WALL_R,            ty, 1, 0)
 
-func _add_tile(parent: Node2D, x: float, y: float, col: int, row: int) -> void:
+func _add_tile(x: float, y: float, col: int, row: int) -> void:
     var at := AtlasTexture.new()
     at.atlas = _TILE_TEX
     at.filter_clip = true
@@ -87,7 +94,7 @@ func _add_tile(parent: Node2D, x: float, y: float, col: int, row: int) -> void:
     spr.position = Vector2(x, y)
     spr.scale = Vector2(_TILE_W / _TILE_SRC, _TILE_W / _TILE_SRC)
     spr.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-    parent.add_child(spr)
+    add_child(spr)
 
 func _draw_wall_pose(pos: Vector2, wall_normal: Vector2) -> void:
     var c  := Color(0.92, 0.92, 1.0, 0.85)
