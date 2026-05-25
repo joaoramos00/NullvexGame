@@ -400,7 +400,7 @@ class _MovView extends Control:
     const _GROUND_Y    := 16.0
     const _PLAYER_X    := 280.0
     const _ENEMY_X     := 680.0
-    const _ENEMY_Y     := [-24.0, -84.0]
+    const _ENEMY_Y     := [-40.0, -100.0]
     const _WALL_L      := 100.0
     const _WALL_R      := 1820.0
 
