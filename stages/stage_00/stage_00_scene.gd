@@ -420,8 +420,13 @@ func _draw_platform_tiles(rect: Rect2) -> void:
 func _draw_room_tiles(rect: Rect2, piece_name: String) -> void:
 	var ts     := _TS
 	var src_ts := _SRC_TS
-	# Peças de chão têm face sólida em baixo do tile TOP → deslocar -src_ts para alinhar com física
-	var y_shift := -src_ts if piece_name.ends_with("_Floor") else 0
+	# Cada face de contato desloca o tile para expor a metade transparente ao jogador
+	var x_shift := 0
+	var y_shift := 0
+	if   piece_name.ends_with("_Floor"):                                       y_shift = -src_ts
+	elif piece_name.ends_with("_Ceil"):                                        y_shift =  src_ts
+	elif piece_name.ends_with("_Wall_L") or piece_name.ends_with("LWall"):    x_shift =  src_ts
+	elif piece_name.ends_with("_Wall_R") or piece_name.ends_with("RWall"):    x_shift = -src_ts
 	var cols := ceili(rect.size.x / ts)
 	var rows := ceili(rect.size.y / ts)
 	for row in rows:
@@ -447,7 +452,7 @@ func _draw_room_tiles(rect: Rect2, piece_name: String) -> void:
 				if is_left:        tile = Vector2i(1, 1)   # Inner-TL
 				elif is_right:     tile = Vector2i(2, 0)   # Inner-TR
 				else:              tile = Vector2i(3, 0)   # TOP — chão
-			var dx := rect.position.x + col * ts
+			var dx := rect.position.x + col * ts + x_shift
 			var dy := rect.position.y + row * ts + y_shift
 			var dw := minf(ts, rect.position.x + rect.size.x - dx)
 			var dh := minf(ts, rect.position.y + rect.size.y - dy)
