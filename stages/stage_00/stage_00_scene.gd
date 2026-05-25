@@ -455,18 +455,20 @@ func _draw_room_tiles(rect: Rect2, piece_name: String) -> void:
 			# Cantos: aplicar shift da peça adjacente no eixo perpendicular
 			var tx := base_xs
 			var ty := base_ys
+			# is_bottom=row==0=topo na tela; is_top=row==rows-1=base na tela
+			# is_right=col==0=esquerda na tela; is_left=col==cols-1=direita na tela
 			if piece_name.ends_with("_Wall_L") or piece_name.ends_with("LWall"):
-				if is_bottom:   ty = -src_ts   # junção com Floor
-				elif is_top:    ty =  src_ts   # junção com Ceil
+				if is_bottom:   ty =  src_ts   # topo da parede → junção com Ceil
+				elif is_top:    ty = -src_ts   # base da parede → junção com Floor
 			elif piece_name.ends_with("_Wall_R") or piece_name.ends_with("RWall"):
-				if is_bottom:   ty = -src_ts
-				elif is_top:    ty =  src_ts
+				if is_bottom:   ty =  src_ts
+				elif is_top:    ty = -src_ts
 			elif piece_name.ends_with("_Ceil"):
-				if is_left:     tx =  src_ts   # junção com Wall_L
-				elif is_right:  tx = -src_ts   # junção com Wall_R
+				if is_left:     tx = -src_ts   # extremo direito → junção com Wall_R
+				elif is_right:  tx =  src_ts   # extremo esquerdo → junção com Wall_L
 			else:  # _Floor
-				if is_left:     tx =  src_ts
-				elif is_right:  tx = -src_ts
+				if is_left:     tx = -src_ts
+				elif is_right:  tx =  src_ts
 			var dx := rect.position.x + col * ts + tx
 			var dy := rect.position.y + row * ts + ty
 			var dw := minf(ts, rect.position.x + rect.size.x - dx)
