@@ -151,7 +151,7 @@ class _CornerView extends Control:
             0:  # topo-dir: bloco à esq/abaixo do canto (wx,fy); Zael à DIREITA de wx, pé em fy
                 t_corner = Vector2i(0, 0)      # BOT+LEFT: sólido inf-esq → corpo do bloco abaixo-esq
                 t_surf   = Vector2i(3, 0)      # TOP: sólido na metade inferior → topo do bloco
-                t_side   = Vector2i(1, 0)      # RIGHT: sólido à direita → face em x=wx (borda dir de rw)
+                t_side   = Vector2i(3, 2)      # LEFT [X,O]: transparente à dir = face em x=wx (borda dir de rw)
                 rc = Rect2(wx - _TW,       fy,        _TW, _TW)
                 rs = Rect2(wx - _TW * 2.0, fy,        _TW, _TW)
                 rw = Rect2(wx - _TW,       fy + _TW,  _TW, _TW)
@@ -160,7 +160,7 @@ class _CornerView extends Control:
             1:  # topo-esq: bloco à dir/abaixo do canto (wx,fy); Zael à ESQUERDA de wx, pé em fy
                 t_corner = Vector2i(1, 3)      # BOT+RIGHT: sólido inf-dir → corpo do bloco abaixo-dir
                 t_surf   = Vector2i(3, 0)      # TOP: topo do bloco
-                t_side   = Vector2i(3, 2)      # LEFT: sólido à esquerda → face em x=wx (borda esq de rw)
+                t_side   = Vector2i(1, 0)      # RIGHT [O,X]: transparente à esq = face em x=wx (borda esq de rw)
                 rc = Rect2(wx,       fy,        _TW, _TW)
                 rs = Rect2(wx + _TW, fy,        _TW, _TW)
                 rw = Rect2(wx,       fy + _TW,  _TW, _TW)
@@ -169,7 +169,7 @@ class _CornerView extends Control:
             2:  # base-dir: bloco à esq/acima do canto (wx,fy); Zael à DIREITA de wx, topo em fy
                 t_corner = Vector2i(3, 3)      # TOP+LEFT: sólido sup-esq → corpo do bloco acima-esq
                 t_surf   = Vector2i(1, 2)      # BOTTOM: sólido na metade superior → teto do bloco
-                t_side   = Vector2i(1, 0)      # RIGHT: sólido à direita → face em x=wx (borda dir de rw)
+                t_side   = Vector2i(3, 2)      # LEFT [X,O]: transparente à dir = face em x=wx (borda dir de rw)
                 rc = Rect2(wx - _TW,       fy - _TW,        _TW, _TW)
                 rs = Rect2(wx - _TW * 2.0, fy - _TW,        _TW, _TW)
                 rw = Rect2(wx - _TW,       fy - _TW * 2.0,  _TW, _TW)
@@ -178,7 +178,7 @@ class _CornerView extends Control:
             3:  # base-esq: bloco à dir/acima do canto (wx,fy); Zael à ESQUERDA de wx, topo em fy
                 t_corner = Vector2i(0, 2)      # TOP+RIGHT: sólido sup-dir → corpo do bloco acima-dir
                 t_surf   = Vector2i(1, 2)      # BOTTOM: teto do bloco
-                t_side   = Vector2i(3, 2)      # LEFT: sólido à esquerda → face em x=wx (borda esq de rw)
+                t_side   = Vector2i(1, 0)      # RIGHT [O,X]: transparente à esq = face em x=wx (borda esq de rw)
                 rc = Rect2(wx,       fy - _TW,        _TW, _TW)
                 rs = Rect2(wx + _TW, fy - _TW,        _TW, _TW)
                 rw = Rect2(wx,       fy - _TW * 2.0,  _TW, _TW)
