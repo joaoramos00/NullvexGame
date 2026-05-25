@@ -255,8 +255,8 @@ class _PlatformView extends Control:
         if cols >= 2 and rows >= 2:
             _draw_corner_offsets()
 
-    # Crosshair (+) amarelo em cada canto: player acessível com offset = raio (10px)
-    # 10px game / 64px tile * 48px display = 7.5px
+    # Linhas amarelas nas faces de colisão + crosshair nos cantos (offset = raio cápsula 10px)
+    # Escala: 10px game / 64px tile * 48px display = 7.5px
     func _draw_corner_offsets() -> void:
         const OFS := 7.5
         const ARM := 5.0
@@ -264,22 +264,28 @@ class _PlatformView extends Control:
         var w := cols * _TD
         var h := rows * _TD
         if mode == "platform":
-            # Cantos externos da plataforma: offset a partir das arestas do bloco
+            # Faces de colisão do bloco (ponto de contato Wang: borda do tile sólido)
+            draw_line(Vector2(0.0, 0.0), Vector2(w,   0.0), yellow, 1.5)  # topo
+            draw_line(Vector2(0.0, h),   Vector2(w,   h),   yellow, 1.5)  # base
+            draw_line(Vector2(0.0, 0.0), Vector2(0.0, h),   yellow, 1.5)  # esquerda
+            draw_line(Vector2(w,   0.0), Vector2(w,   h),   yellow, 1.5)  # direita
+            # Crosshair nos cantos: onde Zael fica tangente ao canto
             for pt: Vector2 in [
-                Vector2(OFS, OFS),
-                Vector2(w - OFS, OFS),
-                Vector2(OFS, h - OFS),
-                Vector2(w - OFS, h - OFS),
+                Vector2(OFS, OFS), Vector2(w - OFS, OFS),
+                Vector2(OFS, h - OFS), Vector2(w - OFS, h - OFS),
             ]:
                 draw_line(pt - Vector2(ARM, 0.0), pt + Vector2(ARM, 0.0), yellow, 1.5)
                 draw_line(pt - Vector2(0.0, ARM), pt + Vector2(0.0, ARM), yellow, 1.5)
         else:  # "room"
-            # Cantos internos da sala: offset a partir da face interna de cada parede (1 tile)
+            # Faces internas da sala (1 tile de borda em cada lado)
+            draw_line(Vector2(_TD,     _TD),     Vector2(w - _TD, _TD),     yellow, 1.5)
+            draw_line(Vector2(_TD,     h - _TD), Vector2(w - _TD, h - _TD), yellow, 1.5)
+            draw_line(Vector2(_TD,     _TD),     Vector2(_TD,     h - _TD), yellow, 1.5)
+            draw_line(Vector2(w - _TD, _TD),     Vector2(w - _TD, h - _TD), yellow, 1.5)
+            # Crosshair nos cantos internos
             for pt: Vector2 in [
-                Vector2(_TD + OFS, _TD + OFS),
-                Vector2(w - _TD - OFS, _TD + OFS),
-                Vector2(_TD + OFS, h - _TD - OFS),
-                Vector2(w - _TD - OFS, h - _TD - OFS),
+                Vector2(_TD + OFS, _TD + OFS), Vector2(w - _TD - OFS, _TD + OFS),
+                Vector2(_TD + OFS, h - _TD - OFS), Vector2(w - _TD - OFS, h - _TD - OFS),
             ]:
                 draw_line(pt - Vector2(ARM, 0.0), pt + Vector2(ARM, 0.0), yellow, 1.5)
                 draw_line(pt - Vector2(0.0, ARM), pt + Vector2(0.0, ARM), yellow, 1.5)
