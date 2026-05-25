@@ -348,10 +348,12 @@ class _MovWorld extends Node2D:
         draw_rect(Rect2(-32000.0, -32000.0, 64000.0, 64000.0), Color(0.07, 0.08, 0.16))
         if not tile_tex:
             return
-        var src_top  := Rect2(3.0 * _TS, 0.0,        _TS, _TS)
-        var src_fill := Rect2(2.0 * _TS, 1.0 * _TS,  _TS, _TS)
-        var src_left := Rect2(3.0 * _TS, 2.0 * _TS,  _TS, _TS)
-        var src_rght := Rect2(1.0 * _TS, 0.0,         _TS, _TS)
+        var src_top    := Rect2(3.0 * _TS, 0.0,        _TS, _TS)  # (3,0) chão
+        var src_fill   := Rect2(2.0 * _TS, 1.0 * _TS,  _TS, _TS)  # (2,1) miolo
+        var src_left   := Rect2(3.0 * _TS, 2.0 * _TS,  _TS, _TS)  # (3,2) parede esq
+        var src_rght   := Rect2(1.0 * _TS, 0.0,         _TS, _TS)  # (1,0) parede dir
+        var src_corn_l := Rect2(2.0 * _TS, 0.0,         _TS, _TS)  # (2,0) canto esq-chão
+        var src_corn_r := Rect2(1.0 * _TS, 1.0 * _TS,   _TS, _TS)  # (1,1) canto dir-chão
         var tx := wall_l
         while tx <= wall_r:
             draw_texture_rect_region(tile_tex, Rect2(tx, ground_y,       _TW, _TW), src_top)
@@ -359,8 +361,10 @@ class _MovWorld extends Node2D:
             tx += _TW
         for i: int in 10:
             var ty := ground_y - float(i + 1) * _TW
-            draw_texture_rect_region(tile_tex, Rect2(wall_l - _TW, ty, _TW, _TW), src_left)
-            draw_texture_rect_region(tile_tex, Rect2(wall_r,       ty, _TW, _TW), src_rght)
+            var sl := src_corn_l if i == 0 else src_left
+            var sr := src_corn_r if i == 0 else src_rght
+            draw_texture_rect_region(tile_tex, Rect2(wall_l - _TW, ty, _TW, _TW), sl)
+            draw_texture_rect_region(tile_tex, Rect2(wall_r,       ty, _TW, _TW), sr)
         # Linhas amarelas de colisão (mesmo padrão do tab Colisões)
         var yel := Color(1.0, 0.9, 0.0, 0.85)
         draw_line(Vector2(-8000.0, ground_y),  Vector2(8000.0,    ground_y),  yel, 2.0)
