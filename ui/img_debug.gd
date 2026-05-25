@@ -83,7 +83,7 @@ class _LateralView extends Control:
         var sd := _SPR_SRC * _SPR_SCL
 
         # Zael 1: encostando na parede esquerda (vindo da direita)
-        var cx1 := _ML + _TILE_W + _CAP_R - 28.0
+        var cx1 := _ML + _TILE_W - _CAP_R
         if sprite_tex:
             draw_texture_rect_region(sprite_tex,
                 Rect2(cx1 - sd * 0.5, cy + _SPR_OFS_Y - sd * 0.5, sd, sd),
@@ -96,7 +96,7 @@ class _LateralView extends Control:
             Color(1.0, 0.9, 0.0, 0.85), 2.0)
 
         # Zael 2: encostando na parede direita (vindo da esquerda, espelhado)
-        var cx2 := _TILE_X2 - _CAP_R + 28.0
+        var cx2 := _TILE_X2 + _CAP_R
         if sprite_tex:
             draw_set_transform(Vector2(cx2 * 2.0, 0.0), 0.0, Vector2(-1.0, 1.0))
             draw_texture_rect_region(sprite_tex,
@@ -121,7 +121,7 @@ class _CornerView extends Control:
     const _CR   := 10.0    # display capsule radius
     const _CH   := 48.0    # display capsule height
     const _CHH  := 24.0    # half of _CH (dist center→foot/head)
-    const _OFS  := 28.0    # player offset from wall face (game pixels)
+    const _OFS  := 10.0    # player offset from wall face = capsule radius
     const _SPR  := 68.0
     const _SCL  := 2.0
     const _SOFY := -4.0
@@ -253,10 +253,10 @@ class _PlatformView extends Control:
         if cols >= 2 and rows >= 2:
             _draw_corner_offsets()
 
-    # Crosshair (+) amarelo em cada canto: player acessível com offset -28px
-    # 28px game / 64px tile * 48px display ≈ 21px
+    # Crosshair (+) amarelo em cada canto: player acessível com offset = raio (10px)
+    # 10px game / 64px tile * 48px display = 7.5px
     func _draw_corner_offsets() -> void:
-        const OFS := 21.0
+        const OFS := 7.5
         const ARM := 5.0
         var yellow := Color(1.0, 0.9, 0.0, 0.9)
         var w := cols * _TD
@@ -788,6 +788,7 @@ func _refresh_tiles() -> void:
     cview_col.tile_tex   = load("res://stages/stage_00/Stage_00T.png") as Texture2D
     cview_col.sprite_tex = load("res://characters/ranged/ZaelIdle.png") as Texture2D
     cview_col.custom_minimum_size = Vector2(320.0, 260.0)
+    cview_col.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
     cview_col.visible = false
     col_panel.add_child(cview_col)
 
