@@ -5,7 +5,7 @@
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_zael"]
 radius = 20.0
-height = 60.0
+height = 120.0
 
 [node name="Zael" instance=ExtResource("1_base")]
 script = ExtResource("2_zael")
@@ -14,5 +14,5 @@ script = ExtResource("2_zael")
 shape = SubResource("CapsuleShape2D_zael")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
-position = Vector2(0, 12)
+position = Vector2(0, 42)
 scale = Vector2(2, 2)
