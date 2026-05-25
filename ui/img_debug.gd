@@ -343,6 +343,7 @@ class _MovWorld extends Node2D:
     # face de contato = centro do tile de parede (32px inward em display 64px)
     var contact_l: float = 68.0
     var contact_r: float = 1852.0
+    var player_ref: CharacterBase = null
 
     func _draw() -> void:
         draw_rect(Rect2(-32000.0, -32000.0, 64000.0, 64000.0), Color(0.07, 0.08, 0.16))
@@ -373,6 +374,20 @@ class _MovWorld extends Node2D:
         draw_line(Vector2(-8000.0, ground_y),  Vector2(8000.0,    ground_y),  yel, 2.0)
         draw_line(Vector2(contact_l, -8000.0), Vector2(contact_l, ground_y),  yel, 2.0)
         draw_line(Vector2(contact_r, -8000.0), Vector2(contact_r, ground_y),  yel, 2.0)
+        # Hitbox do player
+        if is_instance_valid(player_ref):
+            var cs := player_ref.get_node_or_null("CollisionShape2D") as CollisionShape2D
+            if cs and cs.shape is CapsuleShape2D:
+                var cap := cs.shape as CapsuleShape2D
+                var r  := cap.radius
+                var hs := (cap.height - 2.0 * r) * 0.5
+                var pos := player_ref.global_position
+                var hcol := Color(0.2, 1.0, 0.2, 0.9)
+                var lw   := 2.0
+                draw_arc(pos + Vector2(0.0, -hs), r, PI, TAU, 24, hcol, lw)
+                draw_arc(pos + Vector2(0.0,  hs), r, 0.0, PI, 24, hcol, lw)
+                draw_line(pos + Vector2(-r, -hs), pos + Vector2(-r, hs), hcol, lw)
+                draw_line(pos + Vector2( r, -hs), pos + Vector2( r, hs), hcol, lw)
 
 # Arena jogável: SubViewport com Zael, inimigo, física e câmera
 class _MovView extends Control:
@@ -463,6 +478,7 @@ class _MovView extends Control:
         _world.add_child(_player)
         _player.global_position = Vector2(_PLAYER_X, _GROUND_Y - 24.0)
         _player.died.connect(func(): call_deferred("_spawn_player"))
+        (_world as ImgDebug._MovWorld).player_ref = _player
 
     func _spawn_enemy() -> void:
         if is_instance_valid(_enemy):
@@ -495,6 +511,7 @@ class _MovView extends Control:
         if is_instance_valid(_player) and is_instance_valid(_camera):
             var cam_y := clampf(_player.global_position.y + 120.0, _GROUND_Y - 400.0, _GROUND_Y + 200.0)
             _camera.global_position = Vector2(_player.global_position.x, cam_y)
+            _world.queue_redraw()
 
 const _FRAME_SIZE   := 68
 const _PREVIEW_SIZE := 136
