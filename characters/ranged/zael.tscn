@@ -11,6 +11,7 @@ height = 120.0
 script = ExtResource("2_zael")
 
 [node name="CollisionShape2D" parent="."]
+position = Vector2(0, 42)
 shape = SubResource("CapsuleShape2D_zael")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]

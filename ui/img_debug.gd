@@ -381,7 +381,7 @@ class _MovWorld extends Node2D:
                 var cap := cs.shape as CapsuleShape2D
                 var r  := cap.radius
                 var hs := (cap.height - 2.0 * r) * 0.5
-                var pos := player_ref.global_position
+                var pos := player_ref.global_position + cs.position
                 var hcol := Color(0.2, 1.0, 0.2, 0.9)
                 var lw   := 2.0
                 draw_arc(pos + Vector2(0.0, -hs), r, PI, TAU, 24, hcol, lw)
