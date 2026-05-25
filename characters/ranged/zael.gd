@@ -18,7 +18,7 @@ const _FRAME_W := 68
 const _FRAME_H := 68
 const _ROW_RIGHT := 0
 
-const _SPAWN_OFFSET_Y := -10.0
+const _SPAWN_OFFSET_Y := -20.0
 const _SPAWN_OFFSET_X := [0.0, 60.0, 65.0, 85.0]  # por nível: L1/L2/L3
 
 # Absorção: bolinhas partem do círculo externo e espiralam para o centro
