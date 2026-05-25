@@ -6,18 +6,16 @@ const _ENEMY_PATHS := [
     "res://characters/enemies/enemy_flyer.tscn",
 ]
 const _ENEMY_NAMES := ["Grunt", "Flyer"]
-const _GROUND_Y    := 600.0
-const _PLAYER_X    := 280.0
-const _ENEMY_X     := 680.0
-# EnemyBase: capsule radius=20, height=40 → bottom at origin+40 → GROUND_Y-40
-# EnemyFlyer: flutua, posição arbitrária
-const _ENEMY_Y := [560.0, 380.0]
+const _GROUND_Y := 600.0
+const _PLAYER_X := 280.0
+const _ENEMY_X  := 680.0
+const _ENEMY_Y  := [560.0, 380.0]
 
-const _TILE_SRC  := 32.0
-const _TILE_W    := 64.0
-const _TILE_TEX  := preload("res://stages/stage_00/Stage_00T.png")
-const _WALL_L    := 100.0
-const _WALL_R    := 1400.0
+const _TILE_TEX := preload("res://stages/stage_00/Stage_00T.png")
+const _TS  := 32.0   # source tile size
+const _TW  := 64.0   # display tile size
+const _WL  := 100.0  # left  wall x
+const _WR  := 1400.0 # right wall x
 
 var _enemy_index: int = 0
 var _current_enemy: EnemyBase = null
@@ -26,10 +24,7 @@ var _label_enemy: Label
 
 func _ready() -> void:
     _setup_game_manager()
-    _build_background()
-    _build_ground()
-    _build_walls()
-    _build_tile_sprites()
+    _build_physics()
     _build_ui()
     _spawn_player()
     _spawn_enemy()
@@ -37,23 +32,21 @@ func _ready() -> void:
 
 func _process(_delta: float) -> void:
     if is_instance_valid(_player):
-        var cam_y: float = clamp(_player.global_position.y + 120.0, _GROUND_Y - 400.0, _GROUND_Y + 200.0)
+        var cam_y := clamp(_player.global_position.y + 120.0, _GROUND_Y - 400.0, _GROUND_Y + 200.0)
         $Camera2D.global_position = Vector2(_player.global_position.x, cam_y)
         queue_redraw()
 
-func _build_background() -> void:
-    var cl := CanvasLayer.new()
-    cl.layer = -10
-    add_child(cl)
-    var bg := ColorRect.new()
-    bg.color = Color(0.07, 0.08, 0.16)
-    bg.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-    cl.add_child(bg)
-
 func _draw() -> void:
+    # Fundo
+    draw_rect(Rect2(-32000.0, -32000.0, 64000.0, 64000.0), Color(0.07, 0.08, 0.16))
+
+    # Tiles do Stage_00T
+    _draw_tiles()
+
+    # Pose do player
     if not is_instance_valid(_player):
         return
-    var pos      := _player.global_position + Vector2(0.0, -90.0)
+    var pos     := _player.global_position + Vector2(0.0, -90.0)
     var on_floor := _player.is_on_floor()
     var on_wall  := _player.is_on_wall() and not on_floor
     if on_wall:
@@ -61,86 +54,51 @@ func _draw() -> void:
     else:
         _draw_pose(pos, on_floor)
 
-func _build_tile_sprites() -> void:
-    # Teste: polígono vermelho direto no root — posição do player, impossível de perder
-    var poly := Polygon2D.new()
-    poly.polygon = PackedVector2Array([
-        Vector2(_PLAYER_X - 40.0, _GROUND_Y - 120.0),
-        Vector2(_PLAYER_X + 40.0, _GROUND_Y - 120.0),
-        Vector2(_PLAYER_X + 40.0, _GROUND_Y - 40.0),
-        Vector2(_PLAYER_X - 40.0, _GROUND_Y - 40.0),
-    ])
-    poly.color = Color(1.0, 0.0, 0.0, 0.9)
-    add_child(poly)
+func _draw_tiles() -> void:
+    var top  := Rect2(3.0 * _TS, 0.0,        _TS, _TS)  # (3,0) TOP
+    var fill := Rect2(2.0 * _TS, 1.0 * _TS,  _TS, _TS)  # (2,1) FILL
+    var left := Rect2(3.0 * _TS, 2.0 * _TS,  _TS, _TS)  # (3,2) LEFT
+    var rght := Rect2(1.0 * _TS, 0.0,        _TS, _TS)  # (1,0) RIGHT
 
-    var tx := _WALL_L
-    while tx <= _WALL_R:
-        _add_tile(tx, _GROUND_Y,           3, 0)
-        _add_tile(tx, _GROUND_Y + _TILE_W, 2, 1)
-        tx += _TILE_W
+    # Chão
+    var tx := _WL
+    while tx <= _WR:
+        draw_texture_rect_region(_TILE_TEX, Rect2(tx, _GROUND_Y,         _TW, _TW), top)
+        draw_texture_rect_region(_TILE_TEX, Rect2(tx, _GROUND_Y + _TW,   _TW, _TW), fill)
+        tx += _TW
+
+    # Paredes
     for i: int in 10:
-        var ty := _GROUND_Y - float(i + 1) * _TILE_W
-        _add_tile(_WALL_L - _TILE_W, ty, 3, 2)
-        _add_tile(_WALL_R,            ty, 1, 0)
-
-func _add_tile(x: float, y: float, col: int, row: int) -> void:
-    var at := AtlasTexture.new()
-    at.atlas = _TILE_TEX
-    at.filter_clip = true
-    at.region = Rect2(float(col) * _TILE_SRC, float(row) * _TILE_SRC, _TILE_SRC, _TILE_SRC)
-    var spr := Sprite2D.new()
-    spr.texture = at
-    spr.centered = false
-    spr.position = Vector2(x, y)
-    spr.scale = Vector2(_TILE_W / _TILE_SRC, _TILE_W / _TILE_SRC)
-    spr.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-    add_child(spr)
+        var ty := _GROUND_Y - float(i + 1) * _TW
+        draw_texture_rect_region(_TILE_TEX, Rect2(_WL - _TW, ty, _TW, _TW), left)
+        draw_texture_rect_region(_TILE_TEX, Rect2(_WR,        ty, _TW, _TW), rght)
 
 func _draw_wall_pose(pos: Vector2, wall_normal: Vector2) -> void:
     var c  := Color(0.92, 0.92, 1.0, 0.85)
     var tw := 2.5
-    var kd: float = -sign(wall_normal.x)
-
+    var kd := -sign(wall_normal.x)
     draw_circle(pos + Vector2(0.0, 6.0), 36.0, Color(0.0, 0.0, 0.0, 0.38))
-
-    var wx: float = kd * 35.0
-    draw_line(pos + Vector2(wx, -30.0), pos + Vector2(wx, 30.0), Color(0.55, 0.55, 0.75, 0.7), 3.0)
-
-    # Cabeça afastada da parede
+    draw_line(pos + Vector2(kd * 35.0, -30.0), pos + Vector2(kd * 35.0, 30.0), Color(0.55, 0.55, 0.75, 0.7), 3.0)
     draw_circle(pos + Vector2(-kd * 4.0, -16.0), 7.0, c)
-    # Tronco ligeiramente inclinado
     draw_line(pos + Vector2(-kd * 3.0, -9.0), pos + Vector2(0.0, 8.0), c, tw)
-    # Braço em direção à parede (apoio / impulso)
     draw_line(pos + Vector2(-kd * 12.0, -3.0), pos + Vector2(0.0, 1.0), c, 2.0)
-    draw_line(pos + Vector2(0.0, 1.0),          pos + Vector2(kd * 11.0, -7.0), c, 2.0)
-    # Perna de chute — estendida horizontalmente contra a parede
+    draw_line(pos + Vector2(0.0, 1.0), pos + Vector2(kd * 11.0, -7.0), c, 2.0)
     draw_line(pos + Vector2(0.0, 8.0), pos + Vector2(kd * 22.0, 3.0), c, tw)
-    # Perna traseira — dobrada para trás e levemente abaixo
     draw_line(pos + Vector2(0.0, 8.0), pos + Vector2(-kd * 9.0, 21.0), c, tw)
 
 func _draw_pose(pos: Vector2, on_floor: bool) -> void:
-    var c    := Color(0.92, 0.92, 1.0, 0.85)
-    var tw   := 2.5
-
-    # Fundo semi-transparente para contraste
+    var c  := Color(0.92, 0.92, 1.0, 0.85)
+    var tw := 2.5
     draw_circle(pos + Vector2(0.0, 6.0), 34.0, Color(0.0, 0.0, 0.0, 0.38))
-
-    # Cabeça
     draw_circle(pos + Vector2(0.0, -16.0), 7.0, c)
-    # Tronco
     draw_line(pos + Vector2(0.0, -9.0), pos + Vector2(0.0, 8.0), c, tw)
-
     if on_floor:
-        # Braços horizontais
         draw_line(pos + Vector2(-12.0, 0.0), pos + Vector2(12.0, 0.0), c, 2.0)
-        # Pernas simétricas (no chão)
         draw_line(pos + Vector2(0.0, 8.0), pos + Vector2(-9.0, 23.0), c, tw)
         draw_line(pos + Vector2(0.0, 8.0), pos + Vector2( 9.0, 23.0), c, tw)
     else:
-        # Braços em movimento (assimétricos)
         draw_line(pos + Vector2(-13.0, -7.0), pos + Vector2(0.0,  1.0), c, 2.0)
         draw_line(pos + Vector2(  0.0,  1.0), pos + Vector2(13.0, 6.0), c, 2.0)
-        # Perna traseira (baixa) e dianteira (elevada) — "pé mais para cima que o outro"
         draw_line(pos + Vector2(0.0, 8.0), pos + Vector2(-13.0, 21.0), c, tw)
         draw_line(pos + Vector2(0.0, 8.0), pos + Vector2( 13.0,  3.0), c, tw)
 
@@ -149,47 +107,34 @@ func _setup_game_manager() -> void:
     GameManager.max_hp = 8
     GameManager.zael_selected_shot = "single"
 
-func _build_ground() -> void:
-    var body := StaticBody2D.new()
-    body.collision_layer = 1
-    add_child(body)
-    var cs := CollisionShape2D.new()
-    var seg := SegmentShape2D.new()
-    seg.a = Vector2(-8000.0, _GROUND_Y)
-    seg.b = Vector2( 8000.0, _GROUND_Y)
-    cs.shape = seg
-    body.add_child(cs)
+func _build_physics() -> void:
+    # Chão
+    var ground := StaticBody2D.new()
+    ground.collision_layer = 1
+    add_child(ground)
+    var gcs := CollisionShape2D.new()
+    var gseg := SegmentShape2D.new()
+    gseg.a = Vector2(-8000.0, _GROUND_Y)
+    gseg.b = Vector2( 8000.0, _GROUND_Y)
+    gcs.shape = gseg
+    ground.add_child(gcs)
 
-    var line := Line2D.new()
-    line.add_point(Vector2(-8000.0, _GROUND_Y))
-    line.add_point(Vector2( 8000.0, _GROUND_Y))
-    line.width = 3.0
-    line.default_color = Color(0.4, 0.42, 0.55)
-    add_child(line)
-
-func _build_walls() -> void:
-    for wx in [100.0, 1400.0]:
-        var body := StaticBody2D.new()
-        body.collision_layer = 1
-        add_child(body)
-        var cs := CollisionShape2D.new()
-        var seg := SegmentShape2D.new()
-        seg.a = Vector2(wx, _GROUND_Y - 400.0)
-        seg.b = Vector2(wx, _GROUND_Y)
-        cs.shape = seg
-        body.add_child(cs)
-        var line := Line2D.new()
-        line.add_point(Vector2(wx, _GROUND_Y - 400.0))
-        line.add_point(Vector2(wx, _GROUND_Y))
-        line.width = 3.0
-        line.default_color = Color(0.4, 0.42, 0.55)
-        add_child(line)
+    # Paredes
+    for wx: float in [_WL, _WR]:
+        var wall := StaticBody2D.new()
+        wall.collision_layer = 1
+        add_child(wall)
+        var wcs := CollisionShape2D.new()
+        var wseg := SegmentShape2D.new()
+        wseg.a = Vector2(wx, _GROUND_Y - 400.0)
+        wseg.b = Vector2(wx, _GROUND_Y)
+        wcs.shape = wseg
+        wall.add_child(wcs)
 
 func _build_ui() -> void:
     var ui := CanvasLayer.new()
     add_child(ui)
 
-    # Barra superior
     var panel := Panel.new()
     panel.set_anchors_and_offsets_preset(Control.PRESET_TOP_WIDE)
     panel.offset_bottom = 58.0
@@ -252,7 +197,6 @@ func _build_ui() -> void:
     btn_next.pressed.connect(_on_next)
     row.add_child(btn_next)
 
-    # Dicas no rodapé
     var hint := Label.new()
     hint.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_WIDE)
     hint.offset_top = -32.0
@@ -270,7 +214,6 @@ func _spawn_player() -> void:
         return
     _player = scene.instantiate() as CharacterBase
     add_child(_player)
-    # Zael: capsule radius=10, height=28 → bottom at origin+24
     _player.global_position = Vector2(_PLAYER_X, _GROUND_Y - 24.0)
     _player.died.connect(func(): call_deferred("_spawn_player"))
 
