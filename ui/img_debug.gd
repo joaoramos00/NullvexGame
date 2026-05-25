@@ -136,8 +136,12 @@ class _CornerView extends Control:
         draw_rect(Rect2(Vector2.ZERO, size), Color(0.04, 0.06, 0.14))
         var W := size.x
         var H := size.y
-        var wx := W * 0.54   # wall face x
-        var fy := H * 0.55   # floor/ceil face y
+        var wx := W * 0.54   # borda visual do tile de parede
+        var fy := H * 0.55   # borda visual do tile de chão/teto
+
+        # Faces de contato de física (32px para dentro do tile — metade sólida)
+        var wx_in := wx + (32.0 if corner == 1 or corner == 3 else -32.0)
+        var fy_in := fy + (32.0 if corner == 0 or corner == 1 else -32.0)
 
         # tile coords (col, row no spritesheet 32px)
         var t_corner: Vector2i
@@ -148,7 +152,7 @@ class _CornerView extends Control:
         var px: float; var py: float; var flip := false
 
         match corner:
-            0:  # topo-dir: bloco à esq/abaixo do canto (wx,fy); Zael à DIREITA de wx, pé em fy
+            0:  # topo-dir: bloco à esq/abaixo do canto (wx,fy); Zael à DIREITA de wx_in, pé em fy_in
                 t_corner = Vector2i(0, 0)      # BOT+LEFT: sólido inf-esq → corpo do bloco abaixo-esq
                 t_surf   = Vector2i(3, 0)      # TOP: sólido na metade inferior → topo do bloco
                 t_side   = Vector2i(3, 2)      # LEFT [X,O]: transparente à dir = face em x=wx (borda dir de rw)
@@ -156,8 +160,8 @@ class _CornerView extends Control:
                 rs = Rect2(wx - _TW * 2.0, fy,        _TW, _TW)
                 rw = Rect2(wx - _TW,       fy + _TW,  _TW, _TW)
                 rf = Rect2(wx - _TW * 2.0, fy + _TW,  _TW, _TW)
-                px = wx + _OFS;  py = fy - _CHH;  flip = true
-            1:  # topo-esq: bloco à dir/abaixo do canto (wx,fy); Zael à ESQUERDA de wx, pé em fy
+                px = wx_in + _OFS;  py = fy_in - _CHH;  flip = true
+            1:  # topo-esq: bloco à dir/abaixo do canto (wx,fy); Zael à ESQUERDA de wx_in, pé em fy_in
                 t_corner = Vector2i(1, 3)      # BOT+RIGHT: sólido inf-dir → corpo do bloco abaixo-dir
                 t_surf   = Vector2i(3, 0)      # TOP: topo do bloco
                 t_side   = Vector2i(1, 0)      # RIGHT [O,X]: transparente à esq = face em x=wx (borda esq de rw)
@@ -165,8 +169,8 @@ class _CornerView extends Control:
                 rs = Rect2(wx + _TW, fy,        _TW, _TW)
                 rw = Rect2(wx,       fy + _TW,  _TW, _TW)
                 rf = Rect2(wx + _TW, fy + _TW,  _TW, _TW)
-                px = wx - _OFS;  py = fy - _CHH;  flip = false
-            2:  # base-dir: bloco à esq/acima do canto (wx,fy); Zael à DIREITA de wx, topo em fy
+                px = wx_in - _OFS;  py = fy_in - _CHH;  flip = false
+            2:  # base-dir: bloco à esq/acima do canto (wx,fy); Zael à DIREITA de wx_in, topo em fy_in
                 t_corner = Vector2i(3, 3)      # TOP+LEFT: sólido sup-esq → corpo do bloco acima-esq
                 t_surf   = Vector2i(1, 2)      # BOTTOM: sólido na metade superior → teto do bloco
                 t_side   = Vector2i(3, 2)      # LEFT [X,O]: transparente à dir = face em x=wx (borda dir de rw)
@@ -174,8 +178,8 @@ class _CornerView extends Control:
                 rs = Rect2(wx - _TW * 2.0, fy - _TW,        _TW, _TW)
                 rw = Rect2(wx - _TW,       fy - _TW * 2.0,  _TW, _TW)
                 rf = Rect2(wx - _TW * 2.0, fy - _TW * 2.0,  _TW, _TW)
-                px = wx + _OFS;  py = fy + _CHH;  flip = true
-            3:  # base-esq: bloco à dir/acima do canto (wx,fy); Zael à ESQUERDA de wx, topo em fy
+                px = wx_in + _OFS;  py = fy_in + _CHH;  flip = true
+            3:  # base-esq: bloco à dir/acima do canto (wx,fy); Zael à ESQUERDA de wx_in, topo em fy_in
                 t_corner = Vector2i(0, 2)      # TOP+RIGHT: sólido sup-dir → corpo do bloco acima-dir
                 t_surf   = Vector2i(1, 2)      # BOTTOM: teto do bloco
                 t_side   = Vector2i(1, 0)      # RIGHT [O,X]: transparente à esq = face em x=wx (borda esq de rw)
@@ -183,7 +187,7 @@ class _CornerView extends Control:
                 rs = Rect2(wx + _TW, fy - _TW,        _TW, _TW)
                 rw = Rect2(wx,       fy - _TW * 2.0,  _TW, _TW)
                 rf = Rect2(wx + _TW, fy - _TW * 2.0,  _TW, _TW)
-                px = wx - _OFS;  py = fy + _CHH;  flip = false
+                px = wx_in - _OFS;  py = fy_in + _CHH;  flip = false
             _:
                 return
 
@@ -192,17 +196,15 @@ class _CornerView extends Control:
         _blit(t_corner, rc)
         _blit(t_side, rw)
 
-        # Linhas amarelas: 16px para dentro do tile (bloco à esq/dir e acima/abaixo)
-        var wx_in := wx + (32.0 if corner == 1 or corner == 3 else -32.0)
-        var fy_in := fy + (32.0 if corner == 0 or corner == 1 else -32.0)
+        # Linhas amarelas nas faces de contato
         var yel := Color(1.0, 0.9, 0.0, 0.85)
         draw_line(Vector2(wx_in, 0.0), Vector2(wx_in, H), yel, 2.0)
         draw_line(Vector2(0.0, fy_in), Vector2(W, fy_in), yel, 2.0)
 
         # Marcadores verdes: px no eixo Y (posição lateral do player) e py no eixo X
         var grn := Color(0.0, 1.0, 0.5, 0.85)
-        draw_line(Vector2(px - 9.0, fy), Vector2(px + 9.0, fy), grn, 2.0)
-        draw_line(Vector2(wx, py - 9.0), Vector2(wx, py + 9.0), grn, 2.0)
+        draw_line(Vector2(px - 9.0, fy_in), Vector2(px + 9.0, fy_in), grn, 2.0)
+        draw_line(Vector2(wx_in, py - 9.0), Vector2(wx_in, py + 9.0), grn, 2.0)
         # X no canto acessível
         draw_line(Vector2(px - 5.0, py - 5.0), Vector2(px + 5.0, py + 5.0), grn, 1.5)
         draw_line(Vector2(px + 5.0, py - 5.0), Vector2(px - 5.0, py + 5.0), grn, 1.5)
