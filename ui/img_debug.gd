@@ -91,8 +91,8 @@ class _LateralView extends Control:
         var cap1 := Rect2(cx1 - _CAP_R, cy - _CAP_TOT * 0.5, _CAP_R * 2.0, _CAP_TOT)
         draw_rect(cap1, Color(0.0, 1.0, 1.0, 0.25))
         draw_rect(cap1, Color(0.0, 1.0, 1.0, 1.0), false, 2.0)
-        draw_line(Vector2(_ML + _TILE_W, _MT - 8.0),
-            Vector2(_ML + _TILE_W, _MT + _TILE_W * 2.0 + 8.0),
+        draw_line(Vector2(_ML + _TILE_W - 32.0, _MT - 8.0),
+            Vector2(_ML + _TILE_W - 32.0, _MT + _TILE_W * 2.0 + 8.0),
             Color(1.0, 0.9, 0.0, 0.85), 2.0)
 
         # Zael 2: encostando na parede direita (vindo da esquerda, espelhado)
@@ -106,8 +106,8 @@ class _LateralView extends Control:
         var cap2 := Rect2(cx2 - _CAP_R, cy - _CAP_TOT * 0.5, _CAP_R * 2.0, _CAP_TOT)
         draw_rect(cap2, Color(0.0, 1.0, 1.0, 0.25))
         draw_rect(cap2, Color(0.0, 1.0, 1.0, 1.0), false, 2.0)
-        draw_line(Vector2(_TILE_X2, _MT - 8.0),
-            Vector2(_TILE_X2, _MT + _TILE_W * 2.0 + 8.0),
+        draw_line(Vector2(_TILE_X2 + 32.0, _MT - 8.0),
+            Vector2(_TILE_X2 + 32.0, _MT + _TILE_W * 2.0 + 8.0),
             Color(1.0, 0.9, 0.0, 0.85), 2.0)
 
 # Visualização da interação do Zael com cantos de plataforma (28px offset em X e Y)
