@@ -47,6 +47,7 @@ const _SHOOT_DURATIONS    := [0.1, 0.2, 0.3]  # duração de shoot_1/2/3 a 10fps
 const _SQUAT_DURATION     := 0.1
 const _DASH_JUMP_BUFFER   := 0.2   # janela após o dash terminar para ainda fazer dash-jump
 const _DASH_JUMP_SPEED    := 620.0 # velocidade horizontal do dash-jump (< DASH_SPEED=720)
+const _JUMP_BUFFER_TIME   := 0.15  # buffer de input: pulo pressionado antes do dash ainda dispara
 
 var _charge_timer: float = 0.0
 var _is_charging: bool = false
@@ -55,6 +56,7 @@ var _jump_squat_timer: float = -1.0
 var _dash_jump: bool = false
 var _dash_jump_dir: float = 0.0
 var _was_dashing_timer: float = 0.0
+var _jump_buffer_timer: float = 0.0
 var _landing_timer: float = 0.0
 var _is_hurt: bool = false
 var _hurt_timer: float = 0.0
@@ -203,17 +205,10 @@ func _handle_jump() -> void:
         if _is_wall_sliding:
             _apply_wall_jump()
             return
-        if _is_dashing or (_was_dashing_timer > 0.0 and is_on_floor()):
-            _dash_jump = true
-            _dash_jump_dir = _dash_direction
-            _is_dashing = false
-            _was_dashing_timer = 0.0
-            velocity.y = JUMP_VELOCITY
-            velocity.x = _DASH_JUMP_SPEED * _dash_jump_dir
-            AudioManager.play_sfx(AudioLibrary.sfx_jump)
-            return
         if is_on_floor() or _coyote_timer > 0.0:
             _jump_squat_timer = 0.0
+            if not _is_dashing:
+                _jump_buffer_timer = 0.0
             _coyote_timer = 0.0
 
 func _handle_movement() -> void:
@@ -233,6 +228,23 @@ func _physics_process(delta: float) -> void:
         if _jump_squat_timer >= _SQUAT_DURATION:
             velocity.y = JUMP_VELOCITY
             _jump_squat_timer = -1.0
+            AudioManager.play_sfx(AudioLibrary.sfx_jump)
+    # Buffer de input: registra que pulo foi pressionado recentemente
+    if Input.is_action_just_pressed("jump"):
+        _jump_buffer_timer = _JUMP_BUFFER_TIME
+    elif _jump_buffer_timer > 0.0:
+        _jump_buffer_timer = max(0.0, _jump_buffer_timer - delta)
+    # Dispara dash-jump se pulo foi pressionado (agora ou no buffer) com dash ativo/recente
+    # _jump_squat_timer pode estar ativo (press simultâneo): cancelamos o squat normal
+    if _jump_buffer_timer > 0.0 and not _dash_jump:
+        if _is_dashing or (_was_dashing_timer > 0.0 and is_on_floor()):
+            _jump_squat_timer = -1.0
+            _dash_jump = true
+            _dash_jump_dir = _dash_direction
+            _is_dashing = false
+            _was_dashing_timer = 0.0
+            _jump_buffer_timer = 0.0
+            velocity.y = JUMP_VELOCITY
             AudioManager.play_sfx(AudioLibrary.sfx_jump)
     if _is_dashing:
         _was_dashing_timer = _DASH_JUMP_BUFFER
