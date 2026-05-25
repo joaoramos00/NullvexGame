@@ -93,6 +93,7 @@ func _ready() -> void:
 	# Default respawn at stage start (index 0 means spawn_position)
 	# Checkpoint 1 will be saved when player passes through CP1 entry door
 
+	_add_debug_platform()
 	queue_redraw()
 
 func _process(_delta: float) -> void:
@@ -319,6 +320,20 @@ func _get_zone_array(zone: int) -> Array[Node]:
 		3: return _zone3_enemies
 	return _zone1_enemies  # fallback (never reached)
 
+# ─── Debug ───────────────────────────────────────────────────────────────────
+
+func _add_debug_platform() -> void:
+	var plat := StaticBody2D.new()
+	plat.name = "Debug_Plat"
+	plat.collision_layer = 1
+	var cs := CollisionShape2D.new()
+	var shape := RectangleShape2D.new()
+	shape.size = Vector2(256, 64)
+	cs.shape = shape
+	plat.add_child(cs)
+	plat.position = Vector2(550, 1032)  # top face y=1000, altura mid-Zael
+	add_child(plat)
+
 # ─── Drawing ─────────────────────────────────────────────────────────────────
 
 func _draw() -> void:
@@ -326,6 +341,9 @@ func _draw() -> void:
 	_draw_platforms()
 
 func _draw_background() -> void:
+	# DEBUG: fundo branco para visualizar tiles
+	draw_rect(Rect2(-500, -1200, 22000, 4000), Color.WHITE)
+	return
 	# Sky — dark night with orange/red tones (destroyed city at dusk)
 	draw_rect(Rect2(0, -1200, 20000, 2600), Color(0.08, 0.05, 0.06))
 
