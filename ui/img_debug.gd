@@ -332,14 +332,17 @@ class _PlatformView extends Control:
         if is_right: return Vector2i(1, 0)
         return Vector2i(2, 1)
 
-# Nó que vive dentro do SubViewport — desenha fundo e tiles no _draw()
+# Nó que vive dentro do SubViewport — desenha fundo, tiles e linhas de colisão
 class _MovWorld extends Node2D:
     const _TS := 32.0
     const _TW := 64.0
     var tile_tex: Texture2D
-    var ground_y: float = 400.0
-    var wall_l:   float = 100.0
-    var wall_r:   float = 1820.0
+    var ground_y:  float = 400.0
+    var wall_l:    float = 100.0
+    var wall_r:    float = 1820.0
+    # face de contato = centro do tile de parede (32px inward em display 64px)
+    var contact_l: float = 68.0
+    var contact_r: float = 1852.0
 
     func _draw() -> void:
         draw_rect(Rect2(-32000.0, -32000.0, 64000.0, 64000.0), Color(0.07, 0.08, 0.16))
@@ -358,6 +361,11 @@ class _MovWorld extends Node2D:
             var ty := ground_y - float(i + 1) * _TW
             draw_texture_rect_region(tile_tex, Rect2(wall_l - _TW, ty, _TW, _TW), src_left)
             draw_texture_rect_region(tile_tex, Rect2(wall_r,       ty, _TW, _TW), src_rght)
+        # Linhas amarelas de colisão (mesmo padrão do tab Colisões)
+        var yel := Color(1.0, 0.9, 0.0, 0.85)
+        draw_line(Vector2(-8000.0, ground_y),  Vector2(8000.0,    ground_y),  yel, 2.0)
+        draw_line(Vector2(contact_l, -8000.0), Vector2(contact_l, ground_y),  yel, 2.0)
+        draw_line(Vector2(contact_r, -8000.0), Vector2(contact_r, ground_y),  yel, 2.0)
 
 # Arena jogável: SubViewport com Zael, inimigo, física e câmera
 class _MovView extends Control:
@@ -403,6 +411,8 @@ class _MovView extends Control:
         mw.ground_y  = _GROUND_Y
         mw.wall_l    = _WALL_L
         mw.wall_r    = _WALL_R
+        mw.contact_l = _WALL_L - 32.0
+        mw.contact_r = _WALL_R + 32.0
         mw.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
         svp.add_child(mw)
         _world = mw
@@ -425,7 +435,7 @@ class _MovView extends Control:
         gseg.b = Vector2( 8000.0, _GROUND_Y)
         gcs.shape = gseg
         ground.add_child(gcs)
-        for wx: float in [_WALL_L, _WALL_R]:
+        for wx: float in [_WALL_L - 32.0, _WALL_R + 32.0]:
             var wall := StaticBody2D.new()
             wall.collision_layer = 1
             _world.add_child(wall)
