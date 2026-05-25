@@ -15,7 +15,7 @@ const _ENEMY_Y := [560.0, 380.0]
 
 const _TILE_SRC  := 32.0
 const _TILE_W    := 64.0
-const _TEX_PATH  := "res://stages/stage_00/Stage_00T.png"
+const _TILE_TEX  := preload("res://stages/stage_00/Stage_00T.png")
 const _WALL_L    := 100.0
 const _WALL_R    := 1400.0
 
@@ -23,10 +23,8 @@ var _enemy_index: int = 0
 var _current_enemy: EnemyBase = null
 var _player: CharacterBase = null
 var _label_enemy: Label
-var _tile_tex: Texture2D
 
 func _ready() -> void:
-    _tile_tex = load(_TEX_PATH) as Texture2D
     _setup_game_manager()
     _build_ground()
     _build_walls()
@@ -55,8 +53,6 @@ func _draw() -> void:
         _draw_pose(pos, on_floor)
 
 func _build_tile_sprites() -> void:
-    if _tile_tex == null:
-        return
     var container := Node2D.new()
     add_child(container)
     var tx := _WALL_L
@@ -71,7 +67,7 @@ func _build_tile_sprites() -> void:
 
 func _add_tile(parent: Node2D, x: float, y: float, col: int, row: int) -> void:
     var spr := Sprite2D.new()
-    spr.texture = _tile_tex
+    spr.texture = _TILE_TEX
     spr.region_enabled = true
     spr.region_rect = Rect2(float(col) * _TILE_SRC, float(row) * _TILE_SRC, _TILE_SRC, _TILE_SRC)
     spr.centered = false
