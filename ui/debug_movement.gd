@@ -30,6 +30,7 @@ func _ready() -> void:
     _setup_game_manager()
     _build_ground()
     _build_walls()
+    _build_tile_sprites()
     _build_ui()
     _spawn_player()
     _spawn_enemy()
@@ -43,7 +44,6 @@ func _process(_delta: float) -> void:
 
 func _draw() -> void:
     draw_rect(Rect2(-32000.0, -32000.0, 64000.0, 64000.0), Color(0.07, 0.08, 0.16))
-    _draw_tiles()
     if not is_instance_valid(_player):
         return
     var pos      := _player.global_position + Vector2(0.0, -90.0)
@@ -54,30 +54,31 @@ func _draw() -> void:
     else:
         _draw_pose(pos, on_floor)
 
-func _draw_tiles() -> void:
+func _build_tile_sprites() -> void:
     if _tile_tex == null:
         return
-    # (3,0) TOP  — face do chão (transparente em cima, sólido embaixo)
-    var src_top   := Rect2(3.0 * _TILE_SRC, 0.0,              _TILE_SRC, _TILE_SRC)
-    # (2,1) FILL — miolo sólido
-    var src_fill  := Rect2(2.0 * _TILE_SRC, 1.0 * _TILE_SRC,  _TILE_SRC, _TILE_SRC)
-    # (3,2) LEFT — parede esquerda (sólido à esq, transparente à dir = face de contato à dir)
-    var src_left  := Rect2(3.0 * _TILE_SRC, 2.0 * _TILE_SRC,  _TILE_SRC, _TILE_SRC)
-    # (1,0) RIGHT — parede direita (transparente à esq = face de contato, sólido à dir)
-    var src_right := Rect2(1.0 * _TILE_SRC, 0.0,              _TILE_SRC, _TILE_SRC)
-
-    # Chão: borda superior do tile em _GROUND_Y (top = face de contato, sólido 32px abaixo)
+    var container := Node2D.new()
+    add_child(container)
     var tx := _WALL_L
     while tx <= _WALL_R:
-        draw_texture_rect_region(_tile_tex, Rect2(tx, _GROUND_Y,           _TILE_W, _TILE_W), src_top)
-        draw_texture_rect_region(_tile_tex, Rect2(tx, _GROUND_Y + _TILE_W, _TILE_W, _TILE_W), src_fill)
+        _add_tile(container, tx, _GROUND_Y,           3, 0)  # TOP
+        _add_tile(container, tx, _GROUND_Y + _TILE_W, 2, 1)  # FILL
         tx += _TILE_W
-
-    # Paredes: borda direita do tile LEFT em _WALL_L, borda esq do tile RIGHT em _WALL_R
     for i: int in 10:
         var ty := _GROUND_Y - float(i + 1) * _TILE_W
-        draw_texture_rect_region(_tile_tex, Rect2(_WALL_L - _TILE_W, ty, _TILE_W, _TILE_W), src_left)
-        draw_texture_rect_region(_tile_tex, Rect2(_WALL_R,            ty, _TILE_W, _TILE_W), src_right)
+        _add_tile(container, _WALL_L - _TILE_W, ty, 3, 2)    # LEFT
+        _add_tile(container, _WALL_R,            ty, 1, 0)    # RIGHT
+
+func _add_tile(parent: Node2D, x: float, y: float, col: int, row: int) -> void:
+    var spr := Sprite2D.new()
+    spr.texture = _tile_tex
+    spr.region_enabled = true
+    spr.region_rect = Rect2(float(col) * _TILE_SRC, float(row) * _TILE_SRC, _TILE_SRC, _TILE_SRC)
+    spr.centered = false
+    spr.position = Vector2(x, y)
+    spr.scale = Vector2(_TILE_W / _TILE_SRC, _TILE_W / _TILE_SRC)
+    spr.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+    parent.add_child(spr)
 
 func _draw_wall_pose(pos: Vector2, wall_normal: Vector2) -> void:
     var c  := Color(0.92, 0.92, 1.0, 0.85)
