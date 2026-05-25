@@ -382,10 +382,10 @@ class _MovView extends Control:
         "res://characters/enemies/enemy_flyer.tscn",
     ]
     const _ENEMY_NAMES := ["Grunt", "Flyer"]
-    const _GROUND_Y    := 400.0
+    const _GROUND_Y    := 336.0
     const _PLAYER_X    := 280.0
     const _ENEMY_X     := 680.0
-    const _ENEMY_Y     := [360.0, 200.0]
+    const _ENEMY_Y     := [296.0, 136.0]
     const _WALL_L      := 100.0
     const _WALL_R      := 1820.0
 

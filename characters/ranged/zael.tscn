@@ -1,10 +1,17 @@
-[gd_scene load_steps=3 format=3 uid="uid://0ael"]
+[gd_scene load_steps=4 format=3 uid="uid://0ael"]
 
 [ext_resource type="PackedScene" uid="uid://character_base" path="res://characters/base/character_base.tscn" id="1_base"]
 [ext_resource type="Script" path="res://characters/ranged/zael.gd" id="2_zael"]
 
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_zael"]
+radius = 14.0
+height = 44.0
+
 [node name="Zael" instance=ExtResource("1_base")]
 script = ExtResource("2_zael")
+
+[node name="CollisionShape2D" parent="."]
+shape = SubResource("CapsuleShape2D_zael")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 position = Vector2(0, -4)
