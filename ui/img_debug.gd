@@ -783,14 +783,17 @@ func _refresh_tiles() -> void:
     add_info.call("  68px x escala 2 = 136 px", Color(0.8, 0.8, 0.8))
     add_info.call("  offset Y: -4 px", Color(0.8, 0.8, 0.8))
 
+    var cview_hbox := HBoxContainer.new()
+    cview_hbox.visible = false
+    col_panel.add_child(cview_hbox)
+
     var cview_col := _CornerView.new()
     cview_col.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
     cview_col.tile_tex   = load("res://stages/stage_00/Stage_00T.png") as Texture2D
     cview_col.sprite_tex = load("res://characters/ranged/ZaelIdle.png") as Texture2D
     cview_col.custom_minimum_size = Vector2(320.0, 260.0)
     cview_col.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
-    cview_col.visible = false
-    col_panel.add_child(cview_col)
+    cview_hbox.add_child(cview_col)
 
     var col_corner_row := HBoxContainer.new()
     col_corner_row.add_theme_constant_override("separation", 6)
@@ -811,7 +814,7 @@ func _refresh_tiles() -> void:
     var col_mode_btns: Array = []
     var _col_sw := func(is_corners: bool) -> void:
         lateral_box.visible = not is_corners
-        cview_col.visible = is_corners
+        cview_hbox.visible = is_corners
         col_corner_row.visible = is_corners
         for b: Button in col_mode_btns:
             b.modulate = Color(1.0, 1.0, 0.0) if (b.text == "Cantos") == is_corners else Color(0.6, 0.6, 0.6)
