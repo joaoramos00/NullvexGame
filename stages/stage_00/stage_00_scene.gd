@@ -12,23 +12,23 @@ const _BOSS_SCENE  := preload("res://characters/bosses/intro_boss.tscn")
 const _DOOR_SCENE  := preload("res://stages/checkpoint_door.tscn")
 
 const ZONE1_GRUNTS := [
-	Vector2(800, 1040), Vector2(1400, 1040), Vector2(3400, 904),
-	Vector2(3800, 1040), Vector2(4400, 880), Vector2(5400, 1040)
+	Vector2(800, 1024), Vector2(1400, 1024), Vector2(3400, 888),
+	Vector2(3800, 1024), Vector2(4400, 864), Vector2(5400, 1024)
 ]
-const ZONE1_FLYERS := [Vector2(2100, 760), Vector2(4900, 800)]
+const ZONE1_FLYERS := [Vector2(2100, 744), Vector2(4900, 784)]
 
 const ZONE2_GRUNTS := [
-	Vector2(7000, 408), Vector2(7800, 408), Vector2(9300, 280),
-	Vector2(9960, 400), Vector2(11800, 720)
+	Vector2(7000, 392), Vector2(7800, 392), Vector2(9300, 264),
+	Vector2(9960, 384), Vector2(11800, 704)
 ]
-const ZONE2_FLYERS := [Vector2(7400, 320), Vector2(8500, 360), Vector2(11200, 760)]
+const ZONE2_FLYERS := [Vector2(7400, 304), Vector2(8500, 344), Vector2(11200, 744)]
 
 const ZONE3_GRUNTS := [
-	Vector2(12200, 1040), Vector2(13600, 920), Vector2(14200, 1040), Vector2(15200, 1040)
+	Vector2(12200, 1024), Vector2(13600, 904), Vector2(14200, 1024), Vector2(15200, 1024)
 ]
-const ZONE3_FLYERS := [Vector2(13200, 800), Vector2(14600, 760)]
+const ZONE3_FLYERS := [Vector2(13200, 784), Vector2(14600, 744)]
 
-const BOSS_SPAWN := Vector2(18200, 800)
+const BOSS_SPAWN := Vector2(18200, 784)
 const CP1_ENTRY_X := 5710.0   # 5738 (face externa Corr1_Wall_L) − 28px
 const CP1_EXIT_X  := 6370.0   # 6398 (face interna Corr1_Wall_R) − 28px
 const CP2_ENTRY_X := 15910.0  # 15938 (face externa Corr2_Wall_L) − 28px
