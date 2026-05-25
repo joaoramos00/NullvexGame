@@ -54,7 +54,18 @@ func _draw() -> void:
 
 func _build_tile_sprites() -> void:
     var container := Node2D.new()
+    container.z_index = 1
     add_child(container)
+
+    # Teste: polígono vermelho na posição do primeiro tile — confirma que filhos renderizam
+    var poly := Polygon2D.new()
+    poly.polygon = PackedVector2Array([
+        Vector2(_WALL_L, _GROUND_Y), Vector2(_WALL_L + _TILE_W, _GROUND_Y),
+        Vector2(_WALL_L + _TILE_W, _GROUND_Y + _TILE_W), Vector2(_WALL_L, _GROUND_Y + _TILE_W),
+    ])
+    poly.color = Color(1.0, 0.0, 0.0, 0.7)
+    container.add_child(poly)
+
     var tx := _WALL_L
     while tx <= _WALL_R:
         _add_tile(container, tx, _GROUND_Y,           3, 0)  # TOP
@@ -66,10 +77,12 @@ func _build_tile_sprites() -> void:
         _add_tile(container, _WALL_R,            ty, 1, 0)    # RIGHT
 
 func _add_tile(parent: Node2D, x: float, y: float, col: int, row: int) -> void:
+    var at := AtlasTexture.new()
+    at.atlas = _TILE_TEX
+    at.filter_clip = true
+    at.region = Rect2(float(col) * _TILE_SRC, float(row) * _TILE_SRC, _TILE_SRC, _TILE_SRC)
     var spr := Sprite2D.new()
-    spr.texture = _TILE_TEX
-    spr.region_enabled = true
-    spr.region_rect = Rect2(float(col) * _TILE_SRC, float(row) * _TILE_SRC, _TILE_SRC, _TILE_SRC)
+    spr.texture = at
     spr.centered = false
     spr.position = Vector2(x, y)
     spr.scale = Vector2(_TILE_W / _TILE_SRC, _TILE_W / _TILE_SRC)
