@@ -13,12 +13,20 @@ const _ENEMY_X     := 680.0
 # EnemyFlyer: flutua, posição arbitrária
 const _ENEMY_Y := [560.0, 380.0]
 
+const _TILE_SRC  := 32.0
+const _TILE_W    := 64.0
+const _TEX_PATH  := "res://stages/stage_00/Stage_00T.png"
+const _WALL_L    := 100.0
+const _WALL_R    := 1400.0
+
 var _enemy_index: int = 0
 var _current_enemy: EnemyBase = null
 var _player: CharacterBase = null
 var _label_enemy: Label
+var _tile_tex: Texture2D
 
 func _ready() -> void:
+    _tile_tex = load(_TEX_PATH) as Texture2D
     _setup_game_manager()
     _build_ground()
     _build_walls()
@@ -35,6 +43,7 @@ func _process(_delta: float) -> void:
 
 func _draw() -> void:
     draw_rect(Rect2(-32000.0, -32000.0, 64000.0, 64000.0), Color(0.07, 0.08, 0.16))
+    _draw_tiles()
     if not is_instance_valid(_player):
         return
     var pos      := _player.global_position + Vector2(0.0, -90.0)
@@ -44,6 +53,31 @@ func _draw() -> void:
         _draw_wall_pose(pos, _player.get_wall_normal())
     else:
         _draw_pose(pos, on_floor)
+
+func _draw_tiles() -> void:
+    if _tile_tex == null:
+        return
+    # (3,0) TOP  — face do chão (transparente em cima, sólido embaixo)
+    var src_top   := Rect2(3.0 * _TILE_SRC, 0.0,              _TILE_SRC, _TILE_SRC)
+    # (2,1) FILL — miolo sólido
+    var src_fill  := Rect2(2.0 * _TILE_SRC, 1.0 * _TILE_SRC,  _TILE_SRC, _TILE_SRC)
+    # (3,2) LEFT — parede esquerda (sólido à esq, transparente à dir = face de contato à dir)
+    var src_left  := Rect2(3.0 * _TILE_SRC, 2.0 * _TILE_SRC,  _TILE_SRC, _TILE_SRC)
+    # (1,0) RIGHT — parede direita (transparente à esq = face de contato, sólido à dir)
+    var src_right := Rect2(1.0 * _TILE_SRC, 0.0,              _TILE_SRC, _TILE_SRC)
+
+    # Chão: borda superior do tile em _GROUND_Y (top = face de contato, sólido 32px abaixo)
+    var tx := _WALL_L
+    while tx <= _WALL_R:
+        draw_texture_rect_region(_tile_tex, Rect2(tx, _GROUND_Y,           _TILE_W, _TILE_W), src_top)
+        draw_texture_rect_region(_tile_tex, Rect2(tx, _GROUND_Y + _TILE_W, _TILE_W, _TILE_W), src_fill)
+        tx += _TILE_W
+
+    # Paredes: borda direita do tile LEFT em _WALL_L, borda esq do tile RIGHT em _WALL_R
+    for i: int in 10:
+        var ty := _GROUND_Y - float(i + 1) * _TILE_W
+        draw_texture_rect_region(_tile_tex, Rect2(_WALL_L - _TILE_W, ty, _TILE_W, _TILE_W), src_left)
+        draw_texture_rect_region(_tile_tex, Rect2(_WALL_R,            ty, _TILE_W, _TILE_W), src_right)
 
 func _draw_wall_pose(pos: Vector2, wall_normal: Vector2) -> void:
     var c  := Color(0.92, 0.92, 1.0, 0.85)
