@@ -332,6 +332,36 @@ class _PlatformView extends Control:
         if is_right: return Vector2i(1, 0)
         return Vector2i(2, 1)
 
+# Arena de movimentos: chão + paredes com tiles do Stage_00T
+class _MovView extends Control:
+    const _TS   := 32.0
+    const _TW   := 64.0
+    var tile_tex: Texture2D
+
+    func _draw() -> void:
+        var w := size.x
+        var h := size.y
+        draw_rect(Rect2(Vector2.ZERO, size), Color(0.07, 0.08, 0.16))
+        if not tile_tex:
+            return
+        var ground_y := h * 0.72
+        var wall_l   := _TW
+        var wall_r   := w - _TW
+        var src_top  := Rect2(3.0 * _TS, 0.0,         _TS, _TS)
+        var src_fill := Rect2(2.0 * _TS, 1.0 * _TS,   _TS, _TS)
+        var src_left := Rect2(3.0 * _TS, 2.0 * _TS,   _TS, _TS)
+        var src_rght := Rect2(1.0 * _TS, 0.0,          _TS, _TS)
+        var tx := wall_l
+        while tx < wall_r:
+            draw_texture_rect_region(tile_tex, Rect2(tx, ground_y,       _TW, _TW), src_top)
+            draw_texture_rect_region(tile_tex, Rect2(tx, ground_y + _TW, _TW, _TW), src_fill)
+            tx += _TW
+        var wy := ground_y - _TW * 6.0
+        while wy < ground_y:
+            draw_texture_rect_region(tile_tex, Rect2(wall_l - _TW, wy, _TW, _TW), src_left)
+            draw_texture_rect_region(tile_tex, Rect2(wall_r,       wy, _TW, _TW), src_rght)
+            wy += _TW
+
 const _FRAME_SIZE   := 68
 const _PREVIEW_SIZE := 136
 const _STRIP_SIZE   := 40
@@ -352,6 +382,7 @@ var _strip_frames: Array      = []
 
 var _sprites_box: VBoxContainer
 var _tiles_box: VBoxContainer
+var _moves_box: VBoxContainer
 var _anim_tabs_box: HBoxContainer
 var _preview_rect: TextureRect
 var _info_label: Label
@@ -366,6 +397,7 @@ func _ready() -> void:
     _build_ui()
     _select_char("ZAEL")
     _refresh_tiles()
+    _build_moves_box()
     _show_section("SPRITES")
 
 func _process(delta: float) -> void:
@@ -387,6 +419,7 @@ func _show_section(section: String) -> void:
     _section = section
     _sprites_box.visible = (section == "SPRITES")
     _tiles_box.visible   = (section == "TILES")
+    _moves_box.visible   = (section == "MOVIMENTOS")
     for s in _section_btns:
         _section_btns[s].modulate = Color(1, 1, 0) if s == section else Color(0.6, 0.6, 0.6)
 
@@ -549,8 +582,9 @@ func _build_ui() -> void:
     var mov_btn := Button.new()
     mov_btn.text = "MOVIMENTOS"
     mov_btn.add_theme_font_size_override("font_size", 22)
-    mov_btn.pressed.connect(func(): get_tree().change_scene_to_file("res://ui/debug_movement.tscn"))
+    mov_btn.pressed.connect(_show_section.bind("MOVIMENTOS"))
     section_row.add_child(mov_btn)
+    _section_btns["MOVIMENTOS"] = mov_btn
 
     # SPRITES BOX
     _sprites_box = VBoxContainer.new()
@@ -608,6 +642,25 @@ func _build_ui() -> void:
     _tiles_box = VBoxContainer.new()
     _tiles_box.add_theme_constant_override("separation", 8)
     main.add_child(_tiles_box)
+
+    # MOVIMENTOS BOX
+    _moves_box = VBoxContainer.new()
+    _moves_box.add_theme_constant_override("separation", 8)
+    main.add_child(_moves_box)
+
+func _build_moves_box() -> void:
+    var hint := Label.new()
+    hint.text = "Arena com tiles do Stage_00 — chão (TOP + FILL) e paredes (LEFT / RIGHT)"
+    hint.add_theme_font_size_override("font_size", 17)
+    hint.add_theme_color_override("font_color", Color(0.5, 0.5, 0.5))
+    _moves_box.add_child(hint)
+
+    var mview := _MovView.new()
+    mview.tile_tex = load("res://stages/stage_00/Stage_00T.png") as Texture2D
+    mview.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+    mview.custom_minimum_size = Vector2(800.0, 420.0)
+    mview.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+    _moves_box.add_child(mview)
 
 func _refresh_tiles() -> void:
     _tile_displays.clear()
