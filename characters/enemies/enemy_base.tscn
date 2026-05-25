@@ -5,7 +5,7 @@
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_1"]
 radius = 20.0
-height = 40.0
+height = 80.0
 
 [node name="EnemyBase" type="CharacterBody2D"]
 collision_layer = 4
