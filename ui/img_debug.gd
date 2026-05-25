@@ -476,7 +476,7 @@ class _MovView extends Control:
             return
         _player = scene.instantiate() as CharacterBase
         _world.add_child(_player)
-        _player.global_position = Vector2(_PLAYER_X, _GROUND_Y - 40.0)
+        _player.global_position = Vector2(_PLAYER_X, _GROUND_Y - 90.0)
         _player.died.connect(func(): call_deferred("_spawn_player"))
         (_world as ImgDebug._MovWorld).player_ref = _player
 

@@ -4,16 +4,16 @@
 [ext_resource type="Script" path="res://characters/ranged/zael.gd" id="2_zael"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_zael"]
-radius = 7.0
-height = 40.0
+radius = 20.0
+height = 80.0
 
 [node name="Zael" instance=ExtResource("1_base")]
 script = ExtResource("2_zael")
 
 [node name="CollisionShape2D" parent="."]
-position = Vector2(0, 14)
+position = Vector2(0, 42)
 shape = SubResource("CapsuleShape2D_zael")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
-position = Vector2(0, 11)
+position = Vector2(0, 34)
 scale = Vector2(2, 2)
