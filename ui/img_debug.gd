@@ -192,10 +192,12 @@ class _CornerView extends Control:
         _blit(t_corner, rc)
         _blit(t_side, rw)
 
-        # Linhas amarelas: face da parede e face do chão
+        # Linhas amarelas: 16px para dentro do tile (bloco à esq/dir e acima/abaixo)
+        var wx_in := wx + (16.0 if corner == 1 or corner == 3 else -16.0)
+        var fy_in := fy + (16.0 if corner == 0 or corner == 1 else -16.0)
         var yel := Color(1.0, 0.9, 0.0, 0.85)
-        draw_line(Vector2(wx, 0.0), Vector2(wx, H), yel, 2.0)
-        draw_line(Vector2(0.0, fy), Vector2(W, fy), yel, 2.0)
+        draw_line(Vector2(wx_in, 0.0), Vector2(wx_in, H), yel, 2.0)
+        draw_line(Vector2(0.0, fy_in), Vector2(W, fy_in), yel, 2.0)
 
         # Marcadores verdes: px no eixo Y (posição lateral do player) e py no eixo X
         var grn := Color(0.0, 1.0, 0.5, 0.85)
