@@ -148,41 +148,41 @@ class _CornerView extends Control:
         var px: float; var py: float; var flip := false
 
         match corner:
-            0:  # topo-dir — plataforma sup-dir, player inf-esq
+            0:  # topo-dir — player pé em fy, corpo acima; tiles abaixo (y >= fy), parede à dir (x >= wx)
                 t_corner = Vector2i(0, 0)   # BOT+LEFT
                 t_surf   = Vector2i(3, 0)   # TOP
-                t_side   = Vector2i(3, 2)   # LEFT (face dir da plataforma)
-                rc = Rect2(wx,      fy - _TW, _TW, _TW)
-                rs = Rect2(wx - _TW, fy - _TW, _TW, _TW)
-                rw = Rect2(wx,      fy,        _TW, _TW)
-                rf = Rect2(wx - _TW, fy,       _TW, _TW)
+                t_side   = Vector2i(3, 2)   # LEFT
+                rc = Rect2(wx,       fy,        _TW, _TW)
+                rs = Rect2(wx - _TW, fy,        _TW, _TW)
+                rw = Rect2(wx,       fy + _TW,  _TW, _TW)
+                rf = Rect2(wx - _TW, fy + _TW,  _TW, _TW)
                 px = wx - _OFS;  py = fy - _CHH;  flip = false
-            1:  # topo-esq — plataforma sup-esq, player inf-dir
+            1:  # topo-esq — player pé em fy, corpo acima; tiles abaixo (y >= fy), parede à esq (x <= wx)
                 t_corner = Vector2i(1, 3)   # BOT+RIGHT
                 t_surf   = Vector2i(3, 0)   # TOP
-                t_side   = Vector2i(1, 0)   # RIGHT (face esq da plataforma)
-                rc = Rect2(wx - _TW, fy - _TW, _TW, _TW)
-                rs = Rect2(wx,       fy - _TW, _TW, _TW)
-                rw = Rect2(wx - _TW, fy,        _TW, _TW)
-                rf = Rect2(wx,       fy,        _TW, _TW)
+                t_side   = Vector2i(1, 0)   # RIGHT
+                rc = Rect2(wx - _TW, fy,        _TW, _TW)
+                rs = Rect2(wx,       fy,        _TW, _TW)
+                rw = Rect2(wx - _TW, fy + _TW,  _TW, _TW)
+                rf = Rect2(wx,       fy + _TW,  _TW, _TW)
                 px = wx + _OFS;  py = fy - _CHH;  flip = true
-            2:  # base-dir — plataforma inf-dir, player sup-esq
+            2:  # base-dir — player topo em fy, corpo abaixo; tiles acima (y <= fy), parede à dir (x >= wx)
                 t_corner = Vector2i(3, 3)   # TOP+LEFT
                 t_surf   = Vector2i(1, 2)   # BOTTOM
                 t_side   = Vector2i(3, 2)   # LEFT
-                rc = Rect2(wx,       fy,       _TW, _TW)
-                rs = Rect2(wx - _TW, fy,       _TW, _TW)
-                rw = Rect2(wx,       fy - _TW, _TW, _TW)
-                rf = Rect2(wx - _TW, fy - _TW, _TW, _TW)
+                rc = Rect2(wx,       fy - _TW,       _TW, _TW)
+                rs = Rect2(wx - _TW, fy - _TW,       _TW, _TW)
+                rw = Rect2(wx,       fy - _TW * 2.0, _TW, _TW)
+                rf = Rect2(wx - _TW, fy - _TW * 2.0, _TW, _TW)
                 px = wx - _OFS;  py = fy + _CHH;  flip = false
-            3:  # base-esq — plataforma inf-esq, player sup-dir
+            3:  # base-esq — player topo em fy, corpo abaixo; tiles acima (y <= fy), parede à esq (x <= wx)
                 t_corner = Vector2i(0, 2)   # TOP+RIGHT
                 t_surf   = Vector2i(1, 2)   # BOTTOM
                 t_side   = Vector2i(1, 0)   # RIGHT
-                rc = Rect2(wx - _TW, fy,       _TW, _TW)
-                rs = Rect2(wx,       fy,       _TW, _TW)
-                rw = Rect2(wx - _TW, fy - _TW, _TW, _TW)
-                rf = Rect2(wx,       fy - _TW, _TW, _TW)
+                rc = Rect2(wx - _TW, fy - _TW,       _TW, _TW)
+                rs = Rect2(wx,       fy - _TW,       _TW, _TW)
+                rw = Rect2(wx - _TW, fy - _TW * 2.0, _TW, _TW)
+                rf = Rect2(wx,       fy - _TW * 2.0, _TW, _TW)
                 px = wx + _OFS;  py = fy + _CHH;  flip = true
             _:
                 return
