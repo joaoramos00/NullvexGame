@@ -354,13 +354,16 @@ class _MovWorld extends Node2D:
         var src_rght   := Rect2(1.0 * _TS, 0.0,         _TS, _TS)  # (1,0) parede dir
         var src_corn_l := Rect2(2.0 * _TS, 0.0,         _TS, _TS)  # (2,0) canto esq-chão
         var src_corn_r := Rect2(1.0 * _TS, 1.0 * _TS,   _TS, _TS)  # (1,1) canto dir-chão
+        # TOP tile tem metade superior transparente → deslocar 32px para cima
+        # para que a superfície sólida fique alinhada com a linha amarela (ground_y)
+        var floor_y := ground_y - _TW * 0.5
         var tx := wall_l
         while tx <= wall_r:
-            draw_texture_rect_region(tile_tex, Rect2(tx, ground_y,       _TW, _TW), src_top)
-            draw_texture_rect_region(tile_tex, Rect2(tx, ground_y + _TW, _TW, _TW), src_fill)
+            draw_texture_rect_region(tile_tex, Rect2(tx, floor_y,        _TW, _TW), src_top)
+            draw_texture_rect_region(tile_tex, Rect2(tx, floor_y + _TW,  _TW, _TW), src_fill)
             tx += _TW
         for i: int in 10:
-            var ty := ground_y - float(i + 1) * _TW
+            var ty := floor_y - float(i + 1) * _TW
             var sl := src_corn_l if i == 0 else src_left
             var sr := src_corn_r if i == 0 else src_rght
             draw_texture_rect_region(tile_tex, Rect2(wall_l - _TW, ty, _TW, _TW), sl)
