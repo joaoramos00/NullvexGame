@@ -92,6 +92,5 @@ func _tick_retreat() -> void:
 func _draw() -> void:
 	if not show_hitbox:
 		return
-	var bounds := Rect2(-10.0, -20.0, 20.0, 40.0)
-	draw_rect(bounds, Color(0.2, 0.5, 1.0, 0.25))
-	draw_rect(bounds, Color(0.2, 0.5, 1.0, 1.0), false, 2.0)
+	draw_circle(Vector2.ZERO, 24.0, Color(0.2, 0.5, 1.0, 0.25))
+	draw_arc(Vector2.ZERO, 24.0, 0.0, TAU, 32, Color(0.2, 0.5, 1.0, 1.0), 2.0)
