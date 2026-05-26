@@ -17,7 +17,7 @@ shape = SubResource("CapsuleShape2D_1")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
 texture = ExtResource("2_texture")
-scale = Vector2(2, 2)
+scale = Vector2(1, 1)
 
 [node name="ContactZone" type="Area2D" parent="."]
 collision_layer = 0
