@@ -501,12 +501,7 @@ func _draw_room_tiles(rect: Rect2, piece_name: String) -> void:
 			elif piece_name.ends_with("_Wall_R") or piece_name.ends_with("RWall"):
 				if is_bottom:   ty =  src_ts
 				elif is_top:    ty = -src_ts
-			elif piece_name.ends_with("_Ceil"):
-				if is_left:     tx =  src_ts   # col==cols-1 (direita) → junção com Wall_R → +32
-				elif is_right:  tx = -src_ts   # col==0 (esquerda) → junção com Wall_L → -32
-			else:  # _Floor
-				if is_left:     tx =  src_ts
-				elif is_right:  tx = -src_ts
+			# _Ceil e _Floor: sem shift horizontal — paredes cobrem os cantos por cima
 			var dx := rect.position.x + col * ts + tx
 			var dy := rect.position.y + row * ts + ty
 			var dw := minf(ts, rect.position.x + rect.size.x - dx)
