@@ -15,18 +15,18 @@ const ZONE1_GRUNTS := [
 	Vector2(800, 1024), Vector2(1400, 1024), Vector2(3400, 888),
 	Vector2(3800, 1024), Vector2(4400, 864), Vector2(5400, 1024)
 ]
-const ZONE1_FLYERS := [Vector2(2100, 744), Vector2(4900, 784)]
+const ZONE1_FLYERS := [Vector2(2100, 808), Vector2(4900, 848)]
 
 const ZONE2_GRUNTS := [
 	Vector2(7000, 392), Vector2(7800, 392), Vector2(9300, 264),
 	Vector2(9960, 384), Vector2(11800, 704)
 ]
-const ZONE2_FLYERS := [Vector2(7400, 304), Vector2(8500, 344), Vector2(11200, 744)]
+const ZONE2_FLYERS := [Vector2(7400, 368), Vector2(8500, 408), Vector2(11200, 808)]
 
 const ZONE3_GRUNTS := [
 	Vector2(12200, 1024), Vector2(13600, 904), Vector2(14200, 1024), Vector2(15200, 1024)
 ]
-const ZONE3_FLYERS := [Vector2(13200, 784), Vector2(14600, 744)]
+const ZONE3_FLYERS := [Vector2(13200, 848), Vector2(14600, 808)]
 
 const BOSS_SPAWN := Vector2(18200, 784)
 const CP1_ENTRY_X := 5710.0   # 5738 (face externa Corr1_Wall_L) − 28px
