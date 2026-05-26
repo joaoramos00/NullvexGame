@@ -242,3 +242,133 @@ script = ExtResource("1_script")
 1. Rodar: `"D:/Godot_v4.6.2-stable_win64/Godot_v4.6.2-stable_win64.exe" --headless --path . res://tests/test_stage_<id>.tscn`
 2. Verificar `ALL TESTS PASSED`
 3. Commitar: `git add stages/stage_<id>/ tests/test_stage_<id>.* && git commit -m "feat: nova fase stage_<id> (<nome>)"`
+
+---
+
+## Sistema de Tiles — Alinhamento de Bordas (Stage Complexo)
+
+> Referência obrigatória ao implementar `_draw_platform_tiles()` ou qualquer tileset próprio num stage complexo.
+
+### Tileset: `Stage_00T.png`
+
+Grade **4×4** de tiles de **32×32 px** fonte, renderizados a **64×64 game units** (`_SRC_TS = 32`, `_TS = 64`).
+Câmera zoom 2.2× → 1 game unit = 2.2 screen px; 1 src px = 4.4 screen px.
+
+```
+Col →  0          1          2          3
+Row 0: BOT+LEFT   BOT+RIGHT  TOP+LEFT†  TOP
+Row 1: LEFT*      RIGHT*     FILL       RIGHT†
+Row 2: TOP+RIGHT† BOTTOM     TOP+RIGHT  LEFT†
+Row 3: –          BOT+RIGHT† –          TOP+LEFT†
+```
+`†` = tiles de corredor/quarto (`_draw_room_tiles`), não usados em plataformas.
+
+### Conteúdo sólido por tile (análise de pixel — canal alpha médio por quadrante)
+
+| Tile (x,y) | Label | TL | TR | BL | BR | Sólido em |
+|---|---|---|---|---|---|---|
+| (3,0) | TOP | 0 | 0 | 254 | 254 | metade inferior |
+| (1,3) | BOT+RIGHT | 0 | 0 | 0 | 222 | quadrante inf-dir |
+| (0,0) | BOT+LEFT | 0 | 0 | 221 | 0 | quadrante inf-esq |
+| (1,0) | RIGHT (parede esq) | 0 | 213 | 0 | 213 | metade direita |
+| (3,2) | LEFT (parede dir) | 214 | 0 | 214 | 0 | metade esquerda |
+| (2,1) | FILL | 255 | 255 | 255 | 255 | tudo |
+| (1,2) | BOTTOM | 220 | 220 | 0 | 0 | metade superior |
+| (3,3) | TOP+LEFT (canto inf-dir) | 175 | 0 | 0 | 0 | quadrante sup-esq |
+| (0,2) | TOP+RIGHT (canto inf-esq) | 0 | 175 | 0 | 0 | quadrante sup-dir |
+
+### Por que há gap entre tile e física
+
+Nenhum tile de borda ocupa a largura/altura **completa** de 64 game units.
+O conteúdo sólido está sempre em **metade** (ou 1 quadrante) do tile.
+Sem correção, a física cobre X pixels onde não há pixel visível.
+
+#### Eixo Y (superfície superior)
+O tile `TOP (3,0)` tem sólido apenas na **metade inferior** da sua área de 64 units.
+Sem shift, o topo da física ficaria invisível pelos 32 units superiores do tile.
+
+**Correção:** `dy = rect.position.y + row * ts - src_ts`
+O shift de `-src_ts (-32)` sobe o tile inteiro 32 units, fazendo o sólido inferior coincidir com a face física superior. Aplica a **todas as linhas** — garante continuidade vertical sem gaps entre tiles adjacentes.
+
+#### Eixo X (bordas laterais)
+Os tiles de borda (`(1,0)`, `(3,2)`, cantos) têm sólido em apenas **metade** da largura.
+Sem correção, há 32 game units de gap entre borda física e início do visual.
+
+**Correção para `col == 0` (borda física esquerda):**
+```gdscript
+dx -= src_ts  # move tile 32 units à esquerda
+# A metade sólida direita do tile agora coincide com a borda física esquerda.
+# Preenche gap de 32 units com metade esquerda do tile de fill correto:
+draw_texture_rect_region(_TILESET,
+    Rect2(rect.position.x + ts / 2.0, dy, ts / 2.0, dh),
+    Rect2(fill.x * src_ts, fill.y * src_ts, src_ts / 2, src_ts))
+```
+
+**Correção para `col == cols - 1` (borda física direita):**
+```gdscript
+dx += src_ts  # move tile 32 units à direita
+# A metade sólida esquerda do tile agora coincide com a borda física direita.
+# O clamp natural de dw = minf(ts, ...) exibe apenas os 32 units sólidos.
+# Preenche gap de 32 units com metade direita do tile de fill correto:
+draw_texture_rect_region(_TILESET,
+    Rect2(rect.position.x + (cols - 1) * ts, dy, ts / 2.0, dh),
+    Rect2(fill.x * src_ts + src_ts / 2, fill.y * src_ts, src_ts / 2, src_ts))
+```
+
+**Escala do gap fill:** `16 src px → 32 game units = 2× por pixel` — idêntica à escala das tiles normais (`32 src px → 64 game units`). Garantia de que o pixel art não aparece nem menor nem maior que o resto.
+
+### Implementação canônica
+
+Copiar estas duas funções de `stages/stage_00/stage_00_scene.gd` para qualquer stage complexo com tileset próprio:
+
+```gdscript
+func _draw_platform_tiles(rect: Rect2) -> void:
+    var ts     := _TS
+    var src_ts := _SRC_TS
+    var cols := ceili(rect.size.x / ts)
+    var rows := ceili(rect.size.y / ts)
+    for row in rows:
+        for col in cols:
+            var tile := _tile_at(col, cols, row, rows)
+            var dx := rect.position.x + col * ts
+            var dy := rect.position.y + row * ts - src_ts  # alinha face sólida com física
+            var dh := minf(ts, rect.position.y + rect.size.y - dy)
+            if cols > 1:
+                var fill := _gap_fill_tile(row, rows)
+                if col == 0:
+                    dx -= src_ts
+                    draw_texture_rect_region(_TILESET,
+                        Rect2(rect.position.x + ts / 2.0, dy, ts / 2.0, dh),
+                        Rect2(fill.x * src_ts, fill.y * src_ts, src_ts / 2, src_ts))
+                elif col == cols - 1:
+                    dx += src_ts
+                    draw_texture_rect_region(_TILESET,
+                        Rect2(rect.position.x + (cols - 1) * ts, dy, ts / 2.0, dh),
+                        Rect2(fill.x * src_ts + src_ts / 2, fill.y * src_ts, src_ts / 2, src_ts))
+            var dw := minf(ts, rect.position.x + rect.size.x - dx)
+            var src := Rect2(tile.x * src_ts, tile.y * src_ts, src_ts * dw / ts, src_ts * dh / ts)
+            draw_texture_rect_region(_TILESET, Rect2(dx, dy, dw, dh), src)
+
+func _gap_fill_tile(row: int, rows: int) -> Vector2i:
+    if row == 0:        return Vector2i(3, 0)  # TOP  — linha visual superior
+    if row == rows - 1: return Vector2i(1, 2)  # BOTTOM — linha visual inferior
+    return Vector2i(2, 1)                       # FILL — interior
+```
+
+### Mapeamento `_tile_at` — convenção de eixos
+
+`is_left = col == cols - 1` (última coluna = borda **visual direita**)
+`is_right = col == 0` (primeira coluna = borda **visual esquerda**)
+`is_top = row == rows - 1` (última linha = borda **visual inferior**)
+`is_bottom = row == 0` (primeira linha = borda **visual superior**)
+
+Os nomes estão **invertidos** em relação ao espaço visual — não alterar sem rever toda a tabela de tiles.
+
+### Checklist ao criar plataformas
+
+- [ ] `_TS = 64`, `_SRC_TS = 32` — nunca misturar as duas escalas
+- [ ] Usar `_draw_platform_tiles` para **qualquer** `StaticBody2D` retangular (chão, plataforma, pilar)
+- [ ] Usar `_draw_room_tiles` apenas para peças de corredor/sala (`_Ceil`, `_Floor`, `_Wall_L/R`)
+- [ ] Testar visualmente com câmera zoom 2.2× — gap de 32 game units = ~70 px na tela
+- [ ] Plataforma de **1 linha** e **múltiplas linhas** cobrem casos diferentes; ambas são tratadas pelo mesmo código
+- [ ] A borda **inferior** da última linha pode ter até 32 game units de gap com o fundo da física (não visível ao jogador; aceitável para plataformas no chão)
