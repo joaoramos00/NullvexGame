@@ -430,6 +430,24 @@ func _draw_platform_tiles(rect: Rect2) -> void:
 			var tile := _tile_at(col, cols, row, rows)
 			var dx := rect.position.x + col * ts
 			var dy := rect.position.y + row * ts - src_ts  # alinha face sólida com física
+			# Plataforma de 1 tile de altura: cada canto tem conteúdo sólido em apenas
+			# 1 quadrante. Shift de ±src_ts alinha a metade sólida com a borda física,
+			# mas cria um gap de ts/2 entre o canto e o tile vizinho. Esse gap é
+			# preenchido com metade do tile central (16 src px → ts/2 game units = mesma
+			# escala 2× das tiles normais).
+			if rows == 1 and cols > 1:
+				if col == 0:
+					dx -= src_ts  # canto esq: solid right-half → borda física esq
+					var fill_dh := minf(ts, rect.position.y + rect.size.y - dy)
+					draw_texture_rect_region(_TILESET,
+						Rect2(rect.position.x + ts / 2.0, dy, ts / 2.0, fill_dh),
+						Rect2(3 * src_ts, 0, src_ts / 2, src_ts))
+				elif col == cols - 1:
+					dx += src_ts  # canto dir: solid left-half → borda física dir
+					var fill_dh := minf(ts, rect.position.y + rect.size.y - dy)
+					draw_texture_rect_region(_TILESET,
+						Rect2(rect.position.x + (cols - 1) * ts, dy, ts / 2.0, fill_dh),
+						Rect2(3 * src_ts + src_ts / 2, 0, src_ts / 2, src_ts))
 			var dw := minf(ts, rect.position.x + rect.size.x - dx)
 			var dh := minf(ts, rect.position.y + rect.size.y - dy)
 			var src := Rect2(tile.x * src_ts, tile.y * src_ts, src_ts * dw / ts, src_ts * dh / ts)
