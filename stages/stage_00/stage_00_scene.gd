@@ -328,10 +328,10 @@ func _add_debug_platform() -> void:
 	plat.collision_layer = 1
 	var cs := CollisionShape2D.new()
 	var shape := RectangleShape2D.new()
-	shape.size = Vector2(256, 64)
+	shape.size = Vector2(256, 192)
 	cs.shape = shape
 	plat.add_child(cs)
-	plat.position = Vector2(550, 1032)  # top face y=1000, altura mid-Zael
+	plat.position = Vector2(550, 1096)  # top face y=1000, 3 linhas de tile
 	add_child(plat)
 
 # ─── Drawing ─────────────────────────────────────────────────────────────────
@@ -430,28 +430,30 @@ func _draw_platform_tiles(rect: Rect2) -> void:
 			var tile := _tile_at(col, cols, row, rows)
 			var dx := rect.position.x + col * ts
 			var dy := rect.position.y + row * ts - src_ts  # alinha face sólida com física
-			# Plataforma de 1 tile de altura: cada canto tem conteúdo sólido em apenas
-			# 1 quadrante. Shift de ±src_ts alinha a metade sólida com a borda física,
-			# mas cria um gap de ts/2 entre o canto e o tile vizinho. Esse gap é
-			# preenchido com metade do tile central (16 src px → ts/2 game units = mesma
-			# escala 2× das tiles normais).
-			if rows == 1 and cols > 1:
-				if col == 0:
-					dx -= src_ts  # canto esq: solid right-half → borda física esq
-					var fill_dh := minf(ts, rect.position.y + rect.size.y - dy)
-					draw_texture_rect_region(_TILESET,
-						Rect2(rect.position.x + ts / 2.0, dy, ts / 2.0, fill_dh),
-						Rect2(3 * src_ts, 0, src_ts / 2, src_ts))
-				elif col == cols - 1:
-					dx += src_ts  # canto dir: solid left-half → borda física dir
-					var fill_dh := minf(ts, rect.position.y + rect.size.y - dy)
-					draw_texture_rect_region(_TILESET,
-						Rect2(rect.position.x + (cols - 1) * ts, dy, ts / 2.0, fill_dh),
-						Rect2(3 * src_ts + src_ts / 2, 0, src_ts / 2, src_ts))
-			var dw := minf(ts, rect.position.x + rect.size.x - dx)
 			var dh := minf(ts, rect.position.y + rect.size.y - dy)
+			# Todos os tiles de borda lateral têm conteúdo sólido em apenas metade da
+			# largura. Shift de ±src_ts alinha essa metade com a borda física e um
+			# half-tile de preenchimento cobre o gap criado (16 src px → ts/2 = 2× escala).
+			if cols > 1:
+				var fill := _gap_fill_tile(row, rows)
+				if col == 0:
+					dx -= src_ts
+					draw_texture_rect_region(_TILESET,
+						Rect2(rect.position.x + ts / 2.0, dy, ts / 2.0, dh),
+						Rect2(fill.x * src_ts, fill.y * src_ts, src_ts / 2, src_ts))
+				elif col == cols - 1:
+					dx += src_ts
+					draw_texture_rect_region(_TILESET,
+						Rect2(rect.position.x + (cols - 1) * ts, dy, ts / 2.0, dh),
+						Rect2(fill.x * src_ts + src_ts / 2, fill.y * src_ts, src_ts / 2, src_ts))
+			var dw := minf(ts, rect.position.x + rect.size.x - dx)
 			var src := Rect2(tile.x * src_ts, tile.y * src_ts, src_ts * dw / ts, src_ts * dh / ts)
 			draw_texture_rect_region(_TILESET, Rect2(dx, dy, dw, dh), src)
+
+func _gap_fill_tile(row: int, rows: int) -> Vector2i:
+	if row == 0:        return Vector2i(3, 0)  # TOP — linha visual superior
+	if row == rows - 1: return Vector2i(1, 2)  # BOTTOM — linha visual inferior
+	return Vector2i(2, 1)                       # FILL — interior
 
 func _draw_room_tiles(rect: Rect2, piece_name: String) -> void:
 	var ts     := _TS
