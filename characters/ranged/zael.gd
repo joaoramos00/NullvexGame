@@ -45,9 +45,9 @@ const _CHARGE_BIG_SPEED := 0.4  # bolinhas grandes mais lentas
 const HURT_DURATION       := 0.3
 const _SHOOT_DURATIONS    := [0.1, 0.2, 0.3]  # duração de shoot_1/2/3 a 10fps
 const _SQUAT_DURATION     := 0.1
-const _DASH_JUMP_BUFFER   := 0.2   # janela após o dash terminar para ainda fazer dash-jump
+const _DASH_JUMP_BUFFER   := 0.35  # janela após o dash terminar para ainda fazer dash-jump
 const _DASH_JUMP_SPEED    := 620.0 # velocidade horizontal do dash-jump (< DASH_SPEED=720)
-const _JUMP_BUFFER_TIME   := 0.15  # buffer de input: pulo pressionado antes do dash ainda dispara
+const _JUMP_BUFFER_TIME   := 0.25  # buffer de input: pulo pressionado antes do dash ainda dispara
 
 var _charge_timer: float = 0.0
 var _is_charging: bool = false
@@ -218,7 +218,7 @@ func _handle_movement() -> void:
         else:
             var dir := Input.get_axis("move_left", "move_right")
             if dir != 0.0:
-                velocity.x = dir * SPEED
+                velocity.x = dir * _DASH_JUMP_SPEED
         return
     super._handle_movement()
 
@@ -237,7 +237,7 @@ func _physics_process(delta: float) -> void:
     # Dispara dash-jump se pulo foi pressionado (agora ou no buffer) com dash ativo/recente
     # _jump_squat_timer pode estar ativo (press simultâneo): cancelamos o squat normal
     if _jump_buffer_timer > 0.0 and not _dash_jump:
-        if _is_dashing or (_was_dashing_timer > 0.0 and is_on_floor()):
+        if _is_dashing or (_was_dashing_timer > 0.0 and (is_on_floor() or _coyote_timer > 0.0)):
             _jump_squat_timer = -1.0
             _dash_jump = true
             _dash_jump_dir = _dash_direction
@@ -249,7 +249,7 @@ func _physics_process(delta: float) -> void:
     if _is_dashing:
         _was_dashing_timer = _DASH_JUMP_BUFFER
     elif _was_dashing_timer > 0.0:
-        if is_on_floor():
+        if is_on_floor() or _coyote_timer > 0.0:
             _was_dashing_timer = max(0.0, _was_dashing_timer - delta)
         else:
             _was_dashing_timer = 0.0
