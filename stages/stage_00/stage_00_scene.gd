@@ -29,10 +29,10 @@ const ZONE3_GRUNTS := [
 const ZONE3_FLYERS := [Vector2(13200, 906), Vector2(14600, 906)]
 
 const BOSS_SPAWN := Vector2(18200, 784)
-const CP1_ENTRY_X := 5710.0   # 5738 (face externa Corr1_Wall_L) − 28px
-const CP1_EXIT_X  := 6370.0   # 6398 (face interna Corr1_Wall_R) − 28px
-const CP2_ENTRY_X := 15910.0  # 15938 (face externa Corr2_Wall_L) − 28px
-const CP2_EXIT_X  := 16570.0  # 16598 (face interna Corr2_Wall_R) − 28px
+const CP1_ENTRY_X := 5802.0   # centro visual Corr1_Wall_L (tile X 5770–5834)
+const CP1_EXIT_X  := 6398.0   # centro visual Corr1_Wall_R (tile X 6366–6430)
+const CP2_ENTRY_X := 16002.0  # centro visual Corr2_Wall_L (tile X 15970–16034)
+const CP2_EXIT_X  := 16598.0  # centro visual Corr2_Wall_R (tile X 16566–16630)
 
 # Offset vertical das portas: mesmo -28px aplicado às laterais, agora nos cantos sup/inf
 const _CORR_CEIL_Y  := 832.0    # face interna Corr_Ceil
@@ -125,16 +125,18 @@ func _make_door(x: float) -> CheckpointDoor:
 	# Redimensiona collision body antes de _ready()
 	var col := door.get_node("CollisionShape2D") as CollisionShape2D
 	var body_shape := (col.shape as RectangleShape2D).duplicate() as RectangleShape2D
-	body_shape.size = Vector2(32.0, _DOOR_H)
+	body_shape.size = Vector2(64.0, _DOOR_H)
 	col.shape = body_shape
 	# Redimensiona trigger
 	var trig := door.get_node("TriggerArea/CollisionShape2D") as CollisionShape2D
 	var trig_shape := (trig.shape as RectangleShape2D).duplicate() as RectangleShape2D
-	trig_shape.size = Vector2(48.0, _DOOR_H + 32.0)
+	trig_shape.size = Vector2(96.0, _DOOR_H + 32.0)
 	trig.shape = trig_shape
 	add_child(door)
 	# Redimensiona sprite depois de _ready() (que executa em add_child)
 	var sprite := door.get_node("ColorRect") as ColorRect
+	sprite.offset_left   = -32.0
+	sprite.offset_right  =  32.0
 	sprite.offset_top    = -_DOOR_H * 0.5
 	sprite.offset_bottom =  _DOOR_H * 0.5
 	return door
@@ -182,6 +184,7 @@ func _on_boss_door_opened(_door: Node2D) -> void:
 	var lwall := $Boss_LWall
 	if is_instance_valid(lwall):
 		lwall.get_node("CollisionShape2D").disabled = false
+		queue_redraw()
 
 # ─── Boss ─────────────────────────────────────────────────────────────────────
 
@@ -406,13 +409,18 @@ func _draw_platforms() -> void:
 	for child in get_children():
 		if not child is StaticBody2D:
 			continue
+		if child is CheckpointDoor:
+			continue
 		for shape_child in child.get_children():
 			if not shape_child is CollisionShape2D:
 				continue
 			if not shape_child.shape is RectangleShape2D:
 				continue
-			var size: Vector2 = (shape_child.shape as RectangleShape2D).size
-			var center: Vector2 = (child as Node2D).position + (shape_child as Node2D).position
+			var cs := shape_child as CollisionShape2D
+			if cs.disabled:
+				continue
+			var size: Vector2 = (cs.shape as RectangleShape2D).size
+			var center: Vector2 = (child as Node2D).position + (cs as Node2D).position
 			var rect := Rect2(center - size * 0.5, size)
 			var n: String = child.name
 			if n.begins_with("Corr") or n.begins_with("Boss_"):
