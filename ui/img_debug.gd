@@ -2,12 +2,17 @@ extends Control
 class_name ImgDebug
 
 const _SPRITES: Array = [
-    {"char": "ZAEL", "anim": "Idle",  "path": "res://characters/ranged/ZaelIdle.png",     "frames": 8, "fps": 8.0},
-    {"char": "ZAEL", "anim": "Run",   "path": "res://characters/ranged/ZaelCorrendo.png", "frames": 6, "fps": 10.0},
-    {"char": "ZAEL", "anim": "Jump",  "path": "res://characters/ranged/ZaelJump_new.png", "frames": 4, "fps": 10.0},
-    {"char": "ZAEL", "anim": "Shot",  "path": "res://characters/ranged/ZaelAtirando.png", "frames": 9, "fps": 10.0},
-    {"char": "ZARA", "anim": "Walk",  "path": "res://characters/melee/ZaraAndando.png",   "frames": 5, "fps": 8.0},
-    {"char": "ZARA", "anim": "Run",   "path": "res://characters/melee/ZaraCorrendo.png",  "frames": 3, "fps": 10.0},
+    {"char": "ZAEL", "anim": "Idle",      "path": "res://characters/ranged/ZaelIdle.png",      "frames": 8, "fps": 8.0},
+    {"char": "ZAEL", "anim": "Run",       "path": "res://characters/ranged/ZaelCorrendo.png",  "frames": 6, "fps": 10.0},
+    {"char": "ZAEL", "anim": "Jump",      "path": "res://characters/ranged/ZaelJump_new.png",  "frames": 4, "fps": 10.0},
+    {"char": "ZAEL", "anim": "Shot",      "path": "res://characters/ranged/ZaelAtirando.png",  "frames": 9, "fps": 10.0},
+    {"char": "ZAEL", "anim": "WallSlide", "path": "res://characters/ranged/ZaelWallSlide.png", "frames": 2, "fps": 6.0},
+    {"char": "ZAEL", "anim": "Dash",      "path": "res://characters/ranged/ZaelDash.png",      "frames": 2, "fps": 12.0},
+    {"char": "ZAEL", "anim": "RunShoot",  "path": "res://characters/ranged/ZaelRunShoot.png",  "frames": 6, "fps": 10.0},
+    {"char": "ZAEL", "anim": "JumpShoot", "path": "res://characters/ranged/ZaelJumpShoot.png", "frames": 2, "fps": 10.0},
+    {"char": "ZAEL", "anim": "DashShoot", "path": "res://characters/ranged/ZaelDashShoot.png", "frames": 2, "fps": 12.0},
+    {"char": "ZARA", "anim": "Walk",      "path": "res://characters/melee/ZaraAndando.png",    "frames": 5, "fps": 8.0},
+    {"char": "ZARA", "anim": "Run",       "path": "res://characters/melee/ZaraCorrendo.png",   "frames": 3, "fps": 10.0},
 ]
 
 const _TILESETS: Array = [
