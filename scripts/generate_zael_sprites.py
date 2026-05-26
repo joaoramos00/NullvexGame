@@ -163,4 +163,28 @@ for i in range(6):
 make_sheet(frames_rs).save(CHARS / "ZaelRunShoot.png")
 print("ZaelRunShoot.png ✓")
 
+# ── ZaelJumpShoot (2 frames) ──────────────────────────────────────────────────
+arm = shoot_f4.crop((32, 16, FW, 52))
+
+jump_shoot_f0 = jump_f2.copy()
+jump_shoot_f0.paste(arm, (32, 16), arm)
+
+jump_shoot_f1 = jump_f2.copy()
+jump_shoot_f1.paste(arm, (33, 15), arm)
+
+make_sheet([jump_shoot_f0, jump_shoot_f1]).save(CHARS / "ZaelJumpShoot.png")
+print("ZaelJumpShoot.png ✓")
+
+# ── ZaelDashShoot (2 frames) ──────────────────────────────────────────────────
+arm = shoot_f4.crop((32, 16, FW, 52))
+
+dash_shoot_f0 = dash_f0.copy()
+dash_shoot_f0.paste(arm, (32, 16), arm)
+
+dash_shoot_f1 = dash_f1.copy()
+dash_shoot_f1.paste(arm, (32, 16), arm)
+
+make_sheet([dash_shoot_f0, dash_shoot_f1]).save(CHARS / "ZaelDashShoot.png")
+print("ZaelDashShoot.png ✓")
+
 print("\nTodos os sprites gerados com sucesso!")
