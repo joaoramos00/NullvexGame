@@ -187,7 +187,7 @@ func _setup_sprite_frames() -> void:
     frames.add_animation("run_shoot")
     frames.set_animation_loop("run_shoot", true)
     frames.set_animation_speed("run_shoot", 10.0)
-    for i in 6:
+    for i in 9:
         var at := AtlasTexture.new()
         at.atlas = run_shoot_tex
         at.filter_clip = true
@@ -392,7 +392,8 @@ func _update_animation() -> void:
         if _is_wall_sliding:
             _sprite.play("wall_slide")
         elif _is_shooting:
-            _sprite.play("jump_shoot")
+            if _sprite.animation not in ["shoot_1", "shoot_2", "shoot_3"]:
+                _sprite.play("jump_shoot")
         else:
             _sprite.stop()
             _sprite.animation = "jump"

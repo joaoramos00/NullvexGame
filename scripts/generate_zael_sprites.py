@@ -76,6 +76,8 @@ run_f2   = get_frame(run,   2)
 run_f3   = get_frame(run,   3)
 jump_f2  = get_frame(jump,  2)
 jump_f3  = get_frame(jump,  3)
+shoot_f2 = get_frame(shoot, 2)
+shoot_f3 = get_frame(shoot, 3)
 shoot_f4 = get_frame(shoot, 4)
 
 # ── ZaelDash (2 frames) ───────────────────────────────────────────────────────
@@ -149,15 +151,22 @@ for i in range(4):
 make_sheet([death_f0, death_f1, death_f2, death_f3, death_f4, death_f5]).save(CHARS / "ZaelDeath.png")
 print("ZaelDeath.png ✓")
 
-# ── ZaelRunShoot (6 frames) ───────────────────────────────────────────────────
-# Extrair braço+canhão do frame 4 de ZaelAtirando (metade direita superior)
-arm = shoot_f4.crop((32, 16, FW, 52))
+# ── ZaelRunShoot (9 frames) ───────────────────────────────────────────────────
+# Frames 0-2: braço se estendendo (startup), frames 3-8: braço estendido (loop)
+arm2 = shoot_f2.crop((32, 16, FW, 52))
+arm3 = shoot_f3.crop((32, 16, FW, 52))
+arm4 = shoot_f4.crop((32, 16, FW, 52))
 
 frames_rs = []
-for i in range(6):
+for arm, i in [(arm2, 0), (arm3, 1), (arm4, 2)]:
     base = get_frame(run, i)
     result = base.copy()
     result.paste(arm, (32, 16), arm)
+    frames_rs.append(result)
+for i in range(3, 9):
+    base = get_frame(run, i % 6)
+    result = base.copy()
+    result.paste(arm4, (32, 16), arm4)
     frames_rs.append(result)
 
 make_sheet(frames_rs).save(CHARS / "ZaelRunShoot.png")

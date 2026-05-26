@@ -8,7 +8,7 @@ const _SPRITES: Array = [
     {"char": "ZAEL", "anim": "Shot",      "path": "res://characters/ranged/ZaelAtirando.png",  "frames": 9, "fps": 10.0},
     {"char": "ZAEL", "anim": "WallSlide", "path": "res://characters/ranged/ZaelWallSlide.png", "frames": 2, "fps": 6.0},
     {"char": "ZAEL", "anim": "Dash",      "path": "res://characters/ranged/ZaelDash.png",      "frames": 2, "fps": 12.0},
-    {"char": "ZAEL", "anim": "RunShoot",  "path": "res://characters/ranged/ZaelRunShoot.png",  "frames": 6, "fps": 10.0},
+    {"char": "ZAEL", "anim": "RunShoot",  "path": "res://characters/ranged/ZaelRunShoot.png",  "frames": 9, "fps": 10.0},
     {"char": "ZAEL", "anim": "JumpShoot", "path": "res://characters/ranged/ZaelJumpShoot.png", "frames": 2, "fps": 10.0},
     {"char": "ZAEL", "anim": "DashShoot", "path": "res://characters/ranged/ZaelDashShoot.png", "frames": 2, "fps": 12.0},
     {"char": "ZARA", "anim": "Walk",      "path": "res://characters/melee/ZaraAndando.png",    "frames": 5, "fps": 8.0},
