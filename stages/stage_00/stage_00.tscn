@@ -26,10 +26,10 @@ size = Vector2(384, 64)
 size = Vector2(1200, 64)
 
 [sub_resource type="RectangleShape2D" id="shape_Corr1Floor"]
-size = Vector2(600, 64)
+size = Vector2(660, 64)
 
 [sub_resource type="RectangleShape2D" id="shape_Corr1Ceil"]
-size = Vector2(600, 64)
+size = Vector2(660, 64)
 
 [sub_resource type="RectangleShape2D" id="shape_Corr1WallL"]
 size = Vector2(64, 384)
@@ -77,10 +77,10 @@ size = Vector2(1600, 64)
 size = Vector2(1000, 64)
 
 [sub_resource type="RectangleShape2D" id="shape_Corr2Floor"]
-size = Vector2(600, 64)
+size = Vector2(660, 64)
 
 [sub_resource type="RectangleShape2D" id="shape_Corr2Ceil"]
-size = Vector2(600, 64)
+size = Vector2(660, 64)
 
 [sub_resource type="RectangleShape2D" id="shape_Corr2WallL"]
 size = Vector2(64, 384)
