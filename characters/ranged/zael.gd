@@ -18,13 +18,13 @@ const _FRAME_W := 68
 const _FRAME_H := 68
 const _ROW_RIGHT := 0
 
-const _SPAWN_OFFSET_Y := 5.0
+const _SPAWN_OFFSET_Y := 24.0
 const _SPAWN_OFFSET_X := [0.0, 60.0, 65.0, 85.0]  # por nível: L1/L2/L3
 
 # Absorção: bolinhas partem do círculo externo e espiralam para o centro
 const _CHARGE_SPEED    := 0.6
 const _CHARGE_TURNS    := 1.2
-const _CHARGE_CENTER_Y := 5.0
+const _CHARGE_CENTER_Y := 35.0
 
 const _CHARGE_COUNT_L2     := 6
 const _CHARGE_OUTER_L2     := 60.0
