@@ -1,21 +1,25 @@
 extends EnemyBase
 
-enum State { HOVER, DIVE, RETREAT }
+enum State { HOVER, WINDUP, DIVE, RETREAT }
 
-@export var patrol_range:  float = 150.0
-@export var detect_radius: float = 200.0
-@export var dive_speed:    float = 280.0
-@export var retreat_speed: float = 150.0
-@export var bob_amplitude: float = 6.0
-@export var bob_speed:     float = 2.0
-@export var max_dive_time: float = 1.2
+@export var patrol_range:    float = 150.0
+@export var detect_radius:   float = 200.0
+@export var dive_speed:      float = 280.0
+@export var retreat_speed:   float = 150.0
+@export var bob_amplitude:   float = 6.0
+@export var bob_speed:       float = 2.0
+@export var max_dive_time:   float = 1.2
+@export var windup_duration: float = 0.6
+@export var windup_radius:   float = 20.0
 
-var _state:      State   = State.HOVER
-var _start_x:    float   = 0.0
-var _spawn_y:    float   = 0.0
-var _bob_time:   float   = 0.0
-var _dive_timer: float   = 0.0
-var _dive_dir:   Vector2 = Vector2.ZERO
+var _state:         State   = State.HOVER
+var _start_x:       float   = 0.0
+var _spawn_y:       float   = 0.0
+var _bob_time:      float   = 0.0
+var _dive_timer:    float   = 0.0
+var _dive_dir:      Vector2 = Vector2.ZERO
+var _windup_timer:  float   = 0.0
+var _windup_origin: Vector2 = Vector2.ZERO
 
 func _ready() -> void:
 	super._ready()
@@ -32,10 +36,12 @@ func _physics_process(delta: float) -> void:
 
 	match _state:
 		State.HOVER:   _tick_hover(delta)
+		State.WINDUP:  _tick_windup(delta)
 		State.DIVE:    _tick_dive(delta)
 		State.RETREAT: _tick_retreat()
 
-	move_and_slide()
+	if _state != State.WINDUP:
+		move_and_slide()
 
 	if velocity.x != 0.0:
 		_sprite.flip_h = velocity.x < 0.0
@@ -55,9 +61,20 @@ func _tick_hover(delta: float) -> void:
 
 	var player := get_tree().get_first_node_in_group("player") as Node2D
 	if player and global_position.distance_to(player.global_position) <= detect_radius:
-		_dive_dir   = (player.global_position - global_position).normalized()
-		_dive_timer = max_dive_time
-		_state      = State.DIVE
+		_dive_dir      = (player.global_position - global_position).normalized()
+		_windup_origin = global_position
+		_windup_timer  = 0.0
+		_state         = State.WINDUP
+
+func _tick_windup(delta: float) -> void:
+	_windup_timer += delta
+	var angle := (_windup_timer / windup_duration) * TAU
+	global_position = _windup_origin + Vector2(cos(angle), sin(angle)) * windup_radius
+	velocity = Vector2.ZERO
+	if _windup_timer >= windup_duration:
+		global_position = _windup_origin
+		_dive_timer     = max_dive_time
+		_state          = State.DIVE
 
 func _tick_dive(delta: float) -> void:
 	_dive_timer -= delta
