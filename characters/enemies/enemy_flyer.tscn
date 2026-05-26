@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://enemy_flyer"]
 
 [ext_resource type="Script" path="res://characters/enemies/enemy_flyer.gd" id="1_script"]
+[ext_resource type="Texture2D" uid="uid://dk03atdbvlbg8" path="res://enemies/fly_bot.png" id="2_texture"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_1"]
 radius = 10.0
@@ -13,6 +14,10 @@ script = ExtResource("1_script")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("CapsuleShape2D_1")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("2_texture")
+scale = Vector2(2, 2)
 
 [node name="ContactZone" type="Area2D" parent="."]
 collision_layer = 0
