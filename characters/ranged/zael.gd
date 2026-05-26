@@ -194,6 +194,28 @@ func _setup_sprite_frames() -> void:
         at.region = Rect2(i * fw, 0, fw, fh)
         frames.add_frame("run_shoot", at)
 
+    var jump_shoot_tex := load("res://characters/ranged/ZaelJumpShoot.png") as Texture2D
+    frames.add_animation("jump_shoot")
+    frames.set_animation_loop("jump_shoot", true)
+    frames.set_animation_speed("jump_shoot", 10.0)
+    for i in 2:
+        var at := AtlasTexture.new()
+        at.atlas = jump_shoot_tex
+        at.filter_clip = true
+        at.region = Rect2(i * fw, 0, fw, fh)
+        frames.add_frame("jump_shoot", at)
+
+    var dash_shoot_tex := load("res://characters/ranged/ZaelDashShoot.png") as Texture2D
+    frames.add_animation("dash_shoot")
+    frames.set_animation_loop("dash_shoot", true)
+    frames.set_animation_speed("dash_shoot", 12.0)
+    for i in 2:
+        var at := AtlasTexture.new()
+        at.atlas = dash_shoot_tex
+        at.filter_clip = true
+        at.region = Rect2(i * fw, 0, fw, fh)
+        frames.add_frame("dash_shoot", at)
+
     _sprite.sprite_frames = frames
     _sprite.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
     _sprite.play("idle")
@@ -361,10 +383,17 @@ func _update_animation() -> void:
             _sprite.stop()
             _sprite.animation = "jump"
             _sprite.frame = 0 if _jump_squat_timer < _SQUAT_DURATION * 0.5 else 1
+    elif _is_dashing:
+        if _is_shooting:
+            _sprite.play("dash_shoot")
+        else:
+            _sprite.play("dash")
     elif not is_on_floor():
         if _is_wall_sliding:
             _sprite.play("wall_slide")
-        elif not _is_shooting:
+        elif _is_shooting:
+            _sprite.play("jump_shoot")
+        else:
             _sprite.stop()
             _sprite.animation = "jump"
             _sprite.frame = 2
@@ -373,8 +402,6 @@ func _update_animation() -> void:
             _sprite.stop()
             _sprite.animation = "jump"
             _sprite.frame = 3
-    elif _is_dashing:
-        _sprite.play("dash")
     elif _is_shooting and velocity.x != 0.0:
         _sprite.play("run_shoot")
     elif _is_shooting:
