@@ -1,0 +1,74 @@
+
+1. Altura do tiro do Zael -> está um pouco alta, precisa alinhar com o braço esticado
+   DESIGN (2026-05-26): Ajustar _SPAWN_OFFSET_Y em zael.gd
+   - Geometria: AnimatedSprite2D em y=35 (escala 2×), sprite 68px → cano do braço ≈ y=24 (local)
+   - Mudar: _SPAWN_OFFSET_Y := 5.0  →  ~24.0 (valor exato confirmado visualmente na implementação)
+
+2. Altura da animação de carregamento -> alinhar com o centro da sprite
+   DESIGN (2026-05-26): Ajustar _CHARGE_CENTER_Y em zael.gd
+   - Centro visual do personagem = posição do node AnimatedSprite2D = y=35
+   - Mudar: _CHARGE_CENTER_Y := 5.0  →  35.0
+
+3. dash+pulo:
+   DESIGN (2026-05-26):
+   - Bug identificado: no 1º frame do dash, _is_dashing é false no check pré-super (dash
+     começa dentro de super._physics_process → _handle_dash). Press simultâneo X+Z falha.
+   - Fix: ampliar janelas de timing e permitir dash-jump saindo de borda (coyote)
+   Mudanças em zael.gd:
+     _DASH_JUMP_BUFFER := 0.2  →  0.35s  (janela pós-dash)
+     _JUMP_BUFFER_TIME := 0.15 →  0.25s  (janela pré-dash / press simultâneo)
+     _was_dashing_timer branch: adicionar OR _coyote_timer > 0 (permite dash de borda)
+   3.1. precisa melhorar timming para realizar → corrigido pelas janelas acima
+   dependem do 3.1:
+       3.2. verificar espaço percorrido → _DASH_JUMP_SPEED atual = 620 (testar pós-fix)
+       3.3. verificar se dá para mudar trajetoria → ✅ DECIDIDO: manter _DASH_JUMP_SPEED (620)
+            ao trocar direção no ar. Fix: _handle_movement — trocar `dir * SPEED` por
+            `dir * _DASH_JUMP_SPEED` no branch else (no ar durante dash-jump)
+
+4. Sprites (para criação de sprites utilizar a referência que tem dentro da pasta referencia)
+   Status atual (verificado no código 2026-05-26):
+     ✅ run_shoot  → ZaelRunShoot.png existe, animação configurada
+     ✅ dash       → ZaelDash.png existe
+     ✅ wall_slide → ZaelWallSlide.png existe
+     ✅ hurt       → ZaelHurt.png existe
+     ✅ death      → ZaelDeath.png existe
+     ❌ jump_shoot → não existe sprite, não existe animação no código
+     ❌ dash_shoot → não existe sprite, não existe animação no código
+   4.1 Sprite de andar+shot -> ✅ ZaelRunShoot.png já criado e integrado
+   4.2 Sprite de descer pela parede -> Adicionar ao ImgDebug para escolher uma, sprite fixa
+   4.3 Sprite de dash -> ✅ ZaelDash.png já criado
+   4.4 Sprite de pulo+shot -> ❌ precisa criar sprite + lógica de animação
+   4.5 Sprite de dash+shot -> ❌ precisa criar sprite + lógica de animação
+   4.6 Sprite de damage -> ✅ ZaelHurt.png já criado
+
+5. Inimigos:
+    5.1. Stage_00:
+        5.1.1. Fly: ✅ DESIGN APROVADO (2026-05-26)
+            Visual: Drone robótico, paleta cinza metálico/teal, olho-sensor vermelho, 68×68px
+            PixelLab Prompt: "Pixel art robot drone enemy, side view, 68×68px frame, gray metallic
+                body with teal glowing accents, small hovering robot, no legs, anti-gravity thrusters
+                underneath, compact round chassis, single red eye sensor, HD pixel art style, dark background"
+            Comportamento: HOVER (200px acima, rastreia X do player) → DIVE (alta vel.) → RETREAT
+            Arquivo: characters/enemies/enemy_flyer.gd (reescrito com enum State)
+        5.1.2. MiniBoss: ✅ DESIGN APROVADO (2026-05-26)
+            Visual: Grunt blindado/aumentado, paleta laranja/vermelho, 68×68px escalado ~3× no .tscn
+            PixelLab Prompt: "Pixel art heavy robot soldier enemy, side view, 68×68px sprite, orange
+                and dark red heavy armor, large reinforced gauntlets, wide shoulder pads, compact helmet
+                with visor, stocky threatening stance, same faction as grunt soldier, HD pixel art style,
+                dark background"
+            Stats: HP=18, contact_damage=3, shockwave_damage=3
+            Comportamento: PATROL → CHARGE (300px, vel.220) → STOMP (shockwave 150px) → RECOVER → repete
+            Arquivo: characters/enemies/enemy_miniboss.gd (extends EnemyBase, sem HP bar)
+            Aparece: apenas uma vez em stage_00
+        5.1.3. Boss: ✅ DESIGN APROVADO (2026-05-26)
+            Visual: Comandante humanóide, ~3× Zael, armadura laranja/vermelho, canhão no braço direito
+            PixelLab Prompt: "Pixel art robot commander boss, side view, 68×68px sprite sheet, tall
+                humanoid robot, heavy orange and dark red armor, wide shoulder pads, full helmet with
+                glowing visor, right arm replaced by arm cannon, imposing stance, military leader
+                aesthetic, HD pixel art style, dark background"
+            Stats: HP=30, contact_damage=5, projectile_damage=3, shockwave_damage=5
+            Comportamento Fase 1: WALK → DASH → RECOVER → SHOOT (1 proj.) → RECOVER → repete
+            Comportamento Fase 2 (<50% HP): WALK → DASH → SLAM → RECOVER → SHOOT (2 proj.) → RECOVER
+            Arquivo: characters/bosses/intro_boss.gd (reescrito, extends BossBase)
+        Compartilhado: effects/shockwave_effect.tscn (Area2D temporário, auto-destruído em 0.4s)
+        Spec completa: docs/superpowers/specs/2026-05-26-stage00-enemies-design.md
