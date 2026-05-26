@@ -34,13 +34,11 @@ const CP1_EXIT_X  := 6398.0   # centro visual Corr1_Wall_R (tile X 6366–6430)
 const CP2_ENTRY_X := 16002.0  # centro visual Corr2_Wall_L (tile X 15970–16034)
 const CP2_EXIT_X  := 16598.0  # centro visual Corr2_Wall_R (tile X 16566–16630)
 
-# Offset vertical das portas: mesmo -28px aplicado às laterais, agora nos cantos sup/inf
 const _CORR_CEIL_Y  := 832.0    # face interna Corr_Ceil
 const _CORR_FLOOR_Y := 1088.0   # face interna Corr_Floor
-const _DOOR_MARGIN  := 28.0
-const _DOOR_H       := _CORR_FLOOR_Y - _CORR_CEIL_Y - _DOOR_MARGIN * 2.0  # 200px
-const _DOOR_CY      := (_CORR_CEIL_Y + _CORR_FLOOR_Y) * 0.5               # 960
-const _DOOR_OPEN_Y  := (_CORR_CEIL_Y - _DOOR_CY) - _DOOR_H - 2.0         # -330
+const _DOOR_H       := _CORR_FLOOR_Y - _CORR_CEIL_Y          # 256px — ocupa o corredor todo
+const _DOOR_CY      := (_CORR_CEIL_Y + _CORR_FLOOR_Y) * 0.5  # 960
+const _DOOR_OPEN_Y  := (_CORR_CEIL_Y - _DOOR_CY) - _DOOR_H - 2.0  # -386
 
 var _player: CharacterBase = null
 var _zone1_enemies: Array[Node] = []
@@ -51,6 +49,7 @@ var _zone2_entered := false
 var _zone3_entered := false
 var _boss: Node = null
 var _boss_spawned := false
+var _doors: Array[CheckpointDoor] = []
 
 
 # ─── Lifecycle ──────────────────────────────────────────────────────────────
@@ -99,6 +98,7 @@ func _ready() -> void:
 func _process(_delta: float) -> void:
 	if is_instance_valid(_player):
 		$Camera2D.global_position = _player.global_position
+	queue_redraw()
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_just_pressed("pause"):
@@ -133,25 +133,26 @@ func _make_door(x: float) -> CheckpointDoor:
 	trig_shape.size = Vector2(96.0, _DOOR_H + 32.0)
 	trig.shape = trig_shape
 	add_child(door)
-	# Redimensiona sprite depois de _ready() (que executa em add_child)
+	# Transparente — desenhada em _draw_door_underlays() antes dos tiles
 	var sprite := door.get_node("ColorRect") as ColorRect
-	sprite.offset_left   = -32.0
-	sprite.offset_right  =  32.0
-	sprite.offset_top    = -_DOOR_H * 0.5
-	sprite.offset_bottom =  _DOOR_H * 0.5
+	sprite.color = Color(0, 0, 0, 0)
 	return door
 
 func _setup_doors() -> void:
 	var cp1_entry := _make_door(CP1_ENTRY_X)
 	cp1_entry.connect("door_opened", _on_cp1_entry_opened.bind(cp1_entry))
+	_doors.append(cp1_entry)
 
-	_make_door(CP1_EXIT_X)
+	var cp1_exit := _make_door(CP1_EXIT_X)
+	_doors.append(cp1_exit)
 
 	var cp2_entry := _make_door(CP2_ENTRY_X)
 	cp2_entry.connect("door_opened", _on_cp2_entry_opened.bind(cp2_entry))
+	_doors.append(cp2_entry)
 
 	var boss_door := _make_door(CP2_EXIT_X)
 	boss_door.connect("door_opened", _on_boss_door_opened.bind(boss_door))
+	_doors.append(boss_door)
 
 func _on_cp1_entry_opened(door: Node2D) -> void:
 	# Save checkpoint so player respawns at CP1 exit if they die
@@ -341,7 +342,19 @@ func _add_debug_platform() -> void:
 
 func _draw() -> void:
 	_draw_background()
+	_draw_door_underlays()
 	_draw_platforms()
+
+func _draw_door_underlays() -> void:
+	const DOOR_COLOR := Color(0.102, 0.102, 0.251, 1)
+	for door in _doors:
+		if not is_instance_valid(door):
+			continue
+		var sprite := door.get_node("ColorRect") as ColorRect
+		var anim_y: float = sprite.position.y
+		var cx: float = door.position.x
+		var cy: float = door.position.y + anim_y
+		draw_rect(Rect2(cx - 32.0, cy - _DOOR_H * 0.5, 64.0, _DOOR_H), DOOR_COLOR)
 
 func _draw_background() -> void:
 	# DEBUG: fundo branco para visualizar tiles
