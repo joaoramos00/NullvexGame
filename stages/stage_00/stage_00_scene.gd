@@ -414,8 +414,8 @@ func _add_debug_platform() -> void:
 
 func _draw() -> void:
 	_draw_background()
-	_draw_door_underlays()
 	_draw_platforms()
+	_draw_door_underlays()
 
 func _draw_door_underlays() -> void:
 	for door in _doors:
