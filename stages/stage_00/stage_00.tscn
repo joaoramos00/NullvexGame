@@ -32,10 +32,10 @@ size = Vector2(660, 64)
 size = Vector2(660, 64)
 
 [sub_resource type="RectangleShape2D" id="shape_Corr1WallL"]
-size = Vector2(64, 384)
+size = Vector2(64, 256)
 
 [sub_resource type="RectangleShape2D" id="shape_Corr1WallR"]
-size = Vector2(64, 384)
+size = Vector2(64, 256)
 
 [sub_resource type="RectangleShape2D" id="shape_FloorPilar"]
 size = Vector2(1600, 64)
@@ -112,6 +112,15 @@ size = Vector2(128, 64)
 [sub_resource type="RectangleShape2D" id="shape_StepUp3"]
 size = Vector2(128, 64)
 
+[sub_resource type="RectangleShape2D" id="shape_MiniBossFloor"]
+size = Vector2(640, 64)
+
+[sub_resource type="RectangleShape2D" id="shape_MiniBossCeil"]
+size = Vector2(640, 64)
+
+[sub_resource type="RectangleShape2D" id="shape_MiniBossRWall"]
+size = Vector2(64, 384)
+
 [sub_resource type="RectangleShape2D" id="shape_LBoundary"]
 size = Vector2(64, 2400)
 
@@ -166,22 +175,40 @@ position = Vector2(6100, 1120)
 shape = SubResource("shape_Corr1Floor")
 
 [node name="Corr1_Ceil" type="StaticBody2D" parent="."]
-position = Vector2(6100, 800)
+position = Vector2(6100, 928)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Corr1_Ceil"]
 shape = SubResource("shape_Corr1Ceil")
 
 [node name="Corr1_Wall_L" type="StaticBody2D" parent="."]
-position = Vector2(5770, 960)
+position = Vector2(5770, 1024)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Corr1_Wall_L"]
 shape = SubResource("shape_Corr1WallL")
 
 [node name="Corr1_Wall_R" type="StaticBody2D" parent="."]
-position = Vector2(6430, 960)
+position = Vector2(6430, 1024)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Corr1_Wall_R"]
 shape = SubResource("shape_Corr1WallR")
+
+[node name="MiniBoss_Floor" type="StaticBody2D" parent="."]
+position = Vector2(6750, 1120)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="MiniBoss_Floor"]
+shape = SubResource("shape_MiniBossFloor")
+
+[node name="MiniBoss_Ceil" type="StaticBody2D" parent="."]
+position = Vector2(6750, 800)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="MiniBoss_Ceil"]
+shape = SubResource("shape_MiniBossCeil")
+
+[node name="MiniBoss_RWall" type="StaticBody2D" parent="."]
+position = Vector2(7070, 960)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="MiniBoss_RWall"]
+shape = SubResource("shape_MiniBossRWall")
 
 [node name="Floor_Pilar" type="StaticBody2D" parent="."]
 position = Vector2(7200, 1120)
