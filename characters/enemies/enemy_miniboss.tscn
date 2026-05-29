@@ -1,0 +1,30 @@
+[gd_scene format=3 uid="uid://enemy_miniboss"]
+
+[ext_resource type="Script" path="res://characters/enemies/enemy_miniboss.gd" id="1_script"]
+[ext_resource type="Texture2D" path="res://characters/enemies/GruntCorrendo.png" id="2_tex"]
+
+[sub_resource type="CapsuleShape2D" id="shape_miniboss"]
+radius = 28.0
+height = 96.0
+
+[node name="EnemyMiniBoss" type="CharacterBody2D"]
+collision_layer = 4
+collision_mask = 1
+script = ExtResource("1_script")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("shape_miniboss")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+position = Vector2(0, -8)
+texture = ExtResource("2_tex")
+hframes = 6
+vframes = 1
+scale = Vector2(3, 3)
+
+[node name="ContactZone" type="Area2D" parent="."]
+collision_layer = 0
+collision_mask = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ContactZone"]
+shape = SubResource("shape_miniboss")
