@@ -508,8 +508,8 @@ func _draw_platforms() -> void:
 			var rect := Rect2(center - size * 0.5, size)
 			var n: String = child.name
 			if n.begins_with("Corr") or n.begins_with("Boss_") or n.begins_with("MiniBoss_"):
-				# Esconde visualmente o corredor 1 após a sala ser selada (física mantida)
-				if _miniboss_spawned and n.begins_with("Corr1"):
+				# Esconde Corr1 visualmente após selar, mas mantém o Floor (evita borda abrupta)
+				if _miniboss_spawned and n.begins_with("Corr1") and not n.ends_with("_Floor"):
 					continue
 				_draw_room_tiles(rect, n)
 			else:
