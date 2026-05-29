@@ -43,8 +43,8 @@ const _DOOR_V       := _DOOR_H / 3.0  # largura da porta (1/3 da altura ≈ 67px
 const _DOOR_CY      := 1024.0   # centro da porta: 1 tile abaixo do original (960→1024)
 const _DOOR_OPEN_Y  := (_CORR_CEIL_Y - _DOOR_CY) - _DOOR_H - 2.0
 
-const _MINIBOSS_CAM_CENTER := Vector2(7038.0, 1024.0)
-const _MINIBOSS_CAM_ZOOM   := 1920.0 / 1280.0         # 1.5 — preenche tela pela largura (sala 1280px)
+const _MINIBOSS_CAM_CENTER := Vector2(6878.0, 928.0)
+const _MINIBOSS_CAM_ZOOM   := 2.0                      # zoom 2x — sala 960×448px world
 const _BOSS_CAM_CENTER     := Vector2(17602.0, 520.0)
 const _BOSS_CAM_ZOOM       := 1080.0 / 1264.0         # ≈ 0.855 — preenche tela pela altura
 
@@ -287,7 +287,7 @@ func _on_miniboss_room_entered(body: Node2D) -> void:
 	if not _miniboss_spawned:
 		_miniboss_spawned = true
 		_miniboss = _MINIBOSS_SCENE.instantiate()
-		_miniboss.global_position = Vector2(7300.0, 1024.0)
+		_miniboss.global_position = Vector2(7000.0, 1024.0)
 		_miniboss.died.connect(_on_miniboss_defeated)
 		call_deferred("add_child", _miniboss)
 	# Aguarda player sair completamente da LWall antes de ativá-la
@@ -307,7 +307,7 @@ func _on_miniboss_defeated() -> void:
 	_watch_miniboss_room_exit()
 
 func _watch_miniboss_room_exit() -> void:
-	while is_instance_valid(_player) and _player.global_position.x < 7678.0:
+	while is_instance_valid(_player) and _player.global_position.x < 7358.0:
 		await get_tree().process_frame
 	_camera_locked = false
 
