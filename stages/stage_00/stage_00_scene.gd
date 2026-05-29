@@ -43,6 +43,11 @@ const _DOOR_V       := _DOOR_H / 3.0  # largura da porta (1/3 da altura ≈ 67px
 const _DOOR_CY      := 1024.0   # centro da porta: 1 tile abaixo do original (960→1024)
 const _DOOR_OPEN_Y  := (_CORR_CEIL_Y - _DOOR_CY) - _DOOR_H - 2.0
 
+const _MINIBOSS_CAM_CENTER := Vector2(6750.0, 960.0)
+const _MINIBOSS_CAM_ZOOM   := 1920.0 / 704.0         # ≈ 2.727 — preenche tela pela largura
+const _BOSS_CAM_CENTER     := Vector2(17602.0, 520.0)
+const _BOSS_CAM_ZOOM       := 1080.0 / 1264.0         # ≈ 0.855 — preenche tela pela altura
+
 var _player: CharacterBase = null
 var _zone1_enemies: Array[Node] = []
 var _zone2_enemies: Array[Node] = []
@@ -55,6 +60,9 @@ var _boss_spawned := false
 var _miniboss: Node = null
 var _miniboss_spawned := false
 var _doors: Array[CheckpointDoor] = []
+var _camera_locked   := false
+var _camera_target   := Vector2.ZERO
+var _camera_zoom_tgt := 2.2
 
 
 # ─── Lifecycle ──────────────────────────────────────────────────────────────
@@ -102,8 +110,18 @@ func _ready() -> void:
 	queue_redraw()
 
 func _process(_delta: float) -> void:
+	var cam := $Camera2D as Camera2D
 	if is_instance_valid(_player):
-		$Camera2D.global_position = _player.global_position
+		if _camera_locked:
+			cam.global_position = cam.global_position.lerp(_camera_target, 0.1)
+			cam.zoom = cam.zoom.lerp(Vector2(_camera_zoom_tgt, _camera_zoom_tgt), 0.1)
+		else:
+			cam.zoom = cam.zoom.lerp(Vector2(2.2, 2.2), 0.1)
+			if absf(cam.zoom.x - 2.2) < 0.05:
+				cam.zoom = Vector2(2.2, 2.2)
+				cam.global_position = _player.global_position
+			else:
+				cam.global_position = cam.global_position.lerp(_player.global_position, 0.12)
 	queue_redraw()
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -217,6 +235,9 @@ func _on_cp2_entry_opened(door: Node2D) -> void:
 func _on_boss_door_opened(_door: Node2D) -> void:
 	if is_instance_valid(_player):
 		_player.door_locked = false
+	_camera_locked   = true
+	_camera_target   = _BOSS_CAM_CENTER
+	_camera_zoom_tgt = _BOSS_CAM_ZOOM
 	_spawn_boss()
 	# After a short delay, seal the boss room by re-enabling Boss_LWall collision
 	await get_tree().create_timer(1.0).timeout
@@ -241,6 +262,7 @@ func _spawn_boss() -> void:
 	_boss.boss_defeated.connect(_on_boss_defeated)
 
 func _on_boss_defeated(_ability_id: String) -> void:
+	_camera_locked = false
 	# BossBase already called GameManager.complete_stage(0) in _run_death_sequence
 	GameManager.save_game()
 
@@ -274,8 +296,12 @@ func _on_miniboss_room_entered(body: Node2D) -> void:
 	var lwall := get_node_or_null("MiniBoss_LWall")
 	if lwall:
 		lwall.get_node("CollisionShape2D").set_deferred("disabled", false)
+	_camera_locked   = true
+	_camera_target   = _MINIBOSS_CAM_CENTER
+	_camera_zoom_tgt = _MINIBOSS_CAM_ZOOM
 
 func _on_miniboss_defeated() -> void:
+	_camera_locked = false
 	var rwall := get_node_or_null("MiniBoss_RWall")
 	if rwall:
 		rwall.get_node("CollisionShape2D").set_deferred("disabled", true)
