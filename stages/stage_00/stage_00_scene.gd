@@ -289,15 +289,18 @@ func _setup_miniboss_trigger() -> void:
 func _on_miniboss_room_entered(body: Node2D) -> void:
 	if not body.is_in_group("player"):
 		return
-	if not _miniboss_spawned:
-		_miniboss_spawned = true
+	# Spawn imediato (deferred) — não altera nada visual ainda
+	if _miniboss == null:
 		_miniboss = _MINIBOSS_SCENE.instantiate()
 		_miniboss.global_position = Vector2(7000.0, 1024.0)
 		_miniboss.died.connect(_on_miniboss_defeated)
 		call_deferred("add_child", _miniboss)
-	# Aguarda player sair completamente da LWall antes de ativá-la
-	while is_instance_valid(body) and body.global_position.x < 6470.0:
+	# Aguarda player sair completamente da LWall — só ENTÃO sela e troca câmera
+	while is_instance_valid(body) and body.global_position.x < 6490.0:
 		await get_tree().process_frame
+	if _miniboss_spawned:
+		return  # re-entrada após respawn, já processado
+	_miniboss_spawned = true
 	var lwall := get_node_or_null("MiniBoss_LWall")
 	if lwall:
 		lwall.get_node("CollisionShape2D").set_deferred("disabled", false)
