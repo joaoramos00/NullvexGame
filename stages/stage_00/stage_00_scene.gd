@@ -6,10 +6,12 @@ const ZARA_SCENE   := preload("res://characters/melee/zara.tscn")
 const _TILESET     := preload("res://stages/stage_00/Stage_00T.png")
 const _TS          := 64  # tamanho de destino no mundo
 const _SRC_TS      := 32  # tamanho real do tile no PNG
+const _DOOR_TEX    := preload("res://stages/door_pixellab.png")
 const _GRUNT_SCENE := preload("res://characters/enemies/enemy_base.tscn")
 const _FLYER_SCENE := preload("res://characters/enemies/enemy_flyer.tscn")
 const _BOSS_SCENE  := preload("res://characters/bosses/intro_boss.tscn")
 const _DOOR_SCENE  := preload("res://stages/checkpoint_door.tscn")
+const _MINIBOSS_SCENE := preload("res://characters/enemies/enemy_miniboss.tscn")
 
 const ZONE1_GRUNTS := [
 	Vector2(800, 1024), Vector2(1400, 1024), Vector2(3400, 888),
@@ -34,11 +36,12 @@ const CP1_EXIT_X  := 6398.0   # centro visual Corr1_Wall_R (tile X 6366–6430)
 const CP2_ENTRY_X := 16002.0  # centro visual Corr2_Wall_L (tile X 15970–16034)
 const CP2_EXIT_X  := 16598.0  # centro visual Corr2_Wall_R (tile X 16566–16630)
 
-const _CORR_CEIL_Y  := 832.0    # face interna Corr_Ceil
+const _CORR_CEIL_Y  := 960.0    # face interna Corr_Ceil
 const _CORR_FLOOR_Y := 1088.0   # face interna Corr_Floor
-const _DOOR_H       := _CORR_FLOOR_Y - _CORR_CEIL_Y          # 256px — ocupa o corredor todo
-const _DOOR_CY      := (_CORR_CEIL_Y + _CORR_FLOOR_Y) * 0.5  # 960
-const _DOOR_OPEN_Y  := (_CORR_CEIL_Y - _DOOR_CY) - _DOOR_H - 2.0  # -386
+const _DOOR_H       := 200.0    # altura da porta
+const _DOOR_V       := _DOOR_H / 3.0  # largura da porta (1/3 da altura ≈ 67px)
+const _DOOR_CY      := 1024.0   # centro da porta: 1 tile abaixo do original (960→1024)
+const _DOOR_OPEN_Y  := (_CORR_CEIL_Y - _DOOR_CY) - _DOOR_H - 2.0
 
 var _player: CharacterBase = null
 var _zone1_enemies: Array[Node] = []
@@ -49,6 +52,8 @@ var _zone2_entered := false
 var _zone3_entered := false
 var _boss: Node = null
 var _boss_spawned := false
+var _miniboss: Node = null
+var _miniboss_spawned := false
 var _doors: Array[CheckpointDoor] = []
 
 
@@ -84,6 +89,7 @@ func _ready() -> void:
 	AudioManager.play_bgm(AudioLibrary.bgm_intro)
 
 	_setup_doors()
+	_setup_miniboss_trigger()
 	_setup_zone_triggers()
 	_spawn_zone_enemies(1)
 	_spawn_zone_enemies(2)
@@ -125,12 +131,12 @@ func _make_door(x: float) -> CheckpointDoor:
 	# Redimensiona collision body antes de _ready()
 	var col := door.get_node("CollisionShape2D") as CollisionShape2D
 	var body_shape := (col.shape as RectangleShape2D).duplicate() as RectangleShape2D
-	body_shape.size = Vector2(64.0, _DOOR_H)
+	body_shape.size = Vector2(_DOOR_V, _DOOR_H)
 	col.shape = body_shape
 	# Redimensiona trigger
 	var trig := door.get_node("TriggerArea/CollisionShape2D") as CollisionShape2D
 	var trig_shape := (trig.shape as RectangleShape2D).duplicate() as RectangleShape2D
-	trig_shape.size = Vector2(96.0, _DOOR_H + 32.0)
+	trig_shape.size = Vector2(_DOOR_V + 32.0, _DOOR_H + 32.0)
 	trig.shape = trig_shape
 	add_child(door)
 	# Transparente — desenhada em _draw_door_underlays() antes dos tiles
@@ -140,45 +146,77 @@ func _make_door(x: float) -> CheckpointDoor:
 
 func _setup_doors() -> void:
 	var cp1_entry := _make_door(CP1_ENTRY_X)
-	cp1_entry.connect("door_opened", _on_cp1_entry_opened.bind(cp1_entry))
+	cp1_entry.connect("door_opening", _on_door_opening)
+	cp1_entry.connect("door_opened",  _on_cp1_entry_opened.bind(cp1_entry))
 	_doors.append(cp1_entry)
 
 	var cp1_exit := _make_door(CP1_EXIT_X)
+	cp1_exit.connect("door_opening", _on_door_opening)
+	cp1_exit.connect("door_opened",  _on_cp1_exit_opened.bind(cp1_exit))
 	_doors.append(cp1_exit)
 
 	var cp2_entry := _make_door(CP2_ENTRY_X)
-	cp2_entry.connect("door_opened", _on_cp2_entry_opened.bind(cp2_entry))
+	cp2_entry.connect("door_opening", _on_door_opening)
+	cp2_entry.connect("door_opened",  _on_cp2_entry_opened.bind(cp2_entry))
 	_doors.append(cp2_entry)
 
 	var boss_door := _make_door(CP2_EXIT_X)
-	boss_door.connect("door_opened", _on_boss_door_opened.bind(boss_door))
+	boss_door.connect("door_opened",  _on_boss_door_opened.bind(boss_door))
 	_doors.append(boss_door)
 
+func _on_door_opening() -> void:
+	if is_instance_valid(_player):
+		_player.door_locked = true
+
 func _on_cp1_entry_opened(door: Node2D) -> void:
-	# Save checkpoint so player respawns at CP1 exit if they die
-	StageManager.save_checkpoint(Vector2(CP1_EXIT_X + 128, 992), 1)
-	# Heal player fully
+	StageManager.save_checkpoint(Vector2(CP1_EXIT_X + 128, 1024), 1)
 	if is_instance_valid(_player):
 		_player.heal(_player.max_hp)
-	# After player passes, close the door behind them
-	await get_tree().create_timer(1.5).timeout
-	if is_instance_valid(door) and is_instance_valid(_player):
-		if _player.global_position.x > door.position.x:
-			door.call("close")
+		_player.door_locked = false
+		_player.door_walk_speed = CharacterBase.SPEED
+	var target_x := door.position.x + 96.0
+	while is_instance_valid(_player) and _player.global_position.x < target_x:
+		await get_tree().process_frame
+	if is_instance_valid(_player):
+		_player.door_walk_speed = 0.0
+	if is_instance_valid(door):
+		door.call("close")
+		var trig := door.get_node_or_null("TriggerArea") as Area2D
+		if trig:
+			trig.monitoring = false
+
+func _on_cp1_exit_opened(door: Node2D) -> void:
+	if is_instance_valid(_player):
+		_player.door_locked = false
+		_player.door_walk_speed = CharacterBase.SPEED
+	var target_x := door.position.x + 96.0
+	while is_instance_valid(_player) and _player.global_position.x < target_x:
+		await get_tree().process_frame
+	if is_instance_valid(_player):
+		_player.door_walk_speed = 0.0
+	if is_instance_valid(door):
+		door.call("close")
+		var trig := door.get_node_or_null("TriggerArea") as Area2D
+		if trig:
+			trig.monitoring = false
 
 func _on_cp2_entry_opened(door: Node2D) -> void:
-	# Save checkpoint so player respawns at CP2 exit if they die (before boss)
 	StageManager.save_checkpoint(Vector2(CP2_EXIT_X + 128, 992), 2)
-	# Heal player fully
 	if is_instance_valid(_player):
 		_player.heal(_player.max_hp)
-	# After player passes, close the door behind them
-	await get_tree().create_timer(1.5).timeout
-	if is_instance_valid(door) and is_instance_valid(_player):
-		if _player.global_position.x > door.position.x:
-			door.call("close")
+		_player.door_locked = false
+		_player.door_walk_speed = CharacterBase.SPEED
+	var target_x := door.position.x + 96.0
+	while is_instance_valid(_player) and _player.global_position.x < target_x:
+		await get_tree().process_frame
+	if is_instance_valid(_player):
+		_player.door_walk_speed = 0.0
+	if is_instance_valid(door):
+		door.call("close")
 
 func _on_boss_door_opened(_door: Node2D) -> void:
+	if is_instance_valid(_player):
+		_player.door_locked = false
 	_spawn_boss()
 	# After a short delay, seal the boss room by re-enabling Boss_LWall collision
 	await get_tree().create_timer(1.0).timeout
@@ -206,6 +244,41 @@ func _spawn_boss() -> void:
 func _on_boss_defeated(_ability_id: String) -> void:
 	# BossBase already called GameManager.complete_stage(0) in _run_death_sequence
 	GameManager.save_game()
+
+# ─── MiniBoss Room ────────────────────────────────────────────────────────────
+
+func _setup_miniboss_trigger() -> void:
+	var area := Area2D.new()
+	area.collision_layer = 0
+	area.collision_mask  = 2
+	var shape := CollisionShape2D.new()
+	var rect  := RectangleShape2D.new()
+	rect.size = Vector2(80.0, 256.0)
+	shape.shape = rect
+	area.add_child(shape)
+	area.position = Vector2(6470.0, 960.0)
+	area.body_entered.connect(_on_miniboss_room_entered)
+	add_child(area)
+
+func _on_miniboss_room_entered(body: Node2D) -> void:
+	if not body.is_in_group("player"):
+		return
+	var seal := get_node_or_null("Corr1_Wall_R")
+	if seal:
+		seal.get_node("CollisionShape2D").disabled = false
+	if _miniboss_spawned:
+		return
+	_miniboss_spawned = true
+	_miniboss = _MINIBOSS_SCENE.instantiate()
+	_miniboss.global_position = Vector2(6900.0, 1024.0)
+	add_child(_miniboss)
+	_miniboss.died.connect(_on_miniboss_defeated)
+
+func _on_miniboss_defeated() -> void:
+	var rwall := get_node_or_null("MiniBoss_RWall")
+	if rwall:
+		rwall.get_node("CollisionShape2D").disabled = true
+		queue_redraw()
 
 # ─── Zone Triggers ───────────────────────────────────────────────────────────
 
@@ -346,15 +419,14 @@ func _draw() -> void:
 	_draw_platforms()
 
 func _draw_door_underlays() -> void:
-	const DOOR_COLOR := Color(0.102, 0.102, 0.251, 1)
 	for door in _doors:
 		if not is_instance_valid(door):
 			continue
-		var sprite := door.get_node("ColorRect") as ColorRect
-		var anim_y: float = sprite.position.y
+		var anim_y: float = door.anim_offset
 		var cx: float = door.position.x
 		var cy: float = door.position.y + anim_y
-		draw_rect(Rect2(cx - 32.0, cy - _DOOR_H * 0.5, 64.0, _DOOR_H), DOOR_COLOR)
+		var dst := Rect2(cx - _DOOR_V * 0.5, cy - _DOOR_H * 0.5, _DOOR_V, _DOOR_H)
+		draw_texture_rect(_DOOR_TEX, dst, false)
 
 func _draw_background() -> void:
 	# DEBUG: fundo branco para visualizar tiles
@@ -436,7 +508,7 @@ func _draw_platforms() -> void:
 			var center: Vector2 = (child as Node2D).position + (cs as Node2D).position
 			var rect := Rect2(center - size * 0.5, size)
 			var n: String = child.name
-			if n.begins_with("Corr") or n.begins_with("Boss_"):
+			if n.begins_with("Corr") or n.begins_with("Boss_") or n.begins_with("MiniBoss_"):
 				_draw_room_tiles(rect, n)
 			else:
 				_draw_platform_tiles(rect)
@@ -508,7 +580,10 @@ func _draw_room_tiles(rect: Rect2, piece_name: String) -> void:
 				elif is_top:       tile = Vector2i(2, 0)   # Inner-TR — base da parede
 				else:              tile = Vector2i(3, 2)   # LEFT — face interna
 			else:  # _Floor
-				if is_left:        tile = Vector2i(1, 1)   # Inner-TL
+				# Corridor floors: walls are disabled so no junction corners needed
+				if piece_name.begins_with("Corr"):
+					tile = Vector2i(3, 0)  # TOP — flat floor throughout
+				elif is_left:      tile = Vector2i(1, 1)   # Inner-TL
 				elif is_right:     tile = Vector2i(2, 0)   # Inner-TR
 				else:              tile = Vector2i(3, 0)   # TOP — chão
 			# Cantos: aplicar shift da peça adjacente no eixo perpendicular
