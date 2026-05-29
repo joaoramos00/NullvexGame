@@ -582,12 +582,8 @@ func _draw_room_tiles(rect: Rect2, piece_name: String) -> void:
 				elif is_top:       tile = Vector2i(2, 0)   # Inner-TR — base da parede
 				else:              tile = Vector2i(3, 2)   # LEFT — face interna
 			else:  # _Floor
-				# Corridor floors: walls are disabled so no junction corners needed
-				if piece_name.begins_with("Corr"):
-					tile = Vector2i(3, 0)  # TOP — flat floor throughout
-				elif is_left:      tile = Vector2i(1, 1)   # Inner-TL
-				elif is_right:     tile = Vector2i(2, 0)   # Inner-TR
-				else:              tile = Vector2i(3, 0)   # TOP — chão
+				# Paredes já fornecem os cantos de junção — floor usa flat TOP em toda a extensão
+				tile = Vector2i(3, 0)  # TOP
 			# Cantos: aplicar shift da peça adjacente no eixo perpendicular
 			var tx := base_xs
 			var ty := base_ys
