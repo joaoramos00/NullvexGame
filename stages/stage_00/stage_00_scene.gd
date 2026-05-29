@@ -15,7 +15,7 @@ const _MINIBOSS_SCENE := preload("res://characters/enemies/enemy_miniboss.tscn")
 
 const ZONE1_GRUNTS := [
 	Vector2(800, 1024), Vector2(1400, 1024), Vector2(3400, 888),
-	Vector2(3800, 1024), Vector2(4400, 864), Vector2(5400, 1024)
+	Vector2(3800, 1024), Vector2(4400, 864)
 ]
 const ZONE1_FLYERS := [Vector2(2100, 906), Vector2(4900, 906)]
 

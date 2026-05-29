@@ -217,13 +217,13 @@ position = Vector2(7200, 1120)
 shape = SubResource("shape_FloorPilar")
 
 [node name="Pilar" type="StaticBody2D" parent="."]
-position = Vector2(6700, 736)
+position = Vector2(7372, 736)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Pilar"]
 shape = SubResource("shape_Pilar")
 
 [node name="Plat_PilarTop" type="StaticBody2D" parent="."]
-position = Vector2(6860, 384)
+position = Vector2(7532, 384)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Plat_PilarTop"]
 shape = SubResource("shape_PlatPilarTop")
@@ -350,19 +350,19 @@ shape = SubResource("shape_GoalZone")
 [node name="StageComplete" parent="." instance=ExtResource("6_scom")]
 
 [node name="Step_Up1" type="StaticBody2D" parent="."]
-position = Vector2(6565, 896)
+position = Vector2(7237, 896)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Step_Up1"]
 shape = SubResource("shape_StepUp1")
 
 [node name="Step_Up2" type="StaticBody2D" parent="."]
-position = Vector2(6550, 704)
+position = Vector2(7222, 704)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Step_Up2"]
 shape = SubResource("shape_StepUp2")
 
 [node name="Step_Up3" type="StaticBody2D" parent="."]
-position = Vector2(6600, 512)
+position = Vector2(7272, 512)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Step_Up3"]
 shape = SubResource("shape_StepUp3")
