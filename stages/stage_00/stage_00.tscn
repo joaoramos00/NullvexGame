@@ -26,10 +26,10 @@ size = Vector2(384, 64)
 size = Vector2(1200, 64)
 
 [sub_resource type="RectangleShape2D" id="shape_Corr1Floor"]
-size = Vector2(660, 64)
+size = Vector2(896, 64)
 
 [sub_resource type="RectangleShape2D" id="shape_Corr1Ceil"]
-size = Vector2(660, 64)
+size = Vector2(896, 64)
 
 [sub_resource type="RectangleShape2D" id="shape_Corr1WallL"]
 size = Vector2(64, 256)
@@ -169,19 +169,19 @@ position = Vector2(5200, 1120)
 shape = SubResource("shape_FloorZ1C")
 
 [node name="Corr1_Floor" type="StaticBody2D" parent="."]
-position = Vector2(6100, 1120)
+position = Vector2(5982, 1120)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Corr1_Floor"]
 shape = SubResource("shape_Corr1Floor")
 
 [node name="Corr1_Ceil" type="StaticBody2D" parent="."]
-position = Vector2(6100, 928)
+position = Vector2(5982, 928)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Corr1_Ceil"]
 shape = SubResource("shape_Corr1Ceil")
 
 [node name="Corr1_Wall_L" type="StaticBody2D" parent="."]
-position = Vector2(5770, 1024)
+position = Vector2(5534, 1024)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Corr1_Wall_L"]
 shape = SubResource("shape_Corr1WallL")
