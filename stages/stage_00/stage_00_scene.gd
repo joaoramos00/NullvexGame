@@ -20,10 +20,10 @@ const ZONE1_GRUNTS := [
 const ZONE1_FLYERS := [Vector2(2100, 906), Vector2(4900, 906)]
 
 const ZONE2_GRUNTS := [
-	Vector2(7000, 392), Vector2(7800, 392), Vector2(9300, 264),
+	Vector2(8000, 392), Vector2(7800, 392), Vector2(9300, 264),
 	Vector2(9960, 384), Vector2(11800, 704)
 ]
-const ZONE2_FLYERS := [Vector2(7400, 274), Vector2(8500, 274), Vector2(11200, 586)]
+const ZONE2_FLYERS := [Vector2(8200, 274), Vector2(8500, 274), Vector2(11200, 586)]
 
 const ZONE3_GRUNTS := [
 	Vector2(12200, 1024), Vector2(13600, 904), Vector2(14200, 1024), Vector2(15200, 1024)
@@ -43,8 +43,8 @@ const _DOOR_V       := _DOOR_H / 3.0  # largura da porta (1/3 da altura ≈ 67px
 const _DOOR_CY      := 1024.0   # centro da porta: 1 tile abaixo do original (960→1024)
 const _DOOR_OPEN_Y  := (_CORR_CEIL_Y - _DOOR_CY) - _DOOR_H - 2.0
 
-const _MINIBOSS_CAM_CENTER := Vector2(6750.0, 960.0)
-const _MINIBOSS_CAM_ZOOM   := 1920.0 / 704.0         # ≈ 2.727 — preenche tela pela largura
+const _MINIBOSS_CAM_CENTER := Vector2(7038.0, 1024.0)
+const _MINIBOSS_CAM_ZOOM   := 1920.0 / 1280.0         # 1.5 — preenche tela pela largura (sala 1280px)
 const _BOSS_CAM_CENTER     := Vector2(17602.0, 520.0)
 const _BOSS_CAM_ZOOM       := 1080.0 / 1264.0         # ≈ 0.855 — preenche tela pela altura
 
@@ -277,7 +277,7 @@ func _setup_miniboss_trigger() -> void:
 	rect.size = Vector2(80.0, 256.0)
 	shape.shape = rect
 	area.add_child(shape)
-	area.position = Vector2(6470.0, 960.0)
+	area.position = Vector2(6470.0, 1024.0)
 	area.body_entered.connect(_on_miniboss_room_entered)
 	add_child(area)
 
@@ -287,7 +287,7 @@ func _on_miniboss_room_entered(body: Node2D) -> void:
 	if not _miniboss_spawned:
 		_miniboss_spawned = true
 		_miniboss = _MINIBOSS_SCENE.instantiate()
-		_miniboss.global_position = Vector2(6900.0, 1024.0)
+		_miniboss.global_position = Vector2(7300.0, 1024.0)
 		_miniboss.died.connect(_on_miniboss_defeated)
 		call_deferred("add_child", _miniboss)
 	# Aguarda player sair completamente da LWall antes de ativá-la
@@ -301,10 +301,15 @@ func _on_miniboss_room_entered(body: Node2D) -> void:
 	_camera_zoom_tgt = _MINIBOSS_CAM_ZOOM
 
 func _on_miniboss_defeated() -> void:
-	_camera_locked = false
 	var rwall := get_node_or_null("MiniBoss_RWall")
 	if rwall:
 		rwall.get_node("CollisionShape2D").set_deferred("disabled", true)
+	_watch_miniboss_room_exit()
+
+func _watch_miniboss_room_exit() -> void:
+	while is_instance_valid(_player) and _player.global_position.x < 7678.0:
+		await get_tree().process_frame
+	_camera_locked = false
 
 # ─── Zone Triggers ───────────────────────────────────────────────────────────
 
