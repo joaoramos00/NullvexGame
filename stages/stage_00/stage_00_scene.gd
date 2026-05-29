@@ -222,8 +222,7 @@ func _on_boss_door_opened(_door: Node2D) -> void:
 	await get_tree().create_timer(1.0).timeout
 	var lwall := $Boss_LWall
 	if is_instance_valid(lwall):
-		lwall.get_node("CollisionShape2D").disabled = false
-		queue_redraw()
+		lwall.get_node("CollisionShape2D").set_deferred("disabled", false)
 
 # ─── Boss ─────────────────────────────────────────────────────────────────────
 
@@ -263,22 +262,27 @@ func _setup_miniboss_trigger() -> void:
 func _on_miniboss_room_entered(body: Node2D) -> void:
 	if not body.is_in_group("player"):
 		return
-	var seal := get_node_or_null("Corr1_Wall_R")
-	if seal:
-		seal.get_node("CollisionShape2D").disabled = false
+	# Sela a entrada com a parede esquerda da sala (tiles voltados para dentro)
+	var lwall := get_node_or_null("MiniBoss_LWall")
+	if lwall:
+		lwall.get_node("CollisionShape2D").set_deferred("disabled", false)
+	# Esconde a geometria do corredor para evitar visual duplicado
+	for cname in ["Corr1_Ceil", "Corr1_Floor"]:
+		var cnode := get_node_or_null(cname)
+		if cnode:
+			cnode.get_node("CollisionShape2D").set_deferred("disabled", true)
 	if _miniboss_spawned:
 		return
 	_miniboss_spawned = true
 	_miniboss = _MINIBOSS_SCENE.instantiate()
 	_miniboss.global_position = Vector2(6900.0, 1024.0)
-	add_child(_miniboss)
 	_miniboss.died.connect(_on_miniboss_defeated)
+	call_deferred("add_child", _miniboss)
 
 func _on_miniboss_defeated() -> void:
 	var rwall := get_node_or_null("MiniBoss_RWall")
 	if rwall:
-		rwall.get_node("CollisionShape2D").disabled = true
-		queue_redraw()
+		rwall.get_node("CollisionShape2D").set_deferred("disabled", true)
 
 # ─── Zone Triggers ───────────────────────────────────────────────────────────
 
