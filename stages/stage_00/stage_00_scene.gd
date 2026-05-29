@@ -262,17 +262,18 @@ func _setup_miniboss_trigger() -> void:
 func _on_miniboss_room_entered(body: Node2D) -> void:
 	if not body.is_in_group("player"):
 		return
-	# Sela a entrada com a parede esquerda da sala (tiles voltados para dentro)
+	if not _miniboss_spawned:
+		_miniboss_spawned = true
+		_miniboss = _MINIBOSS_SCENE.instantiate()
+		_miniboss.global_position = Vector2(6900.0, 1024.0)
+		_miniboss.died.connect(_on_miniboss_defeated)
+		call_deferred("add_child", _miniboss)
+	# Aguarda player sair completamente da LWall antes de ativá-la
+	while is_instance_valid(body) and body.global_position.x < 6470.0:
+		await get_tree().process_frame
 	var lwall := get_node_or_null("MiniBoss_LWall")
 	if lwall:
 		lwall.get_node("CollisionShape2D").set_deferred("disabled", false)
-	if _miniboss_spawned:
-		return
-	_miniboss_spawned = true
-	_miniboss = _MINIBOSS_SCENE.instantiate()
-	_miniboss.global_position = Vector2(6900.0, 1024.0)
-	_miniboss.died.connect(_on_miniboss_defeated)
-	call_deferred("add_child", _miniboss)
 
 func _on_miniboss_defeated() -> void:
 	var rwall := get_node_or_null("MiniBoss_RWall")
