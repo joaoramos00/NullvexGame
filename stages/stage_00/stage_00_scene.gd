@@ -31,8 +31,8 @@ const ZONE3_GRUNTS := [
 const ZONE3_FLYERS := [Vector2(13200, 906), Vector2(14600, 906)]
 
 const BOSS_SPAWN := Vector2(18200, 784)
-const CP1_ENTRY_X := 5802.0   # centro visual Corr1_Wall_L (tile X 5770–5834)
-const CP1_EXIT_X  := 6398.0   # centro visual Corr1_Wall_R (tile X 6366–6430)
+const CP1_ENTRY_X := 5566.0   # face interna Corr1_Wall_L (5534+32)
+const CP1_EXIT_X  := 6430.0   # centro Corr1_Wall_R / LWall — porta embutida na parede
 const CP2_ENTRY_X := 16002.0  # centro visual Corr2_Wall_L (tile X 15970–16034)
 const CP2_EXIT_X  := 16598.0  # centro visual Corr2_Wall_R (tile X 16566–16630)
 
@@ -43,8 +43,10 @@ const _DOOR_V       := _DOOR_H / 3.0  # largura da porta (1/3 da altura ≈ 67px
 const _DOOR_CY      := 1024.0   # centro da porta: 1 tile abaixo do original (960→1024)
 const _DOOR_OPEN_Y  := (_CORR_CEIL_Y - _DOOR_CY) - _DOOR_H - 2.0
 
+const _CORR1_CAM_CENTER    := Vector2(5982.0, 1024.0)
+const _CORR1_CAM_ZOOM      := 2.0                      # corredor 960px total (896 floor + 32 cada parede)
 const _MINIBOSS_CAM_CENTER := Vector2(6878.0, 896.0)
-const _MINIBOSS_CAM_ZOOM   := 2.0                      # zoom 2x — sala 960×448px world
+const _MINIBOSS_CAM_ZOOM   := 2.0                      # sala 960px total, zoom 2x
 const _BOSS_CAM_CENTER     := Vector2(17602.0, 520.0)
 const _BOSS_CAM_ZOOM       := 1080.0 / 1264.0         # ≈ 0.855 — preenche tela pela altura
 
@@ -202,6 +204,9 @@ func _on_cp1_entry_opened(door: Node2D) -> void:
 		var trig := door.get_node_or_null("TriggerArea") as Area2D
 		if trig:
 			trig.monitoring = false
+	_camera_locked   = true
+	_camera_target   = _CORR1_CAM_CENTER
+	_camera_zoom_tgt = _CORR1_CAM_ZOOM
 
 func _on_cp1_exit_opened(door: Node2D) -> void:
 	if is_instance_valid(_player):
