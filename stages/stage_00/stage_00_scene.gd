@@ -266,11 +266,6 @@ func _on_miniboss_room_entered(body: Node2D) -> void:
 	var lwall := get_node_or_null("MiniBoss_LWall")
 	if lwall:
 		lwall.get_node("CollisionShape2D").set_deferred("disabled", false)
-	# Esconde a geometria do corredor para evitar visual duplicado
-	for cname in ["Corr1_Ceil", "Corr1_Floor"]:
-		var cnode := get_node_or_null(cname)
-		if cnode:
-			cnode.get_node("CollisionShape2D").set_deferred("disabled", true)
 	if _miniboss_spawned:
 		return
 	_miniboss_spawned = true
@@ -513,6 +508,9 @@ func _draw_platforms() -> void:
 			var rect := Rect2(center - size * 0.5, size)
 			var n: String = child.name
 			if n.begins_with("Corr") or n.begins_with("Boss_") or n.begins_with("MiniBoss_"):
+				# Esconde visualmente o corredor 1 após a sala ser selada (física mantida)
+				if _miniboss_spawned and n.begins_with("Corr1"):
+					continue
 				_draw_room_tiles(rect, n)
 			else:
 				_draw_platform_tiles(rect)
