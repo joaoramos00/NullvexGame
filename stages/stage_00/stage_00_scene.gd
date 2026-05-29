@@ -43,7 +43,7 @@ const _DOOR_V       := _DOOR_H / 3.0  # largura da porta (1/3 da altura ≈ 67px
 const _DOOR_CY      := 1024.0   # centro da porta: 1 tile abaixo do original (960→1024)
 const _DOOR_OPEN_Y  := (_CORR_CEIL_Y - _DOOR_CY) - _DOOR_H - 2.0
 
-const _MINIBOSS_CAM_CENTER := Vector2(6878.0, 928.0)
+const _MINIBOSS_CAM_CENTER := Vector2(6878.0, 896.0)
 const _MINIBOSS_CAM_ZOOM   := 2.0                      # zoom 2x — sala 960×448px world
 const _BOSS_CAM_CENTER     := Vector2(17602.0, 520.0)
 const _BOSS_CAM_ZOOM       := 1080.0 / 1264.0         # ≈ 0.855 — preenche tela pela altura
@@ -590,7 +590,8 @@ func _draw_room_tiles(rect: Rect2, piece_name: String) -> void:
 	var base_ys := 0
 	if   piece_name.ends_with("_Floor"):                                      base_ys = -src_ts
 	elif piece_name.ends_with("_Ceil"):                                       base_ys =  src_ts
-	elif piece_name.ends_with("_Wall_L") or piece_name.ends_with("LWall"):   base_xs =  src_ts
+	elif piece_name.ends_with("_Wall_L"):                                     base_xs =  src_ts
+	elif piece_name.ends_with("LWall"):                                       base_xs =  0
 	elif piece_name.ends_with("_Wall_R") or piece_name.ends_with("RWall"):   base_xs = -src_ts
 	var cols := ceili(rect.size.x / ts)
 	var rows := ceili(rect.size.y / ts)
