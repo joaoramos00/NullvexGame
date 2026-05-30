@@ -349,42 +349,42 @@ shape = SubResource("shape_GoalZone")
 [node name="StageComplete" parent="." instance=ExtResource("6_scom")]
 
 [node name="Ledge_A" type="StaticBody2D" parent="."]
-position = Vector2(8286, 1072)
+position = Vector2(8414, 1072)
 collision_layer = 1
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Ledge_A"]
 shape = SubResource("shape_LedgeA")
 
 [node name="Pilar_A" type="StaticBody2D" parent="."]
-position = Vector2(8446, 1024)
+position = Vector2(8574, 1024)
 collision_layer = 1
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Pilar_A"]
 shape = SubResource("shape_PilarA")
 
 [node name="Ledge_B" type="StaticBody2D" parent="."]
-position = Vector2(8726, 976)
+position = Vector2(8854, 976)
 collision_layer = 1
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Ledge_B"]
 shape = SubResource("shape_LedgeB")
 
 [node name="Pilar_B" type="StaticBody2D" parent="."]
-position = Vector2(8886, 928)
+position = Vector2(9014, 928)
 collision_layer = 1
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Pilar_B"]
 shape = SubResource("shape_PilarB")
 
 [node name="Ledge_C" type="StaticBody2D" parent="."]
-position = Vector2(9166, 880)
+position = Vector2(9294, 880)
 collision_layer = 1
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Ledge_C"]
 shape = SubResource("shape_LedgeC")
 
 [node name="Pilar_C" type="StaticBody2D" parent="."]
-position = Vector2(9326, 832)
+position = Vector2(9454, 832)
 collision_layer = 1
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Pilar_C"]
