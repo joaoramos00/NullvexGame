@@ -15,7 +15,8 @@ const _SPRITES: Array = [
     {"char": "ZARA", "anim": "Run",       "path": "res://characters/melee/ZaraCorrendo.png",   "frames": 3, "fps": 10.0},
     {"char": "MINIBOSS", "anim": "Walk",  "path": "res://characters/enemies/miniboss/miniboss_walk.png",  "frames": 6, "fps": 8.0,  "frame_w": 240},
     {"char": "MINIBOSS", "anim": "Idle",  "path": "res://characters/enemies/miniboss/miniboss_idle.png",  "frames": 4, "fps": 6.0,  "frame_w": 240},
-    {"char": "MINIBOSS", "anim": "Punch", "path": "res://characters/enemies/miniboss/miniboss_punch.png", "frames": 9, "fps": 12.0, "frame_w": 240},
+    {"char": "MINIBOSS", "anim": "Punch", "path": "res://characters/enemies/miniboss/miniboss_punch.png", "frames": 9, "fps": 12.0, "frame_w": 240, "label": "Punch (novo gif)"},
+    {"char": "MINIBOSS", "anim": "Stomp", "path": "res://characters/enemies/miniboss/miniboss_stomp.png", "frames": 9, "fps": 12.0, "frame_w": 240},
 ]
 
 const _TILESETS: Array = [
@@ -923,6 +924,7 @@ func _build_moves_box() -> void:
 
     for atk: Array in [
         ["Patrol",  "debug_set_patrol",  Color(0.4, 0.9, 0.4)],
+        ["Punch",   "debug_set_punch",   Color(1.0, 0.5, 0.9)],
         ["Charge",  "debug_set_charge",  Color(1.0, 0.7, 0.2)],
         ["Stomp",   "debug_set_stomp",   Color(1.0, 0.35, 0.35)],
         ["Recover", "debug_set_recover", Color(0.5, 0.75, 1.0)],

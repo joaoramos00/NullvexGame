@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" path="res://characters/enemies/enemy_miniboss.gd" id="1_script"]
 [ext_resource type="Script" path="res://characters/enemies/enemy_miniboss_head.gd" id="5_head"]
+[ext_resource type="Script" path="res://characters/enemies/enemy_miniboss_body.gd" id="6_body"]
 [ext_resource type="Texture2D" path="res://characters/enemies/miniboss/miniboss_walk.png" id="2_walk"]
 [ext_resource type="Texture2D" path="res://characters/enemies/miniboss/miniboss_idle.png" id="3_idle"]
 [ext_resource type="Texture2D" path="res://characters/enemies/miniboss/miniboss_punch.png" id="4_punch"]
@@ -15,6 +16,9 @@ size = Vector2(56, 136)
 
 [sub_resource type="RectangleShape2D" id="shape_head"]
 size = Vector2(65, 35)
+
+[sub_resource type="RectangleShape2D" id="shape_punch_zone"]
+size = Vector2(140, 60)
 
 [node name="EnemyMiniBoss" type="CharacterBody2D"]
 collision_layer = 1
@@ -39,6 +43,23 @@ collision_mask = 2
 [node name="CollisionShape2D" type="CollisionShape2D" parent="ContactZone"]
 position = Vector2(0, -95)
 shape = SubResource("shape_contact")
+
+[node name="BodyHurtbox" type="Area2D" parent="."]
+collision_layer = 4
+collision_mask = 0
+script = ExtResource("6_body")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="BodyHurtbox"]
+position = Vector2(0, -95)
+shape = SubResource("shape_contact")
+
+[node name="PunchZone" type="Area2D" parent="."]
+collision_layer = 0
+collision_mask = 2
+monitoring = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="PunchZone"]
+shape = SubResource("shape_punch_zone")
 
 [node name="Head" type="Area2D" parent="."]
 collision_layer = 4
