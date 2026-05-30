@@ -43,8 +43,6 @@ size = Vector2(1600, 64)
 [sub_resource type="RectangleShape2D" id="shape_FloorZ2A"]
 size = Vector2(2000, 64)
 
-[sub_resource type="RectangleShape2D" id="shape_PlatZ2A"]
-size = Vector2(448, 64)
 
 [sub_resource type="RectangleShape2D" id="shape_BlockZ2A"]
 size = Vector2(320, 256)
@@ -233,11 +231,6 @@ position = Vector2(10550, 488)
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Floor_Z2A"]
 shape = SubResource("shape_FloorZ2A")
 
-[node name="Plat_Z2A" type="StaticBody2D" parent="."]
-position = Vector2(9924, 440)
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Plat_Z2A"]
-shape = SubResource("shape_PlatZ2A")
 
 [node name="Block_Z2A" type="StaticBody2D" parent="."]
 position = Vector2(9722, 360)
