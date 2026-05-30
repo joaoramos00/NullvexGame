@@ -11,6 +11,7 @@ const _SRC := 32
 # ─── Visual ───────────────────────────────────────────────────────────────────
 @export var tileset:   Texture2D  ## tiles de plataforma (floor/walls)
 @export var glass_tex: Texture2D  ## tiles do teto de glass (null = sem glass)
+@export var door_tex:  Texture2D  ## textura da porta de checkpoint
 
 # ─── Geometria (coordenadas absolutas no mundo) ───────────────────────────────
 @export var floor_center:  Vector2 = Vector2(5982, 1120)
@@ -54,13 +55,13 @@ signal checkpoint_triggered(respawn: Vector2, index: int)
 signal player_healed
 signal player_traversed   # player saiu pela porta de saída
 
-var _player: Node2D         = null
+var _player: CharacterBase  = null
 var _entry_door: Node       = null
 var _exit_door:  Node       = null
 
 # ─── Setup ────────────────────────────────────────────────────────────────────
 
-func setup(player: Node2D) -> void:
+func setup(player: CharacterBase) -> void:
 	_player = player
 	_build_collision()
 	_setup_doors()
@@ -73,6 +74,27 @@ func _build_collision() -> void:
 	# Paredes sem colisão — as portas de checkpoint fazem a barreira
 	_add_static(wall_l_center, wall_l_size, 1, true)
 	_add_static(wall_r_center, wall_r_size, 1, true)
+	if glass_tex != null:
+		_add_glass_lateral_collision()
+
+func _add_glass_lateral_collision() -> void:
+	# Bloqueia o player de passar por cima do painel de vidro.
+	# Collision 1 tile mais curta que o visual (para não cobrir o chão do corredor).
+	var col_rows := glass_col_rows - 1
+	var col_bot  := glass_col_bot - float(_TS)
+	var col_top  := col_bot - col_rows * float(_TS)
+	var height   := col_bot - col_top
+	var body := StaticBody2D.new()
+	body.name            = "Glass_Lateral"
+	body.collision_layer = 1
+	body.collision_mask  = 0
+	body.global_position = Vector2(glass_lateral_x + float(_TS), (col_top + col_bot) * 0.5)
+	var cs    := CollisionShape2D.new()
+	var shape := RectangleShape2D.new()
+	shape.size = Vector2(float(_TS) * 2.0, height)
+	cs.shape   = shape
+	body.add_child(cs)
+	add_child(body)
 
 func _add_static(center: Vector2, size: Vector2, layer: int, disabled: bool = false) -> void:
 	var body := StaticBody2D.new()
@@ -92,6 +114,7 @@ func _setup_doors() -> void:
 	var open_y   := (wall_l_center.y - wall_l_size.y * 0.5 - door_cy) - door_height - 2.0
 
 	_entry_door = _make_door(entry_x, door_v, door_height, open_y)
+	(_entry_door as CheckpointDoor).door_opening.connect(_on_door_opening)
 	(_entry_door as CheckpointDoor).door_opened.connect(_on_entry_opened.bind(_entry_door))
 	if entry_manual:
 		var trig := (_entry_door as Node).get_node_or_null("TriggerArea") as Area2D
@@ -100,6 +123,7 @@ func _setup_doors() -> void:
 	add_child(_entry_door)
 
 	_exit_door  = _make_door(exit_x,  door_v, door_height, open_y)
+	(_exit_door as CheckpointDoor).door_opening.connect(_on_door_opening)
 	(_exit_door as CheckpointDoor).door_opened.connect(_on_exit_opened.bind(_exit_door))
 	add_child(_exit_door)
 
@@ -124,14 +148,20 @@ func _make_door(x: float, w: float, h: float, open_offset: float) -> CheckpointD
 func open_entry() -> void:
 	(_entry_door as CheckpointDoor).open()
 
+func _on_door_opening() -> void:
+	if is_instance_valid(_player):
+		_player.door_locked = true
+
 func _on_entry_opened(door: Node2D) -> void:
 	if is_instance_valid(_player):
-		_player.door_locked    = false
+		_player.door_locked     = false
 		_player.door_walk_speed = CharacterBase.SPEED
 	if save_checkpoint:
 		var respawn := Vector2(checkpoint_respawn_x, floor_center.y - floor_size.y * 0.5 - 32.0)
+		StageManager.save_checkpoint(respawn, checkpoint_index)
 		checkpoint_triggered.emit(respawn, checkpoint_index)
-	if heal_on_entry:
+	if heal_on_entry and is_instance_valid(_player):
+		_player.heal(_player.max_hp)
 		player_healed.emit()
 	var target_x := door.position.x + 96.0
 	while is_instance_valid(_player) and _player.global_position.x < target_x:
@@ -163,6 +193,9 @@ func _on_exit_opened(door: Node2D) -> void:
 
 # ─── Desenho ──────────────────────────────────────────────────────────────────
 
+func _process(_delta: float) -> void:
+	queue_redraw()
+
 func _draw() -> void:
 	if tileset == null:
 		return
@@ -172,6 +205,18 @@ func _draw() -> void:
 	_draw_wall_tiles()
 	if glass_tex != null:
 		_draw_glass()
+	if door_tex != null:
+		_draw_door_underlays()
+
+func _draw_door_underlays() -> void:
+	var dv := door_height / 3.0
+	for door in [_entry_door, _exit_door]:
+		if not is_instance_valid(door):
+			continue
+		var anim_y: float = (door as CheckpointDoor).anim_offset
+		var cx: float = (door as Node2D).position.x
+		var cy: float = (door as Node2D).position.y + anim_y
+		draw_texture_rect(door_tex, Rect2(cx - dv * 0.5, cy - door_height * 0.5, dv, door_height), false)
 
 func _draw_floor_tiles() -> void:
 	var rect := Rect2(floor_center - floor_size * 0.5, floor_size)
