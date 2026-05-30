@@ -39,6 +39,7 @@ const _SRC := 32
 @export var glass_fill_cols: int   = 14
 @export var glass_col_rows:  int   = 33
 @export var glass_col_bot:   float = 960.0
+@export var glass_mirror:    bool  = false  # lateral na direita (fills à esq, lateral espelhada à dir)
 
 # ─── Checkpoint ───────────────────────────────────────────────────────────────
 @export var checkpoint_index:     int   = 1
@@ -84,11 +85,13 @@ func _add_glass_lateral_collision() -> void:
 	var col_bot  := glass_col_bot - float(_TS)
 	var col_top  := col_bot - col_rows * float(_TS)
 	var height   := col_bot - col_top
+	# Normal: cobre lateral (esq) + 1º fill. Mirror: cobre último fill + lateral (dir).
+	var cx := glass_lateral_x + float(_TS) if not glass_mirror else glass_lateral_x + float(_TS) * 0.5
 	var body := StaticBody2D.new()
 	body.name            = "Glass_Lateral"
 	body.collision_layer = 1
 	body.collision_mask  = 0
-	body.global_position = Vector2(glass_lateral_x + float(_TS), (col_top + col_bot) * 0.5)
+	body.global_position = Vector2(cx, (col_top + col_bot) * 0.5)
 	var cs    := CollisionShape2D.new()
 	var shape := RectangleShape2D.new()
 	shape.size = Vector2(float(_TS) * 2.0, height)
@@ -233,11 +236,20 @@ func _draw_glass() -> void:
 	var lat_src  := Rect2(1 * _SRC, 0 * _SRC, _SRC, _SRC)
 	var fill_src := Rect2(2 * _SRC, 1 * _SRC, _SRC, _SRC)
 	var col_top  := glass_col_bot - glass_col_rows * _TS
-	for row in glass_col_rows:
-		var dy := col_top + row * _TS
-		draw_texture_rect_region(glass_tex, Rect2(glass_lateral_x, dy, _TS, _TS), lat_src)
-		for col in glass_fill_cols:
-			draw_texture_rect_region(glass_tex, Rect2(glass_fill_x + col * _TS, dy, _TS, _TS), fill_src)
+	if glass_mirror:
+		var lat_mirror := Rect2(lat_src.position.x + lat_src.size.x, lat_src.position.y,
+								-lat_src.size.x, lat_src.size.y)
+		for row in glass_col_rows:
+			var dy := col_top + row * _TS
+			for col in glass_fill_cols:
+				draw_texture_rect_region(glass_tex, Rect2(glass_fill_x + col * _TS, dy, _TS, _TS), fill_src)
+			draw_texture_rect_region(glass_tex, Rect2(glass_lateral_x, dy, _TS, _TS), lat_mirror)
+	else:
+		for row in glass_col_rows:
+			var dy := col_top + row * _TS
+			draw_texture_rect_region(glass_tex, Rect2(glass_lateral_x, dy, _TS, _TS), lat_src)
+			for col in glass_fill_cols:
+				draw_texture_rect_region(glass_tex, Rect2(glass_fill_x + col * _TS, dy, _TS, _TS), fill_src)
 
 # ─── Utilitários de tile (espelham stage_00_scene.gd) ────────────────────────
 
