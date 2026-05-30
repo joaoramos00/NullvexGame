@@ -104,6 +104,7 @@ func _ready() -> void:
 
 	_setup_doors()
 	_setup_glass_lateral()
+	_setup_glass_lateral_mb()
 	_setup_corr_mb()
 	_setup_miniboss_trigger()
 	_setup_zone_triggers()
@@ -290,6 +291,28 @@ func _setup_glass_lateral() -> void:
 	var center_x  := 5544.0   # (5480+5608) / 2
 	var body := StaticBody2D.new()
 	body.name = "Glass_Lateral"
+	body.collision_layer = 1
+	body.collision_mask  = 0
+	body.position = Vector2(center_x, (col_top + col_bot) * 0.5)
+	var cs := CollisionShape2D.new()
+	var shape := RectangleShape2D.new()
+	shape.size = Vector2(128.0, height)
+	cs.shape = shape
+	body.add_child(cs)
+	add_child(body)
+
+# ─── Glass Lateral MB00 ──────────────────────────────────────────────────────
+
+func _setup_glass_lateral_mb() -> void:
+	# Parede de vidro com colisão à direita do CorrMB — espelho do _setup_glass_lateral.
+	# Cobre a lateral (x=7582) + o tile adjacente, total 128px, do topo até y=896.
+	var col_rows  := 32
+	var col_bot   := 896.0
+	var col_top   := col_bot - col_rows * 64.0
+	var height    := col_bot - col_top
+	var center_x  := 7614.0   # (7582+7646) / 2
+	var body := StaticBody2D.new()
+	body.name = "Glass_Lateral_MB"
 	body.collision_layer = 1
 	body.collision_mask  = 0
 	body.position = Vector2(center_x, (col_top + col_bot) * 0.5)
@@ -531,6 +554,17 @@ func _draw_glass_panels() -> void:
 		draw_texture_rect_region(_GLASS_TEX, Rect2(5480.0, dy, ts, ts), lat_src)
 		for col in c1_fill_cols:
 			draw_texture_rect_region(_GLASS_TEX, Rect2(5544.0 + col * ts, dy, ts, ts), fill_src)
+
+	# ── Corredor MB00 → zona 2 (mirror: lateral na direita) ─────────────────
+	# 4 fill + 1 lateral = 5 tiles = 320px (x=7326→7646)
+	var lat_src_mirror := Rect2(lat_src.position.x + lat_src.size.x, lat_src.position.y,
+								-lat_src.size.x, lat_src.size.y)
+	var c_mb_fill_cols := 4  # x=7326→7582
+	for row in col_rows:
+		var dy := col_top + row * ts
+		for col in c_mb_fill_cols:
+			draw_texture_rect_region(_GLASS_TEX, Rect2(7326.0 + col * ts, dy, ts, ts), fill_src)
+		draw_texture_rect_region(_GLASS_TEX, Rect2(7582.0, dy, ts, ts), lat_src_mirror)
 
 	# ── Corredor 2 → sala do chefe ────────────────────────────────────────────
 	var c2_fill_cols := 11  # x=15970→16674, cobre Boss_LWall (right edge x=16634)
