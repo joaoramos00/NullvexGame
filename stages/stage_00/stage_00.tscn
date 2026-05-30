@@ -234,7 +234,7 @@ position = Vector2(10550, 488)
 shape = SubResource("shape_FloorZ2A")
 
 [node name="Plat_Z2A" type="StaticBody2D" parent="."]
-position = Vector2(9322, 440)
+position = Vector2(9774, 440)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Plat_Z2A"]
 shape = SubResource("shape_PlatZ2A")
