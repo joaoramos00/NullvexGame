@@ -39,6 +39,8 @@ var _double_tap_timer: float = 0.0
 var _double_tap_dir: float = 0.0
 var _is_wall_sliding := false
 var _wall_normal := Vector2.ZERO
+var door_walk_speed: float = 0.0
+var door_locked: bool = false
 
 func _ready() -> void:
     max_hp = GameManager.max_hp
@@ -101,8 +103,15 @@ func _apply_gravity(delta: float) -> void:
             velocity.y = WALL_SLIDE_SPEED
 
 func _handle_movement() -> void:
+    if door_locked:
+        _is_dashing = false
+        velocity.x = 0.0
+        return
     if _is_dashing:
         velocity.x = DASH_SPEED * _dash_direction
+        return
+    if door_walk_speed != 0.0:
+        velocity.x = door_walk_speed
         return
     var direction := Input.get_axis("move_left", "move_right")
     if direction != 0.0:
@@ -118,7 +127,7 @@ func _apply_wall_jump() -> void:
     _double_tap_dir = 0.0
 
 func _handle_jump() -> void:
-    if _is_dashing:
+    if _is_dashing or door_walk_speed != 0.0 or door_locked:
         return
     if Input.is_action_just_pressed("jump"):
         if _is_wall_sliding:
@@ -130,6 +139,8 @@ func _handle_jump() -> void:
             AudioManager.play_sfx(AudioLibrary.sfx_jump)
 
 func _handle_dash(delta: float) -> void:
+    if door_walk_speed != 0.0 or door_locked:
+        return
     if _is_dashing:
         _dash_timer -= delta
         if _dash_timer <= 0.0:
@@ -193,6 +204,10 @@ func respawn(position: Vector2) -> void:
     is_invincible = false
     _invincibility_timer = 0.0
     velocity = Vector2.ZERO
+    hp_changed.emit(current_hp, max_hp)
+
+func heal(amount: int) -> void:
+    current_hp = min(current_hp + amount, max_hp)
     hp_changed.emit(current_hp, max_hp)
 
 func activate_air_walk() -> void:

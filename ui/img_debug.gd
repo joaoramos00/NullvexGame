@@ -13,6 +13,9 @@ const _SPRITES: Array = [
     {"char": "ZAEL", "anim": "DashShoot", "path": "res://characters/ranged/ZaelDashShoot.png", "frames": 2, "fps": 12.0},
     {"char": "ZARA", "anim": "Walk",      "path": "res://characters/melee/ZaraAndando.png",    "frames": 5, "fps": 8.0},
     {"char": "ZARA", "anim": "Run",       "path": "res://characters/melee/ZaraCorrendo.png",   "frames": 3, "fps": 10.0},
+    {"char": "MINIBOSS", "anim": "Walk",  "path": "res://characters/enemies/miniboss/miniboss_walk.png",  "frames": 6, "fps": 8.0,  "frame_w": 240},
+    {"char": "MINIBOSS", "anim": "Idle",  "path": "res://characters/enemies/miniboss/miniboss_idle.png",  "frames": 4, "fps": 6.0,  "frame_w": 240},
+    {"char": "MINIBOSS", "anim": "Punch", "path": "res://characters/enemies/miniboss/miniboss_punch.png", "frames": 9, "fps": 12.0, "frame_w": 240},
 ]
 
 const _TILESETS: Array = [
@@ -402,12 +405,13 @@ class _MovView extends Control:
     const _ENEMY_PATHS := [
         "res://characters/enemies/enemy_base.tscn",
         "res://characters/enemies/enemy_flyer.tscn",
+        "res://characters/enemies/enemy_miniboss.tscn",
     ]
-    const _ENEMY_NAMES := ["Grunt", "Flyer"]
+    const _ENEMY_NAMES := ["Grunt", "Flyer", "MiniBoss"]
     const _GROUND_Y    := 16.0
     const _PLAYER_X    := 280.0
     const _ENEMY_X     := 680.0
-    const _ENEMY_Y     := [-40.0, -100.0]
+    const _ENEMY_Y     := [-40.0, -100.0, 3.0]
     const _WALL_L      := 100.0
     const _WALL_R      := 1820.0
 
@@ -416,7 +420,9 @@ class _MovView extends Control:
     var _enemy_index: int = 0
     var _camera: Camera2D = null
     var _world: Node2D = null
-    var label_enemy: Label = null  # definido externamente antes de add_child
+    var label_enemy: Label = null      # definido externamente antes de add_child
+    var label_move_btn: Button = null  # botão de toggle de movimento
+    var attack_row: Control = null     # linha de botões de ataque do MiniBoss
 
     func _ready() -> void:
         GameManager.active_character = "zael"
@@ -502,22 +508,63 @@ class _MovView extends Control:
         _enemy.current_hp = 99999
         var spr := _enemy.get_node_or_null("Sprite2D") as Sprite2D
         if spr:
-            spr.flip_h = true
+            # MiniBoss: sprite já orienta para esquerda (face ao player) — não inverter
+            spr.flip_h = (_ENEMY_NAMES[_enemy_index] != "MiniBoss")
         if is_instance_valid(label_enemy):
             label_enemy.text = _ENEMY_NAMES[_enemy_index]
 
     func on_prev() -> void:
         _enemy_index = (_enemy_index - 1 + _ENEMY_PATHS.size()) % _ENEMY_PATHS.size()
         _spawn_enemy()
+        _update_move_btn()
+        _update_attack_row()
 
     func on_next() -> void:
         _enemy_index = (_enemy_index + 1) % _ENEMY_PATHS.size()
         _spawn_enemy()
+        _update_move_btn()
+        _update_attack_row()
 
-    func _process(_delta: float) -> void:
+    func on_toggle_movement() -> void:
+        if not is_instance_valid(_enemy):
+            return
+        var moving := not _enemy.is_physics_processing()
+        _enemy.set_physics_process(moving)
+        _update_move_btn()
+
+    func on_attack(method_name: String) -> void:
+        if not is_instance_valid(_enemy):
+            return
+        if _enemy.has_method(method_name):
+            _enemy.call(method_name)
+
+    func _update_move_btn() -> void:
+        if is_instance_valid(label_move_btn):
+            var moving := is_instance_valid(_enemy) and _enemy.is_physics_processing()
+            label_move_btn.text = "⏸ Parar" if moving else "▶ Mover"
+
+    func _update_attack_row() -> void:
+        if is_instance_valid(attack_row):
+            attack_row.visible = (_ENEMY_NAMES[_enemy_index] == "MiniBoss")
+
+    func _process(delta: float) -> void:
         if is_instance_valid(_player) and is_instance_valid(_camera):
-            var cam_y := clampf(_player.global_position.y + 120.0, _GROUND_Y - 400.0, _GROUND_Y + 200.0)
-            _camera.global_position = Vector2(_player.global_position.x, cam_y)
+            var cam_pos: Vector2
+            if _ENEMY_NAMES[_enemy_index] == "MiniBoss" and is_instance_valid(_enemy):
+                # Target: centro do sprite do MiniBoss (sprite_y = -16)
+                var tx := _enemy.global_position.x
+                var ty := clampf(_enemy.global_position.y - 146.0, _GROUND_Y - 220.0, _GROUND_Y + 100.0)
+                # Lerp suave — Y mais lento para não acompanhar o pulo bruscamente
+                var sx := minf(1.0, delta * 6.0)
+                var sy := minf(1.0, delta * 3.0)
+                cam_pos = Vector2(
+                    lerpf(_camera.global_position.x, tx, sx),
+                    lerpf(_camera.global_position.y, ty, sy)
+                )
+            else:
+                var cam_y := clampf(_player.global_position.y + 120.0, _GROUND_Y - 400.0, _GROUND_Y + 200.0)
+                cam_pos  = Vector2(_player.global_position.x, cam_y)
+            _camera.global_position = cam_pos
             _world.queue_redraw()
 
 const _FRAME_SIZE   := 68
@@ -611,7 +658,7 @@ func _rebuild_anim_tabs() -> void:
     for i in char_sprites.size():
         var btn := Button.new()
         btn.text = char_sprites[i].anim
-        btn.add_theme_font_size_override("font_size", 20)
+        btn.add_theme_font_size_override("font_size", 26)
         btn.pressed.connect(_select_anim.bind(i))
         _anim_tabs_box.add_child(btn)
         _anim_btns.append(btn)
@@ -625,11 +672,12 @@ func _rebuild_strip() -> void:
         return
     var sd  := _current_sprite()
     var tex := _current_tex
+    var fw: int = sd.get("frame_w", _FRAME_SIZE)
     for i in sd.frames:
         var at := AtlasTexture.new()
         at.atlas = tex
         at.filter_clip = true
-        at.region = Rect2(i * _FRAME_SIZE, 0, _FRAME_SIZE, _FRAME_SIZE)
+        at.region = Rect2(i * fw, 0, fw, fw)
         var panel := Panel.new()
         panel.custom_minimum_size = Vector2(_STRIP_SIZE + 4, _STRIP_SIZE + 4)
         panel.mouse_filter = Control.MOUSE_FILTER_STOP
@@ -650,10 +698,11 @@ func _update_preview() -> void:
         return
     var sd  := _current_sprite()
     var tex := _current_tex
+    var fw: int = sd.get("frame_w", _FRAME_SIZE)
     var at  := AtlasTexture.new()
     at.atlas = tex
     at.filter_clip = true
-    at.region = Rect2(_frame * _FRAME_SIZE, 0, _FRAME_SIZE, _FRAME_SIZE)
+    at.region = Rect2(_frame * fw, 0, fw, fw)
     _preview_rect.texture = at
     var status := "● pausado" if _paused else "● animando"
     _info_label.text = "%s %s\nframe %d/%d  |  %.0f fps\n%s" % [
@@ -714,13 +763,13 @@ func _build_ui() -> void:
     if OS.get_name() == "Web":
         var reload_btn := Button.new()
         reload_btn.text = "↺ Hard Refresh"
-        reload_btn.add_theme_font_size_override("font_size", 22)
+        reload_btn.add_theme_font_size_override("font_size", 28)
         reload_btn.pressed.connect(func(): JavaScriptBridge.eval("location.reload(true)"))
         header.add_child(reload_btn)
 
     var close_btn := Button.new()
     close_btn.text = "✕ Fechar"
-    close_btn.add_theme_font_size_override("font_size", 22)
+    close_btn.add_theme_font_size_override("font_size", 28)
     close_btn.pressed.connect(queue_free)
     header.add_child(close_btn)
 
@@ -732,14 +781,14 @@ func _build_ui() -> void:
     for s in ["SPRITES", "TILES"]:
         var btn := Button.new()
         btn.text = s
-        btn.add_theme_font_size_override("font_size", 22)
+        btn.add_theme_font_size_override("font_size", 28)
         btn.pressed.connect(_show_section.bind(s))
         section_row.add_child(btn)
         _section_btns[s] = btn
 
     var mov_btn := Button.new()
     mov_btn.text = "MOVIMENTOS"
-    mov_btn.add_theme_font_size_override("font_size", 22)
+    mov_btn.add_theme_font_size_override("font_size", 28)
     mov_btn.pressed.connect(_show_section.bind("MOVIMENTOS"))
     section_row.add_child(mov_btn)
     _section_btns["MOVIMENTOS"] = mov_btn
@@ -753,10 +802,10 @@ func _build_ui() -> void:
     char_row.add_theme_constant_override("separation", 6)
     _sprites_box.add_child(char_row)
 
-    for c in ["ZAEL", "ZARA"]:
+    for c in ["ZAEL", "ZARA", "MINIBOSS"]:
         var btn := Button.new()
         btn.text = c
-        btn.add_theme_font_size_override("font_size", 22)
+        btn.add_theme_font_size_override("font_size", 28)
         btn.pressed.connect(_select_char.bind(c))
         char_row.add_child(btn)
         _char_btns[c] = btn
@@ -851,7 +900,41 @@ func _build_moves_box() -> void:
     btn_next.pressed.connect(mview.on_next)
     top_bar.add_child(btn_next)
 
-    mview.label_enemy = lbl_name
+    var btn_move := Button.new()
+    btn_move.text = "▶ Mover"
+    btn_move.add_theme_font_size_override("font_size", 24)
+    btn_move.pressed.connect(mview.on_toggle_movement)
+    top_bar.add_child(btn_move)
+
+    mview.label_enemy    = lbl_name
+    mview.label_move_btn = btn_move
+
+    var atk_row := HBoxContainer.new()
+    atk_row.add_theme_constant_override("separation", 8)
+    atk_row.visible = false
+    _moves_box.add_child(atk_row)
+    mview.attack_row = atk_row
+
+    var atk_lbl := Label.new()
+    atk_lbl.text = "Estado:"
+    atk_lbl.add_theme_font_size_override("font_size", 18)
+    atk_lbl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+    atk_row.add_child(atk_lbl)
+
+    for atk: Array in [
+        ["Patrol",  "debug_set_patrol",  Color(0.4, 0.9, 0.4)],
+        ["Charge",  "debug_set_charge",  Color(1.0, 0.7, 0.2)],
+        ["Stomp",   "debug_set_stomp",   Color(1.0, 0.35, 0.35)],
+        ["Recover", "debug_set_recover", Color(0.5, 0.75, 1.0)],
+    ]:
+        var abtn := Button.new()
+        abtn.text = atk[0]
+        abtn.add_theme_font_size_override("font_size", 24)
+        abtn.modulate = atk[2]
+        var mname: String = atk[1]
+        abtn.pressed.connect(mview.on_attack.bind(mname))
+        atk_row.add_child(abtn)
+
     _moves_box.add_child(mview)
 
 func _refresh_tiles() -> void:
@@ -878,7 +961,7 @@ func _refresh_tiles() -> void:
 
         var tab_btn := Button.new()
         tab_btn.text = ts_data.name.trim_suffix("T")
-        tab_btn.add_theme_font_size_override("font_size", 20)
+        tab_btn.add_theme_font_size_override("font_size", 26)
         tab_btn.pressed.connect(show_tab.bind(ts_idx))
         tab_row.add_child(tab_btn)
 
@@ -986,7 +1069,7 @@ func _refresh_tiles() -> void:
 
     var col_tab_btn := Button.new()
     col_tab_btn.text = "Colisões"
-    col_tab_btn.add_theme_font_size_override("font_size", 20)
+    col_tab_btn.add_theme_font_size_override("font_size", 26)
     col_tab_btn.pressed.connect(show_tab.bind(col_tab_idx))
     tab_row.add_child(col_tab_btn)
 
@@ -1058,7 +1141,7 @@ func _refresh_tiles() -> void:
     for ci: Array in [["↗ topo-dir", 0], ["↖ topo-esq", 1], ["↘ base-dir", 2], ["↙ base-esq", 3]]:
         var cbtn := Button.new()
         cbtn.text = ci[0]
-        cbtn.add_theme_font_size_override("font_size", 18)
+        cbtn.add_theme_font_size_override("font_size", 24)
         var cidx: int = ci[1]
         cbtn.pressed.connect(func(): cview_col.corner = cidx; cview_col.queue_redraw())
         col_corner_row.add_child(cbtn)
@@ -1074,7 +1157,7 @@ func _refresh_tiles() -> void:
     for ml: Array in [["Lateral", false], ["Cantos", true]]:
         var mbtn := Button.new()
         mbtn.text = ml[0]
-        mbtn.add_theme_font_size_override("font_size", 18)
+        mbtn.add_theme_font_size_override("font_size", 24)
         var is_c: bool = ml[1]
         mbtn.pressed.connect(func(): _col_sw.call(is_c))
         col_mode_row.add_child(mbtn)
@@ -1086,7 +1169,7 @@ func _refresh_tiles() -> void:
 
     var plat_tab_btn := Button.new()
     plat_tab_btn.text = "Plataformas"
-    plat_tab_btn.add_theme_font_size_override("font_size", 20)
+    plat_tab_btn.add_theme_font_size_override("font_size", 26)
     plat_tab_btn.pressed.connect(show_tab.bind(plat_tab_idx))
     tab_row.add_child(plat_tab_btn)
 
@@ -1112,7 +1195,7 @@ func _refresh_tiles() -> void:
     for ts_data2 in _TILESETS:
         var ts_btn := Button.new()
         ts_btn.text = ts_data2.name.trim_suffix("T")
-        ts_btn.add_theme_font_size_override("font_size", 18)
+        ts_btn.add_theme_font_size_override("font_size", 24)
         var ts_path2: String = ts_data2.path
         ts_btn.pressed.connect(func():
             pview.tile_tex = load(ts_path2) as Texture2D
@@ -1142,7 +1225,7 @@ func _refresh_tiles() -> void:
     for me: Array in [["Plataforma", "platform"], ["Sala", "room"]]:
         var mbtn := Button.new()
         mbtn.text = me[0]
-        mbtn.add_theme_font_size_override("font_size", 18)
+        mbtn.add_theme_font_size_override("font_size", 24)
         var mk: String = me[1]
         var ml: String = me[0]
         mbtn.pressed.connect(func(): _sw.call(mk, ml))

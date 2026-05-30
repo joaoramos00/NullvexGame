@@ -1,32 +1,50 @@
 [gd_scene format=3 uid="uid://enemy_miniboss"]
 
 [ext_resource type="Script" path="res://characters/enemies/enemy_miniboss.gd" id="1_script"]
+[ext_resource type="Script" path="res://characters/enemies/enemy_miniboss_head.gd" id="5_head"]
 [ext_resource type="Texture2D" path="res://characters/enemies/miniboss/miniboss_walk.png" id="2_walk"]
 [ext_resource type="Texture2D" path="res://characters/enemies/miniboss/miniboss_idle.png" id="3_idle"]
 [ext_resource type="Texture2D" path="res://characters/enemies/miniboss/miniboss_punch.png" id="4_punch"]
 
-[sub_resource type="CapsuleShape2D" id="shape_miniboss"]
+[sub_resource type="CapsuleShape2D" id="shape_body"]
 radius = 28.0
-height = 96.0
+height = 80.0
+
+[sub_resource type="RectangleShape2D" id="shape_contact"]
+size = Vector2(56, 136)
+
+[sub_resource type="RectangleShape2D" id="shape_head"]
+size = Vector2(65, 35)
 
 [node name="EnemyMiniBoss" type="CharacterBody2D"]
-collision_layer = 4
+collision_layer = 1
 collision_mask = 1
 script = ExtResource("1_script")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-shape = SubResource("shape_miniboss")
+position = Vector2(0, -95)
+shape = SubResource("shape_body")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
-position = Vector2(0, 10)
+position = Vector2(0, -146)
 texture = ExtResource("2_walk")
 hframes = 6
 vframes = 1
-scale = Vector2(0.6, 0.6)
+scale = Vector2(1.5, 1.5)
 
 [node name="ContactZone" type="Area2D" parent="."]
 collision_layer = 0
 collision_mask = 2
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="ContactZone"]
-shape = SubResource("shape_miniboss")
+position = Vector2(0, -95)
+shape = SubResource("shape_contact")
+
+[node name="Head" type="Area2D" parent="."]
+collision_layer = 4
+collision_mask = 0
+script = ExtResource("5_head")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Head"]
+position = Vector2(0, -205)
+shape = SubResource("shape_head")

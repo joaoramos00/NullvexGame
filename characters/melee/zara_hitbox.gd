@@ -9,6 +9,7 @@ var _hit_bodies: Array[Node] = []
 
 func _ready() -> void:
 	body_entered.connect(_on_body_entered)
+	area_entered.connect(_on_area_entered)
 	$Timer.wait_time = ATTACK_DURATION
 	$Timer.start()
 	$Timer.timeout.connect(queue_free)
@@ -16,6 +17,13 @@ func _ready() -> void:
 
 func _draw() -> void:
 	draw_rect(Rect2(-14, -16, 28, 32), Color(1.0, 0.2, 0.2, 0.4))
+
+func _on_area_entered(area: Area2D) -> void:
+	if area in _hit_bodies:
+		return
+	_hit_bodies.append(area)
+	if area.has_method("take_damage"):
+		area.take_damage(damage, source_id)
 
 func _on_body_entered(body: Node) -> void:
 	if body in _hit_bodies:

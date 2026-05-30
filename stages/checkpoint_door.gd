@@ -2,6 +2,7 @@
 class_name CheckpointDoor
 extends StaticBody2D
 
+signal door_opening
 signal door_opened
 signal door_closed
 
@@ -13,6 +14,7 @@ signal door_closed
 @onready var _trigger: Area2D = $TriggerArea
 
 var _is_open := false
+var anim_offset: float = 0.0
 
 func _ready() -> void:
 	assert(_sprite != null, "CheckpointDoor: ColorRect child missing")
@@ -24,8 +26,9 @@ func open() -> void:
 	if _is_open:
 		return
 	_is_open = true
+	door_opening.emit()
 	var tween := create_tween()
-	tween.tween_property(_sprite, "position:y", open_offset, tween_duration)
+	tween.tween_property(self, "anim_offset", open_offset, tween_duration)
 	await tween.finished
 	_collider.disabled = true
 	door_opened.emit()
@@ -36,7 +39,7 @@ func close() -> void:
 	_collider.disabled = false
 	_is_open = false
 	var tween := create_tween()
-	tween.tween_property(_sprite, "position:y", 0.0, tween_duration)
+	tween.tween_property(self, "anim_offset", 0.0, tween_duration)
 	await tween.finished
 	door_closed.emit()
 
