@@ -310,6 +310,8 @@ func _setup_corr_mb() -> void:
 	corr.exit_x               = 7646.0
 	corr.floor_center         = Vector2(7486.0, 1120.0)
 	corr.floor_size           = Vector2(320.0, 64.0)
+	corr.ceil_center          = Vector2(7486.0, 928.0)
+	corr.ceil_size            = Vector2(320.0, 64.0)
 	corr.wall_l_center        = Vector2(7326.0, 1024.0)
 	corr.wall_l_size          = Vector2(64.0, 256.0)
 	corr.wall_r_center        = Vector2(7646.0, 1024.0)
