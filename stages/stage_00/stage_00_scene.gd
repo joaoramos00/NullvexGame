@@ -655,7 +655,8 @@ func _draw_room_tiles(rect: Rect2, piece_name: String, skip_bottom_corner: bool 
 	elif piece_name.ends_with("_Ceil"):                                       base_ys =  src_ts
 	elif piece_name.ends_with("_Wall_L"):                                     base_xs =  src_ts
 	elif piece_name.ends_with("LWall"):                                       base_xs =  0
-	elif piece_name.ends_with("_Wall_R") or piece_name.ends_with("RWall"):   base_xs = -src_ts
+	elif piece_name.ends_with("_Wall_R"):                                     base_xs = -src_ts
+	elif piece_name.ends_with("RWall"):                                       base_xs =  0
 	var cols := ceili(rect.size.x / ts)
 	var rows := ceili(rect.size.y / ts)
 	for row in rows:
