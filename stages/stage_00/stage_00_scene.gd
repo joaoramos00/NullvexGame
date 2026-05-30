@@ -44,13 +44,12 @@ const _DOOR_OPEN_Y  := (_CORR_CEIL_Y - _DOOR_CY) - _DOOR_H - 2.0
 
 const _MINIBOSS_CAM_CENTER := Vector2(6878.0, 896.0)
 const _MINIBOSS_CAM_ZOOM   := 2.0                      # sala 960px total, zoom 2x
-const _CORR_MB_CAM_CENTER  := Vector2(7486.0, 1024.0)
-const _CORR_MB_CAM_ZOOM    := 2.0
 const _BOSS_CAM_CENTER     := Vector2(17602.0, 520.0)
 const _BOSS_CAM_ZOOM       := 1080.0 / 1264.0         # ≈ 0.855 — preenche tela pela altura
 
 var _player: CharacterBase = null
 var _corr1: CorridorSection = null
+var _corr_mb: CorridorSection = null
 var _zone1_enemies: Array[Node] = []
 var _zone2_enemies: Array[Node] = []
 var _zone3_enemies: Array[Node] = []
@@ -61,7 +60,6 @@ var _boss: Node = null
 var _boss_spawned := false
 var _miniboss: Node = null
 var _miniboss_spawned := false
-var _corr_mb_entry_door: CheckpointDoor = null
 var _doors: Array[CheckpointDoor] = []
 var _camera_locked   := false
 var _camera_target   := Vector2.ZERO
@@ -101,8 +99,7 @@ func _ready() -> void:
 
 	_setup_corr1()
 	_setup_doors()
-	_setup_glass_lateral_mb()
-	_setup_corr_mb()
+	_setup_corr_mb_section()
 	_setup_miniboss_trigger()
 	_setup_zone_triggers()
 	_spawn_zone_enemies(1)
@@ -252,86 +249,38 @@ func _on_boss_defeated(_ability_id: String) -> void:
 	# BossBase already called GameManager.complete_stage(0) in _run_death_sequence
 	GameManager.save_game()
 
-# ─── Glass Lateral MB00 ──────────────────────────────────────────────────────
+# ─── Corredor MiniBoss (CorrMB) ──────────────────────────────────────────────
 
-func _setup_glass_lateral_mb() -> void:
-	# Parede de vidro com colisão à direita do CorrMB — espelho do _setup_glass_lateral.
-	# Cobre a lateral (x=7582) + o tile adjacente, total 128px, do topo até y=896.
-	var col_rows  := 32
-	var col_bot   := 896.0
-	var col_top   := col_bot - col_rows * 64.0
-	var height    := col_bot - col_top
-	var center_x  := 7614.0   # (7582+7646) / 2
-	var body := StaticBody2D.new()
-	body.name = "Glass_Lateral_MB"
-	body.collision_layer = 1
-	body.collision_mask  = 0
-	body.position = Vector2(center_x, (col_top + col_bot) * 0.5)
-	var cs := CollisionShape2D.new()
-	var shape := RectangleShape2D.new()
-	shape.size = Vector2(128.0, height)
-	cs.shape = shape
-	body.add_child(cs)
-	add_child(body)
+func _setup_corr_mb_section() -> void:
+	_corr_mb = CorridorSection.new()
+	_corr_mb.tileset          = _TILESET
+	_corr_mb.glass_tex        = _GLASS_TEX
+	_corr_mb.door_tex         = _DOOR_TEX
+	_corr_mb.glass_mirror     = true
+	_corr_mb.floor_center     = Vector2(7486.0, 1120.0)
+	_corr_mb.floor_size       = Vector2(320.0, 64.0)
+	_corr_mb.ceil_size        = Vector2.ZERO
+	_corr_mb.entry_x          = 7326.0
+	_corr_mb.exit_x           = 7646.0
+	_corr_mb.entry_manual     = true
+	_corr_mb.save_checkpoint  = false
+	_corr_mb.heal_on_entry    = false
+	_corr_mb.cam_center       = Vector2(7486.0, 1024.0)
+	_corr_mb.cam_zoom         = 2.0
+	_corr_mb.glass_fill_x     = 7326.0
+	_corr_mb.glass_fill_cols  = 4
+	_corr_mb.glass_lateral_x  = 7582.0
+	_corr_mb.camera_lock_requested.connect(_on_corr_mb_cam_lock)
+	_corr_mb.player_traversed.connect(_on_corr_mb_traversed)
+	add_child(_corr_mb)
+	_corr_mb.setup(_player)
 
-# ─── MiniBoss Exit Corridor ──────────────────────────────────────────────────
-
-func _setup_corr_mb() -> void:
-	# Chão — único nó com colisão; glass lateral e portas fazem o resto (igual ao Corr1)
-	var floor_body := StaticBody2D.new()
-	floor_body.name = "CorrMB_Floor"
-	floor_body.collision_layer = 1
-	floor_body.collision_mask  = 0
-	floor_body.position = Vector2(7486.0, 1120.0)
-	var cs := CollisionShape2D.new()
-	var shape := RectangleShape2D.new()
-	shape.size = Vector2(320.0, 64.0)
-	cs.shape = shape
-	floor_body.add_child(cs)
-	add_child(floor_body)
-
-	# Porta de entrada (x=7326): abre quando miniboss morre (TriggerArea desabilitada)
-	_corr_mb_entry_door = _make_door(7326.0)
-	var entry_trig := _corr_mb_entry_door.get_node_or_null("TriggerArea") as Area2D
-	if entry_trig:
-		entry_trig.monitoring = false
-	_corr_mb_entry_door.connect("door_opened", _on_corr_mb_entry_opened.bind(_corr_mb_entry_door))
-	_doors.append(_corr_mb_entry_door)
-
-	# Porta de saída (x=7646): abre por proximidade
-	var exit_door := _make_door(7646.0)
-	exit_door.connect("door_opened", _on_corr_mb_exit_opened.bind(exit_door))
-	_doors.append(exit_door)
-
-func _on_corr_mb_entry_opened(door: Node2D) -> void:
-	if is_instance_valid(_player):
-		_player.door_locked     = false
-		_player.door_walk_speed = CharacterBase.SPEED
-	var target_x := door.position.x + 96.0
-	while is_instance_valid(_player) and _player.global_position.x < target_x:
-		await get_tree().process_frame
-	if is_instance_valid(_player):
-		_player.door_walk_speed = 0.0
-	if is_instance_valid(door):
-		door.call("close")
-		var trig := door.get_node_or_null("TriggerArea") as Area2D
-		if trig:
-			trig.monitoring = false
+func _on_corr_mb_cam_lock(center: Vector2, zoom: float) -> void:
 	_camera_locked   = true
-	_camera_target   = _CORR_MB_CAM_CENTER
-	_camera_zoom_tgt = _CORR_MB_CAM_ZOOM
+	_camera_target   = center
+	_camera_zoom_tgt = zoom
 
-func _on_corr_mb_exit_opened(door: Node2D) -> void:
-	if is_instance_valid(_player):
-		_player.door_locked     = false
-		_player.door_walk_speed = CharacterBase.SPEED
-	var target_x := door.position.x + 96.0
-	while is_instance_valid(_player) and _player.global_position.x < target_x:
-		await get_tree().process_frame
-	if is_instance_valid(_player):
-		_player.door_walk_speed = 0.0
-	if is_instance_valid(door):
-		door.call("close")
+func _on_corr_mb_traversed() -> void:
 	_camera_locked = false
 
 # ─── MiniBoss Room ────────────────────────────────────────────────────────────
@@ -376,8 +325,8 @@ func _on_miniboss_defeated() -> void:
 	if rwall:
 		rwall.queue_free()
 		queue_redraw()
-	if _corr_mb_entry_door != null:
-		_corr_mb_entry_door.open()
+	if _corr_mb != null:
+		_corr_mb.open_entry()
 
 # ─── Zone Triggers ───────────────────────────────────────────────────────────
 
@@ -528,17 +477,6 @@ func _draw_glass_panels() -> void:
 	var col_rows := 33
 	var col_bot  := 960.0
 	var col_top  := col_bot - col_rows * ts  # -1152
-
-	# ── Corredor MB00 → zona 2 (mirror: lateral na direita) ─────────────────
-	# 4 fill + 1 lateral = 5 tiles = 320px (x=7326→7646)
-	var lat_src_mirror := Rect2(lat_src.position.x + lat_src.size.x, lat_src.position.y,
-								-lat_src.size.x, lat_src.size.y)
-	var c_mb_fill_cols := 4  # x=7326→7582
-	for row in col_rows:
-		var dy := col_top + row * ts
-		for col in c_mb_fill_cols:
-			draw_texture_rect_region(_GLASS_TEX, Rect2(7326.0 + col * ts, dy, ts, ts), fill_src)
-		draw_texture_rect_region(_GLASS_TEX, Rect2(7582.0, dy, ts, ts), lat_src_mirror)
 
 	# ── Corredor 2 → sala do chefe ────────────────────────────────────────────
 	var c2_fill_cols := 11  # x=15970→16674, cobre Boss_LWall (right edge x=16634)
