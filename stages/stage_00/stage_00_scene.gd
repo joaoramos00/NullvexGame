@@ -21,19 +21,19 @@ const ZONE1_GRUNTS := [
 const ZONE1_FLYERS := [Vector2(2100, 906), Vector2(4900, 906)]
 
 const ZONE2_GRUNTS := [
-	Vector2(8000, 392), Vector2(7800, 392), Vector2(9300, 264),
-	Vector2(9960, 384), Vector2(11800, 704)
+	Vector2(8522, 392), Vector2(8322, 392), Vector2(9822, 264),
+	Vector2(10482, 384), Vector2(12322, 704)
 ]
-const ZONE2_FLYERS := [Vector2(8200, 274), Vector2(8500, 274), Vector2(11200, 586)]
+const ZONE2_FLYERS := [Vector2(8722, 274), Vector2(9022, 274), Vector2(11722, 586)]
 
 const ZONE3_GRUNTS := [
-	Vector2(12200, 1024), Vector2(13600, 904), Vector2(14200, 1024), Vector2(15200, 1024)
+	Vector2(12722, 1024), Vector2(14122, 904), Vector2(14722, 1024), Vector2(15722, 1024)
 ]
-const ZONE3_FLYERS := [Vector2(13200, 906), Vector2(14600, 906)]
+const ZONE3_FLYERS := [Vector2(13722, 906), Vector2(15122, 906)]
 
-const BOSS_SPAWN := Vector2(18200, 784)
-const CP2_ENTRY_X := 16002.0  # centro visual Corr2_Wall_L (tile X 15970–16034)
-const CP2_EXIT_X  := 16598.0  # centro visual Corr2_Wall_R (tile X 16566–16630)
+const BOSS_SPAWN := Vector2(18722, 784)
+const CP2_ENTRY_X := 16524.0  # centro visual Corr2_Wall_L (tile X 16492–16556)
+const CP2_EXIT_X  := 17120.0  # centro visual Corr2_Wall_R (tile X 17088–17152)
 
 const _CORR_CEIL_Y  := 960.0    # face interna Corr_Ceil
 const _CORR_FLOOR_Y := 1088.0   # face interna Corr_Floor
@@ -44,7 +44,7 @@ const _DOOR_OPEN_Y  := (_CORR_CEIL_Y - _DOOR_CY) - _DOOR_H - 2.0
 
 const _MINIBOSS_CAM_CENTER := Vector2(6878.0, 896.0)
 const _MINIBOSS_CAM_ZOOM   := 2.0                      # sala 960px total, zoom 2x
-const _BOSS_CAM_CENTER     := Vector2(17602.0, 520.0)
+const _BOSS_CAM_CENTER     := Vector2(18124.0, 520.0)
 const _BOSS_CAM_ZOOM       := 1080.0 / 1264.0         # ≈ 0.855 — preenche tela pela altura
 
 var _player: CharacterBase = null
@@ -238,8 +238,8 @@ func _spawn_boss() -> void:
 	_boss.global_position = BOSS_SPAWN
 	_boss.player = _player
 	# Arena bounds for the boss room (x: 16680–18520, floor: 1080)
-	_boss.arena_left  = 16680.0
-	_boss.arena_right = 18520.0
+	_boss.arena_left  = 17202.0
+	_boss.arena_right = 19042.0
 	_boss.arena_floor = 1080.0
 	add_child(_boss)
 	_boss.boss_defeated.connect(_on_boss_defeated)
@@ -256,20 +256,20 @@ func _setup_corr_mb_section() -> void:
 	_corr_mb.tileset          = _TILESET
 	_corr_mb.glass_tex        = _GLASS_TEX
 	_corr_mb.door_tex         = _DOOR_TEX
-	_corr_mb.glass_mirror     = false
-	_corr_mb.floor_center     = Vector2(7486.0, 1120.0)
-	_corr_mb.floor_size       = Vector2(320.0, 64.0)
+	_corr_mb.glass_mirror     = true
+	_corr_mb.floor_center     = Vector2(7774.0, 1120.0)
+	_corr_mb.floor_size       = Vector2(896.0, 64.0)
 	_corr_mb.ceil_size        = Vector2.ZERO
 	_corr_mb.entry_x          = 7326.0
-	_corr_mb.exit_x           = 7646.0
+	_corr_mb.exit_x           = 8222.0
 	_corr_mb.entry_manual     = true
 	_corr_mb.save_checkpoint  = false
 	_corr_mb.heal_on_entry    = false
-	_corr_mb.cam_center       = Vector2(7486.0, 1024.0)
-	_corr_mb.cam_zoom         = 5.0
-	_corr_mb.glass_lateral_x  = 7326.0
-	_corr_mb.glass_fill_x     = 7390.0
-	_corr_mb.glass_fill_cols  = 4
+	_corr_mb.cam_center       = Vector2(7774.0, 1024.0)
+	_corr_mb.cam_zoom         = 2.0
+	_corr_mb.glass_fill_x     = 7326.0
+	_corr_mb.glass_fill_cols  = 13
+	_corr_mb.glass_lateral_x  = 8158.0
 	_corr_mb.camera_lock_requested.connect(_on_corr_mb_cam_lock)
 	_corr_mb.player_traversed.connect(_on_corr_mb_traversed)
 	add_child(_corr_mb)
@@ -337,13 +337,13 @@ func _setup_zone_triggers() -> void:
 	add_child(z1)
 
 	# Zone 2: x 6400–11400
-	var z2 := _make_zone_trigger(8900, 600, 5000, 1200)
+	var z2 := _make_zone_trigger(9422, 600, 5000, 1200)
 	z2.body_entered.connect(_on_zone2_entered)
 	z2.body_exited.connect(_on_zone2_exited)
 	add_child(z2)
 
 	# Zone 3: x 11400–16000
-	var z3 := _make_zone_trigger(13700, 800, 4600, 1200)
+	var z3 := _make_zone_trigger(14222, 800, 4600, 1200)
 	z3.body_entered.connect(_on_zone3_entered)
 	z3.body_exited.connect(_on_zone3_exited)
 	add_child(z3)
@@ -478,12 +478,12 @@ func _draw_glass_panels() -> void:
 	var col_top  := col_bot - col_rows * ts  # -1152
 
 	# ── Corredor 2 → sala do chefe ────────────────────────────────────────────
-	var c2_fill_cols := 11  # x=15970→16674, cobre Boss_LWall (right edge x=16634)
+	var c2_fill_cols := 11  # x=16492→17196, cobre Boss_LWall (right edge x=17156)
 	for row in col_rows:
 		var dy := col_top + row * ts
-		draw_texture_rect_region(_GLASS_TEX, Rect2(15906.0, dy, ts, ts), lat_src)
+		draw_texture_rect_region(_GLASS_TEX, Rect2(16428.0, dy, ts, ts), lat_src)
 		for col in c2_fill_cols:
-			draw_texture_rect_region(_GLASS_TEX, Rect2(15970.0 + col * ts, dy, ts, ts), fill_src)
+			draw_texture_rect_region(_GLASS_TEX, Rect2(16492.0 + col * ts, dy, ts, ts), fill_src)
 
 func _draw_door_underlays() -> void:
 	for door in _doors:
