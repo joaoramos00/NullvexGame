@@ -204,7 +204,6 @@ func _draw() -> void:
 		_draw_ceil_tiles()
 	if glass_tex != null:
 		_draw_glass()
-	_draw_wall_tiles()
 	if door_tex != null:
 		_draw_door_underlays()
 
