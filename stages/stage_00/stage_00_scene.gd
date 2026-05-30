@@ -49,7 +49,7 @@ const _BOSS_CAM_ZOOM       := 1080.0 / 1264.0         # ≈ 0.855 — preenche t
 
 var _player: CharacterBase = null
 var _corr1: CorridorSection = null
-var _corr_mb: CorridorSection = null
+var _corr2: CorridorSection = null
 var _zone1_enemies: Array[Node] = []
 var _zone2_enemies: Array[Node] = []
 var _zone3_enemies: Array[Node] = []
@@ -99,7 +99,7 @@ func _ready() -> void:
 
 	_setup_corr1()
 	_setup_doors()
-	_setup_corr_mb_section()
+	_setup_corr2_section()
 	_setup_miniboss_trigger()
 	_setup_zone_triggers()
 	_spawn_zone_enemies(1)
@@ -249,38 +249,38 @@ func _on_boss_defeated(_ability_id: String) -> void:
 	# BossBase already called GameManager.complete_stage(0) in _run_death_sequence
 	GameManager.save_game()
 
-# ─── Corredor MiniBoss (CorrMB) ──────────────────────────────────────────────
+# ─── Corredor 2 (Corr2) ──────────────────────────────────────────────────────
 
-func _setup_corr_mb_section() -> void:
-	_corr_mb = CorridorSection.new()
-	_corr_mb.tileset          = _TILESET
-	_corr_mb.glass_tex        = _GLASS_TEX
-	_corr_mb.door_tex         = _DOOR_TEX
-	_corr_mb.glass_mirror     = true
-	_corr_mb.floor_center     = Vector2(7774.0, 1120.0)
-	_corr_mb.floor_size       = Vector2(896.0, 64.0)
-	_corr_mb.ceil_size        = Vector2.ZERO
-	_corr_mb.entry_x          = 7326.0
-	_corr_mb.exit_x           = 8222.0
-	_corr_mb.entry_manual     = true
-	_corr_mb.save_checkpoint  = false
-	_corr_mb.heal_on_entry    = false
-	_corr_mb.cam_center       = Vector2(7774.0, 1024.0)
-	_corr_mb.cam_zoom         = 2.0
-	_corr_mb.glass_fill_x     = 7326.0
-	_corr_mb.glass_fill_cols  = 14
-	_corr_mb.glass_lateral_x  = 8222.0
-	_corr_mb.camera_lock_requested.connect(_on_corr_mb_cam_lock)
-	_corr_mb.player_traversed.connect(_on_corr_mb_traversed)
-	add_child(_corr_mb)
-	_corr_mb.setup(_player)
+func _setup_corr2_section() -> void:
+	_corr2 = CorridorSection.new()
+	_corr2.tileset          = _TILESET
+	_corr2.glass_tex        = _GLASS_TEX
+	_corr2.door_tex         = _DOOR_TEX
+	_corr2.glass_mirror     = true
+	_corr2.floor_center     = Vector2(7774.0, 1120.0)
+	_corr2.floor_size       = Vector2(896.0, 64.0)
+	_corr2.ceil_size        = Vector2.ZERO
+	_corr2.entry_x          = 7326.0
+	_corr2.exit_x           = 8222.0
+	_corr2.entry_manual     = true
+	_corr2.save_checkpoint  = false
+	_corr2.heal_on_entry    = false
+	_corr2.cam_center       = Vector2(7774.0, 1024.0)
+	_corr2.cam_zoom         = 2.0
+	_corr2.glass_fill_x     = 7326.0
+	_corr2.glass_fill_cols  = 14
+	_corr2.glass_lateral_x  = 8222.0
+	_corr2.camera_lock_requested.connect(_on_corr2_cam_lock)
+	_corr2.player_traversed.connect(_on_corr2_traversed)
+	add_child(_corr2)
+	_corr2.setup(_player)
 
-func _on_corr_mb_cam_lock(center: Vector2, zoom: float) -> void:
+func _on_corr2_cam_lock(center: Vector2, zoom: float) -> void:
 	_camera_locked   = true
 	_camera_target   = center
 	_camera_zoom_tgt = zoom
 
-func _on_corr_mb_traversed() -> void:
+func _on_corr2_traversed() -> void:
 	_camera_locked = false
 
 # ─── MiniBoss Room ────────────────────────────────────────────────────────────
@@ -324,8 +324,8 @@ func _on_miniboss_defeated() -> void:
 	if rwall:
 		rwall.get_node("CollisionShape2D").set_deferred("disabled", true)
 		queue_redraw()
-	if _corr_mb != null:
-		_corr_mb.open_entry()
+	if _corr2 != null:
+		_corr2.open_entry()
 
 # ─── Zone Triggers ───────────────────────────────────────────────────────────
 
