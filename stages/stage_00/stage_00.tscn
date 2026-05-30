@@ -219,133 +219,133 @@ position = Vector2(7326, 896)
 shape = SubResource("shape_MiniBossWall")
 
 [node name="Floor_Pilar" type="StaticBody2D" parent="."]
-position = Vector2(8500, 1120)
+position = Vector2(9022, 1120)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Floor_Pilar"]
 shape = SubResource("shape_FloorPilar")
 
 [node name="Pilar" type="StaticBody2D" parent="."]
-position = Vector2(7872, 736)
+position = Vector2(8394, 736)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Pilar"]
 shape = SubResource("shape_Pilar")
 
 [node name="Plat_PilarTop" type="StaticBody2D" parent="."]
-position = Vector2(8032, 384)
+position = Vector2(8554, 384)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Plat_PilarTop"]
 shape = SubResource("shape_PlatPilarTop")
 
 [node name="Floor_Z2A" type="StaticBody2D" parent="."]
-position = Vector2(7900, 488)
+position = Vector2(8422, 488)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Floor_Z2A"]
 shape = SubResource("shape_FloorZ2A")
 
 [node name="Plat_Z2A" type="StaticBody2D" parent="."]
-position = Vector2(8800, 440)
+position = Vector2(9322, 440)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Plat_Z2A"]
 shape = SubResource("shape_PlatZ2A")
 
 [node name="Block_Z2A" type="StaticBody2D" parent="."]
-position = Vector2(9200, 360)
+position = Vector2(9722, 360)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Block_Z2A"]
 shape = SubResource("shape_BlockZ2A")
 
 [node name="Plat_Z2B" type="StaticBody2D" parent="."]
-position = Vector2(9800, 440)
+position = Vector2(10322, 440)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Plat_Z2B"]
 shape = SubResource("shape_PlatZ2B")
 
 [node name="Plat_Z2C" type="StaticBody2D" parent="."]
-position = Vector2(10400, 600)
+position = Vector2(10922, 600)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Plat_Z2C"]
 shape = SubResource("shape_PlatZ2C")
 
 [node name="Plat_Desc1" type="StaticBody2D" parent="."]
-position = Vector2(11000, 800)
+position = Vector2(11522, 800)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Plat_Desc1"]
 shape = SubResource("shape_PlatDesc1")
 
 [node name="Floor_Z3Start" type="StaticBody2D" parent="."]
-position = Vector2(12200, 1120)
+position = Vector2(12722, 1120)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Floor_Z3Start"]
 shape = SubResource("shape_FloorZ3Start")
 
 [node name="Plat_Z3A" type="StaticBody2D" parent="."]
-position = Vector2(13400, 960)
+position = Vector2(13922, 960)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Plat_Z3A"]
 shape = SubResource("shape_PlatZ3A")
 
 [node name="Floor_Z3B" type="StaticBody2D" parent="."]
-position = Vector2(14200, 1120)
+position = Vector2(14722, 1120)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Floor_Z3B"]
 shape = SubResource("shape_FloorZ3B")
 
 [node name="Floor_Z3C" type="StaticBody2D" parent="."]
-position = Vector2(15500, 1120)
+position = Vector2(16022, 1120)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Floor_Z3C"]
 shape = SubResource("shape_FloorZ3C")
 
 [node name="Corr2_Floor" type="StaticBody2D" parent="."]
-position = Vector2(16300, 1120)
+position = Vector2(16822, 1120)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Corr2_Floor"]
 shape = SubResource("shape_Corr2Floor")
 
 [node name="Corr2_Ceil" type="StaticBody2D" parent="."]
-position = Vector2(16300, 800)
+position = Vector2(16822, 800)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Corr2_Ceil"]
 shape = SubResource("shape_Corr2Ceil")
 
 [node name="Corr2_Wall_L" type="StaticBody2D" parent="."]
-position = Vector2(15970, 960)
+position = Vector2(16492, 960)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Corr2_Wall_L"]
 shape = SubResource("shape_Corr2WallL")
 
 [node name="Corr2_Wall_R" type="StaticBody2D" parent="."]
-position = Vector2(16630, 960)
+position = Vector2(17152, 960)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Corr2_Wall_R"]
 shape = SubResource("shape_Corr2WallR")
 
 [node name="Boss_Floor" type="StaticBody2D" parent="."]
-position = Vector2(17600, 1120)
+position = Vector2(18122, 1120)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Boss_Floor"]
 shape = SubResource("shape_BossFloor")
 
 [node name="Boss_Ceil" type="StaticBody2D" parent="."]
-position = Vector2(17600, -80)
+position = Vector2(18122, -80)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Boss_Ceil"]
 shape = SubResource("shape_BossCeil")
 
 [node name="Boss_LWall" type="StaticBody2D" parent="."]
-position = Vector2(16602, 520)
+position = Vector2(17124, 520)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Boss_LWall"]
 shape = SubResource("shape_BossLWall")
 
 [node name="Boss_RWall" type="StaticBody2D" parent="."]
-position = Vector2(18602, 520)
+position = Vector2(19124, 520)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Boss_RWall"]
 shape = SubResource("shape_BossRWall")
 
 [node name="GoalZone" type="Area2D" parent="."]
-position = Vector2(17800, 960)
+position = Vector2(18322, 960)
 collision_layer = 0
 collision_mask = 2
 
@@ -358,19 +358,19 @@ shape = SubResource("shape_GoalZone")
 [node name="StageComplete" parent="." instance=ExtResource("6_scom")]
 
 [node name="Step_Up1" type="StaticBody2D" parent="."]
-position = Vector2(7737, 896)
+position = Vector2(8259, 896)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Step_Up1"]
 shape = SubResource("shape_StepUp1")
 
 [node name="Step_Up2" type="StaticBody2D" parent="."]
-position = Vector2(7722, 704)
+position = Vector2(8244, 704)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Step_Up2"]
 shape = SubResource("shape_StepUp2")
 
 [node name="Step_Up3" type="StaticBody2D" parent="."]
-position = Vector2(7772, 512)
+position = Vector2(8294, 512)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Step_Up3"]
 shape = SubResource("shape_StepUp3")
@@ -385,6 +385,6 @@ shape = SubResource("shape_LBoundary")
 limit_left = 0
 limit_top = -1200
 limit_bottom = 1400
-limit_right = 18800
+limit_right = 19322
 position_smoothing_enabled = true
 position_smoothing_speed = 8.0
