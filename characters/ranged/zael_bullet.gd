@@ -9,26 +9,40 @@ var source_id: String = "single"
 var _hit: bool = false
 
 func _ready() -> void:
-    body_entered.connect(_on_body_entered)
-    $Timer.timeout.connect(queue_free)
-    queue_redraw()
+	body_entered.connect(_on_body_entered)
+	area_entered.connect(_on_area_entered)
+	$Timer.timeout.connect(queue_free)
+	queue_redraw()
 
 func _physics_process(delta: float) -> void:
-    if _hit:
-        return
-    global_position.x += direction * SPEED * delta
-    for body in get_overlapping_bodies():
-        _on_body_entered(body)
-        return
+	if _hit:
+		return
+	global_position.x += direction * SPEED * delta
+	# Checa áreas primeiro (hurtboxes têm prioridade sobre paredes)
+	for area in get_overlapping_areas():
+		_on_area_entered(area)
+		return
+	for body in get_overlapping_bodies():
+		_on_body_entered(body)
+		return
 
 func _draw() -> void:
-    draw_circle(Vector2.ZERO, 6.0, Color.YELLOW)
+	draw_circle(Vector2.ZERO, 6.0, Color.YELLOW)
+
+func _on_area_entered(area: Area2D) -> void:
+	if _hit:
+		return
+	if area.has_method("take_damage"):
+		_hit = true
+		area.take_damage(damage, source_id)
+		$Timer.stop()
+		queue_free()
 
 func _on_body_entered(body: Node) -> void:
-    if _hit:
-        return
-    _hit = true
-    if body.has_method("take_damage"):
-        body.take_damage(damage, source_id)
-    $Timer.stop()
-    queue_free()
+	if _hit:
+		return
+	_hit = true
+	if body.has_method("take_damage"):
+		body.take_damage(damage, source_id)
+	$Timer.stop()
+	queue_free()

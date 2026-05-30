@@ -4,6 +4,7 @@ extends Node2D
 const ZAEL_SCENE   := preload("res://characters/ranged/zael.tscn")
 const ZARA_SCENE   := preload("res://characters/melee/zara.tscn")
 const _TILESET     := preload("res://stages/stage_00/Stage_00T.png")
+const _GLASS_TEX   := preload("res://stage_00_glass.png")
 const _TS          := 64  # tamanho de destino no mundo
 const _SRC_TS      := 32  # tamanho real do tile no PNG
 const _DOOR_TEX    := preload("res://stages/door_pixellab.png")
@@ -77,7 +78,7 @@ func _ready() -> void:
 	lwall.get_node("CollisionShape2D").disabled = true
 
 	# Paredes de corredor são visuais — as portas de checkpoint fazem a barreira
-	for _cwall_name in ["Corr1_Wall_L", "Corr1_Wall_R", "Corr2_Wall_L", "Corr2_Wall_R"]:
+	for _cwall_name in ["Corr1_Wall_L", "Corr1_Wall_R", "Corr2_Wall_L", "Corr2_Wall_R", "Corr1_Ceil"]:
 		var _cwall := get_node_or_null(_cwall_name)
 		if _cwall:
 			(_cwall as Node).get_node("CollisionShape2D").set("disabled", true)
@@ -99,6 +100,7 @@ func _ready() -> void:
 	AudioManager.play_bgm(AudioLibrary.bgm_intro)
 
 	_setup_doors()
+	_setup_glass_lateral()
 	_setup_miniboss_trigger()
 	_setup_zone_triggers()
 	_spawn_zone_enemies(1)
@@ -271,6 +273,29 @@ func _on_boss_defeated(_ability_id: String) -> void:
 	# BossBase already called GameManager.complete_stage(0) in _run_death_sequence
 	GameManager.save_game()
 
+# ─── Glass Lateral ───────────────────────────────────────────────────────────
+
+func _setup_glass_lateral() -> void:
+	# Parede de vidro com colisão acima da porta CP1 — bloqueia o Zael de passar por cima.
+	# Vai do topo do nível (y = -1200) até o topo do painel de vidro (y = 768).
+	var col_rows  := 32
+	var col_bot   := 896.0
+	var col_top   := col_bot - col_rows * 64.0   # -1152
+	var height    := col_bot - col_top            # 2048
+	# Cobre as duas colunas: lateral (x=5480) + centro (x=5544), total 128px
+	var center_x  := 5544.0   # (5480+5608) / 2
+	var body := StaticBody2D.new()
+	body.name = "Glass_Lateral"
+	body.collision_layer = 1
+	body.collision_mask  = 0
+	body.position = Vector2(center_x, (col_top + col_bot) * 0.5)
+	var cs := CollisionShape2D.new()
+	var shape := RectangleShape2D.new()
+	shape.size = Vector2(128.0, height)
+	cs.shape = shape
+	body.add_child(cs)
+	add_child(body)
+
 # ─── MiniBoss Room ────────────────────────────────────────────────────────────
 
 func _setup_miniboss_trigger() -> void:
@@ -289,7 +314,6 @@ func _setup_miniboss_trigger() -> void:
 func _on_miniboss_room_entered(body: Node2D) -> void:
 	if not body.is_in_group("player"):
 		return
-	# Spawn imediato (deferred) — não altera nada visual ainda
 	if _miniboss == null:
 		_miniboss = _MINIBOSS_SCENE.instantiate()
 		_miniboss.global_position = Vector2(7000.0, 1024.0)
@@ -454,8 +478,36 @@ func _add_debug_platform() -> void:
 
 func _draw() -> void:
 	_draw_background()
+	_draw_glass_panels()
 	_draw_platforms()
 	_draw_door_underlays()
+
+func _draw_glass_panels() -> void:
+	var ts     := _TS
+	var src_ts := _SRC_TS
+	var lat_src  := Rect2(1 * src_ts, 0 * src_ts, src_ts, src_ts)  # tile (1,0) — lateral
+	var fill_src := Rect2(2 * src_ts, 1 * src_ts, src_ts, src_ts)  # tile (2,1) — centro
+
+	# 33 tiles × 64px = 2112px, do topo (y=-1152) até y=960
+	var col_rows := 33
+	var col_bot  := 960.0
+	var col_top  := col_bot - col_rows * ts  # -1152
+
+	# ── Corredor 1 → sala do miniboss ────────────────────────────────────────
+	var c1_fill_cols := 14  # x=5544→6440
+	for row in col_rows:
+		var dy := col_top + row * ts
+		draw_texture_rect_region(_GLASS_TEX, Rect2(5480.0, dy, ts, ts), lat_src)
+		for col in c1_fill_cols:
+			draw_texture_rect_region(_GLASS_TEX, Rect2(5544.0 + col * ts, dy, ts, ts), fill_src)
+
+	# ── Corredor 2 → sala do chefe ────────────────────────────────────────────
+	var c2_fill_cols := 11  # x=15970→16674, cobre Boss_LWall (right edge x=16634)
+	for row in col_rows:
+		var dy := col_top + row * ts
+		draw_texture_rect_region(_GLASS_TEX, Rect2(15906.0, dy, ts, ts), lat_src)
+		for col in c2_fill_cols:
+			draw_texture_rect_region(_GLASS_TEX, Rect2(15970.0 + col * ts, dy, ts, ts), fill_src)
 
 func _draw_door_underlays() -> void:
 	for door in _doors:
@@ -535,27 +587,33 @@ func _draw_platforms() -> void:
 			continue
 		if child is CheckpointDoor:
 			continue
+		if (child as Node).name.begins_with("Glass_"):
+			continue
 		for shape_child in child.get_children():
 			if not shape_child is CollisionShape2D:
 				continue
 			if not shape_child.shape is RectangleShape2D:
 				continue
 			var cs := shape_child as CollisionShape2D
-			if cs.disabled:
+			var n_check: String = (child as Node).name
+			if cs.disabled and not n_check.begins_with("MiniBoss_"):
 				continue
 			var size: Vector2 = (cs.shape as RectangleShape2D).size
 			var center: Vector2 = (child as Node2D).position + (cs as Node2D).position
 			var rect := Rect2(center - size * 0.5, size)
 			var n: String = child.name
-			if n.begins_with("Corr") or n.begins_with("Boss_") or n.begins_with("MiniBoss_"):
-				# Esconde Corr1 visualmente após selar, mas mantém o Floor (evita borda abrupta)
-				if _miniboss_spawned and n.begins_with("Corr1") and not n.ends_with("_Floor"):
-					continue
+			if n == "MiniBoss_LWall":
+				# Desenha só os tiles acima da abertura da porta
+				var door_top   := _DOOR_CY - _DOOR_H * 0.5
+				var above_rows := ceili((door_top - rect.position.y) / _TS)  # 5 tiles
+				var top_rect   := Rect2(rect.position.x, rect.position.y, rect.size.x, above_rows * _TS)
+				_draw_room_tiles(top_rect, n, true)
+			elif n.begins_with("Corr") or n.begins_with("Boss_") or n.begins_with("MiniBoss_"):
 				_draw_room_tiles(rect, n)
 			else:
-				_draw_platform_tiles(rect)
+				_draw_platform_tiles(rect, _TILESET)
 
-func _draw_platform_tiles(rect: Rect2) -> void:
+func _draw_platform_tiles(rect: Rect2, tex: Texture2D) -> void:
 	var ts     := _TS
 	var src_ts := _SRC_TS
 	var cols := ceili(rect.size.x / ts)
@@ -566,31 +624,28 @@ func _draw_platform_tiles(rect: Rect2) -> void:
 			var dx := rect.position.x + col * ts
 			var dy := rect.position.y + row * ts - src_ts  # alinha face sólida com física
 			var dh := minf(ts, rect.position.y + rect.size.y - dy)
-			# Todos os tiles de borda lateral têm conteúdo sólido em apenas metade da
-			# largura. Shift de ±src_ts alinha essa metade com a borda física e um
-			# half-tile de preenchimento cobre o gap criado (16 src px → ts/2 = 2× escala).
 			if cols > 1:
 				var fill := _gap_fill_tile(row, rows)
 				if col == 0:
 					dx -= src_ts
-					draw_texture_rect_region(_TILESET,
+					draw_texture_rect_region(tex,
 						Rect2(rect.position.x + ts / 2.0, dy, ts / 2.0, dh),
 						Rect2(fill.x * src_ts, fill.y * src_ts, src_ts / 2, src_ts))
 				elif col == cols - 1:
 					dx += src_ts
-					draw_texture_rect_region(_TILESET,
+					draw_texture_rect_region(tex,
 						Rect2(rect.position.x + (cols - 1) * ts, dy, ts / 2.0, dh),
 						Rect2(fill.x * src_ts + src_ts / 2, fill.y * src_ts, src_ts / 2, src_ts))
 			var dw := minf(ts, rect.position.x + rect.size.x - dx)
 			var src := Rect2(tile.x * src_ts, tile.y * src_ts, src_ts * dw / ts, src_ts * dh / ts)
-			draw_texture_rect_region(_TILESET, Rect2(dx, dy, dw, dh), src)
+			draw_texture_rect_region(tex, Rect2(dx, dy, dw, dh), src)
 
 func _gap_fill_tile(row: int, rows: int) -> Vector2i:
 	if row == 0:        return Vector2i(3, 0)  # TOP — linha visual superior
 	if row == rows - 1: return Vector2i(1, 2)  # BOTTOM — linha visual inferior
 	return Vector2i(2, 1)                       # FILL — interior
 
-func _draw_room_tiles(rect: Rect2, piece_name: String) -> void:
+func _draw_room_tiles(rect: Rect2, piece_name: String, skip_bottom_corner: bool = false) -> void:
 	var ts     := _TS
 	var src_ts := _SRC_TS
 	# Shifts base por peça (face de contato → expõe metade transparente ao jogador)
@@ -607,7 +662,7 @@ func _draw_room_tiles(rect: Rect2, piece_name: String) -> void:
 		for col in cols:
 			var is_left   := col == cols - 1
 			var is_right  := col == 0
-			var is_top    := row == rows - 1
+			var is_top    := row == rows - 1 and not skip_bottom_corner
 			var is_bottom := row == 0
 			var tile: Vector2i
 			if piece_name.ends_with("_Ceil"):
