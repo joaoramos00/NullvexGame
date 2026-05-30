@@ -216,7 +216,6 @@ shape = SubResource("shape_MiniBossWall")
 position = Vector2(7326, 896)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="MiniBoss_RWall"]
-disabled = true
 shape = SubResource("shape_MiniBossWall")
 
 [node name="Floor_Pilar" type="StaticBody2D" parent="."]
