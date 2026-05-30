@@ -633,8 +633,8 @@ func _draw_platforms() -> void:
 			var center: Vector2 = (child as Node2D).position + (cs as Node2D).position
 			var rect := Rect2(center - size * 0.5, size)
 			var n: String = child.name
-			if n == "MiniBoss_LWall":
-				# Desenha só os tiles acima da abertura da porta
+			if n == "MiniBoss_LWall" or n == "MiniBoss_RWall":
+				# Desenha só os tiles acima da abertura da porta (igual nos dois lados)
 				var door_top   := _DOOR_CY - _DOOR_H * 0.5
 				var above_rows := ceili((door_top - rect.position.y) / _TS)  # 5 tiles
 				var top_rect   := Rect2(rect.position.x, rect.position.y, rect.size.x, above_rows * _TS)

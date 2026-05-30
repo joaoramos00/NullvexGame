@@ -207,6 +207,21 @@ res://ui/stage_complete.tscn
 
 ---
 
+## Convenção de Nomes — MiniBosses
+
+Minibosses são abreviados como **MB** seguido do índice da fase (dois dígitos):
+
+| Fase | Abreviação |
+|------|------------|
+| Stage 00 | MB00 |
+| Stage 01 | MB01 |
+| Stage 02 | MB02 |
+| … | … |
+
+Usar esta abreviação em: nomes de nós (`EnemyMB00`), constantes (`_MB00_CAM_CENTER`), documentação e comentários.
+
+---
+
 ## Stage Complexo (stage_00) — Padrão
 
 **Script:** GD customizado `extends Node2D` (NÃO usa stage_scene.gd).
