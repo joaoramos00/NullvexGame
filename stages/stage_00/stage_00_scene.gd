@@ -320,10 +320,9 @@ func _on_miniboss_room_entered(body: Node2D) -> void:
 	_camera_zoom_tgt = _MINIBOSS_CAM_ZOOM
 
 func _on_miniboss_defeated() -> void:
-	# Remove visual da parede direita da sala — porta do corredor assume
 	var rwall := get_node_or_null("MiniBoss_RWall")
 	if rwall:
-		rwall.queue_free()
+		rwall.get_node("CollisionShape2D").set_deferred("disabled", true)
 		queue_redraw()
 	if _corr_mb != null:
 		_corr_mb.open_entry()
