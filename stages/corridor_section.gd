@@ -15,6 +15,8 @@ const _SRC := 32
 # ─── Geometria (coordenadas absolutas no mundo) ───────────────────────────────
 @export var floor_center:  Vector2 = Vector2(5982, 1120)
 @export var floor_size:    Vector2 = Vector2(896, 64)
+@export var ceil_center:   Vector2 = Vector2(5982, 928)
+@export var ceil_size:     Vector2 = Vector2.ZERO   # ZERO = sem teto
 @export var wall_l_center: Vector2 = Vector2(5534, 1024)
 @export var wall_l_size:   Vector2 = Vector2(64, 256)
 @export var wall_r_center: Vector2 = Vector2(6430, 1024)
@@ -66,6 +68,8 @@ func setup(player: Node2D) -> void:
 
 func _build_collision() -> void:
 	_add_static(floor_center,  floor_size,  1)
+	if ceil_size != Vector2.ZERO:
+		_add_static(ceil_center, ceil_size, 1)
 	# Paredes sem colisão — as portas de checkpoint fazem a barreira
 	_add_static(wall_l_center, wall_l_size, 1, true)
 	_add_static(wall_r_center, wall_r_size, 1, true)
@@ -118,7 +122,7 @@ func _make_door(x: float, w: float, h: float, open_offset: float) -> CheckpointD
 # ─── Eventos das portas ───────────────────────────────────────────────────────
 
 func open_entry() -> void:
-	_on_entry_opened(_entry_door as Node2D)
+	(_entry_door as CheckpointDoor).open()
 
 func _on_entry_opened(door: Node2D) -> void:
 	if is_instance_valid(_player):
@@ -163,6 +167,8 @@ func _draw() -> void:
 	if tileset == null:
 		return
 	_draw_floor_tiles()
+	if ceil_size != Vector2.ZERO:
+		_draw_ceil_tiles()
 	_draw_wall_tiles()
 	if glass_tex != null:
 		_draw_glass()
@@ -170,6 +176,9 @@ func _draw() -> void:
 func _draw_floor_tiles() -> void:
 	var rect := Rect2(floor_center - floor_size * 0.5, floor_size)
 	_draw_platform(rect, tileset)
+
+func _draw_ceil_tiles() -> void:
+	_draw_room(Rect2(ceil_center - ceil_size * 0.5, ceil_size), "Ceil")
 
 func _draw_wall_tiles() -> void:
 	# Paredes sem colisão — desenhadas visualmente mas sem bloqueio físico
@@ -216,7 +225,7 @@ func _draw_platform(rect: Rect2, tex: Texture2D) -> void:
 
 func _draw_room(rect: Rect2, suffix: String) -> void:
 	var base_xs := _SRC if suffix == "Wall_L" else (-_SRC if suffix == "Wall_R" else 0)
-	var base_ys := 0
+	var base_ys := _SRC if suffix == "Ceil" else 0
 	var cols    := ceili(rect.size.x / _TS)
 	var rows    := ceili(rect.size.y / _TS)
 	for row in rows:
@@ -234,6 +243,10 @@ func _draw_room(rect: Rect2, suffix: String) -> void:
 				if is_bottom: tile = Vector2i(3, 1)
 				elif is_top:  tile = Vector2i(2, 0)
 				else:         tile = Vector2i(3, 2)
+			elif suffix == "Ceil":
+				if is_left:   tile = Vector2i(2, 2)
+				elif is_right: tile = Vector2i(3, 1)
+				else:         tile = Vector2i(1, 2)
 			else:
 				tile = Vector2i(3, 0)
 			var tx := base_xs
