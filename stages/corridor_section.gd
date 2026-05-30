@@ -20,7 +20,7 @@ const _SRC := 32
 @export var ceil_size:     Vector2 = Vector2.ZERO   # ZERO = sem teto
 @export var wall_l_center: Vector2 = Vector2(5534, 1024)
 @export var wall_l_size:   Vector2 = Vector2(64, 256)
-@export var wall_r_center: Vector2 = Vector2(6430, 1024)
+@export var wall_r_center: Vector2 = Vector2(6462, 1024)
 @export var wall_r_size:   Vector2 = Vector2(64, 256)
 
 # ─── Portas ───────────────────────────────────────────────────────────────────
