@@ -64,7 +64,7 @@ var _boss: Node = null
 var _boss_spawned := false
 var _miniboss: Node = null
 var _miniboss_spawned := false
-var _corr_mb: CorridorSection = null
+var _corr_mb_entry_door: CheckpointDoor = null
 var _doors: Array[CheckpointDoor] = []
 var _camera_locked   := false
 var _camera_target   := Vector2.ZERO
@@ -326,35 +326,61 @@ func _setup_glass_lateral_mb() -> void:
 # ─── MiniBoss Exit Corridor ──────────────────────────────────────────────────
 
 func _setup_corr_mb() -> void:
-	var corr                  := CorridorSection.new()
-	corr.tileset              = _TILESET
-	corr.glass_tex            = null
-	corr.entry_x              = 7326.0
-	corr.exit_x               = 7646.0
-	corr.floor_center         = Vector2(7486.0, 1120.0)
-	corr.floor_size           = Vector2(320.0, 64.0)
-	corr.ceil_center          = Vector2(7486.0, 928.0)
-	corr.ceil_size            = Vector2(320.0, 64.0)
-	corr.wall_l_center        = Vector2(7326.0, 1024.0)
-	corr.wall_l_size          = Vector2(64.0, 256.0)
-	corr.wall_r_center        = Vector2(7646.0, 1024.0)
-	corr.wall_r_size          = Vector2(64.0, 256.0)
-	corr.cam_center           = _CORR_MB_CAM_CENTER
-	corr.cam_zoom             = _CORR_MB_CAM_ZOOM
-	corr.door_cy              = 1024.0
-	corr.entry_manual         = true
-	corr.save_checkpoint      = false
-	corr.heal_on_entry        = false
-	add_child(corr)
-	corr.setup(_player)
-	corr.camera_lock_requested.connect(func(c: Vector2, z: float) -> void:
-		_camera_locked   = true
-		_camera_target   = c
-		_camera_zoom_tgt = z)
-	corr.player_traversed.connect(_on_corr_mb_traversed)
-	_corr_mb = corr
+	# Chão — único nó com colisão; glass lateral e portas fazem o resto (igual ao Corr1)
+	var floor_body := StaticBody2D.new()
+	floor_body.name = "CorrMB_Floor"
+	floor_body.collision_layer = 1
+	floor_body.collision_mask  = 0
+	floor_body.position = Vector2(7486.0, 1120.0)
+	var cs := CollisionShape2D.new()
+	var shape := RectangleShape2D.new()
+	shape.size = Vector2(320.0, 64.0)
+	cs.shape = shape
+	floor_body.add_child(cs)
+	add_child(floor_body)
 
-func _on_corr_mb_traversed() -> void:
+	# Porta de entrada (x=7326): abre quando miniboss morre (TriggerArea desabilitada)
+	_corr_mb_entry_door = _make_door(7326.0)
+	var entry_trig := _corr_mb_entry_door.get_node_or_null("TriggerArea") as Area2D
+	if entry_trig:
+		entry_trig.monitoring = false
+	_corr_mb_entry_door.connect("door_opened", _on_corr_mb_entry_opened.bind(_corr_mb_entry_door))
+	_doors.append(_corr_mb_entry_door)
+
+	# Porta de saída (x=7646): abre por proximidade
+	var exit_door := _make_door(7646.0)
+	exit_door.connect("door_opened", _on_corr_mb_exit_opened.bind(exit_door))
+	_doors.append(exit_door)
+
+func _on_corr_mb_entry_opened(door: Node2D) -> void:
+	if is_instance_valid(_player):
+		_player.door_locked     = false
+		_player.door_walk_speed = CharacterBase.SPEED
+	var target_x := door.position.x + 96.0
+	while is_instance_valid(_player) and _player.global_position.x < target_x:
+		await get_tree().process_frame
+	if is_instance_valid(_player):
+		_player.door_walk_speed = 0.0
+	if is_instance_valid(door):
+		door.call("close")
+		var trig := door.get_node_or_null("TriggerArea") as Area2D
+		if trig:
+			trig.monitoring = false
+	_camera_locked   = true
+	_camera_target   = _CORR_MB_CAM_CENTER
+	_camera_zoom_tgt = _CORR_MB_CAM_ZOOM
+
+func _on_corr_mb_exit_opened(door: Node2D) -> void:
+	if is_instance_valid(_player):
+		_player.door_locked     = false
+		_player.door_walk_speed = CharacterBase.SPEED
+	var target_x := door.position.x + 96.0
+	while is_instance_valid(_player) and _player.global_position.x < target_x:
+		await get_tree().process_frame
+	if is_instance_valid(_player):
+		_player.door_walk_speed = 0.0
+	if is_instance_valid(door):
+		door.call("close")
 	_camera_locked = false
 
 # ─── MiniBoss Room ────────────────────────────────────────────────────────────
@@ -394,8 +420,13 @@ func _on_miniboss_room_entered(body: Node2D) -> void:
 	_camera_zoom_tgt = _MINIBOSS_CAM_ZOOM
 
 func _on_miniboss_defeated() -> void:
-	if _corr_mb != null:
-		_corr_mb.open_entry()
+	# Remove visual da parede direita da sala — porta do corredor assume
+	var rwall := get_node_or_null("MiniBoss_RWall")
+	if rwall:
+		rwall.queue_free()
+		queue_redraw()
+	if _corr_mb_entry_door != null:
+		_corr_mb_entry_door.open()
 
 # ─── Zone Triggers ───────────────────────────────────────────────────────────
 
