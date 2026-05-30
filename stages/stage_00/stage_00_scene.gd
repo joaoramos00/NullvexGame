@@ -256,7 +256,7 @@ func _setup_corr_mb_section() -> void:
 	_corr_mb.tileset          = _TILESET
 	_corr_mb.glass_tex        = _GLASS_TEX
 	_corr_mb.door_tex         = _DOOR_TEX
-	_corr_mb.glass_mirror     = true
+	_corr_mb.glass_mirror     = false
 	_corr_mb.floor_center     = Vector2(7486.0, 1120.0)
 	_corr_mb.floor_size       = Vector2(320.0, 64.0)
 	_corr_mb.ceil_size        = Vector2.ZERO
@@ -266,10 +266,10 @@ func _setup_corr_mb_section() -> void:
 	_corr_mb.save_checkpoint  = false
 	_corr_mb.heal_on_entry    = false
 	_corr_mb.cam_center       = Vector2(7486.0, 1024.0)
-	_corr_mb.cam_zoom         = 2.0
-	_corr_mb.glass_fill_x     = 7326.0
+	_corr_mb.cam_zoom         = 5.0
+	_corr_mb.glass_lateral_x  = 7326.0
+	_corr_mb.glass_fill_x     = 7390.0
 	_corr_mb.glass_fill_cols  = 4
-	_corr_mb.glass_lateral_x  = 7582.0
 	_corr_mb.camera_lock_requested.connect(_on_corr_mb_cam_lock)
 	_corr_mb.player_traversed.connect(_on_corr_mb_traversed)
 	add_child(_corr_mb)
