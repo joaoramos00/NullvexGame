@@ -4,7 +4,7 @@ extends Node2D
 const ZAEL_SCENE   := preload("res://characters/ranged/zael.tscn")
 const ZARA_SCENE   := preload("res://characters/melee/zara.tscn")
 const _TILESET     := preload("res://stages/stage_00/Stage_00T.png")
-const _GLASS_TEX   := preload("res://stage_00_glass.png")
+const _GLASS_TEX   := preload("res://stages/stage_00/stage_00_glass.png")
 const _TS          := 64  # tamanho de destino no mundo
 const _SRC_TS      := 32  # tamanho real do tile no PNG
 const _DOOR_TEX    := preload("res://stages/door_pixellab.png")
@@ -21,10 +21,10 @@ const ZONE1_GRUNTS := [
 const ZONE1_FLYERS := [Vector2(2100, 906), Vector2(4900, 906)]
 
 const ZONE2_GRUNTS := [
-	Vector2(8522, 392), Vector2(8322, 392), Vector2(9822, 264),
+	Vector2(9850, 424), Vector2(10250, 424), Vector2(9822, 264),
 	Vector2(10482, 384), Vector2(12322, 704)
 ]
-const ZONE2_FLYERS := [Vector2(8722, 274), Vector2(9022, 274), Vector2(11722, 586)]
+const ZONE2_FLYERS := [Vector2(9950, 400), Vector2(10350, 400), Vector2(11722, 586)]
 
 const ZONE3_GRUNTS := [
 	Vector2(12722, 1024), Vector2(14122, 904), Vector2(14722, 1024), Vector2(15722, 1024)
