@@ -1,0 +1,4 @@
+.env
+export/
+!export/web/
+*.tmp
