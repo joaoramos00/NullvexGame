@@ -202,9 +202,9 @@ func _draw() -> void:
 	_draw_floor_tiles()
 	if ceil_size != Vector2.ZERO:
 		_draw_ceil_tiles()
-	_draw_wall_tiles()
 	if glass_tex != null:
 		_draw_glass()
+	_draw_wall_tiles()
 	if door_tex != null:
 		_draw_door_underlays()
 
