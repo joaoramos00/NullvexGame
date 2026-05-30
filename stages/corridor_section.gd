@@ -237,13 +237,12 @@ func _draw_glass() -> void:
 	var fill_src := Rect2(2 * _SRC, 1 * _SRC, _SRC, _SRC)
 	var col_top  := glass_col_bot - glass_col_rows * _TS
 	if glass_mirror:
-		var lat_mirror := Rect2(lat_src.position.x + lat_src.size.x, lat_src.position.y,
-								-lat_src.size.x, lat_src.size.y)
+		var right_lat_src := Rect2(3 * _SRC, 2 * _SRC, _SRC, _SRC)  # tile (3,2) — face esquerda
 		for row in glass_col_rows:
 			var dy := col_top + row * _TS
 			for col in glass_fill_cols:
 				draw_texture_rect_region(glass_tex, Rect2(glass_fill_x + col * _TS, dy, _TS, _TS), fill_src)
-			draw_texture_rect_region(glass_tex, Rect2(glass_lateral_x, dy, _TS, _TS), lat_mirror)
+			draw_texture_rect_region(glass_tex, Rect2(glass_lateral_x, dy, _TS, _TS), right_lat_src)
 	else:
 		for row in glass_col_rows:
 			var dy := col_top + row * _TS

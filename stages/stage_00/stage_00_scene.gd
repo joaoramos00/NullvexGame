@@ -268,8 +268,8 @@ func _setup_corr_mb_section() -> void:
 	_corr_mb.cam_center       = Vector2(7774.0, 1024.0)
 	_corr_mb.cam_zoom         = 2.0
 	_corr_mb.glass_fill_x     = 7326.0
-	_corr_mb.glass_fill_cols  = 13
-	_corr_mb.glass_lateral_x  = 8158.0
+	_corr_mb.glass_fill_cols  = 14
+	_corr_mb.glass_lateral_x  = 8222.0
 	_corr_mb.camera_lock_requested.connect(_on_corr_mb_cam_lock)
 	_corr_mb.player_traversed.connect(_on_corr_mb_traversed)
 	add_child(_corr_mb)
