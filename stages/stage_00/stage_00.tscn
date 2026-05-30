@@ -358,13 +358,13 @@ shape = SubResource("shape_GoalZone")
 [node name="StageComplete" parent="." instance=ExtResource("6_scom")]
 
 [node name="Step_Up1" type="StaticBody2D" parent="."]
-position = Vector2(8259, 896)
+position = Vector2(8286, 896)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Step_Up1"]
 shape = SubResource("shape_StepUp1")
 
 [node name="Step_Up2" type="StaticBody2D" parent="."]
-position = Vector2(8244, 704)
+position = Vector2(8286, 704)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Step_Up2"]
 shape = SubResource("shape_StepUp2")
