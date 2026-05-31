@@ -444,6 +444,7 @@ class _MovView extends Control:
     const _GWL         := 480.0
     const _GWR         := 900.0
     const _GLASS_ROWS  := 4
+    const _TW          := 64.0
 
     var _player: CharacterBase = null
     var _enemy: EnemyBase = null
