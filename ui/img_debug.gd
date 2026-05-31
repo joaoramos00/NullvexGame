@@ -758,11 +758,11 @@ class _MovWorld extends Node2D:
                 for i in grows:
                     var ty := ground_y - float(i + 1) * _TW
                     if is_left:
-                        draw_texture_rect_region(glass_tex, Rect2(gx - _TW * 0.5, ty, _TW, _TW), lat_r)
-                        draw_texture_rect_region(glass_tex, Rect2(gx,              ty, _TW, _TW), fill_src)
+                        draw_texture_rect_region(glass_tex, Rect2(gx - _TW, ty, _TW, _TW), lat_l)
+                        draw_texture_rect_region(glass_tex, Rect2(gx,        ty, _TW, _TW), fill_src)
                     else:
-                        draw_texture_rect_region(glass_tex, Rect2(gx - _TW,        ty, _TW, _TW), fill_src)
-                        draw_texture_rect_region(glass_tex, Rect2(gx - _TW * 0.5,  ty, _TW, _TW), lat_l)
+                        draw_texture_rect_region(glass_tex, Rect2(gx - _TW, ty, _TW, _TW), fill_src)
+                        draw_texture_rect_region(glass_tex, Rect2(gx,        ty, _TW, _TW), lat_r)
 
         # Linhas amarelas de colisão (mesmo padrão do tab Colisões)
         var yel := Color(1.0, 0.9, 0.0, 0.85)
