@@ -21,15 +21,29 @@ const ZONE1_GRUNTS := [
 const ZONE1_FLYERS := [Vector2(2100, 906), Vector2(4900, 906)]
 
 const ZONE2_GRUNTS := [
-	Vector2(9850, 424), Vector2(10250, 424), Vector2(9822, 264),
-	Vector2(10482, 384), Vector2(12322, 704)
+	Vector2(8360, 1024), Vector2(8540, 1024),   # Seção 1 — Entrada
+	Vector2(9090, 592),                           # Seção 2 — Degrau 2
+	Vector2(9892, 296), Vector2(10292, 232), Vector2(10692, 296),  # Seção 3 — Flutuantes
+	Vector2(10960, 216), Vector2(11260, 152),
+	Vector2(11460, 152), Vector2(11760, 152),    # Seção 4 — Patamar
 ]
-const ZONE2_FLYERS := [Vector2(9950, 400), Vector2(10350, 400), Vector2(11722, 586)]
+const ZONE2_FLYERS := [
+	Vector2(8950, 700), Vector2(9250, 520),      # entre degraus
+	Vector2(10000, 250), Vector2(10400, 250),    # entre flutuantes
+	Vector2(11340, 90),  Vector2(11940, 90),     # sobre patamar
+]
 
 const ZONE3_GRUNTS := [
-	Vector2(12722, 1024), Vector2(14122, 904), Vector2(14722, 1024), Vector2(15722, 1024)
+	Vector2(13080, 216), Vector2(13260, 216),   # Entrada
+	Vector2(13560, 132),                          # Sala A — sub-plat
+	Vector2(14000, 116), Vector2(14200, 116),   # Sala B — sub-plat
+	Vector2(14620, 132), Vector2(14820, 132),   # Sala C — sub-plat
+	Vector2(15340, 216), Vector2(15800, 216),   # Continuação
 ]
-const ZONE3_FLYERS := [Vector2(13722, 906), Vector2(15122, 906)]
+const ZONE3_FLYERS := [
+	Vector2(13620, 165),  # Sala A
+	Vector2(14100, 165),  # Sala B
+]
 
 const BOSS_SPAWN := Vector2(18722, 784)
 const CP2_ENTRY_X := 16524.0  # centro visual Corr2_Wall_L (tile X 16492–16556)
