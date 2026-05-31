@@ -11,7 +11,8 @@ const _PLAYER_X := 280.0
 const _ENEMY_X  := 680.0
 const _ENEMY_Y  := [560.0, 380.0]
 
-const _TILE_TEX := preload("res://stages/stage_00/Stage_00T.png")
+const _TILE_TEX  := preload("res://stages/stage_00/Stage_00T.png")
+const _GLASS_TEX := preload("res://stages/stage_00/stage_00_glass.png")
 const _TS  := 32.0   # source tile size
 const _TW  := 64.0   # display tile size
 const _WL  := 100.0  # left  wall x
@@ -81,22 +82,35 @@ func _draw_tiles() -> void:
     _draw_glass_walls()
 
 func _draw_glass_walls() -> void:
-    var gc   := Color(0.45, 0.85, 1.0, 0.28)
-    var go   := Color(0.55, 0.9,  1.0, 0.85)
-    var lc   := Color(0.5,  0.9,  1.0, 0.9)
-    var nc   := Color(0.9,  0.85, 0.4, 0.8)
-    var font := ThemeDB.fallback_font
-    var nh   := float(_GLASS_ROWS - 1) * _TW        # altura visual (sem o gap do fundo)
-    var ty0  := _GROUND_Y - float(_GLASS_ROWS) * _TW # y do topo
+    var src      := _TS
+    var fill_src := Rect2(2.0 * src, 1.0 * src, src, src)  # tile (2,1) fill
+    var lat_r    := Rect2(1.0 * src, 0.0,        src, src)  # tile (1,0) borda p/ dir
+    var lat_l    := Rect2(3.0 * src, 2.0 * src,  src, src)  # tile (3,2) borda p/ esq
+    var font     := ThemeDB.fallback_font
+    var lc       := Color(0.5, 0.9, 1.0, 0.9)
+    var nc       := Color(0.9, 0.85, 0.4, 0.8)
+    var ty0      := _GROUND_Y - float(_GLASS_ROWS) * _TW
+    var rows     := _GLASS_ROWS - 1  # 1 tile de gap no fundo → player passa andando
 
-    for gx: float in [_GWL, _GWR]:
-        draw_rect(Rect2(gx - 5.0, ty0, 10.0, nh), gc)
-        draw_line(Vector2(gx, ty0), Vector2(gx, ty0 + nh), go, 4.0)
-        draw_line(Vector2(gx - 8.0, ty0), Vector2(gx + 8.0, ty0), go, 3.0)
-        draw_string(font, Vector2(gx - 68.0, ty0 - 14.0),
-            "VIDRO — sem grab", HORIZONTAL_ALIGNMENT_LEFT, 136.0, 17, lc)
+    # Parede de vidro esquerda (colisão em _GWL)
+    # borda (1,0) à esquerda + fills à direita
+    for i in rows:
+        var ty := _GROUND_Y - float(i + 1) * _TW
+        draw_texture_rect_region(_GLASS_TEX, Rect2(_GWL - _TW, ty, _TW, _TW), lat_r)
+        draw_texture_rect_region(_GLASS_TEX, Rect2(_GWL,        ty, _TW, _TW), fill_src)
 
-    # Labels paredes normais
+    # Parede de vidro direita (colisão em _GWR)
+    # fills à esquerda + borda (3,2) à direita
+    for i in rows:
+        var ty := _GROUND_Y - float(i + 1) * _TW
+        draw_texture_rect_region(_GLASS_TEX, Rect2(_GWR - _TW, ty, _TW, _TW), fill_src)
+        draw_texture_rect_region(_GLASS_TEX, Rect2(_GWR,        ty, _TW, _TW), lat_l)
+
+    # Labels
+    draw_string(font, Vector2(_GWL - _TW, ty0 - 14.0),
+        "VIDRO — sem grab", HORIZONTAL_ALIGNMENT_LEFT, 136.0, 17, lc)
+    draw_string(font, Vector2(_GWR - _TW, ty0 - 14.0),
+        "VIDRO — sem grab", HORIZONTAL_ALIGNMENT_LEFT, 136.0, 17, lc)
     draw_string(font, Vector2(_WL + 8.0, ty0 - 14.0),
         "NORMAL — grab OK", HORIZONTAL_ALIGNMENT_LEFT, 130.0, 17, nc)
     draw_string(font, Vector2(_WR - 138.0, ty0 - 14.0),
