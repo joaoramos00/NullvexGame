@@ -1597,6 +1597,140 @@ func _refresh_tiles() -> void:
         col_mode_btns.append(mbtn)
     col_mode_btns[0].modulate = Color(1.0, 1.0, 0.0)
 
+    # ── Seção Vidro ──────────────────────────────────────────────────────────
+    var glass_sep := HSeparator.new()
+    col_panel.add_child(glass_sep)
+
+    var glass_hdr := Label.new()
+    glass_hdr.text = "Vidro (stage_00_glass.png)"
+    glass_hdr.add_theme_font_size_override("font_size", 20)
+    glass_hdr.add_theme_color_override("font_color", Color(0.5, 0.9, 1.0))
+    col_panel.add_child(glass_hdr)
+
+    var glass_mode_row := HBoxContainer.new()
+    glass_mode_row.add_theme_constant_override("separation", 6)
+    col_panel.add_child(glass_mode_row)
+    var glass_mode_lbl := Label.new()
+    glass_mode_lbl.text = "Modo:"
+    glass_mode_lbl.add_theme_font_size_override("font_size", 18)
+    glass_mode_row.add_child(glass_mode_lbl)
+
+    var gl_tex  := load("res://stages/stage_00/stage_00_glass.png") as Texture2D
+    var tile_t  := load("res://stages/stage_00/Stage_00T.png")      as Texture2D
+    var spr_t   := load("res://characters/ranged/ZaelIdle.png")     as Texture2D
+
+    # ── Boxes por modo ───────────────────────────────────────────────────────
+    var gbox_lat := VBoxContainer.new()
+    var gbox_cor := VBoxContainer.new()
+    var gbox_gap := VBoxContainer.new()
+    var gbox_cmp := VBoxContainer.new()
+    var gbox_pan := VBoxContainer.new()
+
+    # Lateral
+    var glat := _GlassLateralView.new()
+    glat.glass_tex  = gl_tex
+    glat.sprite_tex = spr_t
+    glat.custom_minimum_size = Vector2(280, 220)
+    glat.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+    gbox_lat.add_child(glat)
+
+    # Cantos
+    var gcor := _GlassCornerView.new()
+    gcor.tile_tex   = tile_t
+    gcor.glass_tex  = gl_tex
+    gcor.sprite_tex = spr_t
+    gcor.custom_minimum_size = Vector2(320, 260)
+    gcor.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+    gcor.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+    gbox_cor.add_child(gcor)
+
+    var gcor_btn_row := HBoxContainer.new()
+    gcor_btn_row.add_theme_constant_override("separation", 6)
+    var gcor_lbl := Label.new()
+    gcor_lbl.text = "Canto:"
+    gcor_lbl.add_theme_font_size_override("font_size", 18)
+    gcor_btn_row.add_child(gcor_lbl)
+    for gci: Array in [["↗ topo-dir", 0], ["↖ topo-esq", 1], ["↘ base-dir", 2], ["↙ base-esq", 3]]:
+        var gcbtn := Button.new()
+        gcbtn.text = gci[0]
+        gcbtn.add_theme_font_size_override("font_size", 24)
+        var gcidx: int = gci[1]
+        gcbtn.pressed.connect(func(): gcor.corner = gcidx; gcor.queue_redraw())
+        gcor_btn_row.add_child(gcbtn)
+    gbox_cor.add_child(gcor_btn_row)
+
+    # Gap
+    var ggap := _GlassGapView.new()
+    ggap.glass_tex  = gl_tex
+    ggap.tile_tex   = tile_t
+    ggap.sprite_tex = spr_t
+    ggap.custom_minimum_size = Vector2(300, 260)
+    ggap.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+    gbox_gap.add_child(ggap)
+
+    # Comparação
+    var gcmp := _GlassCompareView.new()
+    gcmp.glass_tex  = gl_tex
+    gcmp.tile_tex   = tile_t
+    gcmp.sprite_tex = spr_t
+    gcmp.custom_minimum_size = Vector2(380, 220)
+    gcmp.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+    gbox_cmp.add_child(gcmp)
+
+    # Painel
+    var gpan := _GlassPanelView.new()
+    gpan.glass_tex = gl_tex
+    gpan.custom_minimum_size = Vector2(540, 180)
+    gpan.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+    gbox_pan.add_child(gpan)
+
+    var gpan_row := HBoxContainer.new()
+    gpan_row.add_theme_constant_override("separation", 6)
+    var gpan_norm_btn := Button.new()
+    gpan_norm_btn.text = "Normal"
+    gpan_norm_btn.add_theme_font_size_override("font_size", 22)
+    gpan_norm_btn.modulate = Color(1.0, 1.0, 0.0)
+    var gpan_mirr_btn := Button.new()
+    gpan_mirr_btn.text = "Espelho"
+    gpan_mirr_btn.add_theme_font_size_override("font_size", 22)
+    gpan_mirr_btn.modulate = Color(0.6, 0.6, 0.6)
+    gpan_norm_btn.pressed.connect(func():
+        gpan.mirror = false; gpan.queue_redraw()
+        gpan_norm_btn.modulate = Color(1.0, 1.0, 0.0)
+        gpan_mirr_btn.modulate = Color(0.6, 0.6, 0.6))
+    gpan_mirr_btn.pressed.connect(func():
+        gpan.mirror = true; gpan.queue_redraw()
+        gpan_mirr_btn.modulate = Color(1.0, 1.0, 0.0)
+        gpan_norm_btn.modulate = Color(0.6, 0.6, 0.6))
+    gpan_row.add_child(gpan_norm_btn)
+    gpan_row.add_child(gpan_mirr_btn)
+    gbox_pan.add_child(gpan_row)
+
+    # Adicionar boxes ao col_panel (lateral visível por padrão)
+    var glass_boxes: Array = [gbox_lat, gbox_cor, gbox_gap, gbox_cmp, gbox_pan]
+    for gb: VBoxContainer in glass_boxes:
+        gb.visible = false
+        col_panel.add_child(gb)
+    gbox_lat.visible = true
+
+    # Toggle de modos
+    var glass_mode_btns: Array = []
+    var _glass_sw := func(idx: int) -> void:
+        for i in glass_boxes.size():
+            glass_boxes[i].visible = (i == idx)
+        for i in glass_mode_btns.size():
+            glass_mode_btns[i].modulate = \
+                Color(1.0, 1.0, 0.0) if i == idx else Color(0.6, 0.6, 0.6)
+    for gml: Array in [["Lateral", 0], ["Cantos", 1], ["Gap", 2], ["Comparação", 3], ["Painel", 4]]:
+        var gmbtn := Button.new()
+        gmbtn.text = gml[0]
+        gmbtn.add_theme_font_size_override("font_size", 24)
+        var gidx: int = gml[1]
+        gmbtn.pressed.connect(func(): _glass_sw.call(gidx))
+        glass_mode_row.add_child(gmbtn)
+        glass_mode_btns.append(gmbtn)
+    glass_mode_btns[0].modulate = Color(1.0, 1.0, 0.0)
+
     # Plataformas tab
     var plat_tab_idx: int = panels.size()
 
