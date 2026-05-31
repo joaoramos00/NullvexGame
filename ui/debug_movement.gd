@@ -16,11 +16,15 @@ const _TS  := 32.0   # source tile size
 const _TW  := 64.0   # display tile size
 const _WL  := 100.0  # left  wall x
 const _WR  := 1400.0 # right wall x
+const _GWL := 480.0  # left  glass wall x
+const _GWR := 920.0  # right glass wall x
+const _GLASS_ROWS := 8  # glass wall height in tiles
 
 var _enemy_index: int = 0
 var _current_enemy: EnemyBase = null
 var _player: CharacterBase = null
 var _label_enemy: Label
+var _lbl_state: Label
 
 func _ready() -> void:
     _setup_game_manager()
@@ -32,9 +36,10 @@ func _ready() -> void:
 
 func _process(_delta: float) -> void:
     if is_instance_valid(_player):
-        var cam_y := clamp(_player.global_position.y + 120.0, _GROUND_Y - 400.0, _GROUND_Y + 200.0)
+        var cam_y: float = clamp(_player.global_position.y + 120.0, _GROUND_Y - 400.0, _GROUND_Y + 200.0)
         $Camera2D.global_position = Vector2(_player.global_position.x, cam_y)
         queue_redraw()
+        _update_state_label()
 
 func _draw() -> void:
     # Fundo
@@ -48,7 +53,7 @@ func _draw() -> void:
         return
     var pos     := _player.global_position + Vector2(0.0, -90.0)
     var on_floor := _player.is_on_floor()
-    var on_wall  := _player.is_on_wall() and not on_floor
+    var on_wall  := _player._is_wall_sliding
     if on_wall:
         _draw_wall_pose(pos, _player.get_wall_normal())
     else:
@@ -67,16 +72,40 @@ func _draw_tiles() -> void:
         draw_texture_rect_region(_TILE_TEX, Rect2(tx, _GROUND_Y + _TW,   _TW, _TW), fill)
         tx += _TW
 
-    # Paredes
+    # Paredes normais
     for i: int in 10:
         var ty := _GROUND_Y - float(i + 1) * _TW
         draw_texture_rect_region(_TILE_TEX, Rect2(_WL - _TW, ty, _TW, _TW), left)
         draw_texture_rect_region(_TILE_TEX, Rect2(_WR,        ty, _TW, _TW), rght)
 
+    _draw_glass_walls()
+
+func _draw_glass_walls() -> void:
+    var gc   := Color(0.45, 0.85, 1.0, 0.28)
+    var go   := Color(0.55, 0.9,  1.0, 0.85)
+    var lc   := Color(0.5,  0.9,  1.0, 0.9)
+    var nc   := Color(0.9,  0.85, 0.4, 0.8)
+    var font := ThemeDB.fallback_font
+    var nh   := float(_GLASS_ROWS - 1) * _TW        # altura visual (sem o gap do fundo)
+    var ty0  := _GROUND_Y - float(_GLASS_ROWS) * _TW # y do topo
+
+    for gx: float in [_GWL, _GWR]:
+        draw_rect(Rect2(gx - 5.0, ty0, 10.0, nh), gc)
+        draw_line(Vector2(gx, ty0), Vector2(gx, ty0 + nh), go, 4.0)
+        draw_line(Vector2(gx - 8.0, ty0), Vector2(gx + 8.0, ty0), go, 3.0)
+        draw_string(font, Vector2(gx - 68.0, ty0 - 14.0),
+            "VIDRO — sem grab", HORIZONTAL_ALIGNMENT_LEFT, 136.0, 17, lc)
+
+    # Labels paredes normais
+    draw_string(font, Vector2(_WL + 8.0, ty0 - 14.0),
+        "NORMAL — grab OK", HORIZONTAL_ALIGNMENT_LEFT, 130.0, 17, nc)
+    draw_string(font, Vector2(_WR - 138.0, ty0 - 14.0),
+        "NORMAL — grab OK", HORIZONTAL_ALIGNMENT_LEFT, 130.0, 17, nc)
+
 func _draw_wall_pose(pos: Vector2, wall_normal: Vector2) -> void:
     var c  := Color(0.92, 0.92, 1.0, 0.85)
     var tw := 2.5
-    var kd := -sign(wall_normal.x)
+    var kd: float = -sign(wall_normal.x)
     draw_circle(pos + Vector2(0.0, 6.0), 36.0, Color(0.0, 0.0, 0.0, 0.38))
     draw_line(pos + Vector2(kd * 35.0, -30.0), pos + Vector2(kd * 35.0, 30.0), Color(0.55, 0.55, 0.75, 0.7), 3.0)
     draw_circle(pos + Vector2(-kd * 4.0, -16.0), 7.0, c)
@@ -119,7 +148,7 @@ func _build_physics() -> void:
     gcs.shape = gseg
     ground.add_child(gcs)
 
-    # Paredes
+    # Paredes normais (wall grab OK)
     for wx: float in [_WL, _WR]:
         var wall := StaticBody2D.new()
         wall.collision_layer = 1
@@ -130,6 +159,19 @@ func _build_physics() -> void:
         wseg.b = Vector2(wx, _GROUND_Y)
         wcs.shape = wseg
         wall.add_child(wcs)
+
+    # Paredes de vidro (no_wall_grab) — gap de 1 tile no fundo, player passa andando
+    for gx: float in [_GWL, _GWR]:
+        var gwall := StaticBody2D.new()
+        gwall.collision_layer = 1
+        gwall.add_to_group("no_wall_grab")
+        add_child(gwall)
+        var gwcs := CollisionShape2D.new()
+        var gwseg := SegmentShape2D.new()
+        gwseg.a = Vector2(gx, _GROUND_Y - float(_GLASS_ROWS) * _TW)
+        gwseg.b = Vector2(gx, _GROUND_Y - _TW)
+        gwcs.shape = gwseg
+        gwall.add_child(gwcs)
 
 func _build_ui() -> void:
     var ui := CanvasLayer.new()
@@ -205,6 +247,33 @@ func _build_ui() -> void:
     hint.add_theme_color_override("font_color", Color(0.45, 0.45, 0.45))
     hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
     ui.add_child(hint)
+
+    _lbl_state = Label.new()
+    _lbl_state.set_anchors_and_offsets_preset(Control.PRESET_TOP_LEFT)
+    _lbl_state.offset_top    = 62.0
+    _lbl_state.offset_left   = 14.0
+    _lbl_state.offset_right  = 700.0
+    _lbl_state.offset_bottom = 86.0
+    _lbl_state.add_theme_font_size_override("font_size", 16)
+    ui.add_child(_lbl_state)
+
+func _update_state_label() -> void:
+    if not is_instance_valid(_lbl_state) or not is_instance_valid(_player):
+        return
+    var ws := _player._is_wall_sliding
+    var ow := _player.is_on_wall() and not _player.is_on_floor()
+    if ws:
+        _lbl_state.add_theme_color_override("font_color", Color(0.9, 0.9, 0.3))
+        _lbl_state.text = "Parede NORMAL — agarrado  (wall jump: Z)"
+    elif ow:
+        _lbl_state.add_theme_color_override("font_color", Color(0.5, 0.9, 1.0))
+        _lbl_state.text = "Parede VIDRO — sem grab  (cai com gravidade normal)"
+    elif _player.is_on_floor():
+        _lbl_state.add_theme_color_override("font_color", Color(0.5, 0.5, 0.5))
+        _lbl_state.text = "No chão"
+    else:
+        _lbl_state.add_theme_color_override("font_color", Color(0.5, 0.5, 0.5))
+        _lbl_state.text = "No ar"
 
 func _spawn_player() -> void:
     if is_instance_valid(_player):
