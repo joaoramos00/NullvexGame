@@ -3,7 +3,7 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dk03atdbvlbg8"
-path="res://.godot/imported/fly_bot.png-characters_enemies.ctex"
+path="res://.godot/imported/fly_bot.png-6672f4934a1e8c8b075a3e4e731ef527.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://characters/enemies/fly_bot.png"
-dest_files=["res://.godot/imported/fly_bot.png-characters_enemies.ctex"]
+dest_files=["res://.godot/imported/fly_bot.png-6672f4934a1e8c8b075a3e4e731ef527.ctex"]
 
 [params]
 
