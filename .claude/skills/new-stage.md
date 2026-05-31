@@ -173,6 +173,8 @@ position_smoothing_speed = 8.0
 Para stage complexo, usar `stage_00_scene.gd` e `stage_00.tscn` como referência direta:
 - Ler `stages/stage_00/stage_00_scene.gd` e `stages/stage_00/stage_00.tscn`
 - Adaptar: id, nome, posições de zonas, cores do `_draw_background()`, boss
+- Para corredores de transição entre zonas: usar `CorridorSection` (`stages/corridor_section.gd`) — ver skill `new-corridor`
+- Para paredes lisas (vidro, gelo, metal polido) onde o player não deve agarrar: `body.add_to_group("no_wall_grab")` — bloqueia fisicamente mas desativa wall grab/jump e cap de queda; ver grupo `no_wall_grab` em CLAUDE.md
 
 Estrutura mínima do GD customizado:
 ```gdscript
