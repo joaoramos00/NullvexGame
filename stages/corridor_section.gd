@@ -98,6 +98,7 @@ func _add_glass_lateral_collision() -> void:
 	cs.shape   = shape
 	body.add_child(cs)
 	add_child(body)
+	body.add_to_group("no_wall_grab")
 
 func _add_static(center: Vector2, size: Vector2, layer: int, disabled: bool = false) -> void:
 	var body := StaticBody2D.new()
