@@ -297,6 +297,109 @@ class _GlassLateralView extends Control:
         draw_string(font, Vector2(cx2 - 34.0, _MT - 20.0),
             "SEM GRAB", HORIZONTAL_ALIGNMENT_LEFT, 80.0, 15, cyn)
 
+# Cantos do vidro: idêntico a _CornerView mas tile da parede vem de glass_tex
+class _GlassCornerView extends Control:
+    var tile_tex:   Texture2D   # Stage_00T (chão/teto)
+    var glass_tex:  Texture2D   # glass (tile lateral da parede)
+    var sprite_tex: Texture2D
+    var corner: int = 0         # 0=topo-dir  1=topo-esq  2=base-dir  3=base-esq
+
+    const _TW   := 64.0
+    const _SRC  := 32.0
+    const _CR   := 10.0
+    const _CH   := 48.0
+    const _CHH  := 24.0
+    const _OFS  := 10.0
+    const _SPR  := 68.0
+    const _SCL  := 2.0
+    const _SOFY := -4.0
+
+    func _blit_tex(tex: Texture2D, src: Vector2i, dst: Rect2) -> void:
+        if not tex:
+            return
+        draw_texture_rect_region(tex, dst,
+            Rect2(src.x * _SRC, src.y * _SRC, _SRC, _SRC))
+
+    func _draw() -> void:
+        draw_rect(Rect2(Vector2.ZERO, size), Color(0.04, 0.06, 0.14))
+        var W := size.x
+        var H := size.y
+        var wx := W * 0.54
+        var fy := H * 0.55
+        var wx_in := wx + (32.0 if corner == 1 or corner == 3 else -32.0)
+        var fy_in := fy + (32.0 if corner == 0 or corner == 1 else -32.0)
+
+        var t_corner: Vector2i
+        var t_surf:   Vector2i
+        var t_side:   Vector2i
+        var t_fill := Vector2i(2, 1)
+        var rc: Rect2; var rs: Rect2; var rw: Rect2; var rf: Rect2
+        var px: float; var py: float; var flip := false
+
+        match corner:
+            0:
+                t_corner = Vector2i(0, 0); t_surf = Vector2i(3, 0); t_side = Vector2i(3, 2)
+                rc = Rect2(wx - _TW,       fy,        _TW, _TW)
+                rs = Rect2(wx - _TW * 2.0, fy,        _TW, _TW)
+                rw = Rect2(wx - _TW,       fy + _TW,  _TW, _TW)
+                rf = Rect2(wx - _TW * 2.0, fy + _TW,  _TW, _TW)
+                px = wx_in + _OFS;  py = fy_in - _CHH;  flip = true
+            1:
+                t_corner = Vector2i(1, 3); t_surf = Vector2i(3, 0); t_side = Vector2i(1, 0)
+                rc = Rect2(wx,       fy,        _TW, _TW)
+                rs = Rect2(wx + _TW, fy,        _TW, _TW)
+                rw = Rect2(wx,       fy + _TW,  _TW, _TW)
+                rf = Rect2(wx + _TW, fy + _TW,  _TW, _TW)
+                px = wx_in - _OFS;  py = fy_in - _CHH;  flip = false
+            2:
+                t_corner = Vector2i(3, 3); t_surf = Vector2i(1, 2); t_side = Vector2i(3, 2)
+                rc = Rect2(wx - _TW,       fy - _TW,        _TW, _TW)
+                rs = Rect2(wx - _TW * 2.0, fy - _TW,        _TW, _TW)
+                rw = Rect2(wx - _TW,       fy - _TW * 2.0,  _TW, _TW)
+                rf = Rect2(wx - _TW * 2.0, fy - _TW * 2.0,  _TW, _TW)
+                px = wx_in + _OFS;  py = fy_in + _CHH;  flip = true
+            3:
+                t_corner = Vector2i(0, 2); t_surf = Vector2i(1, 2); t_side = Vector2i(1, 0)
+                rc = Rect2(wx,       fy - _TW,        _TW, _TW)
+                rs = Rect2(wx + _TW, fy - _TW,        _TW, _TW)
+                rw = Rect2(wx,       fy - _TW * 2.0,  _TW, _TW)
+                rf = Rect2(wx + _TW, fy - _TW * 2.0,  _TW, _TW)
+                px = wx_in - _OFS;  py = fy_in + _CHH;  flip = false
+            _:
+                return
+
+        # fill, surf, corner de tile_tex; side de glass_tex
+        _blit_tex(tile_tex,  t_fill,   rf)
+        _blit_tex(tile_tex,  t_surf,   rs)
+        _blit_tex(tile_tex,  t_corner, rc)
+        _blit_tex(glass_tex, t_side,   rw)
+
+        # Linha ciano para parede de vidro, amarela para chão/teto
+        var yel := Color(1.0, 0.9, 0.0, 0.85)
+        var cyn := Color(0.5, 0.9, 1.0, 0.9)
+        draw_line(Vector2(wx_in, 0.0), Vector2(wx_in, H), cyn, 2.0)
+        draw_line(Vector2(0.0, fy_in), Vector2(W, fy_in), yel, 2.0)
+
+        var grn := Color(0.0, 1.0, 0.5, 0.85)
+        draw_line(Vector2(px - 9.0, fy_in), Vector2(px + 9.0, fy_in), grn, 2.0)
+        draw_line(Vector2(wx_in, py - 9.0), Vector2(wx_in, py + 9.0), grn, 2.0)
+        draw_line(Vector2(px - 5.0, py - 5.0), Vector2(px + 5.0, py + 5.0), grn, 1.5)
+        draw_line(Vector2(px + 5.0, py - 5.0), Vector2(px - 5.0, py + 5.0), grn, 1.5)
+
+        if sprite_tex:
+            var sd := _SPR * _SCL
+            if flip:
+                draw_set_transform(Vector2(px * 2.0, 0.0), 0.0, Vector2(-1.0, 1.0))
+            draw_texture_rect_region(sprite_tex,
+                Rect2(px - sd * 0.5, py + _SOFY - sd * 0.5, sd, sd),
+                Rect2(0.0, 0.0, _SPR, _SPR))
+            if flip:
+                draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+
+        var cap := Rect2(px - _CR, py - _CHH, _CR * 2.0, _CH)
+        draw_rect(cap, Color(0.0, 1.0, 1.0, 0.25))
+        draw_rect(cap, Color(0.0, 1.0, 1.0, 1.0), false, 2.0)
+
 # Visualização de plataformas e salas: monta bloco N×M com _tile_at ou _room_at
 class _PlatformView extends Control:
     var tile_tex: Texture2D
