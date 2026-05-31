@@ -350,14 +350,14 @@ func _setup_zone_triggers() -> void:
 	z1.body_exited.connect(_on_zone1_exited)
 	add_child(z1)
 
-	# Zone 2: x 6400–11400
-	var z2 := _make_zone_trigger(9422, 600, 5000, 1200)
+	# Zone 2: x 8222–12922 (redesenhada — player pode estar em y=280)
+	var z2 := _make_zone_trigger(10572, 600, 4700, 1400)
 	z2.body_entered.connect(_on_zone2_entered)
 	z2.body_exited.connect(_on_zone2_exited)
 	add_child(z2)
 
-	# Zone 3: x 11400–16000
-	var z3 := _make_zone_trigger(14222, 800, 4600, 1200)
+	# Zone 3: x 12922–16492 (interior elevado — player em y=280)
+	var z3 := _make_zone_trigger(14707, 300, 3570, 800)
 	z3.body_entered.connect(_on_zone3_entered)
 	z3.body_exited.connect(_on_zone3_exited)
 	add_child(z3)
