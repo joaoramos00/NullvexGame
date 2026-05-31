@@ -55,6 +55,7 @@ const _DOOR_H       := 200.0    # altura da porta
 const _DOOR_V       := _DOOR_H / 3.0  # largura da porta (1/3 da altura ≈ 67px)
 const _DOOR_CY      := 1024.0   # centro da porta: 1 tile abaixo do original (960→1024)
 const _DOOR_OPEN_Y  := (_CORR_CEIL_Y - _DOOR_CY) - _DOOR_H - 2.0
+const _CORR3_DOOR_CY := 212.0   # centro do Corr3 elevado: (80+344)/2
 
 const _MINIBOSS_CAM_CENTER := Vector2(6878.0, 896.0)
 const _MINIBOSS_CAM_ZOOM   := 2.0                      # sala 960px total, zoom 2x
@@ -161,9 +162,9 @@ func _spawn_player() -> void:
 
 # ─── Checkpoint Doors ────────────────────────────────────────────────────────
 
-func _make_door(x: float) -> CheckpointDoor:
+func _make_door(x: float, cy: float = _DOOR_CY) -> CheckpointDoor:
 	var door := _DOOR_SCENE.instantiate() as CheckpointDoor
-	door.position    = Vector2(x, _DOOR_CY)
+	door.position    = Vector2(x, cy)
 	door.open_offset = _DOOR_OPEN_Y
 	# Redimensiona collision body antes de _ready()
 	var col := door.get_node("CollisionShape2D") as CollisionShape2D
@@ -182,12 +183,12 @@ func _make_door(x: float) -> CheckpointDoor:
 	return door
 
 func _setup_doors() -> void:
-	var cp2_entry := _make_door(CP2_ENTRY_X)
+	var cp2_entry := _make_door(CP2_ENTRY_X, _CORR3_DOOR_CY)
 	cp2_entry.connect("door_opening", _on_door_opening)
 	cp2_entry.connect("door_opened",  _on_cp2_entry_opened.bind(cp2_entry))
 	_doors.append(cp2_entry)
 
-	var boss_door := _make_door(CP2_EXIT_X)
+	var boss_door := _make_door(CP2_EXIT_X, _CORR3_DOOR_CY)
 	boss_door.connect("door_opened",  _on_boss_door_opened.bind(boss_door))
 	_doors.append(boss_door)
 
@@ -218,7 +219,7 @@ func _on_door_opening() -> void:
 		_player.door_locked = true
 
 func _on_cp2_entry_opened(door: Node2D) -> void:
-	StageManager.save_checkpoint(Vector2(CP2_EXIT_X + 128, 992), 2)
+	StageManager.save_checkpoint(Vector2(CP2_EXIT_X + 128, 184), 2)
 	if is_instance_valid(_player):
 		_player.heal(_player.max_hp)
 		_player.door_locked = false
