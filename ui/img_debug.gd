@@ -797,7 +797,7 @@ class _MovView extends Control:
     ]
     const _ENEMY_NAMES := ["Grunt", "Flyer", "MiniBoss"]
     const _GROUND_Y    := 16.0
-    const _PLAYER_X    := 600.0
+    const _PLAYER_X    := 280.0
     const _ENEMY_X     := 680.0
     const _ENEMY_Y     := [-40.0, -100.0, 3.0]
     const _WALL_L      := 100.0
