@@ -163,6 +163,12 @@ size = Vector2(1292, 64)
 [sub_resource type="RectangleShape2D" id="shape_CorrZ3ContCeil"]
 size = Vector2(1292, 64)
 
+[sub_resource type="RectangleShape2D" id="shape_BossLWallTop"]
+size = Vector2(64, 200)
+
+[sub_resource type="RectangleShape2D" id="shape_BossLWallBot"]
+size = Vector2(64, 816)
+
 [node name="Stage00" type="Node2D"]
 script = ExtResource("1_script")
 
@@ -494,6 +500,18 @@ position = Vector2(15846, 112)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="CorrZ3_Cont_Ceil"]
 shape = SubResource("shape_CorrZ3ContCeil")
+
+[node name="Boss_LWall_Top" type="StaticBody2D" parent="."]
+position = Vector2(17124, -20)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Boss_LWall_Top"]
+shape = SubResource("shape_BossLWallTop")
+
+[node name="Boss_LWall_Bot" type="StaticBody2D" parent="."]
+position = Vector2(17124, 752)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Boss_LWall_Bot"]
+shape = SubResource("shape_BossLWallBot")
 
 [node name="Camera2D" type="Camera2D" parent="."]
 limit_left = 0
