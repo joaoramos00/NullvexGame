@@ -490,13 +490,20 @@ func _draw_glass_panels() -> void:
 	var lat_src  := Rect2(1 * src_ts, 0 * src_ts, src_ts, src_ts)  # tile (1,0) — lateral
 	var fill_src := Rect2(2 * src_ts, 1 * src_ts, src_ts, src_ts)  # tile (2,1) — centro
 
-	# 33 tiles × 64px = 2112px, do topo (y=-1152) até y=960
-	var col_rows := 33
-	var col_bot  := 960.0
-	var col_top  := col_bot - col_rows * ts  # -1152
+	# Teto elevado Z3/Corr3 em y=80 — 20 tiles × 64px (y=-1152 até y=128)
+	var col_rows := 20
+	var col_top  := -1152.0
 
-	# ── Corredor 2 → sala do chefe ────────────────────────────────────────────
-	var c2_fill_cols := 11  # x=16492→17196, cobre Boss_LWall (right edge x=17156)
+	# ── Zona 3 — glass acima do interior fechado (x 12858–16506) ─────────────
+	var z3_fill_cols := 56  # 12922 + 56×64 = 16506 ≈ entrada do Corr3
+	for row in col_rows:
+		var dy := col_top + row * ts
+		draw_texture_rect_region(_GLASS_TEX, Rect2(12858.0, dy, ts, ts), lat_src)
+		for col in z3_fill_cols:
+			draw_texture_rect_region(_GLASS_TEX, Rect2(12922.0 + col * ts, dy, ts, ts), fill_src)
+
+	# ── Corredor 3 → sala do chefe (x 16428–17196) ───────────────────────────
+	var c2_fill_cols := 11  # x=16492→17196, cobre Boss_LWall
 	for row in col_rows:
 		var dy := col_top + row * ts
 		draw_texture_rect_region(_GLASS_TEX, Rect2(16428.0, dy, ts, ts), lat_src)
