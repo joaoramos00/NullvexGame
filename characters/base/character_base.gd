@@ -98,7 +98,8 @@ func _touching_no_grab_wall() -> bool:
     for i in get_slide_collision_count():
         var col := get_slide_collision(i)
         var n := col.get_normal()
-        if abs(n.x) > abs(n.y) and col.get_collider().is_in_group("no_wall_grab"):
+        var collider := col.get_collider()
+        if abs(n.x) > abs(n.y) and is_instance_valid(collider) and collider.is_in_group("no_wall_grab"):
             return true
     return false
 
