@@ -112,6 +112,57 @@ size = Vector2(192, 128)
 [sub_resource type="RectangleShape2D" id="shape_FloorZ2Trans"]
 size = Vector2(722, 64)
 
+[sub_resource type="RectangleShape2D" id="shape_CorrZ3EntryFloor"]
+size = Vector2(478, 64)
+
+[sub_resource type="RectangleShape2D" id="shape_CorrZ3EntryCeil"]
+size = Vector2(478, 64)
+
+[sub_resource type="RectangleShape2D" id="shape_CorrZ3EntryWallL"]
+size = Vector2(64, 264)
+
+[sub_resource type="RectangleShape2D" id="shape_CorrZ3RoomsCeil"]
+size = Vector2(1800, 64)
+
+[sub_resource type="RectangleShape2D" id="shape_CorrZ3RoomsFloor"]
+size = Vector2(1800, 64)
+
+[sub_resource type="RectangleShape2D" id="shape_DivZ3_1Top"]
+size = Vector2(64, 82)
+
+[sub_resource type="RectangleShape2D" id="shape_DivZ3_1Bot"]
+size = Vector2(64, 124)
+
+[sub_resource type="RectangleShape2D" id="shape_DivZ3_2Top"]
+size = Vector2(64, 82)
+
+[sub_resource type="RectangleShape2D" id="shape_DivZ3_2Bot"]
+size = Vector2(64, 124)
+
+[sub_resource type="RectangleShape2D" id="shape_DivZ3_3Top"]
+size = Vector2(64, 82)
+
+[sub_resource type="RectangleShape2D" id="shape_DivZ3_3Bot"]
+size = Vector2(64, 124)
+
+[sub_resource type="RectangleShape2D" id="shape_SubPlatZ3A"]
+size = Vector2(240, 48)
+
+[sub_resource type="RectangleShape2D" id="shape_SubPlatZ3B"]
+size = Vector2(320, 48)
+
+[sub_resource type="RectangleShape2D" id="shape_SubPlatZ3C"]
+size = Vector2(320, 48)
+
+[sub_resource type="RectangleShape2D" id="shape_SubPlatZ3D"]
+size = Vector2(120, 48)
+
+[sub_resource type="RectangleShape2D" id="shape_CorrZ3ContFloor"]
+size = Vector2(1292, 64)
+
+[sub_resource type="RectangleShape2D" id="shape_CorrZ3ContCeil"]
+size = Vector2(1292, 64)
+
 [node name="Stage00" type="Node2D"]
 script = ExtResource("1_script")
 
@@ -341,6 +392,108 @@ position = Vector2(12561, 312)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Floor_Z2_Trans"]
 shape = SubResource("shape_FloorZ2Trans")
+
+[node name="CorrZ3_Entry_Floor" type="StaticBody2D" parent="."]
+position = Vector2(13161, 312)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="CorrZ3_Entry_Floor"]
+shape = SubResource("shape_CorrZ3EntryFloor")
+
+[node name="CorrZ3_Entry_Ceil" type="StaticBody2D" parent="."]
+position = Vector2(13161, 112)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="CorrZ3_Entry_Ceil"]
+shape = SubResource("shape_CorrZ3EntryCeil")
+
+[node name="CorrZ3_Entry_Wall_L" type="StaticBody2D" parent="."]
+position = Vector2(12890, 212)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="CorrZ3_Entry_Wall_L"]
+shape = SubResource("shape_CorrZ3EntryWallL")
+
+[node name="CorrZ3_Rooms_Ceil" type="StaticBody2D" parent="."]
+position = Vector2(14300, 112)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="CorrZ3_Rooms_Ceil"]
+shape = SubResource("shape_CorrZ3RoomsCeil")
+
+[node name="CorrZ3_Rooms_Floor" type="StaticBody2D" parent="."]
+position = Vector2(14300, 312)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="CorrZ3_Rooms_Floor"]
+shape = SubResource("shape_CorrZ3RoomsFloor")
+
+[node name="Div_Z3_1_Top" type="StaticBody2D" parent="."]
+position = Vector2(13832, 121)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Div_Z3_1_Top"]
+shape = SubResource("shape_DivZ3_1Top")
+
+[node name="Div_Z3_1_Bot" type="StaticBody2D" parent="."]
+position = Vector2(13832, 282)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Div_Z3_1_Bot"]
+shape = SubResource("shape_DivZ3_1Bot")
+
+[node name="Div_Z3_2_Top" type="StaticBody2D" parent="."]
+position = Vector2(14432, 121)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Div_Z3_2_Top"]
+shape = SubResource("shape_DivZ3_2Top")
+
+[node name="Div_Z3_2_Bot" type="StaticBody2D" parent="."]
+position = Vector2(14432, 282)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Div_Z3_2_Bot"]
+shape = SubResource("shape_DivZ3_2Bot")
+
+[node name="Div_Z3_3_Top" type="StaticBody2D" parent="."]
+position = Vector2(15032, 121)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Div_Z3_3_Top"]
+shape = SubResource("shape_DivZ3_3Top")
+
+[node name="Div_Z3_3_Bot" type="StaticBody2D" parent="."]
+position = Vector2(15032, 282)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Div_Z3_3_Bot"]
+shape = SubResource("shape_DivZ3_3Bot")
+
+[node name="SubPlat_Z3_A" type="StaticBody2D" parent="."]
+position = Vector2(13600, 220)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="SubPlat_Z3_A"]
+shape = SubResource("shape_SubPlatZ3A")
+
+[node name="SubPlat_Z3_B" type="StaticBody2D" parent="."]
+position = Vector2(14120, 204)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="SubPlat_Z3_B"]
+shape = SubResource("shape_SubPlatZ3B")
+
+[node name="SubPlat_Z3_C" type="StaticBody2D" parent="."]
+position = Vector2(14720, 220)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="SubPlat_Z3_C"]
+shape = SubResource("shape_SubPlatZ3C")
+
+[node name="SubPlat_Z3_D" type="StaticBody2D" parent="."]
+position = Vector2(15124, 204)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="SubPlat_Z3_D"]
+shape = SubResource("shape_SubPlatZ3D")
+
+[node name="CorrZ3_Cont_Floor" type="StaticBody2D" parent="."]
+position = Vector2(15846, 312)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="CorrZ3_Cont_Floor"]
+shape = SubResource("shape_CorrZ3ContFloor")
+
+[node name="CorrZ3_Cont_Ceil" type="StaticBody2D" parent="."]
+position = Vector2(15846, 112)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="CorrZ3_Cont_Ceil"]
+shape = SubResource("shape_CorrZ3ContCeil")
 
 [node name="Camera2D" type="Camera2D" parent="."]
 limit_left = 0
