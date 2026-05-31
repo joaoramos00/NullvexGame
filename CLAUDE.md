@@ -81,6 +81,7 @@ Nenhum plano pendente. Desenvolvimento principal concluído.
 - **StageController** conecta `CharacterBase.died` ao `GameManager.lose_life()` via property setter (suporta spawn dinâmico)
 - **stage_scene.gd** — script base compartilhado pelas 8 cenas de fase; spawna Zael ou Zara conforme `GameManager.active_character`; desenha terreno automaticamente via `_draw()`
 - **CorridorSection** (`stages/corridor_section.gd`) — Node2D reutilizável para corredores de transição entre zonas; troque `tileset` e `glass_tex` por @export; emite sinais `camera_lock_requested`, `checkpoint_triggered`, `player_healed`, `player_traversed` para a stage conectar
+- **Grupo `"no_wall_grab"`** — qualquer `StaticBody2D` nesse grupo se torna parede lisa: bloqueia o player (colisão normal), mas desativa wall grab, wall jump e cap de queda (gravidade plena). O `character_base.gd` detecta via `get_slide_collision()` a cada frame. Para ativar: `body.add_to_group("no_wall_grab")`. O `CorridorSection` já aplica isso ao vidro lateral automaticamente.
 
 ---
 
