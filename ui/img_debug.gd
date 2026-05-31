@@ -770,8 +770,8 @@ class _MovWorld extends Node2D:
         draw_line(Vector2(contact_l, -8000.0), Vector2(contact_l, ground_y),  yel, 2.0)
         draw_line(Vector2(contact_r, -8000.0), Vector2(contact_r, ground_y),  yel, 2.0)
         if glass_tex:
-            draw_line(Vector2(glass_wall_l - _TW, -8000.0), Vector2(glass_wall_l - _TW, ground_y), Color(0.5, 0.9, 1.0, 0.9), 2.0)
-            draw_line(Vector2(glass_wall_r + _TW, -8000.0), Vector2(glass_wall_r + _TW, ground_y), Color(0.5, 0.9, 1.0, 0.9), 2.0)
+            draw_line(Vector2(glass_wall_l, -8000.0), Vector2(glass_wall_l, ground_y), Color(0.5, 0.9, 1.0, 0.9), 2.0)
+            draw_line(Vector2(glass_wall_r, -8000.0), Vector2(glass_wall_r, ground_y), Color(0.5, 0.9, 1.0, 0.9), 2.0)
         # Hitbox do player
         if is_instance_valid(player_ref):
             var cs := player_ref.get_node_or_null("CollisionShape2D") as CollisionShape2D
@@ -797,7 +797,7 @@ class _MovView extends Control:
     ]
     const _ENEMY_NAMES := ["Grunt", "Flyer", "MiniBoss"]
     const _GROUND_Y    := 16.0
-    const _PLAYER_X    := 280.0
+    const _PLAYER_X    := 600.0
     const _ENEMY_X     := 680.0
     const _ENEMY_Y     := [-40.0, -100.0, 3.0]
     const _WALL_L      := 100.0
@@ -877,7 +877,7 @@ class _MovView extends Control:
             wseg.b = Vector2(wx, _GROUND_Y)
             wcs.shape = wseg
             wall.add_child(wcs)
-        # Paredes de vidro (no_wall_grab) — face exterior do tile lateral, sem gap
+        # Paredes de vidro (no_wall_grab) — face interna do tile lateral, sem gap
         for gx: float in [_GWL, _GWR]:
             var gwall := StaticBody2D.new()
             gwall.collision_layer = 1
@@ -885,9 +885,8 @@ class _MovView extends Control:
             _world.add_child(gwall)
             var gwcs := CollisionShape2D.new()
             var gwseg := SegmentShape2D.new()
-            var seg_x := gx - _TW if gx == _GWL else gx + _TW
-            gwseg.a = Vector2(seg_x, _GROUND_Y - float(_GLASS_ROWS) * _TW)
-            gwseg.b = Vector2(seg_x, _GROUND_Y)
+            gwseg.a = Vector2(gx, _GROUND_Y - float(_GLASS_ROWS) * _TW)
+            gwseg.b = Vector2(gx, _GROUND_Y)
             gwcs.shape = gwseg
             gwall.add_child(gwcs)
 
