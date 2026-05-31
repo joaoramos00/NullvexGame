@@ -85,9 +85,11 @@ var _camera_zoom_tgt := 2.2
 func _ready() -> void:
 	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 
-	# Boss_LWall collision starts disabled — only re-enabled once boss door opens
-	var lwall := $Boss_LWall
-	lwall.get_node("CollisionShape2D").disabled = true
+	# Boss_LWall split em Top/Bot — colisão começa desabilitada
+	for lwall_name: String in ["Boss_LWall_Top", "Boss_LWall_Bot"]:
+		var lwall := get_node_or_null(lwall_name)
+		if lwall:
+			lwall.get_node("CollisionShape2D").disabled = true
 
 	# Paredes de corredor são visuais — as portas de checkpoint fazem a barreira
 	for _cwall_name in ["Corr2_Wall_L", "Corr2_Wall_R"]:
@@ -238,9 +240,10 @@ func _on_boss_door_opened(_door: Node2D) -> void:
 	_spawn_boss()
 	# After a short delay, seal the boss room by re-enabling Boss_LWall collision
 	await get_tree().create_timer(1.0).timeout
-	var lwall := $Boss_LWall
-	if is_instance_valid(lwall):
-		lwall.get_node("CollisionShape2D").set_deferred("disabled", false)
+	for lwall_name: String in ["Boss_LWall_Top", "Boss_LWall_Bot"]:
+		var lwall := get_node_or_null(lwall_name)
+		if is_instance_valid(lwall):
+			lwall.get_node("CollisionShape2D").set_deferred("disabled", false)
 
 # ─── Boss ─────────────────────────────────────────────────────────────────────
 
