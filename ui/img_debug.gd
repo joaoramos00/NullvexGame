@@ -16,7 +16,8 @@ const _SPRITES: Array = [
     {"char": "MINIBOSS", "anim": "Walk",  "path": "res://characters/enemies/miniboss/miniboss_walk.png",  "frames": 6, "fps": 8.0,  "frame_w": 240},
     {"char": "MINIBOSS", "anim": "Idle",  "path": "res://characters/enemies/miniboss/miniboss_idle.png",  "frames": 4, "fps": 6.0,  "frame_w": 240},
     {"char": "MINIBOSS", "anim": "Punch", "path": "res://characters/enemies/miniboss/miniboss_punch.png", "frames": 9, "fps": 12.0, "frame_w": 240, "label": "Punch (novo gif)"},
-    {"char": "MINIBOSS", "anim": "Stomp", "path": "res://characters/enemies/miniboss/miniboss_stomp.png", "frames": 9, "fps": 12.0, "frame_w": 240},
+    {"char": "MINIBOSS", "anim": "Stomp",  "path": "res://characters/enemies/miniboss/miniboss_stomp.png",  "frames": 9, "fps": 12.0, "frame_w": 240},
+    {"char": "MINIBOSS", "anim": "Charge", "path": "res://characters/enemies/miniboss/miniboss_charge.png", "frames": 8, "fps": 10.0, "frame_w": 240},
 ]
 
 const _TILESETS: Array = [
@@ -347,10 +348,14 @@ class _PlatformView extends Control:
 class _MovWorld extends Node2D:
     const _TS := 32.0
     const _TW := 64.0
-    var tile_tex: Texture2D
-    var ground_y:  float = 400.0
-    var wall_l:    float = 100.0
-    var wall_r:    float = 1820.0
+    var tile_tex:    Texture2D
+    var glass_tex:   Texture2D
+    var ground_y:    float = 400.0
+    var wall_l:      float = 100.0
+    var wall_r:      float = 1820.0
+    var glass_wall_l: float = 480.0
+    var glass_wall_r: float = 900.0
+    var glass_rows:   int   = 4
     # face de contato = centro do tile de parede (32px inward em display 64px)
     var contact_l: float = 68.0
     var contact_r: float = 1852.0
@@ -380,11 +385,32 @@ class _MovWorld extends Node2D:
             var ty := floor_y - float(i + 1) * _TW
             draw_texture_rect_region(tile_tex, Rect2(wall_l - _TW, ty, _TW, _TW), src_left)
             draw_texture_rect_region(tile_tex, Rect2(wall_r,       ty, _TW, _TW), src_rght)
+        # Paredes de vidro (glass_tex)
+        if glass_tex:
+            var src      := _TS
+            var fill_src := Rect2(2.0 * src, 1.0 * src, src, src)  # (2,1) fill
+            var lat_r    := Rect2(1.0 * src, 0.0,        src, src)  # (1,0) borda dir
+            var lat_l    := Rect2(3.0 * src, 2.0 * src,  src, src)  # (3,2) borda esq
+            var grows    := glass_rows - 1
+            for gx: float in [glass_wall_l, glass_wall_r]:
+                var is_left := gx == glass_wall_l
+                for i in grows:
+                    var ty := ground_y - float(i + 1) * _TW
+                    if is_left:
+                        draw_texture_rect_region(glass_tex, Rect2(gx - _TW, ty, _TW, _TW), lat_r)
+                        draw_texture_rect_region(glass_tex, Rect2(gx,        ty, _TW, _TW), fill_src)
+                    else:
+                        draw_texture_rect_region(glass_tex, Rect2(gx - _TW, ty, _TW, _TW), fill_src)
+                        draw_texture_rect_region(glass_tex, Rect2(gx,        ty, _TW, _TW), lat_l)
+
         # Linhas amarelas de colisão (mesmo padrão do tab Colisões)
         var yel := Color(1.0, 0.9, 0.0, 0.85)
         draw_line(Vector2(-8000.0, ground_y),  Vector2(8000.0,    ground_y),  yel, 2.0)
         draw_line(Vector2(contact_l, -8000.0), Vector2(contact_l, ground_y),  yel, 2.0)
         draw_line(Vector2(contact_r, -8000.0), Vector2(contact_r, ground_y),  yel, 2.0)
+        if glass_tex:
+            draw_line(Vector2(glass_wall_l, -8000.0), Vector2(glass_wall_l, ground_y - _TW), Color(0.5, 0.9, 1.0, 0.9), 2.0)
+            draw_line(Vector2(glass_wall_r, -8000.0), Vector2(glass_wall_r, ground_y - _TW), Color(0.5, 0.9, 1.0, 0.9), 2.0)
         # Hitbox do player
         if is_instance_valid(player_ref):
             var cs := player_ref.get_node_or_null("CollisionShape2D") as CollisionShape2D
@@ -415,6 +441,9 @@ class _MovView extends Control:
     const _ENEMY_Y     := [-40.0, -100.0, 3.0]
     const _WALL_L      := 100.0
     const _WALL_R      := 1820.0
+    const _GWL         := 480.0
+    const _GWR         := 900.0
+    const _GLASS_ROWS  := 4
 
     var _player: CharacterBase = null
     var _enemy: EnemyBase = null
@@ -424,6 +453,7 @@ class _MovView extends Control:
     var label_enemy: Label = null      # definido externamente antes de add_child
     var label_move_btn: Button = null  # botão de toggle de movimento
     var attack_row: Control = null     # linha de botões de ataque do MiniBoss
+    var lbl_state: Label = null
 
     func _ready() -> void:
         GameManager.active_character = "zael"
@@ -443,12 +473,16 @@ class _MovView extends Control:
         ctr.add_child(svp)
 
         var mw := ImgDebug._MovWorld.new()
-        mw.tile_tex  = load("res://stages/stage_00/Stage_00T.png") as Texture2D
-        mw.ground_y  = _GROUND_Y
-        mw.wall_l    = _WALL_L
-        mw.wall_r    = _WALL_R
-        mw.contact_l = _WALL_L - 32.0
-        mw.contact_r = _WALL_R + 32.0
+        mw.tile_tex    = load("res://stages/stage_00/Stage_00T.png") as Texture2D
+        mw.glass_tex   = load("res://stages/stage_00/stage_00_glass.png") as Texture2D
+        mw.ground_y    = _GROUND_Y
+        mw.wall_l      = _WALL_L
+        mw.wall_r      = _WALL_R
+        mw.glass_wall_l = _GWL
+        mw.glass_wall_r = _GWR
+        mw.glass_rows   = _GLASS_ROWS
+        mw.contact_l   = _WALL_L - 32.0
+        mw.contact_r   = _WALL_R + 32.0
         mw.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
         svp.add_child(mw)
         _world = mw
@@ -481,6 +515,18 @@ class _MovView extends Control:
             wseg.b = Vector2(wx, _GROUND_Y)
             wcs.shape = wseg
             wall.add_child(wcs)
+        # Paredes de vidro (no_wall_grab) — gap 1 tile no fundo, player passa andando
+        for gx: float in [_GWL, _GWR]:
+            var gwall := StaticBody2D.new()
+            gwall.collision_layer = 1
+            gwall.add_to_group("no_wall_grab")
+            _world.add_child(gwall)
+            var gwcs := CollisionShape2D.new()
+            var gwseg := SegmentShape2D.new()
+            gwseg.a = Vector2(gx, _GROUND_Y - float(_GLASS_ROWS) * _TW)
+            gwseg.b = Vector2(gx, _GROUND_Y - _TW)
+            gwcs.shape = gwseg
+            gwall.add_child(gwcs)
 
     func _spawn_player() -> void:
         if is_instance_valid(_player):
@@ -549,6 +595,21 @@ class _MovView extends Control:
             attack_row.visible = (_ENEMY_NAMES[_enemy_index] == "MiniBoss")
 
     func _process(delta: float) -> void:
+        if is_instance_valid(_player) and is_instance_valid(lbl_state):
+            var ws := _player._is_wall_sliding
+            var ow := _player.is_on_wall() and not _player.is_on_floor()
+            if ws:
+                lbl_state.add_theme_color_override("font_color", Color(0.9, 0.9, 0.3))
+                lbl_state.text = "Parede NORMAL — agarrado  (wall jump: Z)"
+            elif ow:
+                lbl_state.add_theme_color_override("font_color", Color(0.5, 0.9, 1.0))
+                lbl_state.text = "Parede VIDRO — sem grab  (cai com gravidade normal)"
+            elif _player.is_on_floor():
+                lbl_state.add_theme_color_override("font_color", Color(0.5, 0.5, 0.5))
+                lbl_state.text = "No chão"
+            else:
+                lbl_state.add_theme_color_override("font_color", Color(0.5, 0.5, 0.5))
+                lbl_state.text = "No ar"
         if is_instance_valid(_player) and is_instance_valid(_camera):
             var cam_pos: Vector2
             if _ENEMY_NAMES[_enemy_index] == "MiniBoss" and is_instance_valid(_enemy):
@@ -910,6 +971,13 @@ func _build_moves_box() -> void:
     mview.label_enemy    = lbl_name
     mview.label_move_btn = btn_move
 
+    var state_lbl := Label.new()
+    state_lbl.add_theme_font_size_override("font_size", 16)
+    state_lbl.add_theme_color_override("font_color", Color(0.5, 0.5, 0.5))
+    state_lbl.text = "No chão"
+    _moves_box.add_child(state_lbl)
+    mview.lbl_state = state_lbl
+
     var atk_row := HBoxContainer.new()
     atk_row.add_theme_constant_override("separation", 8)
     atk_row.visible = false
@@ -923,11 +991,12 @@ func _build_moves_box() -> void:
     atk_row.add_child(atk_lbl)
 
     for atk: Array in [
-        ["Patrol",  "debug_set_patrol",  Color(0.4, 0.9, 0.4)],
-        ["Punch",   "debug_set_punch",   Color(1.0, 0.5, 0.9)],
-        ["Charge",  "debug_set_charge",  Color(1.0, 0.7, 0.2)],
-        ["Stomp",   "debug_set_stomp",   Color(1.0, 0.35, 0.35)],
-        ["Recover", "debug_set_recover", Color(0.5, 0.75, 1.0)],
+        ["Advance",  "debug_set_patrol",   Color(0.4, 0.9, 0.4)],
+        ["Punch",    "debug_set_punch",    Color(1.0, 0.5, 0.9)],
+        ["Charge",   "debug_set_charge",   Color(1.0, 0.7, 0.2)],
+        ["Stomp",    "debug_set_stomp",    Color(1.0, 0.35, 0.35)],
+        ["Backjump", "debug_set_backjump", Color(0.4, 0.8, 1.0)],
+        ["Recover",  "debug_set_recover",  Color(0.5, 0.75, 1.0)],
     ]:
         var abtn := Button.new()
         abtn.text = atk[0]
