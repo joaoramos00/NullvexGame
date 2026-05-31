@@ -596,6 +596,43 @@ class _GlassPanelView extends Control:
             draw_string(font, Vector2(dx + 2.0, label_y),
                 lbl, HORIZONTAL_ALIGNMENT_LEFT, _TW, 14, lc)
 
+# Tile de preenchimento (2,1) lado a lado: Stage_00T vs Glass
+class _FillTileView extends Control:
+    var tile_tex:  Texture2D
+    var glass_tex: Texture2D
+
+    const _SRC  := 32.0
+    const _TW   := 64.0
+    const _COLS := 5
+    const _ROWS := 3
+
+    func _draw() -> void:
+        draw_rect(Rect2(Vector2.ZERO, size), Color(0.04, 0.06, 0.14))
+        var src  := Rect2(2.0 * _SRC, 1.0 * _SRC, _SRC, _SRC)
+        var font := ThemeDB.fallback_font
+        var lc   := Color(0.85, 0.85, 0.6)
+        var mg   := 20.0
+        var gap  := 48.0
+        var pw   := _COLS * _TW
+        var ph   := _ROWS * _TW
+
+        if tile_tex:
+            for row in _ROWS:
+                for col in _COLS:
+                    draw_texture_rect_region(tile_tex,
+                        Rect2(mg + col * _TW, mg + row * _TW, _TW, _TW), src)
+        draw_string(font, Vector2(mg, mg + ph + 18.0),
+            "Stage_00T  (2,1)", HORIZONTAL_ALIGNMENT_LEFT, pw, 15, lc)
+
+        var x1 := mg + pw + gap
+        if glass_tex:
+            for row in _ROWS:
+                for col in _COLS:
+                    draw_texture_rect_region(glass_tex,
+                        Rect2(x1 + col * _TW, mg + row * _TW, _TW, _TW), src)
+        draw_string(font, Vector2(x1, mg + ph + 18.0),
+            "Glass  (2,1)", HORIZONTAL_ALIGNMENT_LEFT, pw, 15, lc)
+
 # Visualização de plataformas e salas: monta bloco N×M com _tile_at ou _room_at
 class _PlatformView extends Control:
     var tile_tex: Texture2D
@@ -1621,11 +1658,12 @@ func _refresh_tiles() -> void:
     var spr_t   := load("res://characters/ranged/ZaelIdle.png")     as Texture2D
 
     # ── Boxes por modo ───────────────────────────────────────────────────────
-    var gbox_lat := VBoxContainer.new()
-    var gbox_cor := VBoxContainer.new()
-    var gbox_gap := VBoxContainer.new()
-    var gbox_cmp := VBoxContainer.new()
-    var gbox_pan := VBoxContainer.new()
+    var gbox_lat  := VBoxContainer.new()
+    var gbox_cor  := VBoxContainer.new()
+    var gbox_gap  := VBoxContainer.new()
+    var gbox_cmp  := VBoxContainer.new()
+    var gbox_pan  := VBoxContainer.new()
+    var gbox_fill := VBoxContainer.new()
 
     # Lateral
     var glat := _GlassLateralView.new()
@@ -1707,8 +1745,16 @@ func _refresh_tiles() -> void:
     gpan_row.add_child(gpan_mirr_btn)
     gbox_pan.add_child(gpan_row)
 
+    # Centro (2,1)
+    var gfill := _FillTileView.new()
+    gfill.tile_tex  = tile_t
+    gfill.glass_tex = gl_tex
+    gfill.custom_minimum_size = Vector2(728.0, 252.0)
+    gfill.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+    gbox_fill.add_child(gfill)
+
     # Adicionar boxes ao col_panel (lateral visível por padrão)
-    var glass_boxes: Array = [gbox_lat, gbox_cor, gbox_gap, gbox_cmp, gbox_pan]
+    var glass_boxes: Array = [gbox_lat, gbox_cor, gbox_gap, gbox_cmp, gbox_pan, gbox_fill]
     for gb: VBoxContainer in glass_boxes:
         gb.visible = false
         col_panel.add_child(gb)
@@ -1722,7 +1768,7 @@ func _refresh_tiles() -> void:
         for i in glass_mode_btns.size():
             glass_mode_btns[i].modulate = \
                 Color(1.0, 1.0, 0.0) if i == idx else Color(0.6, 0.6, 0.6)
-    for gml: Array in [["Lateral", 0], ["Cantos", 1], ["Gap", 2], ["Comparação", 3], ["Painel", 4]]:
+    for gml: Array in [["Lateral", 0], ["Cantos", 1], ["Gap", 2], ["Comparação", 3], ["Painel", 4], ["Centro (2,1)", 5]]:
         var gmbtn := Button.new()
         gmbtn.text = gml[0]
         gmbtn.add_theme_font_size_override("font_size", 24)
