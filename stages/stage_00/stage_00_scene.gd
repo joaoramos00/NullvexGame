@@ -28,9 +28,9 @@ const ZONE2_GRUNTS := [
 	Vector2(11460, 152), Vector2(11760, 152),    # Seção 4 — Patamar
 ]
 const ZONE2_FLYERS := [
-	Vector2(8860, 780), Vector2(9250, 560),      # sobre Step_Z2_1 e Step_Z2_2
-	Vector2(9892, 300), Vector2(10400, 230),     # sobre Float_A e Float_B
-	Vector2(11260, 150), Vector2(11860, 150),    # sobre SubPlat_Z2_1 e SubPlat_Z2_2
+	Vector2(8860, 588), Vector2(9250, 368),      # sobre Step_Z2_1 e Step_Z2_2
+	Vector2(9892, 108), Vector2(10400, 38),      # sobre Float_A e Float_B
+	Vector2(11260, -42), Vector2(11860, -42),    # sobre SubPlat_Z2_1 e SubPlat_Z2_2
 ]
 
 const ZONE3_GRUNTS := [
