@@ -770,8 +770,8 @@ class _MovWorld extends Node2D:
         draw_line(Vector2(contact_l, -8000.0), Vector2(contact_l, ground_y),  yel, 2.0)
         draw_line(Vector2(contact_r, -8000.0), Vector2(contact_r, ground_y),  yel, 2.0)
         if glass_tex:
-            draw_line(Vector2(glass_wall_l, -8000.0), Vector2(glass_wall_l, ground_y), Color(0.5, 0.9, 1.0, 0.9), 2.0)
-            draw_line(Vector2(glass_wall_r, -8000.0), Vector2(glass_wall_r, ground_y), Color(0.5, 0.9, 1.0, 0.9), 2.0)
+            draw_line(Vector2(glass_wall_l - 32.0, -8000.0), Vector2(glass_wall_l - 32.0, ground_y), Color(0.5, 0.9, 1.0, 0.9), 2.0)
+            draw_line(Vector2(glass_wall_r + 32.0, -8000.0), Vector2(glass_wall_r + 32.0, ground_y), Color(0.5, 0.9, 1.0, 0.9), 2.0)
         # Hitbox do player
         if is_instance_valid(player_ref):
             var cs := player_ref.get_node_or_null("CollisionShape2D") as CollisionShape2D
@@ -877,7 +877,7 @@ class _MovView extends Control:
             wseg.b = Vector2(wx, _GROUND_Y)
             wcs.shape = wseg
             wall.add_child(wcs)
-        # Paredes de vidro (no_wall_grab) — face interna do tile lateral, sem gap
+        # Paredes de vidro (no_wall_grab) — face interna do tile lateral (tile_left + 32)
         for gx: float in [_GWL, _GWR]:
             var gwall := StaticBody2D.new()
             gwall.collision_layer = 1
@@ -885,8 +885,9 @@ class _MovView extends Control:
             _world.add_child(gwall)
             var gwcs := CollisionShape2D.new()
             var gwseg := SegmentShape2D.new()
-            gwseg.a = Vector2(gx, _GROUND_Y - float(_GLASS_ROWS) * _TW)
-            gwseg.b = Vector2(gx, _GROUND_Y)
+            var wx := gx - 32.0 if gx == _GWL else gx + 32.0
+            gwseg.a = Vector2(wx, _GROUND_Y - float(_GLASS_ROWS) * _TW)
+            gwseg.b = Vector2(wx, _GROUND_Y)
             gwcs.shape = gwseg
             gwall.add_child(gwcs)
 
