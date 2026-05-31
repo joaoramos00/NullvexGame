@@ -602,6 +602,8 @@ func _draw_platforms() -> void:
 				var above_rows := ceili((door_top - rect.position.y) / _TS)  # 5 tiles
 				var top_rect   := Rect2(rect.position.x, rect.position.y, rect.size.x, above_rows * _TS)
 				_draw_room_tiles(top_rect, n, true)
+			elif n == "Boss_LWall_Top" or n == "Boss_LWall_Bot":
+				_draw_room_tiles(rect, "Boss_LWall")
 			elif n.begins_with("Corr") or n.begins_with("Boss_") or n.begins_with("MiniBoss_"):
 				_draw_room_tiles(rect, n)
 			else:
