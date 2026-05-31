@@ -86,10 +86,21 @@ func _update_wall_slide() -> void:
         return
     var dir := Input.get_axis("move_left", "move_right")
     if is_on_wall() and dir != 0.0 and velocity.y >= 0.0:
+        if _touching_no_grab_wall():
+            _is_wall_sliding = false
+            return
         _is_wall_sliding = true
         _wall_normal = get_wall_normal()
     else:
         _is_wall_sliding = false
+
+func _touching_no_grab_wall() -> bool:
+    for i in get_slide_collision_count():
+        var col := get_slide_collision(i)
+        var n := col.get_normal()
+        if abs(n.x) > abs(n.y) and col.get_collider().is_in_group("no_wall_grab"):
+            return true
+    return false
 
 func _apply_gravity(delta: float) -> void:
     if _is_dashing:

@@ -11,6 +11,7 @@ func run_tests() -> void:
     test_invincibility_blocks_second_hit()
     test_death_signal_on_lethal_damage()
     test_is_dead_flag_set()
+    test_no_grab_wall_returns_false_with_no_collisions()
     print("=== All CharacterBase tests passed ===")
 
 func test_initial_hp() -> void:
@@ -75,3 +76,14 @@ func test_is_dead_flag_set() -> void:
     assert(cb.is_dead == true, "is_dead true after lethal damage")
     cb.queue_free()
     print("PASS: test_is_dead_flag_set")
+
+func test_no_grab_wall_returns_false_with_no_collisions() -> void:
+    var cb := CharacterBase.new()
+    add_child(cb)
+    cb.max_hp = 100
+    cb._ready()
+    # Sem nenhum move_and_slide chamado, get_slide_collision_count() == 0
+    # _touching_no_grab_wall() deve retornar false (nenhuma colisão).
+    assert(cb._touching_no_grab_wall() == false, "_touching_no_grab_wall false sem colisões")
+    cb.queue_free()
+    print("PASS: test_no_grab_wall_returns_false_with_no_collisions")
