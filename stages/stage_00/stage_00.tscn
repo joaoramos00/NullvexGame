@@ -76,6 +76,42 @@ size = Vector2(64, 512)
 [sub_resource type="RectangleShape2D" id="shape_LBoundary"]
 size = Vector2(64, 2400)
 
+[sub_resource type="RectangleShape2D" id="shape_FloorZ2Entry"]
+size = Vector2(478, 64)
+
+[sub_resource type="RectangleShape2D" id="shape_StepZ2_1"]
+size = Vector2(320, 240)
+
+[sub_resource type="RectangleShape2D" id="shape_StepZ2_2"]
+size = Vector2(320, 432)
+
+[sub_resource type="RectangleShape2D" id="shape_StepZ2_3"]
+size = Vector2(320, 624)
+
+[sub_resource type="RectangleShape2D" id="shape_PlatZ2FloatA"]
+size = Vector2(384, 64)
+
+[sub_resource type="RectangleShape2D" id="shape_PlatZ2FloatB"]
+size = Vector2(384, 64)
+
+[sub_resource type="RectangleShape2D" id="shape_PlatZ2FloatC"]
+size = Vector2(384, 64)
+
+[sub_resource type="RectangleShape2D" id="shape_FloorZ2Peak"]
+size = Vector2(1300, 64)
+
+[sub_resource type="RectangleShape2D" id="shape_SubPlatZ2_1"]
+size = Vector2(320, 64)
+
+[sub_resource type="RectangleShape2D" id="shape_SubPlatZ2_2"]
+size = Vector2(320, 64)
+
+[sub_resource type="RectangleShape2D" id="shape_CoverZ2"]
+size = Vector2(192, 128)
+
+[sub_resource type="RectangleShape2D" id="shape_FloorZ2Trans"]
+size = Vector2(722, 64)
+
 [node name="Stage00" type="Node2D"]
 script = ExtResource("1_script")
 
@@ -233,6 +269,78 @@ position = Vector2(-32, 100)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="LBoundary"]
 shape = SubResource("shape_LBoundary")
+
+[node name="Floor_Z2_Entry" type="StaticBody2D" parent="."]
+position = Vector2(8461, 1120)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Floor_Z2_Entry"]
+shape = SubResource("shape_FloorZ2Entry")
+
+[node name="Step_Z2_1" type="StaticBody2D" parent="."]
+position = Vector2(8860, 968)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Step_Z2_1"]
+shape = SubResource("shape_StepZ2_1")
+
+[node name="Step_Z2_2" type="StaticBody2D" parent="."]
+position = Vector2(9160, 872)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Step_Z2_2"]
+shape = SubResource("shape_StepZ2_2")
+
+[node name="Step_Z2_3" type="StaticBody2D" parent="."]
+position = Vector2(9460, 776)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Step_Z2_3"]
+shape = SubResource("shape_StepZ2_3")
+
+[node name="Plat_Z2_Float_A" type="StaticBody2D" parent="."]
+position = Vector2(9892, 392)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Plat_Z2_Float_A"]
+shape = SubResource("shape_PlatZ2FloatA")
+
+[node name="Plat_Z2_Float_B" type="StaticBody2D" parent="."]
+position = Vector2(10292, 328)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Plat_Z2_Float_B"]
+shape = SubResource("shape_PlatZ2FloatB")
+
+[node name="Plat_Z2_Float_C" type="StaticBody2D" parent="."]
+position = Vector2(10692, 392)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Plat_Z2_Float_C"]
+shape = SubResource("shape_PlatZ2FloatC")
+
+[node name="Floor_Z2_Peak" type="StaticBody2D" parent="."]
+position = Vector2(11550, 312)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Floor_Z2_Peak"]
+shape = SubResource("shape_FloorZ2Peak")
+
+[node name="SubPlat_Z2_1" type="StaticBody2D" parent="."]
+position = Vector2(11260, 248)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="SubPlat_Z2_1"]
+shape = SubResource("shape_SubPlatZ2_1")
+
+[node name="SubPlat_Z2_2" type="StaticBody2D" parent="."]
+position = Vector2(11860, 248)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="SubPlat_Z2_2"]
+shape = SubResource("shape_SubPlatZ2_2")
+
+[node name="Cover_Z2" type="StaticBody2D" parent="."]
+position = Vector2(11496, 280)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Cover_Z2"]
+shape = SubResource("shape_CoverZ2")
+
+[node name="Floor_Z2_Trans" type="StaticBody2D" parent="."]
+position = Vector2(12561, 312)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Floor_Z2_Trans"]
+shape = SubResource("shape_FloorZ2Trans")
 
 [node name="Camera2D" type="Camera2D" parent="."]
 limit_left = 0
