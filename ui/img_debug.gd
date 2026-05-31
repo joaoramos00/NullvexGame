@@ -400,6 +400,202 @@ class _GlassCornerView extends Control:
         draw_rect(cap, Color(0.0, 1.0, 1.0, 0.25))
         draw_rect(cap, Color(0.0, 1.0, 1.0, 1.0), false, 2.0)
 
+# Gap inferior do vidro: mostra onde a colisão termina e o player passa andando
+class _GlassGapView extends Control:
+    var glass_tex:  Texture2D
+    var tile_tex:   Texture2D
+    var sprite_tex: Texture2D
+
+    const _SRC  := 32.0
+    const _TW   := 64.0
+    const _CR   := 10.0
+    const _CH   := 48.0
+    const _CHH  := 24.0
+    const _SPR  := 68.0
+    const _SCL  := 2.0
+    const _SOFY := -4.0
+
+    func _draw() -> void:
+        draw_rect(Rect2(Vector2.ZERO, size), Color(0.04, 0.06, 0.14))
+        var W   := size.x
+        var gy  := size.y - 40.0      # floor y
+        var gpy := gy - _TW           # gap y = bottom of glass collision
+        var gx  := 18.0               # left edge of glass column
+        var yel := Color(1.0, 0.9, 0.0, 0.85)
+        var cyn := Color(0.5, 0.9, 1.0, 0.9)
+        var font := ThemeDB.fallback_font
+
+        # Zonas coloridas: vermelho = colisão do vidro, verde = gap (player passa)
+        draw_rect(Rect2(gx + _TW * 2.0 + 4.0, gpy - _TW, _TW * 1.5, _TW),
+            Color(1.0, 0.2, 0.2, 0.15))
+        draw_rect(Rect2(gx + _TW * 2.0 + 4.0, gpy,       _TW * 1.5, _TW),
+            Color(0.2, 1.0, 0.3, 0.15))
+
+        # Floor tiles
+        if tile_tex:
+            var src_top := Rect2(3.0 * _SRC, 0.0, _SRC, _SRC)
+            var tx := 0.0
+            while tx <= W:
+                draw_texture_rect_region(tile_tex,
+                    Rect2(tx, gy - _TW * 0.5, _TW, _TW), src_top)
+                tx += _TW
+
+        # Coluna de vidro: lateral (3,2) + fill (2,1), 2 tiles altos, terminando em gpy
+        if glass_tex:
+            var src_lat  := Rect2(3.0 * _SRC, 2.0 * _SRC, _SRC, _SRC)
+            var src_fill := Rect2(2.0 * _SRC, 1.0 * _SRC, _SRC, _SRC)
+            for i in 2:
+                var ty := gpy - float(i + 1) * _TW
+                draw_texture_rect_region(glass_tex, Rect2(gx,        ty, _TW, _TW), src_lat)
+                draw_texture_rect_region(glass_tex, Rect2(gx + _TW,  ty, _TW, _TW), src_fill)
+
+        # Linhas
+        draw_line(Vector2(0.0, gy), Vector2(W, gy), yel, 2.0)
+        draw_line(Vector2(gx - 4.0, gpy),
+            Vector2(gx + _TW * 2.0 + 4.0, gpy), cyn, 2.0)
+
+        # Zael no chão (capsule top abaixo de gpy → passa)
+        var axc := gx + _TW * 2.0 + _CR + 14.0
+        var ayc := gy - _CHH
+        if sprite_tex:
+            var sd := _SPR * _SCL
+            draw_texture_rect_region(sprite_tex,
+                Rect2(axc - sd * 0.5, ayc + _SOFY - sd * 0.5, sd, sd),
+                Rect2(0.0, 0.0, _SPR, _SPR))
+        var cap := Rect2(axc - _CR, ayc - _CHH, _CR * 2.0, _CH)
+        draw_rect(cap, Color(0.2, 1.0, 0.3, 0.25))
+        draw_rect(cap, Color(0.2, 1.0, 0.3, 1.0), false, 2.0)
+
+        # Labels
+        var zx := gx + _TW * 2.0 + 6.0
+        draw_string(font, Vector2(zx, gpy - _TW * 0.5 + 8.0),
+            "bloqueado", HORIZONTAL_ALIGNMENT_LEFT, 80.0, 14, Color(1.0, 0.4, 0.4))
+        draw_string(font, Vector2(zx, gpy + _TW * 0.5 + 8.0),
+            "passa", HORIZONTAL_ALIGNMENT_LEFT, 60.0, 14, Color(0.2, 1.0, 0.3))
+        draw_string(font, Vector2(gx, gpy + 6.0),
+            "gap\n64px", HORIZONTAL_ALIGNMENT_LEFT, 42.0, 13, cyn)
+
+# Comparação lado a lado: parede normal (grab) vs vidro (sem grab)
+class _GlassCompareView extends Control:
+    var glass_tex:  Texture2D
+    var tile_tex:   Texture2D
+    var sprite_tex: Texture2D
+
+    const _SRC  := 32.0
+    const _TW   := 64.0
+    const _CR   := 10.0
+    const _CH   := 48.0
+    const _CHH  := 24.0
+    const _SPR  := 68.0
+    const _SCL  := 2.0
+    const _SOFY := -4.0
+    const _ML   := 20.0
+    const _MT   := 44.0
+
+    func _draw() -> void:
+        draw_rect(Rect2(Vector2.ZERO, size), Color(0.04, 0.06, 0.14))
+        var W   := size.x
+        var mid := W * 0.5
+        var cy  := _MT + _TW
+        var yel := Color(1.0, 0.9, 0.0, 0.85)
+        var cyn := Color(0.5, 0.9, 1.0, 0.9)
+        var font := ThemeDB.fallback_font
+        var src_wall := Rect2(3.0 * _SRC, 2.0 * _SRC, _SRC, _SRC)  # (3,2)
+        var sd := _SPR * _SCL
+
+        # Divisória central
+        draw_line(Vector2(mid, 0.0), Vector2(mid, size.y),
+            Color(0.3, 0.3, 0.3, 0.8), 1.0)
+
+        # ── ESQUERDA: parede normal ──────────────────────────
+        if tile_tex:
+            for i in 2:
+                draw_texture_rect_region(tile_tex,
+                    Rect2(_ML, _MT + i * _TW, _TW, _TW), src_wall)
+        var cx1 := _ML + _TW - _CR
+        if sprite_tex:
+            draw_texture_rect_region(sprite_tex,
+                Rect2(cx1 - sd * 0.5, cy + _SOFY - sd * 0.5, sd, sd),
+                Rect2(0.0, 0.0, _SPR, _SPR))
+        var cap1 := Rect2(cx1 - _CR, cy - _CHH, _CR * 2.0, _CH)
+        draw_rect(cap1, Color(0.0, 1.0, 1.0, 0.25))
+        draw_rect(cap1, Color(0.0, 1.0, 1.0, 1.0), false, 2.0)
+        draw_line(Vector2(_ML + _TW - 32.0, _MT - 8.0),
+            Vector2(_ML + _TW - 32.0, _MT + _TW * 2.0 + 8.0), yel, 2.0)
+        draw_string(font, Vector2(_ML, size.y - 34.0),
+            "NORMAL — grab", HORIZONTAL_ALIGNMENT_LEFT, mid - _ML, 16, yel)
+
+        # ── DIREITA: vidro ────────────────────────────────────
+        var rx := mid + _ML
+        if glass_tex:
+            for i in 2:
+                draw_texture_rect_region(glass_tex,
+                    Rect2(rx, _MT + i * _TW, _TW, _TW), src_wall)
+        var cx2 := rx + _TW - _CR
+        if sprite_tex:
+            draw_texture_rect_region(sprite_tex,
+                Rect2(cx2 - sd * 0.5, cy + _SOFY - sd * 0.5, sd, sd),
+                Rect2(0.0, 0.0, _SPR, _SPR))
+        var cap2 := Rect2(cx2 - _CR, cy - _CHH, _CR * 2.0, _CH)
+        draw_rect(cap2, Color(0.0, 1.0, 1.0, 0.25))
+        draw_rect(cap2, Color(0.0, 1.0, 1.0, 1.0), false, 2.0)
+        draw_line(Vector2(rx + _TW - 32.0, _MT - 8.0),
+            Vector2(rx + _TW - 32.0, _MT + _TW * 2.0 + 8.0), cyn, 2.0)
+        draw_string(font, Vector2(rx, size.y - 34.0),
+            "VIDRO — sem grab", HORIZONTAL_ALIGNMENT_LEFT, W - rx, 16, cyn)
+
+# Painel completo de vidro: lateral + fills + lateral, modo Normal ou Espelho
+class _GlassPanelView extends Control:
+    var glass_tex: Texture2D
+    var mirror:    bool = false
+
+    const _FILL_COLS := 5
+    const _SRC  := 32.0
+    const _TW   := 64.0
+    const _ROWS := 2
+
+    func _draw() -> void:
+        draw_rect(Rect2(Vector2.ZERO, size), Color(0.04, 0.06, 0.14))
+        if not glass_tex:
+            return
+        var total_cols := _FILL_COLS + 2
+        var panel_w    := float(total_cols) * _TW
+        var sx         := (size.x - panel_w) * 0.5
+        var sy         := (size.y - float(_ROWS) * _TW - 28.0) * 0.5
+
+        var src_lat_l  := Rect2(1.0 * _SRC, 0.0,         _SRC, _SRC)  # (1,0)
+        var src_lat_r  := Rect2(3.0 * _SRC, 2.0 * _SRC,  _SRC, _SRC)  # (3,2)
+        var src_fill   := Rect2(2.0 * _SRC, 1.0 * _SRC,  _SRC, _SRC)  # (2,1)
+        var font       := ThemeDB.fallback_font
+        var lc         := Color(0.5, 0.9, 1.0, 0.9)
+
+        for row in _ROWS:
+            var ty := sy + row * _TW
+            for col in total_cols:
+                var dx  := sx + col * _TW
+                var src: Rect2
+                if col == 0:
+                    src = src_lat_r if mirror else src_lat_l
+                elif col == total_cols - 1:
+                    src = src_lat_l if mirror else src_lat_r
+                else:
+                    src = src_fill
+                draw_texture_rect_region(glass_tex, Rect2(dx, ty, _TW, _TW), src)
+
+        # Labels abaixo de cada coluna
+        var label_y := sy + float(_ROWS) * _TW + 4.0
+        for col in total_cols:
+            var dx := sx + col * _TW
+            var lbl: String
+            if col == 0:
+                lbl = "(3,2)" if mirror else "(1,0)"
+            elif col == total_cols - 1:
+                lbl = "(1,0)" if mirror else "(3,2)"
+            else:
+                lbl = "(2,1)"
+            draw_string(font, Vector2(dx + 2.0, label_y),
+                lbl, HORIZONTAL_ALIGNMENT_LEFT, _TW, 14, lc)
+
 # Visualização de plataformas e salas: monta bloco N×M com _tile_at ou _room_at
 class _PlatformView extends Control:
     var tile_tex: Texture2D
