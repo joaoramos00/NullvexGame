@@ -235,6 +235,68 @@ class _CornerView extends Control:
         draw_rect(cap, Color(0.0, 1.0, 1.0, 0.25))
         draw_rect(cap, Color(0.0, 1.0, 1.0, 1.0), false, 2.0)
 
+# Colisão lateral do vidro: dois Zaels contra as faces do painel glass
+class _GlassLateralView extends Control:
+    var glass_tex:  Texture2D
+    var sprite_tex: Texture2D
+
+    const _SRC  := 32.0
+    const _TW   := 64.0
+    const _CR   := 10.0
+    const _CHH  := 24.0
+    const _CH   := 48.0
+    const _SPR  := 68.0
+    const _SCL  := 2.0
+    const _SOFY := -4.0
+    const _ML   := 20.0
+    const _MT   := 44.0
+    const _X2   := 196.0
+
+    func _draw() -> void:
+        draw_rect(Rect2(Vector2.ZERO, size), Color(0.04, 0.06, 0.14))
+        var cy  := _MT + _TW
+        var cyn := Color(0.5, 0.9, 1.0, 0.9)
+        var font := ThemeDB.fallback_font
+
+        if glass_tex:
+            var src_l := Rect2(3.0 * _SRC, 2.0 * _SRC, _SRC, _SRC)  # (3,2) face esq
+            var src_r := Rect2(1.0 * _SRC, 0.0,         _SRC, _SRC)  # (1,0) face dir
+            for i in 2:
+                draw_texture_rect_region(glass_tex, Rect2(_ML, _MT + i * _TW, _TW, _TW), src_l)
+                draw_texture_rect_region(glass_tex, Rect2(_X2, _MT + i * _TW, _TW, _TW), src_r)
+
+        var sd := _SPR * _SCL
+
+        # Zael 1: encostando no vidro esquerdo (vindo da direita)
+        var cx1 := _ML + _TW - _CR
+        if sprite_tex:
+            draw_texture_rect_region(sprite_tex,
+                Rect2(cx1 - sd * 0.5, cy + _SOFY - sd * 0.5, sd, sd),
+                Rect2(0.0, 0.0, _SPR, _SPR))
+        var cap1 := Rect2(cx1 - _CR, cy - _CHH, _CR * 2.0, _CH)
+        draw_rect(cap1, Color(0.0, 1.0, 1.0, 0.25))
+        draw_rect(cap1, Color(0.0, 1.0, 1.0, 1.0), false, 2.0)
+        draw_line(Vector2(_ML + _TW - 32.0, _MT - 8.0),
+            Vector2(_ML + _TW - 32.0, _MT + _TW * 2.0 + 8.0), cyn, 2.0)
+        draw_string(font, Vector2(cx1 - 34.0, _MT - 20.0),
+            "SEM GRAB", HORIZONTAL_ALIGNMENT_LEFT, 80.0, 15, cyn)
+
+        # Zael 2: encostando no vidro direito (espelhado)
+        var cx2 := _X2 + _CR
+        if sprite_tex:
+            draw_set_transform(Vector2(cx2 * 2.0, 0.0), 0.0, Vector2(-1.0, 1.0))
+            draw_texture_rect_region(sprite_tex,
+                Rect2(cx2 - sd * 0.5, cy + _SOFY - sd * 0.5, sd, sd),
+                Rect2(0.0, 0.0, _SPR, _SPR))
+            draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+        var cap2 := Rect2(cx2 - _CR, cy - _CHH, _CR * 2.0, _CH)
+        draw_rect(cap2, Color(0.0, 1.0, 1.0, 0.25))
+        draw_rect(cap2, Color(0.0, 1.0, 1.0, 1.0), false, 2.0)
+        draw_line(Vector2(_X2 + 32.0, _MT - 8.0),
+            Vector2(_X2 + 32.0, _MT + _TW * 2.0 + 8.0), cyn, 2.0)
+        draw_string(font, Vector2(cx2 - 34.0, _MT - 20.0),
+            "SEM GRAB", HORIZONTAL_ALIGNMENT_LEFT, 80.0, 15, cyn)
+
 # Visualização de plataformas e salas: monta bloco N×M com _tile_at ou _room_at
 class _PlatformView extends Control:
     var tile_tex: Texture2D
