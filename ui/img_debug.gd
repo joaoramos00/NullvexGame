@@ -262,8 +262,8 @@ class _GlassLateralView extends Control:
             var src_l := Rect2(3.0 * _SRC, 2.0 * _SRC, _SRC, _SRC)  # (3,2) face esq
             var src_r := Rect2(1.0 * _SRC, 0.0,         _SRC, _SRC)  # (1,0) face dir
             for i in 2:
-                draw_texture_rect_region(glass_tex, Rect2(_ML, _MT + i * _TW, _TW, _TW), src_r)
-                draw_texture_rect_region(glass_tex, Rect2(_X2, _MT + i * _TW, _TW, _TW), src_l)
+                draw_texture_rect_region(glass_tex, Rect2(_ML, _MT + i * _TW, _TW, _TW), src_l)
+                draw_texture_rect_region(glass_tex, Rect2(_X2, _MT + i * _TW, _TW, _TW), src_r)
 
         var sd := _SPR * _SCL
 
