@@ -11,3 +11,5 @@ ability_id = "terragor"
 stage_id = 8
 max_hp = 200
 boss_color = Color(0.5, 0.3, 0.1, 1)
+
+[node name="Sprite2D" type="Sprite2D" parent="."]

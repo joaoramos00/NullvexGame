@@ -11,3 +11,5 @@ ability_id = "umbraex"
 stage_id = 6
 max_hp = 200
 boss_color = Color(0.2, 0.0, 0.3, 1)
+
+[node name="Sprite2D" type="Sprite2D" parent="."]

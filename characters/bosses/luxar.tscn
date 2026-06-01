@@ -11,3 +11,5 @@ ability_id = "luxar"
 stage_id = 7
 max_hp = 200
 boss_color = Color(1.0, 1.0, 0.6, 1)
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
