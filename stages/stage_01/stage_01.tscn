@@ -603,3 +603,128 @@ checkpoint_index = 1
 checkpoint_respawn_x = 10752.0
 heal_on_entry = false
 save_checkpoint = true
+
+[node name="ShaftUpWallL" type="StaticBody2D" parent="."]
+position = Vector2(16288, 1856)
+collision_layer = 1
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ShaftUpWallL"]
+shape = SubResource("ShapeShaftWall")
+
+[node name="ShaftUpWallR" type="StaticBody2D" parent="."]
+position = Vector2(16480, 1856)
+collision_layer = 1
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ShaftUpWallR"]
+shape = SubResource("ShapeShaftWall")
+
+[node name="ShaftUpP1" type="StaticBody2D" parent="."]
+position = Vector2(16352, 2432)
+collision_layer = 1
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ShaftUpP1"]
+shape = SubResource("ShapeShaftPlat")
+
+[node name="ShaftUpP2" type="StaticBody2D" parent="."]
+position = Vector2(16416, 2176)
+collision_layer = 1
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ShaftUpP2"]
+shape = SubResource("ShapeShaftPlat")
+
+[node name="ShaftUpP3" type="StaticBody2D" parent="."]
+position = Vector2(16352, 1920)
+collision_layer = 1
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ShaftUpP3"]
+shape = SubResource("ShapeShaftPlat")
+
+[node name="ShaftUpP4" type="StaticBody2D" parent="."]
+position = Vector2(16416, 1664)
+collision_layer = 1
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ShaftUpP4"]
+shape = SubResource("ShapeShaftPlat")
+
+[node name="ShaftUpP5" type="StaticBody2D" parent="."]
+position = Vector2(16352, 1408)
+collision_layer = 1
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ShaftUpP5"]
+shape = SubResource("ShapeShaftPlat")
+
+[node name="Z4Floor" type="StaticBody2D" parent="."]
+position = Vector2(17888, 1024)
+collision_layer = 1
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Z4Floor"]
+shape = SubResource("ShapeZ1Floor")
+
+[node name="Z4Ceil" type="StaticBody2D" parent="."]
+position = Vector2(17888, 448)
+collision_layer = 1
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Z4Ceil"]
+shape = SubResource("ShapeZ1Ceil")
+
+[node name="Z4Lava" type="Area2D" parent="."]
+position = Vector2(17888, 1056)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("12_lava")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Z4Lava"]
+shape = SubResource("ShapeZ1Ceil")
+
+[node name="Z4Plat1" type="StaticBody2D" parent="."]
+position = Vector2(16960, 896)
+collision_layer = 1
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Z4Plat1"]
+shape = SubResource("ShapeZ1Plat")
+
+[node name="Z4Plat2" type="StaticBody2D" parent="."]
+position = Vector2(17664, 768)
+collision_layer = 1
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Z4Plat2"]
+shape = SubResource("ShapeZ1Plat")
+
+[node name="Z4Plat3" type="StaticBody2D" parent="."]
+position = Vector2(18368, 896)
+collision_layer = 1
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Z4Plat3"]
+shape = SubResource("ShapeZ1Plat")
+
+[node name="Z4MovingPlat" type="StaticBody2D" parent="."]
+position = Vector2(18880, 832)
+collision_layer = 1
+collision_mask = 0
+script = ExtResource("16_movplat")
+move_distance = 256.0
+speed = 60.0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Z4MovingPlat"]
+shape = SubResource("ShapeZ1Plat")
+
+[node name="Z4Grunt1" parent="." instance=ExtResource("10_grunt")]
+position = Vector2(17024, 864)
+
+[node name="Z4Grunt2" parent="." instance=ExtResource("10_grunt")]
+position = Vector2(18432, 864)
+
+[node name="Z4Flyer1" parent="." instance=ExtResource("11_flyer")]
+position = Vector2(17700, 512)
