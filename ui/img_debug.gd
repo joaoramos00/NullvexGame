@@ -824,6 +824,83 @@ class _MovWorld extends Node2D:
                 draw_line(pos + Vector2(-r, -hs), pos + Vector2(-r, hs), hcol, lw)
                 draw_line(pos + Vector2( r, -hs), pos + Vector2( r, hs), hcol, lw)
 
+# Mundo do teste de teto de fill: chão + paredes + painel de glass como teto
+class _FillCeilWorld extends Node2D:
+    const _TS        := 32.0
+    const _TW        := 64.0
+    const _FILL_COLS := 14
+    const _GROUND_Y  := 60.0
+    const _CEIL_Y    := -68.0     # _GROUND_Y - 128.0 — face inferior do glass
+    const _LAT_X     := 60.0     # left edge do tile lateral
+    const _FILL_X    := 124.0    # _LAT_X + _TW
+    const _WALL_L    := -4.0     # _LAT_X - _TW
+    const _WALL_R    := 1020.0   # _FILL_X + _FILL_COLS * _TW
+
+    var tile_tex:   Texture2D
+    var glass_tex:  Texture2D
+    var fixed_mode: bool = false
+    var player_ref: CharacterBase = null
+
+    func _draw() -> void:
+        draw_rect(Rect2(-5000.0, -5000.0, 15000.0, 15000.0), Color(0.07, 0.08, 0.16))
+        if not tile_tex or not glass_tex:
+            return
+        var src_top  := Rect2(3.0 * _TS, 0.0,          _TS, _TS)
+        var src_fill := Rect2(2.0 * _TS, 1.0 * _TS,    _TS, _TS)
+        var src_lat  := Rect2(1.0 * _TS, 0.0,          _TS, _TS)
+        var src_left := Rect2(3.0 * _TS, 2.0 * _TS,    _TS, _TS)
+        var src_rght := Rect2(1.0 * _TS, 0.0,          _TS, _TS)
+        # Chão
+        var floor_ty := _GROUND_Y - _TW * 0.5
+        var tx := _WALL_L
+        while tx < _WALL_R + _TW * 2.0:
+            draw_texture_rect_region(tile_tex, Rect2(tx, floor_ty, _TW, _TW), src_top)
+            tx += _TW
+        # Paredes laterais
+        for i: int in 5:
+            var ty := floor_ty - float(i + 1) * _TW
+            draw_texture_rect_region(tile_tex, Rect2(_WALL_L - _TW, ty, _TW, _TW), src_left)
+            draw_texture_rect_region(tile_tex, Rect2(_WALL_R, ty, _TW, _TW), src_rght)
+        # Teto de glass (4 fileiras visuais acima de _CEIL_Y)
+        for row: int in 4:
+            var dy := _CEIL_Y - float(row + 1) * _TW
+            draw_texture_rect_region(glass_tex, Rect2(_LAT_X, dy, _TW, _TW), src_lat)
+            for col: int in _FILL_COLS:
+                draw_texture_rect_region(glass_tex, Rect2(_FILL_X + col * _TW, dy, _TW, _TW), src_fill)
+        # Linhas de colisão
+        var yel := Color(1.0, 0.9, 0.0, 0.85)
+        var cyn := Color(0.5, 0.9, 1.0, 0.9)
+        var grn := Color(0.3, 1.0, 0.5, 0.9)
+        var red := Color(1.0, 0.3, 0.3, 0.6)
+        draw_line(Vector2(-5000.0, _GROUND_Y), Vector2(5000.0, _GROUND_Y), yel, 2.0)
+        draw_line(Vector2(_WALL_L - 32.0, -5000.0), Vector2(_WALL_L - 32.0, _GROUND_Y), yel, 2.0)
+        draw_line(Vector2(_WALL_R + 32.0, -5000.0), Vector2(_WALL_R + 32.0, _GROUND_Y), yel, 2.0)
+        # Body1 — cyan (lateral + 1º fill, 2 tiles)
+        draw_line(Vector2(_LAT_X, _CEIL_Y), Vector2(_LAT_X + _TW * 2.0, _CEIL_Y), cyn, 3.0)
+        if fixed_mode:
+            # Body2 — verde (todos os fills)
+            draw_line(Vector2(_FILL_X, _CEIL_Y), Vector2(_FILL_X + _FILL_COLS * _TW, _CEIL_Y), grn, 3.0)
+        else:
+            # Gap sem colisão — vermelho tracejado
+            var gx := _LAT_X + _TW * 2.0
+            var gw := (_FILL_COLS - 1) * _TW
+            var sw := gw / 7.0
+            for i: int in 7:
+                draw_line(Vector2(gx + i * sw, _CEIL_Y), Vector2(gx + i * sw + sw - 6.0, _CEIL_Y), red, 2.5)
+        # Hitbox do player
+        if is_instance_valid(player_ref):
+            var cs := player_ref.get_node_or_null("CollisionShape2D") as CollisionShape2D
+            if cs and cs.shape is CapsuleShape2D:
+                var cap := cs.shape as CapsuleShape2D
+                var r   := cap.radius
+                var hs  := (cap.height - 2.0 * r) * 0.5
+                var pos := player_ref.global_position + cs.position
+                var hcol := Color(0.2, 1.0, 0.2, 0.9)
+                draw_arc(pos + Vector2(0.0, -hs), r, PI, TAU, 24, hcol, 2.0)
+                draw_arc(pos + Vector2(0.0,  hs), r, 0.0, PI, 24, hcol, 2.0)
+                draw_line(pos + Vector2(-r, -hs), pos + Vector2(-r, hs), hcol, 2.0)
+                draw_line(pos + Vector2( r, -hs), pos + Vector2( r, hs), hcol, 2.0)
+
 # Arena jogável: SubViewport com Zael, inimigo, física e câmera
 class _MovView extends Control:
     const _PLAYER_PATH := "res://characters/ranged/zael.tscn"
@@ -831,12 +908,13 @@ class _MovView extends Control:
         "res://characters/enemies/enemy_base.tscn",
         "res://characters/enemies/enemy_flyer.tscn",
         "res://characters/enemies/enemy_miniboss.tscn",
+        "res://characters/bosses/intro_boss.tscn",
     ]
-    const _ENEMY_NAMES := ["Grunt", "Flyer", "MiniBoss"]
+    const _ENEMY_NAMES := ["Grunt", "Flyer", "MiniBoss", "IntroBoss"]
     const _GROUND_Y    := 16.0
     const _PLAYER_X    := 280.0
     const _ENEMY_X     := 680.0
-    const _ENEMY_Y     := [-40.0, -100.0, 3.0]
+    const _ENEMY_Y     := [-40.0, -100.0, 3.0, -24.0]
     const _WALL_L      := 100.0
     const _WALL_R      := 1820.0
     const _GWL         := 480.0
@@ -845,13 +923,14 @@ class _MovView extends Control:
     const _TW          := 64.0
 
     var _player: CharacterBase = null
-    var _enemy: EnemyBase = null
+    var _enemy: Node2D = null
     var _enemy_index: int = 0
     var _camera: Camera2D = null
     var _world: Node2D = null
     var label_enemy: Label = null      # definido externamente antes de add_child
     var label_move_btn: Button = null  # botão de toggle de movimento
     var attack_row: Control = null     # linha de botões de ataque do MiniBoss
+    var boss_attack_row: Control = null  # linha de botões do IntroBoss
     var lbl_state: Label = null
 
     func _ready() -> void:
@@ -939,6 +1018,8 @@ class _MovView extends Control:
         _player.global_position = Vector2(_PLAYER_X, _GROUND_Y - 90.0)
         _player.died.connect(func(): call_deferred("_spawn_player"))
         (_world as ImgDebug._MovWorld).player_ref = _player
+        if _ENEMY_NAMES[_enemy_index] == "IntroBoss" and is_instance_valid(_enemy):
+            (_enemy as BossBase).player = _player
 
     func _spawn_enemy() -> void:
         if is_instance_valid(_enemy):
@@ -946,17 +1027,28 @@ class _MovView extends Control:
         var scene := load(_ENEMY_PATHS[_enemy_index]) as PackedScene
         if not scene:
             return
-        _enemy = scene.instantiate() as EnemyBase
+        _enemy = scene.instantiate() as Node2D
         _world.add_child(_enemy)
-        _enemy.global_position = Vector2(_ENEMY_X, _ENEMY_Y[_enemy_index])
-        _enemy.set_physics_process(false)
-        _enemy.show_hitbox = true
-        _enemy.max_hp     = 99999
-        _enemy.current_hp = 99999
-        var spr := _enemy.get_node_or_null("Sprite2D") as Sprite2D
-        if spr:
-            # MiniBoss: sprite já orienta para esquerda (face ao player) — não inverter
-            spr.flip_h = (_ENEMY_NAMES[_enemy_index] != "MiniBoss")
+        _enemy.global_position = Vector2(_ENEMY_X, _GROUND_Y + _ENEMY_Y[_enemy_index])
+        if _ENEMY_NAMES[_enemy_index] == "IntroBoss":
+            var boss := _enemy as BossBase
+            boss.player      = _player
+            boss.arena_left  = _WALL_L - 32.0
+            boss.arena_right = _WALL_R + 32.0
+            boss.arena_floor = _GROUND_Y
+            boss.max_hp      = 99999
+            boss.current_hp  = 99999
+            boss.state       = BossBase.State.COMBAT
+        else:
+            var enemy := _enemy as EnemyBase
+            enemy.set_physics_process(false)
+            enemy.show_hitbox = true
+            enemy.max_hp      = 99999
+            enemy.current_hp  = 99999
+            var spr := enemy.get_node_or_null("Sprite2D") as Sprite2D
+            if spr:
+                # MiniBoss: sprite já orienta para esquerda (face ao player) — não inverter
+                spr.flip_h = (_ENEMY_NAMES[_enemy_index] != "MiniBoss")
         if is_instance_valid(label_enemy):
             label_enemy.text = _ENEMY_NAMES[_enemy_index]
 
@@ -975,8 +1067,16 @@ class _MovView extends Control:
     func on_toggle_movement() -> void:
         if not is_instance_valid(_enemy):
             return
-        var moving := not _enemy.is_physics_processing()
-        _enemy.set_physics_process(moving)
+        if _ENEMY_NAMES[_enemy_index] == "IntroBoss":
+            var boss := _enemy as BossBase
+            if boss.state == BossBase.State.COMBAT:
+                boss.state    = BossBase.State.IDLE
+                boss.velocity = Vector2.ZERO
+            else:
+                boss.state = BossBase.State.COMBAT
+        else:
+            var moving := not _enemy.is_physics_processing()
+            _enemy.set_physics_process(moving)
         _update_move_btn()
 
     func on_attack(method_name: String) -> void:
@@ -986,13 +1086,20 @@ class _MovView extends Control:
             _enemy.call(method_name)
 
     func _update_move_btn() -> void:
-        if is_instance_valid(label_move_btn):
-            var moving := is_instance_valid(_enemy) and _enemy.is_physics_processing()
-            label_move_btn.text = "⏸ Parar" if moving else "▶ Mover"
+        if not is_instance_valid(label_move_btn):
+            return
+        var moving: bool
+        if _ENEMY_NAMES[_enemy_index] == "IntroBoss" and is_instance_valid(_enemy):
+            moving = (_enemy as BossBase).state == BossBase.State.COMBAT
+        else:
+            moving = is_instance_valid(_enemy) and _enemy.is_physics_processing()
+        label_move_btn.text = "⏸ Parar" if moving else "▶ Mover"
 
     func _update_attack_row() -> void:
         if is_instance_valid(attack_row):
             attack_row.visible = (_ENEMY_NAMES[_enemy_index] == "MiniBoss")
+        if is_instance_valid(boss_attack_row):
+            boss_attack_row.visible = (_ENEMY_NAMES[_enemy_index] == "IntroBoss")
 
     func _process(delta: float) -> void:
         if is_instance_valid(_player) and is_instance_valid(lbl_state):
@@ -1012,10 +1119,11 @@ class _MovView extends Control:
                 lbl_state.text = "No ar"
         if is_instance_valid(_player) and is_instance_valid(_camera):
             var cam_pos: Vector2
-            if _ENEMY_NAMES[_enemy_index] == "MiniBoss" and is_instance_valid(_enemy):
-                # Target: centro do sprite do MiniBoss (sprite_y = -16)
+            if _ENEMY_NAMES[_enemy_index] in ["MiniBoss", "IntroBoss"] and is_instance_valid(_enemy):
+                var y_offset := 146.0 if _ENEMY_NAMES[_enemy_index] == "MiniBoss" else 80.0
+                # Target: centro do sprite do inimigo
                 var tx := _enemy.global_position.x
-                var ty := clampf(_enemy.global_position.y - 146.0, _GROUND_Y - 220.0, _GROUND_Y + 100.0)
+                var ty := clampf(_enemy.global_position.y - y_offset, _GROUND_Y - 220.0, _GROUND_Y + 100.0)
                 # Lerp suave — Y mais lento para não acompanhar o pulo bruscamente
                 var sx := minf(1.0, delta * 6.0)
                 var sy := minf(1.0, delta * 3.0)
@@ -1028,6 +1136,148 @@ class _MovView extends Control:
                 cam_pos  = Vector2(_player.global_position.x, cam_y)
             _camera.global_position = cam_pos
             _world.queue_redraw()
+
+# Vista interativa para testar colisão do teto de fill (Abordagem B)
+class _FillCeilView extends Control:
+    const _PLAYER_PATH := "res://characters/ranged/zael.tscn"
+    const _TW          := 64.0
+    const _GROUND_Y    := 60.0
+    const _CEIL_Y      := -68.0
+    const _LAT_X       := 60.0
+    const _FILL_X      := 124.0
+    const _FILL_COLS   := 14
+    const _WALL_L      := -4.0
+    const _WALL_R      := 1020.0
+    const _GLASS_ROWS  := 4
+
+    var _player: CharacterBase = null
+    var _camera: Camera2D      = null
+    var _world: Node2D         = null
+    var _fixed_mode: bool      = false
+    var lbl_mode:  Label       = null
+    var lbl_state: Label       = null
+
+    func _ready() -> void:
+        GameManager.active_character = "zael"
+        GameManager.max_hp = 8
+        GameManager.zael_selected_shot = "single"
+        _build()
+
+    func _build() -> void:
+        var ctr := SubViewportContainer.new()
+        ctr.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+        ctr.stretch = true
+        add_child(ctr)
+        var svp := SubViewport.new()
+        svp.size = Vector2i(1280, 480)
+        svp.handle_input_locally = false
+        ctr.add_child(svp)
+        var mw := ImgDebug._FillCeilWorld.new()
+        mw.tile_tex   = load("res://stages/stage_00/Stage_00T.png") as Texture2D
+        mw.glass_tex  = load("res://stages/stage_00/stage_00_glass.png") as Texture2D
+        mw.fixed_mode = _fixed_mode
+        mw.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+        svp.add_child(mw)
+        _world = mw
+        _camera = Camera2D.new()
+        _world.add_child(_camera)
+        _camera.global_position = Vector2(_FILL_X + _FILL_COLS * _TW * 0.5, (_GROUND_Y + _CEIL_Y) * 0.5 - 20.0)
+        _build_physics()
+        _spawn_player()
+
+    func _build_physics() -> void:
+        var ground := StaticBody2D.new()
+        ground.collision_layer = 1
+        _world.add_child(ground)
+        var gcs := CollisionShape2D.new()
+        var gseg := SegmentShape2D.new()
+        gseg.a = Vector2(-8000.0, _GROUND_Y)
+        gseg.b = Vector2(8000.0, _GROUND_Y)
+        gcs.shape = gseg
+        ground.add_child(gcs)
+        for wx: float in [_WALL_L - 32.0, _WALL_R + 32.0]:
+            var wall := StaticBody2D.new()
+            wall.collision_layer = 1
+            _world.add_child(wall)
+            var wcs := CollisionShape2D.new()
+            var wseg := SegmentShape2D.new()
+            wseg.a = Vector2(wx, _GROUND_Y - 800.0)
+            wseg.b = Vector2(wx, _GROUND_Y)
+            wcs.shape = wseg
+            wall.add_child(wcs)
+        _rebuild_glass_physics()
+
+    func _rebuild_glass_physics() -> void:
+        for c: Node in _world.get_children():
+            if c.is_in_group("_glass_ceil"):
+                c.queue_free()
+        var col_top := _CEIL_Y - float(_GLASS_ROWS) * _TW
+        var height  := _CEIL_Y - col_top
+        # Body1: lateral + 1st fill (2 tiles wide, como comportamento atual)
+        _world.add_child(_make_glass_body(
+            Vector2(_LAT_X + _TW, (col_top + _CEIL_Y) * 0.5),
+            Vector2(_TW * 2.0, height)))
+        if _fixed_mode:
+            # Body2: todos os fills (Abordagem B)
+            var fill_w := float(_FILL_COLS) * _TW
+            _world.add_child(_make_glass_body(
+                Vector2(_FILL_X + fill_w * 0.5, (col_top + _CEIL_Y) * 0.5),
+                Vector2(fill_w, height)))
+
+    func _make_glass_body(center: Vector2, size: Vector2) -> StaticBody2D:
+        var body := StaticBody2D.new()
+        body.collision_layer = 1
+        body.collision_mask  = 0
+        body.add_to_group("no_wall_grab")
+        body.add_to_group("_glass_ceil")
+        body.global_position = center
+        var cs    := CollisionShape2D.new()
+        var shape := RectangleShape2D.new()
+        shape.size = size
+        cs.shape = shape
+        body.add_child(cs)
+        return body
+
+    func _spawn_player() -> void:
+        if is_instance_valid(_player):
+            _player.queue_free()
+        var scene := load(_PLAYER_PATH) as PackedScene
+        if not scene:
+            return
+        _player = scene.instantiate() as CharacterBase
+        _world.add_child(_player)
+        _player.global_position = Vector2(_FILL_X + _FILL_COLS * _TW * 0.5, _GROUND_Y - 90.0)
+        _player.died.connect(func(): call_deferred("_spawn_player"))
+        (_world as ImgDebug._FillCeilWorld).player_ref = _player
+
+    func toggle_mode() -> void:
+        _fixed_mode = not _fixed_mode
+        (_world as ImgDebug._FillCeilWorld).fixed_mode = _fixed_mode
+        _world.queue_redraw()
+        _rebuild_glass_physics()
+        if is_instance_valid(lbl_mode):
+            if _fixed_mode:
+                lbl_mode.text = "✓ Corrigido — Body1 (2t) + Body2 (14 fills)"
+                lbl_mode.add_theme_color_override("font_color", Color(0.3, 1.0, 0.5))
+            else:
+                lbl_mode.text = "✗ Atual — só Body1 (2 tiles, 12 fills sem colisão)"
+                lbl_mode.add_theme_color_override("font_color", Color(1.0, 0.4, 0.4))
+
+    func _process(_delta: float) -> void:
+        if is_instance_valid(_player) and is_instance_valid(_camera):
+            var cam_y := clampf(_player.global_position.y + 40.0, _CEIL_Y - 160.0, _GROUND_Y + 80.0)
+            _camera.global_position = Vector2(_player.global_position.x, cam_y)
+            _world.queue_redraw()
+        if is_instance_valid(_player) and is_instance_valid(lbl_state):
+            if _player.is_on_ceiling():
+                lbl_state.add_theme_color_override("font_color", Color(0.3, 1.0, 0.5))
+                lbl_state.text = "✓ Bloqueado pelo teto"
+            elif _player.is_on_floor():
+                lbl_state.add_theme_color_override("font_color", Color(0.5, 0.5, 0.5))
+                lbl_state.text = "No chão"
+            else:
+                lbl_state.add_theme_color_override("font_color", Color(0.9, 0.9, 0.3))
+                lbl_state.text = "No ar"
 
 const _FRAME_SIZE   := 68
 const _PREVIEW_SIZE := 136
@@ -1318,9 +1568,21 @@ func _build_ui() -> void:
     main.add_child(_moves_box)
 
 func _build_moves_box() -> void:
+    # ── Tab row ──────────────────────────────────────────────────────────────
+    var tab_row := HBoxContainer.new()
+    tab_row.add_theme_constant_override("separation", 6)
+    _moves_box.add_child(tab_row)
+
+    var mov_panel := VBoxContainer.new()
+    mov_panel.add_theme_constant_override("separation", 6)
+    var fill_ceil_panel := VBoxContainer.new()
+    fill_ceil_panel.add_theme_constant_override("separation", 4)
+    fill_ceil_panel.visible = false
+
+    # ── Painel Movimentos ────────────────────────────────────────────────────
     var top_bar := HBoxContainer.new()
     top_bar.add_theme_constant_override("separation", 8)
-    _moves_box.add_child(top_bar)
+    mov_panel.add_child(top_bar)
 
     var hint := Label.new()
     hint.text = "A/D: mover  ·  Z: pular  ·  X: dash  ·  J: atirar"
@@ -1375,13 +1637,13 @@ func _build_moves_box() -> void:
     state_lbl.add_theme_font_size_override("font_size", 16)
     state_lbl.add_theme_color_override("font_color", Color(0.5, 0.5, 0.5))
     state_lbl.text = "No chão"
-    _moves_box.add_child(state_lbl)
+    mov_panel.add_child(state_lbl)
     mview.lbl_state = state_lbl
 
     var atk_row := HBoxContainer.new()
     atk_row.add_theme_constant_override("separation", 8)
     atk_row.visible = false
-    _moves_box.add_child(atk_row)
+    mov_panel.add_child(atk_row)
     mview.attack_row = atk_row
 
     var atk_lbl := Label.new()
@@ -1406,7 +1668,102 @@ func _build_moves_box() -> void:
         abtn.pressed.connect(mview.on_attack.bind(mname))
         atk_row.add_child(abtn)
 
-    _moves_box.add_child(mview)
+    # IntroBoss attack row
+    var boss_atk_row := HBoxContainer.new()
+    boss_atk_row.add_theme_constant_override("separation", 8)
+    boss_atk_row.visible = false
+    mov_panel.add_child(boss_atk_row)
+    mview.boss_attack_row = boss_atk_row
+
+    var boss_atk_lbl := Label.new()
+    boss_atk_lbl.text = "Ataques:"
+    boss_atk_lbl.add_theme_font_size_override("font_size", 18)
+    boss_atk_lbl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+    boss_atk_row.add_child(boss_atk_lbl)
+
+    for batk: Array in [
+        ["Idle",   "debug_set_idle",      Color(0.5, 0.75, 1.0)],
+        ["Combat", "debug_set_combat",    Color(0.4, 0.9, 0.4)],
+        ["Dash",   "debug_trigger_dash",  Color(1.0, 0.7, 0.2)],
+        ["Shoot",  "debug_trigger_shoot", Color(1.0, 0.35, 0.35)],
+        ["Burst",  "debug_trigger_burst", Color(0.6, 0.2, 1.0)],
+        ["Fase 2", "debug_enter_phase2",  Color(1.3, 0.5, 1.3)],
+    ]:
+        var babtn := Button.new()
+        babtn.text = batk[0]
+        babtn.add_theme_font_size_override("font_size", 24)
+        babtn.modulate = batk[2]
+        var bname: String = batk[1]
+        babtn.pressed.connect(mview.on_attack.bind(bname))
+        boss_atk_row.add_child(babtn)
+
+    mov_panel.add_child(mview)
+
+    # ── Painel Fill Teto ─────────────────────────────────────────────────────
+    var fcview := _FillCeilView.new()
+    fcview.custom_minimum_size   = Vector2(0.0, 480.0)
+    fcview.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+    fcview.size_flags_vertical   = Control.SIZE_EXPAND_FILL
+
+    var fc_bar := HBoxContainer.new()
+    fc_bar.add_theme_constant_override("separation", 8)
+    fill_ceil_panel.add_child(fc_bar)
+
+    var fc_hint := Label.new()
+    fc_hint.text = "A/D: mover  ·  Z: pular sob os fills — verifica se é bloqueado"
+    fc_hint.add_theme_font_size_override("font_size", 17)
+    fc_hint.add_theme_color_override("font_color", Color(0.5, 0.5, 0.5))
+    fc_hint.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+    fc_bar.add_child(fc_hint)
+
+    var fc_toggle := Button.new()
+    fc_toggle.text = "Alternar Modo"
+    fc_toggle.add_theme_font_size_override("font_size", 24)
+    fc_toggle.pressed.connect(fcview.toggle_mode)
+    fc_bar.add_child(fc_toggle)
+
+    var fc_mode_lbl := Label.new()
+    fc_mode_lbl.add_theme_font_size_override("font_size", 16)
+    fc_mode_lbl.text = "✗ Atual — só Body1 (2 tiles, 12 fills sem colisão)"
+    fc_mode_lbl.add_theme_color_override("font_color", Color(1.0, 0.4, 0.4))
+    fill_ceil_panel.add_child(fc_mode_lbl)
+    fcview.lbl_mode = fc_mode_lbl
+
+    var fc_state_lbl := Label.new()
+    fc_state_lbl.add_theme_font_size_override("font_size", 16)
+    fc_state_lbl.add_theme_color_override("font_color", Color(0.5, 0.5, 0.5))
+    fc_state_lbl.text = "No chão"
+    fill_ceil_panel.add_child(fc_state_lbl)
+    fcview.lbl_state = fc_state_lbl
+
+    fill_ceil_panel.add_child(fcview)
+
+    # ── Montar e conectar tabs ────────────────────────────────────────────────
+    _moves_box.add_child(mov_panel)
+    _moves_box.add_child(fill_ceil_panel)
+
+    var btn_mov_tab := Button.new()
+    btn_mov_tab.text = "Movimentos"
+    btn_mov_tab.add_theme_font_size_override("font_size", 26)
+    btn_mov_tab.modulate = Color(1.0, 1.0, 0.0)
+    tab_row.add_child(btn_mov_tab)
+
+    var btn_fill_tab := Button.new()
+    btn_fill_tab.text = "Fill Teto"
+    btn_fill_tab.add_theme_font_size_override("font_size", 26)
+    btn_fill_tab.modulate = Color(0.6, 0.6, 0.6)
+    tab_row.add_child(btn_fill_tab)
+
+    btn_mov_tab.pressed.connect(func():
+        mov_panel.visible = true
+        fill_ceil_panel.visible = false
+        btn_mov_tab.modulate = Color(1.0, 1.0, 0.0)
+        btn_fill_tab.modulate = Color(0.6, 0.6, 0.6))
+    btn_fill_tab.pressed.connect(func():
+        mov_panel.visible = false
+        fill_ceil_panel.visible = true
+        btn_mov_tab.modulate = Color(0.6, 0.6, 0.6)
+        btn_fill_tab.modulate = Color(1.0, 1.0, 0.0))
 
 func _refresh_tiles() -> void:
     _tile_displays.clear()
