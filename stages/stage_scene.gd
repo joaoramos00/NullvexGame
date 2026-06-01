@@ -101,9 +101,27 @@ func _draw() -> void:
 			if tex == null:
 				tex = _get_zone_tileset(center)
 			if tex != null:
-				_draw_platform_tiles(rect, tex)
+				if child.has_meta("tileset_override"):
+					_draw_fill_tiles(rect, tex)
+				else:
+					_draw_platform_tiles(rect, tex)
 			else:
 				draw_rect(rect, platform_color)
+
+func _draw_fill_tiles(rect: Rect2, tex: Texture2D) -> void:
+	var ts     := _TS
+	var src_ts := _SRC_TS
+	var cols := ceili(rect.size.x / ts)
+	var rows := ceili(rect.size.y / ts)
+	var src := Rect2(1 * src_ts, 1 * src_ts, src_ts, src_ts)
+	for row in rows:
+		for col in cols:
+			var dx := rect.position.x + col * ts
+			var dy := rect.position.y + row * ts
+			var dw := minf(ts, rect.position.x + rect.size.x - dx)
+			var dh := minf(ts, rect.position.y + rect.size.y - dy)
+			draw_texture_rect_region(tex, Rect2(dx, dy, dw, dh),
+				Rect2(src.position, Vector2(src_ts * dw / ts, src_ts * dh / ts)))
 
 func _draw_platform_tiles(rect: Rect2, tex: Texture2D) -> void:
 	var ts     := _TS
