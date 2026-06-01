@@ -46,19 +46,19 @@ func _spawn_player() -> CharacterBase:
 	return p
 
 func _load_zone_data() -> void:
+	_zone_tilesets.clear()
 	var id := StageManager.current_stage_id
 	if id < 1 or id > 8:
 		return
 	for z in range(1, 5):
 		var path := "res://stages/stage_%02d/Stage_%02dT_z%d.png" % [id, id, z]
-		if ResourceLoader.exists(path):
-			_zone_tilesets.append(load(path) as Texture2D)
+		_zone_tilesets.append(load(path) as Texture2D if ResourceLoader.exists(path) else null)
 	if _zone_tilesets.is_empty():
 		return
-	var min_x := INF as float
-	var max_x := -INF as float
-	var min_y := INF as float
-	var max_y := -INF as float
+	var min_x: float = INF
+	var max_x: float = -INF
+	var min_y: float = INF
+	var max_y: float = -INF
 	for child in get_children():
 		if not child is StaticBody2D:
 			continue
@@ -76,10 +76,10 @@ func _get_zone_tileset(center: Vector2) -> Texture2D:
 		return null
 	var span := _zone_max - _zone_min
 	if span <= 0.0:
-		return _zone_tilesets[0]
+		return _zone_tilesets[0]  # may be null — caller handles it
 	var t := (center.y - _zone_min) / span if _zone_use_y else (center.x - _zone_min) / span
 	var idx := mini(maxi(0, int(t * _zone_tilesets.size())), _zone_tilesets.size() - 1)
-	return _zone_tilesets[idx]
+	return _zone_tilesets[idx]  # may be null — caller handles it
 
 func _draw() -> void:
 	for child in get_children():
@@ -127,9 +127,9 @@ func _draw_platform_tiles(rect: Rect2, tex: Texture2D) -> void:
 			draw_texture_rect_region(tex, Rect2(dx, dy, dw, dh), src)
 
 func _gap_fill_tile(row: int, rows: int) -> Vector2i:
-	if row == 0:        return Vector2i(3, 0)
-	if row == rows - 1: return Vector2i(1, 2)
-	return Vector2i(2, 1)
+	if row == 0:        return Vector2i(3, 0)  # TOP — linha visual superior
+	if row == rows - 1: return Vector2i(1, 2)  # BOTTOM — linha visual inferior
+	return Vector2i(2, 1)                       # FILL — interior
 
 func _tile_at(col: int, cols: int, row: int, rows: int) -> Vector2i:
 	var is_left   := col == cols - 1
