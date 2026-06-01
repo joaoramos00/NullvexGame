@@ -2,6 +2,8 @@
 extends "res://stages/stage_scene.gd"
 
 func _ready() -> void:
+	if StageManager.current_stage_id < 0:
+		StageManager.current_stage_id = 1
 	super._ready()
 	for corr in get_children():
 		if corr is CorridorSection:
