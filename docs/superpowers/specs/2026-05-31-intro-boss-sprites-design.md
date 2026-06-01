@@ -16,7 +16,7 @@ O `intro_boss.gd` (Stage 00) usa atualmente o placeholder `boss_color` do BossBa
 **Conceito:** Soldado corrupto cibernético — comandante da vanguarda das forças de Nullvex.
 
 **Visual:**
-- Tamanho: ~80×160px por frame
+- Tamanho: 64×128px por frame (limite máximo do PixelLab: 128px)
 - Armadura tática escura (cinza escuro / chumbo)
 - Detalhes luminosos neon roxo-azul (juntas, visor, painéis de energia)
 - Capacete com visor monocular brilhante (neon azul)
@@ -31,10 +31,10 @@ O `intro_boss.gd` (Stage 00) usa atualmente o placeholder `boss_color` do BossBa
 
 | Animação | Frames | FPS | Sprite Sheet Dimensions | Arquivo destino |
 |----------|--------|-----|------------------------|-----------------|
-| `idle` | 4 | 6 | 320×160px | `characters/bosses/intro_boss/intro_boss_idle.png` |
-| `walk` | 6 | 8 | 480×160px | `characters/bosses/intro_boss/intro_boss_walk.png` |
-| `dash` | 6 | 12 | 480×160px | `characters/bosses/intro_boss/intro_boss_dash.png` |
-| `shoot` | 6 | 12 | 480×160px | `characters/bosses/intro_boss/intro_boss_shoot.png` |
+| `idle` | 4 | 6 | 256×128px | `characters/bosses/intro_boss/intro_boss_idle.png` |
+| `walk` | 6 | 8 | 384×128px | `characters/bosses/intro_boss/intro_boss_walk.png` |
+| `dash` | 6 | 12 | 384×128px | `characters/bosses/intro_boss/intro_boss_dash.png` |
+| `shoot` | 6 | 12 | 384×128px | `characters/bosses/intro_boss/intro_boss_shoot.png` |
 
 **Descrições por animação:**
 
