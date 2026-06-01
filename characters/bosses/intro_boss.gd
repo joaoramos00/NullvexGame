@@ -188,3 +188,29 @@ func _update_animation(delta: float) -> void:
 		_anim_timer -= 1.0 / fps
 		_anim_frame = (_anim_frame + 1) % frames
 	_sprite.frame = _anim_frame
+
+# ─── Debug ───────────────────────────────────────────────────────────────────
+
+func debug_set_idle() -> void:
+	state = State.IDLE
+	velocity = Vector2.ZERO
+
+func debug_set_combat() -> void:
+	state = State.COMBAT
+
+func debug_trigger_dash() -> void:
+	state = State.COMBAT
+	_do_dash()
+
+func debug_trigger_shoot() -> void:
+	state = State.COMBAT
+	_do_shoot()
+
+func debug_trigger_burst() -> void:
+	state = State.COMBAT
+	_do_burst()
+
+func debug_enter_phase2() -> void:
+	if phase < 2:
+		phase = 2
+		_enter_phase_2()
