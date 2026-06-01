@@ -24,6 +24,9 @@
 [sub_resource type="RectangleShape2D" id="ShapeZ1Floor"]
 size = Vector2(2752, 128)
 
+[sub_resource type="RectangleShape2D" id="ShapeZ1Lava"]
+size = Vector2(2752, 64)
+
 [sub_resource type="RectangleShape2D" id="ShapeZ1Ceil"]
 size = Vector2(2752, 64)
 
@@ -113,7 +116,7 @@ platform_color = Color(0.9, 0.3, 0.1, 1)
 script = ExtResource("1_script")
 
 [node name="PlayerSpawn" type="Node2D" parent="."]
-position = Vector2(576, 960)
+position = Vector2(832, 880)
 
 [node name="StageController" parent="." instance=ExtResource("2_sc")]
 
@@ -125,13 +128,22 @@ checkpoint_index = 1
 position = Vector2(3500, 850)
 checkpoint_index = 2
 
-[node name="Z1Floor" type="StaticBody2D" parent="."]
-position = Vector2(1888, 1024)
-collision_layer = 1
+[node name="Z1LavaVisual" type="StaticBody2D" parent="."]
+position = Vector2(1888, 1056)
+collision_layer = 0
 collision_mask = 0
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Z1Floor"]
-shape = SubResource("ShapeZ1Floor")
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Z1LavaVisual"]
+shape = SubResource("ShapeZ1Lava")
+
+[node name="Z1Lava" type="Area2D" parent="."]
+position = Vector2(1888, 1056)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("12_lava")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Z1Lava"]
+shape = SubResource("ShapeZ1Lava")
 
 [node name="Z1Ceil" type="StaticBody2D" parent="."]
 position = Vector2(1888, 448)
