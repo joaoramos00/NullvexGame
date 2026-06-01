@@ -74,6 +74,8 @@ func _spawn_player() -> CharacterBase:
 	return p
 
 func _get_room_idx(center_x: float) -> int:
+	if _room_tilesets.is_empty():
+		return 0
 	var wall_xs: Array[float] = []
 	for w in _walls:
 		if is_instance_valid(w):
