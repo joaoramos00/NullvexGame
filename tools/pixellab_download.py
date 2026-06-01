@@ -84,7 +84,7 @@ def cmd_character(character_id: str, dest: str, key: str) -> None:
     raw = api_get_url(f"{BASE_URL}/characters/{character_id}/zip", key)
     with zipfile.ZipFile(io.BytesIO(raw)) as z:
         for member in z.namelist():
-            if not member.endswith(".png"):
+            if not member.endswith(".png") or "rotations/" not in member:
                 continue
             direction = Path(member).stem  # south / west / east / north
             target = dest_path / f"{folder_name}_{direction}.png"
