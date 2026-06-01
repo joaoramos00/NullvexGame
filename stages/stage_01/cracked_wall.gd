@@ -9,7 +9,9 @@ signal wall_destroyed
 func _ready() -> void:
 	add_to_group("cracked_wall")
 	# HitDetector: Area2D filho, collision_layer=0, collision_mask=8
-	($HitDetector as Area2D).area_entered.connect(_on_hit)
+	var detector := get_node_or_null("HitDetector") as Area2D
+	if detector != null:
+		detector.area_entered.connect(_on_hit)
 
 func _on_hit(_area: Area2D) -> void:
 	try_destroy()
