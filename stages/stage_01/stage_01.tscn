@@ -240,9 +240,6 @@ arena_left = 19776.0
 arena_right = 22592.0
 arena_floor = 960.0
 
-[node name="Grunt1" parent="." instance=ExtResource("10_grunt")]
-position = Vector2(960, 880)
-
 [node name="Grunt2" parent="." instance=ExtResource("10_grunt")]
 position = Vector2(1664, 768)
 

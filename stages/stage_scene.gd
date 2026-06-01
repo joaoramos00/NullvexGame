@@ -113,7 +113,7 @@ func _draw_fill_tiles(rect: Rect2, tex: Texture2D) -> void:
 	var src_ts := _SRC_TS
 	var cols := ceili(rect.size.x / ts)
 	var rows := ceili(rect.size.y / ts)
-	var src := Rect2(1 * src_ts, 1 * src_ts, src_ts, src_ts)
+	var src := Rect2(2 * src_ts, 1 * src_ts, src_ts, src_ts)
 	for row in rows:
 		for col in cols:
 			var dx := rect.position.x + col * ts
