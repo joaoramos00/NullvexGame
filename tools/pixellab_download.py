@@ -124,30 +124,75 @@ def cmd_animation(job_id: str, dest: str, direction: str, action: str, key: str)
     print(f"  GIF: {gif_path}")
 
 
+def _fetch_public(url: str) -> bytes:
+    """Fetch a public URL (no auth needed, e.g. Backblaze CDN)."""
+    req = urllib.request.Request(url, headers={"User-Agent": "pixellab-downloader/1.0"})
+    with urllib.request.urlopen(req, timeout=60) as r:
+        return r.read()
+
+
+def _get_mcp_metadata(tileset_id: str) -> dict:
+    """Fetch tileset metadata via /mcp/ route (no API key needed for metadata)."""
+    url = f"https://api.pixellab.ai/mcp/sidescroller-tilesets/{tileset_id}/metadata"
+    req = urllib.request.Request(url, headers={"User-Agent": "pixellab-downloader/1.0"})
+    with urllib.request.urlopen(req, timeout=30) as r:
+        return json.loads(r.read())
+
+
 def cmd_tileset(tileset_id: str, dest: str, key: str) -> None:
-    """Poll tileset job and download the spritesheet PNG."""
+    """Poll tileset job via /mcp/ metadata and download the spritesheet PNG."""
+    import urllib.error
     print(f"Polling tileset {tileset_id}...")
-    data = None
-    for attempt in range(20):
-        data = api_get(f"/tilesets-sidescroller/{tileset_id}", key)
-        if data.get("status") == "completed":
+    metadata = None
+    for attempt in range(40):
+        try:
+            metadata = _get_mcp_metadata(tileset_id)
+            # If we got metadata, the tileset is ready
             print(f"  Ready after {attempt + 1} poll(s)")
             break
-        print(f"  [{attempt + 1}] {data.get('status', '?')} — waiting 15s...")
-        time.sleep(15)
+        except urllib.error.HTTPError as e:
+            if e.code in (404, 403):
+                print(f"  [{attempt + 1}] HTTP {e.code} (not ready yet) — waiting 15s...")
+                time.sleep(15)
+                continue
+            raise
     else:
-        raise SystemExit(f"Tileset {tileset_id} did not complete")
+        raise SystemExit(f"Tileset {tileset_id} did not complete after 40 polls")
 
-    download_url = data.get("download_url") or data.get("url") or data.get("image_url")
-    if not download_url:
-        raise SystemExit(f"No download URL in response: {json.dumps(data, indent=2)}")
+    # Extract spritesheet_url from metadata JSON
+    # metadata is a dict with tileset_data.spritesheet_url or top-level spritesheet_url
+    spritesheet_url = (
+        metadata.get("spritesheet_url")
+        or (metadata.get("tileset_data") or {}).get("spritesheet_url")
+    )
+    if not spritesheet_url:
+        # Fall back: scan all string values for a backblaze URL
+        def _find_url(obj: object) -> str | None:
+            if isinstance(obj, str) and "backblaze.pixellab.ai" in obj and obj.endswith(".png"):
+                return obj
+            if isinstance(obj, dict):
+                for v in obj.values():
+                    result = _find_url(v)
+                    if result:
+                        return result
+            if isinstance(obj, list):
+                for item in obj:
+                    result = _find_url(item)
+                    if result:
+                        return result
+            return None
+        spritesheet_url = _find_url(metadata)
 
+    if not spritesheet_url:
+        raise SystemExit(f"No spritesheet_url found in metadata: {json.dumps(metadata, indent=2)[:500]}")
+
+    print(f"  Spritesheet URL: {spritesheet_url}")
     dest_path = Path(dest)
     dest_path.mkdir(parents=True, exist_ok=True)
-    raw = api_get_url(download_url, key)
+    raw = _fetch_public(spritesheet_url)
     out = dest_path / "tileset.png"
     out.write_bytes(raw)
-    print(f"  Saved: {out}")
+    print(f"  Saved: {out} ({len(raw)} bytes)")
 
 
 def main() -> None:
