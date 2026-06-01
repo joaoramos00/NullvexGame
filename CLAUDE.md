@@ -190,6 +190,7 @@ Skills locais em `.claude/skills/`. Invocar dizendo "use a skill X" ou `/X`.
 | `new-corridor` | Adicionar corredor de transição a um stage complexo usando `CorridorSection` |
 | `run-tests` | Rodar testes headless do Godot, reportar PASS/FAIL |
 | `web-export` | Exportar build web e publicar no GitHub Pages |
+| `pixellab` | Gerar sprites de inimigos/bosses e tilesets via PixelLab API |
 
 ---
 
