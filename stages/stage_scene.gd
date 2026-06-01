@@ -93,7 +93,13 @@ func _draw() -> void:
 			var size: Vector2 = (shape_child.shape as RectangleShape2D).size
 			var center: Vector2 = (child as Node2D).position + (shape_child as Node2D).position
 			var rect := Rect2(center - size * 0.5, size)
-			var tex := _get_zone_tileset(center)
+			var tex: Texture2D = null
+			if child.has_meta("tileset_override"):
+				var path: String = child.get_meta("tileset_override")
+				if ResourceLoader.exists(path):
+					tex = load(path) as Texture2D
+			if tex == null:
+				tex = _get_zone_tileset(center)
 			if tex != null:
 				_draw_platform_tiles(rect, tex)
 			else:
