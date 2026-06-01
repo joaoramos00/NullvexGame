@@ -11,3 +11,5 @@ ability_id = "gravitus"
 stage_id = 4
 max_hp = 200
 boss_color = Color(0.5, 0.0, 0.8, 1)
+
+[node name="Sprite2D" type="Sprite2D" parent="."]

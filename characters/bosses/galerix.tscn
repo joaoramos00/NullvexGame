@@ -11,3 +11,5 @@ ability_id = "galerix"
 stage_id = 5
 max_hp = 200
 boss_color = Color(0.4, 0.9, 0.4, 1)
+
+[node name="Sprite2D" type="Sprite2D" parent="."]

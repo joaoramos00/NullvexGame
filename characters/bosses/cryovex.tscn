@@ -11,3 +11,5 @@ ability_id = "cryovex"
 stage_id = 2
 max_hp = 200
 boss_color = Color(0.3, 0.7, 1.0, 1)
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
