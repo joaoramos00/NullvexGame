@@ -4,12 +4,23 @@ const _PLAYER_PATH := "res://characters/ranged/zael.tscn"
 const _ENEMY_PATHS := [
     "res://characters/enemies/enemy_base.tscn",
     "res://characters/enemies/enemy_flyer.tscn",
+    "res://characters/bosses/ignarath.tscn",
+    "res://characters/bosses/cryovex.tscn",
+    "res://characters/bosses/voltrix.tscn",
+    "res://characters/bosses/gravitus.tscn",
+    "res://characters/bosses/galerix.tscn",
+    "res://characters/bosses/umbraex.tscn",
+    "res://characters/bosses/luxar.tscn",
+    "res://characters/bosses/terragor.tscn",
 ]
-const _ENEMY_NAMES := ["Grunt", "Flyer"]
+const _ENEMY_NAMES := [
+    "Grunt", "Flyer",
+    "Ignarath", "Cryovex", "Voltrix", "Gravitus", "Galerix", "Umbraex", "Luxar", "Terragor",
+]
 const _GROUND_Y := 600.0
 const _PLAYER_X := 280.0
 const _ENEMY_X  := 680.0
-const _ENEMY_Y  := [560.0, 380.0]
+const _ENEMY_Y  := [560.0, 380.0, 536.0, 536.0, 536.0, 536.0, 536.0, 536.0, 536.0, 536.0]
 
 const _TILE_TEX  := preload("res://stages/stage_00/Stage_00T.png")
 const _GLASS_TEX := preload("res://stages/stage_00/stage_00_glass.png")
@@ -23,6 +34,7 @@ const _GLASS_ROWS := 8  # glass wall height in tiles
 
 var _enemy_index: int = 0
 var _current_enemy: EnemyBase = null
+var _current_boss: BossBase   = null
 var _player: CharacterBase = null
 var _label_enemy: Label
 var _lbl_state: Label
@@ -303,19 +315,35 @@ func _spawn_player() -> void:
 func _spawn_enemy() -> void:
     if is_instance_valid(_current_enemy):
         _current_enemy.queue_free()
+    if is_instance_valid(_current_boss):
+        _current_boss.queue_free()
+    _current_enemy = null
+    _current_boss  = null
+
     var scene := load(_ENEMY_PATHS[_enemy_index]) as PackedScene
     if scene == null:
         return
-    _current_enemy = scene.instantiate() as EnemyBase
-    add_child(_current_enemy)
-    _current_enemy.global_position = Vector2(_ENEMY_X, _ENEMY_Y[_enemy_index])
-    _current_enemy.set_physics_process(false)
-    _current_enemy.show_hitbox = true
-    _current_enemy.max_hp     = 99999
-    _current_enemy.current_hp = 99999
-    var spr := _current_enemy.get_node_or_null("Sprite2D") as Sprite2D
-    if spr:
-        spr.flip_h = true
+    var inst := scene.instantiate()
+    add_child(inst)
+    (inst as Node2D).global_position = Vector2(_ENEMY_X, _ENEMY_Y[_enemy_index])
+
+    if inst is EnemyBase:
+        _current_enemy = inst as EnemyBase
+        _current_enemy.set_physics_process(false)
+        _current_enemy.show_hitbox = true
+        _current_enemy.max_hp      = 99999
+        _current_enemy.current_hp  = 99999
+        var spr := _current_enemy.get_node_or_null("Sprite2D") as Sprite2D
+        if spr:
+            spr.flip_h = true
+    elif inst is BossBase:
+        _current_boss = inst as BossBase
+        _current_boss.player     = _player
+        _current_boss.max_hp     = 99999
+        _current_boss.current_hp = 99999
+        _current_boss.stage_id   = -1
+        _current_boss.ability_id = ""
+
     _label_enemy.text = _ENEMY_NAMES[_enemy_index]
 
 func _on_prev() -> void:
