@@ -67,6 +67,7 @@ func _do_combat(delta: float) -> void:
 		_shoot_anim_timer = maxf(0.0, _shoot_anim_timer - delta)
 		if _shoot_anim_timer <= 0.0:
 			_is_shooting = false
+			_is_attacking = false
 	if _is_dashing:
 		_dash_timer -= delta
 		if _dash_timer <= 0.0:
@@ -80,6 +81,8 @@ func _do_combat(delta: float) -> void:
 				velocity.x = sign(dx) * walk_spd
 			else:
 				velocity.x = move_toward(velocity.x, 0.0, 200.0 * delta)
+		else:
+			velocity.x = 0.0
 	_clamp_to_arena()
 
 func _do_attack() -> void:
@@ -110,7 +113,6 @@ func _do_shoot() -> void:
 	var spd := SHOOT_SPEED_P2 if phase >= 2 else SHOOT_SPEED_P1
 	var dir := (player.global_position - global_position).normalized()
 	_spawn_projectile(global_position, dir * spd, SHOOT_DAMAGE, "intro_boss", Color(0.7, 0.1, 0.2))
-	_is_attacking = false
 
 func _do_burst() -> void:
 	if player == null:
@@ -128,7 +130,6 @@ func _do_burst() -> void:
 		var angle := -spread * 0.5 + step * float(i)
 		var dir   := base_dir.rotated(angle)
 		_spawn_projectile(global_position, dir * spd, BURST_DAMAGE, "intro_boss", Color(0.5, 0.1, 0.8))
-	_is_attacking = false
 
 func _enter_phase_2() -> void:
 	_phase2_rage    = true
@@ -138,7 +139,8 @@ func _enter_phase_2() -> void:
 
 func _resume_after_rage() -> void:
 	await get_tree().create_timer(RAGE_FLASH_DURATION).timeout
-	_is_attacking = false
+	if not is_dead:
+		_is_attacking = false
 
 func _update_animation(delta: float) -> void:
 	if velocity.x > 0.0:
