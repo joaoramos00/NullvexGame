@@ -11,3 +11,6 @@ ability_id = ""
 stage_id = 0
 max_hp = 28
 boss_color = Color(0.5, 0.0, 0.1, 1)
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture_filter = 1
