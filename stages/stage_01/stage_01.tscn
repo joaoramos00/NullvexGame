@@ -19,6 +19,7 @@
 [ext_resource type="Script" path="res://stages/collectible.gd" id="14_col_script"]
 [ext_resource type="Script" path="res://stages/stage_01/geyser.gd" id="15_geyser"]
 [ext_resource type="Script" path="res://stages/stage_01/moving_platform.gd" id="16_movplat"]
+[ext_resource type="Texture2D" path="res://stages/stage_01/Stage_01T_z4.png" id="18_z4tex"]
 
 [sub_resource type="RectangleShape2D" id="ShapeZ1Floor"]
 size = Vector2(2752, 128)
@@ -91,6 +92,21 @@ size = Vector2(64, 192)
 
 [sub_resource type="RectangleShape2D" id="ShapeHeartCol"]
 size = Vector2(24, 24)
+
+[sub_resource type="RectangleShape2D" id="ShapeBossFloor"]
+size = Vector2(2816, 128)
+
+[sub_resource type="RectangleShape2D" id="ShapeBossCeil"]
+size = Vector2(2816, 64)
+
+[sub_resource type="RectangleShape2D" id="ShapeBossWall"]
+size = Vector2(64, 576)
+
+[sub_resource type="RectangleShape2D" id="ShapeBossLava"]
+size = Vector2(2816, 64)
+
+[sub_resource type="RectangleShape2D" id="ShapeBossPlat"]
+size = Vector2(384, 32)
 
 [node name="Stage01" type="Node2D"]
 platform_color = Color(0.9, 0.3, 0.1, 1)
@@ -206,10 +222,10 @@ collision_mask = 0
 shape = SubResource("ShapeShaftPlat")
 
 [node name="Ignarath" parent="." instance=ExtResource("9_boss")]
-position = Vector2(4600, 760)
-arena_left = 4100.0
-arena_right = 5100.0
-arena_floor = 900.0
+position = Vector2(21184, 768)
+arena_left = 19776.0
+arena_right = 22592.0
+arena_floor = 960.0
 
 [node name="Grunt1" parent="." instance=ExtResource("10_grunt")]
 position = Vector2(960, 880)
@@ -728,3 +744,89 @@ position = Vector2(18432, 864)
 
 [node name="Z4Flyer1" parent="." instance=ExtResource("11_flyer")]
 position = Vector2(17700, 512)
+
+[node name="Corridor2" type="Node2D" parent="."]
+script = ExtResource("15_corr_script")
+tileset = ExtResource("18_z4tex")
+glass_tex = ExtResource("17_glasstex")
+floor_center = Vector2(19968, 1024)
+floor_size = Vector2(960, 128)
+ceil_center = Vector2(19968, 448)
+ceil_size = Vector2(960, 64)
+wall_l_center = Vector2(19520, 736)
+wall_l_size = Vector2(64, 576)
+wall_r_center = Vector2(20416, 736)
+wall_r_size = Vector2(64, 576)
+entry_x = 19552.0
+exit_x = 20384.0
+door_cy = 736.0
+door_height = 200.0
+cam_center = Vector2(19968, 736)
+cam_zoom = 2.0
+glass_lateral_x = 19456.0
+glass_fill_x = 19520.0
+glass_fill_cols = 13
+glass_col_rows = 9
+glass_col_bot = 960.0
+glass_mirror = false
+checkpoint_index = 2
+checkpoint_respawn_x = 20480.0
+heal_on_entry = true
+save_checkpoint = true
+
+[node name="BossFloor" type="StaticBody2D" parent="."]
+position = Vector2(21184, 1024)
+collision_layer = 1
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="BossFloor"]
+shape = SubResource("ShapeBossFloor")
+
+[node name="BossCeil" type="StaticBody2D" parent="."]
+position = Vector2(21184, 448)
+collision_layer = 1
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="BossCeil"]
+shape = SubResource("ShapeBossCeil")
+
+[node name="BossWallL" type="StaticBody2D" parent="."]
+position = Vector2(19776, 736)
+collision_layer = 1
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="BossWallL"]
+shape = SubResource("ShapeBossWall")
+
+[node name="BossWallR" type="StaticBody2D" parent="."]
+position = Vector2(22592, 736)
+collision_layer = 1
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="BossWallR"]
+shape = SubResource("ShapeBossWall")
+
+[node name="BossLava" type="Area2D" parent="."]
+position = Vector2(21184, 1056)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("12_lava")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="BossLava"]
+shape = SubResource("ShapeBossLava")
+
+[node name="BossPlat1" type="StaticBody2D" parent="."]
+position = Vector2(20160, 832)
+collision_layer = 1
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="BossPlat1"]
+shape = SubResource("ShapeBossPlat")
+
+[node name="BossPlat2" type="StaticBody2D" parent="."]
+position = Vector2(22208, 832)
+collision_layer = 1
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="BossPlat2"]
+shape = SubResource("ShapeBossPlat")
