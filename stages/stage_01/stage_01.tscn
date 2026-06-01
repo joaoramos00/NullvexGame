@@ -17,6 +17,8 @@
 [ext_resource type="Script" path="res://stages/stage_01/lava_floor.gd" id="12_lava"]
 [ext_resource type="Script" path="res://stages/stage_01/cracked_wall.gd" id="13_cracked"]
 [ext_resource type="Script" path="res://stages/collectible.gd" id="14_col_script"]
+[ext_resource type="Script" path="res://stages/stage_01/geyser.gd" id="15_geyser"]
+[ext_resource type="Script" path="res://stages/stage_01/moving_platform.gd" id="16_movplat"]
 
 [sub_resource type="RectangleShape2D" id="ShapeZ1Floor"]
 size = Vector2(2752, 128)
@@ -61,6 +63,33 @@ size = Vector2(1664, 64)
 size = Vector2(64, 512)
 
 [sub_resource type="RectangleShape2D" id="ShapeArmorHelmet"]
+size = Vector2(24, 24)
+
+[sub_resource type="RectangleShape2D" id="ShapeZ3FloorA"]
+size = Vector2(2176, 128)
+
+[sub_resource type="RectangleShape2D" id="ShapeZ3FloorB"]
+size = Vector2(3264, 128)
+
+[sub_resource type="RectangleShape2D" id="ShapeZ3Ceil"]
+size = Vector2(5568, 64)
+
+[sub_resource type="RectangleShape2D" id="ShapeZ3Plat"]
+size = Vector2(256, 32)
+
+[sub_resource type="RectangleShape2D" id="ShapeZ3Geyser"]
+size = Vector2(64, 256)
+
+[sub_resource type="RectangleShape2D" id="ShapeZ3MovPlat"]
+size = Vector2(256, 32)
+
+[sub_resource type="RectangleShape2D" id="ShapeHeartFloor"]
+size = Vector2(384, 64)
+
+[sub_resource type="RectangleShape2D" id="ShapeHeartWall"]
+size = Vector2(64, 192)
+
+[sub_resource type="RectangleShape2D" id="ShapeHeartCol"]
 size = Vector2(24, 24)
 
 [node name="Stage01" type="Node2D"]
@@ -382,6 +411,161 @@ stage_id = 1
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="ArmorHelmetZael"]
 shape = SubResource("ShapeArmorHelmet")
+
+[node name="Z3FloorA" type="StaticBody2D" parent="."]
+position = Vector2(11840, 2688)
+collision_layer = 1
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Z3FloorA"]
+shape = SubResource("ShapeZ3FloorA")
+
+[node name="Z3FloorB" type="StaticBody2D" parent="."]
+position = Vector2(14656, 2688)
+collision_layer = 1
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Z3FloorB"]
+shape = SubResource("ShapeZ3FloorB")
+
+[node name="Z3Ceil" type="StaticBody2D" parent="."]
+position = Vector2(13536, 2176)
+collision_layer = 1
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Z3Ceil"]
+shape = SubResource("ShapeZ3Ceil")
+
+[node name="Z3Plat1" type="StaticBody2D" parent="."]
+position = Vector2(11264, 2560)
+collision_layer = 1
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Z3Plat1"]
+shape = SubResource("ShapeZ3Plat")
+
+[node name="Z3Plat2" type="StaticBody2D" parent="."]
+position = Vector2(11968, 2432)
+collision_layer = 1
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Z3Plat2"]
+shape = SubResource("ShapeZ3Plat")
+
+[node name="Z3Plat3" type="StaticBody2D" parent="."]
+position = Vector2(12672, 2304)
+collision_layer = 1
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Z3Plat3"]
+shape = SubResource("ShapeZ3Plat")
+
+[node name="Z3Plat4" type="StaticBody2D" parent="."]
+position = Vector2(13376, 2208)
+collision_layer = 1
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Z3Plat4"]
+shape = SubResource("ShapeZ3Plat")
+
+[node name="Z3Plat5" type="StaticBody2D" parent="."]
+position = Vector2(14080, 2080)
+collision_layer = 1
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Z3Plat5"]
+shape = SubResource("ShapeZ3Plat")
+
+[node name="Z3MovingPlat" type="StaticBody2D" parent="."]
+position = Vector2(14784, 2240)
+collision_layer = 1
+collision_mask = 0
+script = ExtResource("16_movplat")
+move_distance = 320.0
+speed = 70.0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Z3MovingPlat"]
+shape = SubResource("ShapeZ3MovPlat")
+
+[node name="Z3Geyser1" type="Area2D" parent="."]
+position = Vector2(11520, 2560)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("15_geyser")
+active_time = 2.5
+inactive_time = 1.5
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Z3Geyser1"]
+shape = SubResource("ShapeZ3Geyser")
+
+[node name="Z3Geyser2" type="Area2D" parent="."]
+position = Vector2(12800, 2560)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("15_geyser")
+active_time = 2.0
+inactive_time = 2.0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Z3Geyser2"]
+shape = SubResource("ShapeZ3Geyser")
+
+[node name="Z3Geyser3" type="Area2D" parent="."]
+position = Vector2(14400, 2560)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("15_geyser")
+active_time = 2.5
+inactive_time = 1.0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Z3Geyser3"]
+shape = SubResource("ShapeZ3Geyser")
+
+[node name="Z3Grunt1" parent="." instance=ExtResource("10_grunt")]
+position = Vector2(11392, 2528)
+
+[node name="Z3Grunt2" parent="." instance=ExtResource("10_grunt")]
+position = Vector2(12736, 2272)
+
+[node name="Z3Grunt3" parent="." instance=ExtResource("10_grunt")]
+position = Vector2(14144, 2048)
+
+[node name="Z3Flyer1" parent="." instance=ExtResource("11_flyer")]
+position = Vector2(12500, 2256)
+
+[node name="HeartChamberFloor" type="StaticBody2D" parent="."]
+position = Vector2(13664, 2880)
+collision_layer = 1
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HeartChamberFloor"]
+shape = SubResource("ShapeHeartFloor")
+
+[node name="HeartChamberWallL" type="StaticBody2D" parent="."]
+position = Vector2(13472, 2944)
+collision_layer = 1
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HeartChamberWallL"]
+shape = SubResource("ShapeHeartWall")
+
+[node name="HeartChamberWallR" type="StaticBody2D" parent="."]
+position = Vector2(13856, 2944)
+collision_layer = 1
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HeartChamberWallR"]
+shape = SubResource("ShapeHeartWall")
+
+[node name="HeartZ3" type="Area2D" parent="."]
+position = Vector2(13664, 2816)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("14_col_script")
+collectible_type = 0
+stage_id = 1
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HeartZ3"]
+shape = SubResource("ShapeHeartCol")
 
 [node name="Camera2D" type="Camera2D" parent="."]
 limit_left = 0
