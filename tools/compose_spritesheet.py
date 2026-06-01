@@ -13,7 +13,16 @@ def main() -> None:
         sys.exit(1)
 
     name, action, direction = sys.argv[1], sys.argv[2], sys.argv[3]
+
+    # Validate action parameter
+    if action not in ("walk", "entry"):
+        print(f"ERROR: action must be 'walk' or 'entry', got '{action}'")
+        sys.exit(1)
+
     folder = Path("characters/bosses") / name
+    # Ensure output directory exists
+    folder.mkdir(parents=True, exist_ok=True)
+
     frame_count = 8 if action == "walk" else 6
 
     frames = []
@@ -22,9 +31,17 @@ def main() -> None:
         if not p.exists():
             print(f"ERROR: {p} not found")
             sys.exit(1)
-        frames.append(Image.open(p).convert("RGBA"))
+        # Use context manager to properly close file handles
+        with Image.open(p) as img:
+            frames.append(img.convert("RGBA"))
 
     w, h = frames[0].size
+    # Validate all frames have consistent dimensions
+    for i, frame in enumerate(frames[1:], 1):
+        if frame.size != (w, h):
+            print(f"ERROR: Frame {i} has size {frame.size}, expected ({w}, {h})")
+            sys.exit(1)
+
     sheet = Image.new("RGBA", (w * frame_count, h), (0, 0, 0, 0))
     for i, frame in enumerate(frames):
         sheet.paste(frame, (i * w, 0))
