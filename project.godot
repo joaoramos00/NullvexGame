@@ -15,7 +15,7 @@ compatibility/default_parent_skeleton_in_mesh_instance_3d=true
 [application]
 
 config/name="NullvexGame"
-run/main_scene="res://stages/stage_01/stage_01.tscn"
+run/main_scene="res://ui/title_screen.tscn"
 config/features=PackedStringArray("4.6", "Forward Plus")
 
 [autoload]
