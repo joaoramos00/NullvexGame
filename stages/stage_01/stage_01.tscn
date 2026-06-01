@@ -132,6 +132,7 @@ checkpoint_index = 2
 position = Vector2(1888, 1056)
 collision_layer = 0
 collision_mask = 0
+metadata/tileset_override = "res://stages/stage_01/Stage_01_lava.png"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Z1LavaVisual"]
 shape = SubResource("ShapeZ1Lava")
