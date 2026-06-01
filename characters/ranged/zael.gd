@@ -56,7 +56,6 @@ var _jump_squat_timer: float = -1.0
 var _dash_jump: bool = false
 var _dash_jump_dir: float = 0.0
 var _was_dashing_timer: float = 0.0
-var _jump_buffer_timer: float = 0.0
 var _landing_timer: float = 0.0
 var _is_hurt: bool = false
 var _hurt_timer: float = 0.0
