@@ -11,6 +11,9 @@
 [ext_resource type="PackedScene" uid="uid://ignarath" path="res://characters/bosses/ignarath.tscn" id="9_boss"]
 [ext_resource type="PackedScene" uid="uid://enemy_base" path="res://characters/enemies/enemy_base.tscn" id="10_grunt"]
 [ext_resource type="PackedScene" uid="uid://enemy_flyer" path="res://characters/enemies/enemy_flyer.tscn" id="11_flyer"]
+[ext_resource type="Script" path="res://stages/stage_01/lava_floor.gd" id="12_lava"]
+[ext_resource type="Script" path="res://stages/stage_01/cracked_wall.gd" id="13_cracked"]
+[ext_resource type="Script" path="res://stages/collectible.gd" id="14_col_script"]
 
 [sub_resource type="RectangleShape2D" id="ShapeZ1Floor"]
 size = Vector2(2752, 128)
@@ -26,6 +29,36 @@ size = Vector2(64, 1664)
 
 [sub_resource type="RectangleShape2D" id="ShapeShaftPlat"]
 size = Vector2(128, 32)
+
+[sub_resource type="RectangleShape2D" id="ShapeZ2Floor"]
+size = Vector2(6528, 128)
+
+[sub_resource type="RectangleShape2D" id="ShapeZ2Ceil"]
+size = Vector2(6528, 64)
+
+[sub_resource type="RectangleShape2D" id="ShapeZ2Plat"]
+size = Vector2(256, 32)
+
+[sub_resource type="RectangleShape2D" id="ShapeLavaFossa"]
+size = Vector2(256, 64)
+
+[sub_resource type="RectangleShape2D" id="ShapeCrackedWallCol"]
+size = Vector2(64, 512)
+
+[sub_resource type="RectangleShape2D" id="ShapeCrackedWallHit"]
+size = Vector2(128, 512)
+
+[sub_resource type="RectangleShape2D" id="ShapeSecretFloor"]
+size = Vector2(1664, 128)
+
+[sub_resource type="RectangleShape2D" id="ShapeSecretCeil"]
+size = Vector2(1664, 64)
+
+[sub_resource type="RectangleShape2D" id="ShapeSecretWallL"]
+size = Vector2(64, 512)
+
+[sub_resource type="RectangleShape2D" id="ShapeArmorHelmet"]
+size = Vector2(24, 24)
 
 [node name="Stage01" type="Node2D"]
 platform_color = Color(0.9, 0.3, 0.1, 1)
@@ -163,10 +196,194 @@ position = Vector2(1600, 512)
 [node name="GameOver" parent="." instance=ExtResource("7_gameover")]
 [node name="StageComplete" parent="." instance=ExtResource("8_scom")]
 
+[node name="Z2Floor" type="StaticBody2D" parent="."]
+position = Vector2(6528, 2688)
+collision_layer = 1
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Z2Floor"]
+shape = SubResource("ShapeZ2Floor")
+
+[node name="Z2Ceil" type="StaticBody2D" parent="."]
+position = Vector2(6528, 2176)
+collision_layer = 1
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Z2Ceil"]
+shape = SubResource("ShapeZ2Ceil")
+
+[node name="Z2Plat1" type="StaticBody2D" parent="."]
+position = Vector2(3712, 2560)
+collision_layer = 1
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Z2Plat1"]
+shape = SubResource("ShapeZ2Plat")
+
+[node name="Z2Plat2" type="StaticBody2D" parent="."]
+position = Vector2(4480, 2496)
+collision_layer = 1
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Z2Plat2"]
+shape = SubResource("ShapeZ2Plat")
+
+[node name="Z2Plat3" type="StaticBody2D" parent="."]
+position = Vector2(5248, 2560)
+collision_layer = 1
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Z2Plat3"]
+shape = SubResource("ShapeZ2Plat")
+
+[node name="Z2Plat4" type="StaticBody2D" parent="."]
+position = Vector2(6016, 2496)
+collision_layer = 1
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Z2Plat4"]
+shape = SubResource("ShapeZ2Plat")
+
+[node name="Z2Plat5" type="StaticBody2D" parent="."]
+position = Vector2(6784, 2560)
+collision_layer = 1
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Z2Plat5"]
+shape = SubResource("ShapeZ2Plat")
+
+[node name="Z2Plat6" type="StaticBody2D" parent="."]
+position = Vector2(7552, 2496)
+collision_layer = 1
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Z2Plat6"]
+shape = SubResource("ShapeZ2Plat")
+
+[node name="Z2Plat7" type="StaticBody2D" parent="."]
+position = Vector2(8320, 2560)
+collision_layer = 1
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Z2Plat7"]
+shape = SubResource("ShapeZ2Plat")
+
+[node name="LavaFossa1" type="Area2D" parent="."]
+position = Vector2(4096, 2688)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("12_lava")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="LavaFossa1"]
+shape = SubResource("ShapeLavaFossa")
+
+[node name="LavaFossa2" type="Area2D" parent="."]
+position = Vector2(4864, 2688)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("12_lava")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="LavaFossa2"]
+shape = SubResource("ShapeLavaFossa")
+
+[node name="LavaFossa3" type="Area2D" parent="."]
+position = Vector2(5632, 2688)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("12_lava")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="LavaFossa3"]
+shape = SubResource("ShapeLavaFossa")
+
+[node name="LavaFossa4" type="Area2D" parent="."]
+position = Vector2(6400, 2688)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("12_lava")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="LavaFossa4"]
+shape = SubResource("ShapeLavaFossa")
+
+[node name="LavaFossa5" type="Area2D" parent="."]
+position = Vector2(7168, 2688)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("12_lava")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="LavaFossa5"]
+shape = SubResource("ShapeLavaFossa")
+
+[node name="Z2Grunt1" parent="." instance=ExtResource("10_grunt")]
+position = Vector2(4544, 2464)
+
+[node name="Z2Grunt2" parent="." instance=ExtResource("10_grunt")]
+position = Vector2(6080, 2464)
+
+[node name="Z2Grunt3" parent="." instance=ExtResource("10_grunt")]
+position = Vector2(7616, 2464)
+
+[node name="Z2Flyer1" parent="." instance=ExtResource("11_flyer")]
+position = Vector2(4500, 2256)
+
+[node name="Z2Flyer2" parent="." instance=ExtResource("11_flyer")]
+position = Vector2(7000, 2256)
+
+[node name="CrackedWall" type="StaticBody2D" parent="."]
+position = Vector2(3264, 2432)
+collision_layer = 1
+collision_mask = 0
+script = ExtResource("13_cracked")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="CrackedWall"]
+shape = SubResource("ShapeCrackedWallCol")
+
+[node name="HitDetector" type="Area2D" parent="CrackedWall"]
+collision_layer = 0
+collision_mask = 8
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="CrackedWall/HitDetector"]
+shape = SubResource("ShapeCrackedWallHit")
+
+[node name="SecretArmorFloor" type="StaticBody2D" parent="."]
+position = Vector2(2432, 2688)
+collision_layer = 1
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="SecretArmorFloor"]
+shape = SubResource("ShapeSecretFloor")
+
+[node name="SecretArmorCeil" type="StaticBody2D" parent="."]
+position = Vector2(2432, 2176)
+collision_layer = 1
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="SecretArmorCeil"]
+shape = SubResource("ShapeSecretCeil")
+
+[node name="SecretArmorWallL" type="StaticBody2D" parent="."]
+position = Vector2(1600, 2432)
+collision_layer = 1
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="SecretArmorWallL"]
+shape = SubResource("ShapeSecretWallL")
+
+[node name="ArmorHelmetZael" type="Area2D" parent="."]
+position = Vector2(2432, 2624)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("14_col_script")
+collectible_type = 2
+armor_piece = "helmet"
+stage_id = 1
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ArmorHelmetZael"]
+shape = SubResource("ShapeArmorHelmet")
+
 [node name="Camera2D" type="Camera2D" parent="."]
 limit_left = 0
 limit_top = 0
-limit_bottom = 2500
-limit_right = 5300
+limit_bottom = 2800
+limit_right = 10000
 position_smoothing_enabled = true
 position_smoothing_speed = 8.0
