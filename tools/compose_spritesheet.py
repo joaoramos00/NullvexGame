@@ -23,14 +23,18 @@ def main() -> None:
     # Ensure output directory exists
     folder.mkdir(parents=True, exist_ok=True)
 
-    frame_count = 8 if action == "walk" else 6
+    # Auto-detect frame count from available files
+    frame_count = 0
+    while (folder / f"{name}_{action}_{direction}_f{frame_count:02d}.png").exists():
+        frame_count += 1
+    if frame_count == 0:
+        print(f"ERROR: No frames found matching {folder}/{name}_{action}_{direction}_f*.png")
+        sys.exit(1)
+    print(f"Detected {frame_count} frames for {action} {direction}")
 
     frames = []
     for i in range(frame_count):
         p = folder / f"{name}_{action}_{direction}_f{i:02d}.png"
-        if not p.exists():
-            print(f"ERROR: {p} not found")
-            sys.exit(1)
         # Use context manager to properly close file handles
         with Image.open(p) as img:
             frames.append(img.convert("RGBA"))
