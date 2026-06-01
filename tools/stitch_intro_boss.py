@@ -10,7 +10,7 @@ from pathlib import Path
 from PIL import Image
 
 BASE_REST = "https://api.pixellab.ai/v2"
-CHAR_ID   = "2291f98f-dd2c-4d1a-bae1-b9f21afaa8fa"
+CHAR_ID   = "a3d973c8-637d-4de8-bf8d-65e325dd7bb0"
 OUT_DIR   = Path("characters/bosses/intro_boss")
 
 EXPECTED_FRAMES = {"idle": 4, "walk": 6, "dash": 6, "shoot": 6}
