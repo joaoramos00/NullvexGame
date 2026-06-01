@@ -10,6 +10,9 @@ var _bodies_inside: Array[Node] = []
 
 func _ready() -> void:
 	monitoring = false
+	_timer = inactive_time
+	body_entered.connect(_on_body_entered)
+	body_exited.connect(_on_body_exited)
 
 func _process(delta: float) -> void:
 	_timer -= delta
