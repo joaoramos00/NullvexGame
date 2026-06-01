@@ -2,3 +2,4 @@
 export/
 !export/web/
 *.tmp
+.claude/settings.local.json
