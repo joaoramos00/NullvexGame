@@ -4,3 +4,4 @@ export/
 *.tmp
 .claude/settings.local.json
 .mcp.json
+characters/bosses/intro_boss/.pixellab_ids
