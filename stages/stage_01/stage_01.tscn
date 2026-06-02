@@ -128,14 +128,15 @@ checkpoint_index = 1
 position = Vector2(3500, 850)
 checkpoint_index = 2
 
-[node name="Z1LavaVisual" type="StaticBody2D" parent="."]
+[node name="Z1LavaBase" type="Polygon2D" parent="."]
 position = Vector2(1888, 1056)
-collision_layer = 0
-collision_mask = 0
-metadata/tileset_override = "res://stages/stage_01/Stage_01_lava.png"
+color = Color(0.62, 0.1, 0.0, 1.0)
+polygon = PackedVector2Array(-1376, -32, 1376, -32, 1376, 32, -1376, 32)
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Z1LavaVisual"]
-shape = SubResource("ShapeZ1Lava")
+[node name="Z1LavaGlow" type="Polygon2D" parent="."]
+position = Vector2(1888, 1025)
+color = Color(1.0, 0.42, 0.0, 1.0)
+polygon = PackedVector2Array(-1376, -1, 1376, -1, 1376, 7, -1376, 7)
 
 [node name="Z1Lava" type="Area2D" parent="."]
 position = Vector2(1888, 1056)
