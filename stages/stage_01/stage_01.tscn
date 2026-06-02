@@ -188,7 +188,7 @@ collision_mask = 0
 shape = SubResource("ShapeZ1Plat")
 
 [node name="ShaftWallL" type="StaticBody2D" parent="."]
-position = Vector2(3232, 1856)
+position = Vector2(2976, 1856)
 collision_layer = 1
 collision_mask = 0
 
@@ -196,7 +196,7 @@ collision_mask = 0
 shape = SubResource("ShapeShaftWall")
 
 [node name="ShaftWallR" type="StaticBody2D" parent="."]
-position = Vector2(3424, 1856)
+position = Vector2(3296, 1856)
 collision_layer = 1
 collision_mask = 0
 
@@ -204,7 +204,7 @@ collision_mask = 0
 shape = SubResource("ShapeShaftWall")
 
 [node name="ShaftP1" type="StaticBody2D" parent="."]
-position = Vector2(3296, 1344)
+position = Vector2(3072, 1344)
 collision_layer = 1
 collision_mask = 0
 
@@ -212,7 +212,7 @@ collision_mask = 0
 shape = SubResource("ShapeShaftPlat")
 
 [node name="ShaftP2" type="StaticBody2D" parent="."]
-position = Vector2(3360, 1600)
+position = Vector2(3200, 1600)
 collision_layer = 1
 collision_mask = 0
 
@@ -220,7 +220,7 @@ collision_mask = 0
 shape = SubResource("ShapeShaftPlat")
 
 [node name="ShaftP3" type="StaticBody2D" parent="."]
-position = Vector2(3296, 1856)
+position = Vector2(3072, 1856)
 collision_layer = 1
 collision_mask = 0
 
@@ -228,7 +228,7 @@ collision_mask = 0
 shape = SubResource("ShapeShaftPlat")
 
 [node name="ShaftP4" type="StaticBody2D" parent="."]
-position = Vector2(3360, 2112)
+position = Vector2(3200, 2112)
 collision_layer = 1
 collision_mask = 0
 
@@ -256,7 +256,7 @@ position = Vector2(1600, 512)
 [node name="StageComplete" parent="." instance=ExtResource("8_scom")]
 
 [node name="Z2Floor" type="StaticBody2D" parent="."]
-position = Vector2(6528, 2688)
+position = Vector2(6208, 2688)
 collision_layer = 1
 collision_mask = 0
 
@@ -264,7 +264,7 @@ collision_mask = 0
 shape = SubResource("ShapeZ2Floor")
 
 [node name="Z2Ceil" type="StaticBody2D" parent="."]
-position = Vector2(6528, 2176)
+position = Vector2(6208, 2176)
 collision_layer = 1
 collision_mask = 0
 
