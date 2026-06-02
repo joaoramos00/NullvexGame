@@ -1824,34 +1824,95 @@ func _refresh_tiles() -> void:
     for child in _tiles_box.get_children():
         child.queue_free()
 
-    # Tab bar
-    var tab_row := HBoxContainer.new()
-    tab_row.add_theme_constant_override("separation", 4)
-    _tiles_box.add_child(tab_row)
+    # ── Agrupar tilesets por stage ───────────────────────────────────────────
+    var stage_order: Array[String] = []
+    var stage_groups: Dictionary = {}
+    for ts_data: Dictionary in _TILESETS:
+        var sk: String = ts_data.name.substr(0, 8)
+        if not stage_groups.has(sk):
+            stage_groups[sk] = []
+            stage_order.append(sk)
+        stage_groups[sk].append(ts_data)
 
-    var panels: Array = []
+    # ── Seletor de stage (nível 1) ────────────────────────────────────────────
+    var stage_row := HBoxContainer.new()
+    stage_row.add_theme_constant_override("separation", 4)
+    _tiles_box.add_child(stage_row)
 
-    var show_tab := func(idx: int) -> void:
-        for i in panels.size():
-            panels[i].visible = (i == idx)
-        for i in tab_row.get_child_count():
-            tab_row.get_child(i).modulate = Color(1.0, 1.0, 0.0) if i == idx else Color(0.6, 0.6, 0.6)
+    var ts_area := VBoxContainer.new()
+    ts_area.add_theme_constant_override("separation", 4)
+    _tiles_box.add_child(ts_area)
 
-    # One tab per tileset
-    for ts_idx in _TILESETS.size():
-        var ts_data: Dictionary = _TILESETS[ts_idx]
+    var _col_panel_ref: VBoxContainer
+    var _plat_panel_ref: VBoxContainer
+    var stage_conts: Array = []
 
-        var tab_btn := Button.new()
-        tab_btn.text = ts_data.name.trim_suffix("T")
-        tab_btn.add_theme_font_size_override("font_size", 26)
-        tab_btn.pressed.connect(show_tab.bind(ts_idx))
-        tab_row.add_child(tab_btn)
+    var show_section := func(sec: int, sub: int) -> void:
+        ts_area.visible = (sec == 0)
+        if is_instance_valid(_col_panel_ref):
+            _col_panel_ref.visible = (sec == 1)
+        if is_instance_valid(_plat_panel_ref):
+            _plat_panel_ref.visible = (sec == 2)
+        if sec == 0:
+            for i in stage_conts.size():
+                stage_conts[i].visible = (i == sub)
+        var n: int = stage_order.size()
+        for i in stage_row.get_child_count():
+            var active: bool
+            if sec == 0:
+                active = (i == sub)
+            else:
+                active = (i == n + sec - 1)
+            stage_row.get_child(i).modulate = Color(1, 1, 0) if active else Color(0.6, 0.6, 0.6)
 
-        var panel := VBoxContainer.new()
-        panel.add_theme_constant_override("separation", 8)
-        panel.visible = (ts_idx == 0)
-        _tiles_box.add_child(panel)
-        panels.append(panel)
+    # ── Build por stage (nível 2: tileset tabs) ───────────────────────────────
+    for st_idx in stage_order.size():
+        var sk: String = stage_order[st_idx]
+        var ts_list: Array = stage_groups[sk]
+
+        var stage_btn := Button.new()
+        stage_btn.text = sk.trim_prefix("Stage_")
+        stage_btn.add_theme_font_size_override("font_size", 26)
+        var _st: int = st_idx
+        stage_btn.pressed.connect(func(): show_section.call(0, _st))
+        stage_row.add_child(stage_btn)
+
+        var sc := VBoxContainer.new()
+        sc.add_theme_constant_override("separation", 4)
+        sc.visible = (st_idx == 0)
+        ts_area.add_child(sc)
+        stage_conts.append(sc)
+
+        var ts_tab_row := HBoxContainer.new()
+        ts_tab_row.add_theme_constant_override("separation", 4)
+        sc.add_child(ts_tab_row)
+
+        var ts_panels: Array = []
+
+        var show_ts := func(tidx: int, tp: Array, tr: HBoxContainer) -> void:
+            for i in tp.size():
+                tp[i].visible = (i == tidx)
+            for i in tr.get_child_count():
+                tr.get_child(i).modulate = Color(1, 1, 0) if i == tidx else Color(0.6, 0.6, 0.6)
+
+        for ts_idx in ts_list.size():
+            var ts_data: Dictionary = ts_list[ts_idx]
+
+            var short: String = ts_data.name.substr(9).trim_prefix("T_").trim_prefix("_").trim_prefix("T")
+            if short.is_empty():
+                short = "Principal"
+
+            var ts_btn := Button.new()
+            ts_btn.text = short
+            ts_btn.add_theme_font_size_override("font_size", 24)
+            ts_btn.pressed.connect(show_ts.bind(ts_idx, ts_panels, ts_tab_row))
+            ts_tab_row.add_child(ts_btn)
+
+            var panel := VBoxContainer.new()
+            panel.add_theme_constant_override("separation", 8)
+            panel.visible = (ts_idx == 0)
+            sc.add_child(panel)
+            ts_panels.append(panel)
 
         var info_lbl := Label.new()
         info_lbl.text = "clique num tile para zoom  ·  %dx%d, %dpx cada" % [ts_data.cols, ts_data.rows, ts_data.tile_size]
@@ -1949,19 +2010,21 @@ func _refresh_tiles() -> void:
                 cell.add_child(coord_lbl)
 
     # Colisões tab
-    var col_tab_idx: int = panels.size()
+    # Highlight do primeiro stage por padrão
+    if stage_row.get_child_count() > 0:
+        stage_row.get_child(0).modulate = Color(1, 1, 0)
 
     var col_tab_btn := Button.new()
     col_tab_btn.text = "Colisões"
     col_tab_btn.add_theme_font_size_override("font_size", 26)
-    col_tab_btn.pressed.connect(show_tab.bind(col_tab_idx))
-    tab_row.add_child(col_tab_btn)
+    col_tab_btn.pressed.connect(func(): show_section.call(1, -1))
+    stage_row.add_child(col_tab_btn)
 
     var col_panel := VBoxContainer.new()
     col_panel.add_theme_constant_override("separation", 8)
     col_panel.visible = false
     _tiles_box.add_child(col_panel)
-    panels.append(col_panel)
+    _col_panel_ref = col_panel
 
     var col_mode_row := HBoxContainer.new()
     col_mode_row.add_theme_constant_override("separation", 6)
@@ -2192,19 +2255,17 @@ func _refresh_tiles() -> void:
     glass_mode_btns[0].modulate = Color(1.0, 1.0, 0.0)
 
     # Plataformas tab
-    var plat_tab_idx: int = panels.size()
-
     var plat_tab_btn := Button.new()
     plat_tab_btn.text = "Plataformas"
     plat_tab_btn.add_theme_font_size_override("font_size", 26)
-    plat_tab_btn.pressed.connect(show_tab.bind(plat_tab_idx))
-    tab_row.add_child(plat_tab_btn)
+    plat_tab_btn.pressed.connect(func(): show_section.call(2, -1))
+    stage_row.add_child(plat_tab_btn)
 
     var plat_panel := VBoxContainer.new()
     plat_panel.add_theme_constant_override("separation", 8)
     plat_panel.visible = false
     _tiles_box.add_child(plat_panel)
-    panels.append(plat_panel)
+    _plat_panel_ref = plat_panel
 
     var pview := _PlatformView.new()
     pview.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
