@@ -10,6 +10,10 @@ const _SRC_TS := 32   # tamanho do tile no PNG (pixels)
 
 var _player: CharacterBase
 var _zone_tilesets: Array[Texture2D] = []
+# Override textures must be held by a persistent strong reference. Loading them
+# per-frame inside _draw() drops the reference each frame; on web (WebGL2) the
+# GPU re-upload can't keep up with that churn and the texture renders pure white.
+var _override_tex_cache: Dictionary = {}
 var _zone_min: float = 0.0
 var _zone_max: float = 1.0
 var _zone_use_y: bool = false
@@ -82,6 +86,13 @@ func _get_zone_tileset(center: Vector2) -> Texture2D:
 	var idx := mini(maxi(0, int(t * _zone_tilesets.size())), _zone_tilesets.size() - 1)
 	return _zone_tilesets[idx]  # may be null — caller handles it
 
+func _cached_override_tex(path: String) -> Texture2D:
+	if _override_tex_cache.has(path):
+		return _override_tex_cache[path]
+	var t: Texture2D = (load(path) as Texture2D) if ResourceLoader.exists(path) else null
+	_override_tex_cache[path] = t
+	return t
+
 func _draw() -> void:
 	for child in get_children():
 		if not child is StaticBody2D:
@@ -97,14 +108,10 @@ func _draw() -> void:
 			var tex: Texture2D = null
 			var use_fill := false
 			if child.has_meta("tileset_override"):
-				var path: String = child.get_meta("tileset_override")
-				if ResourceLoader.exists(path):
-					tex = load(path) as Texture2D
+				tex = _cached_override_tex(child.get_meta("tileset_override"))
 				use_fill = true
 			elif child.has_meta("platform_override"):
-				var path: String = child.get_meta("platform_override")
-				if ResourceLoader.exists(path):
-					tex = load(path) as Texture2D
+				tex = _cached_override_tex(child.get_meta("platform_override"))
 			if tex == null:
 				tex = _get_zone_tileset(center)
 			if tex != null:
