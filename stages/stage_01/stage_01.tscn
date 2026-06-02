@@ -188,6 +188,42 @@ collision_mask = 0
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Z1Plat4"]
 shape = SubResource("ShapeZ1Plat")
 
+[node name="Z1MovPlat1" type="StaticBody2D" parent="."]
+position = Vector2(1120, 860)
+collision_layer = 1
+collision_mask = 0
+script = ExtResource("19_vplat")
+move_distance = 160.0
+speed = 70.0
+start_going_up = true
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Z1MovPlat1"]
+shape = SubResource("ShapeZ1Plat")
+
+[node name="Z1MovPlat2" type="StaticBody2D" parent="."]
+position = Vector2(1728, 760)
+collision_layer = 1
+collision_mask = 0
+script = ExtResource("19_vplat")
+move_distance = 160.0
+speed = 70.0
+start_going_up = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Z1MovPlat2"]
+shape = SubResource("ShapeZ1Plat")
+
+[node name="Z1MovPlat3" type="StaticBody2D" parent="."]
+position = Vector2(2368, 660)
+collision_layer = 1
+collision_mask = 0
+script = ExtResource("19_vplat")
+move_distance = 160.0
+speed = 70.0
+start_going_up = true
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Z1MovPlat3"]
+shape = SubResource("ShapeZ1Plat")
+
 [node name="ShaftWallL" type="StaticBody2D" parent="."]
 position = Vector2(2976, 1664)
 collision_layer = 1
