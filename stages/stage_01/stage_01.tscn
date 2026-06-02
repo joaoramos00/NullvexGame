@@ -40,6 +40,9 @@ size = Vector2(256, 32)
 [sub_resource type="RectangleShape2D" id="ShapeShaftWall"]
 size = Vector2(64, 2048)
 
+[sub_resource type="RectangleShape2D" id="ShapeShaftWallSide"]
+size = Vector2(64, 1568)
+
 [sub_resource type="RectangleShape2D" id="ShapeShaftPlat"]
 size = Vector2(128, 32)
 
@@ -47,7 +50,7 @@ size = Vector2(128, 32)
 size = Vector2(6528, 128)
 
 [sub_resource type="RectangleShape2D" id="ShapeZ2Ceil"]
-size = Vector2(6528, 64)
+size = Vector2(6208, 64)
 
 [sub_resource type="RectangleShape2D" id="ShapeZ2Plat"]
 size = Vector2(256, 32)
@@ -65,7 +68,7 @@ size = Vector2(128, 512)
 size = Vector2(1664, 128)
 
 [sub_resource type="RectangleShape2D" id="ShapeSecretCeil"]
-size = Vector2(1664, 64)
+size = Vector2(1408, 64)
 
 [sub_resource type="RectangleShape2D" id="ShapeSecretWallL"]
 size = Vector2(64, 512)
@@ -146,6 +149,7 @@ position = Vector2(1728, 1056)
 collision_layer = 0
 collision_mask = 2
 script = ExtResource("12_lava")
+instant_kill = true
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Z1Lava"]
 shape = SubResource("ShapeZ1Lava")
@@ -227,20 +231,20 @@ start_going_up = true
 shape = SubResource("ShapeShaftPlat")
 
 [node name="ShaftWallL" type="StaticBody2D" parent="."]
-position = Vector2(2976, 1664)
+position = Vector2(2976, 1424)
 collision_layer = 1
 collision_mask = 0
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="ShaftWallL"]
-shape = SubResource("ShapeShaftWall")
+shape = SubResource("ShapeShaftWallSide")
 
 [node name="ShaftWallR" type="StaticBody2D" parent="."]
-position = Vector2(3296, 1664)
+position = Vector2(3296, 1424)
 collision_layer = 1
 collision_mask = 0
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="ShaftWallR"]
-shape = SubResource("ShapeShaftWall")
+shape = SubResource("ShapeShaftWallSide")
 
 [node name="ShaftP1" type="AnimatableBody2D" parent="."]
 position = Vector2(3072, 950)
@@ -319,7 +323,7 @@ collision_mask = 0
 shape = SubResource("ShapeZ2Floor")
 
 [node name="Z2Ceil" type="StaticBody2D" parent="."]
-position = Vector2(6208, 2176)
+position = Vector2(6368, 2176)
 collision_layer = 1
 collision_mask = 0
 
@@ -443,7 +447,7 @@ position = Vector2(4500, 2256)
 position = Vector2(7000, 2256)
 
 [node name="CrackedWall" type="StaticBody2D" parent="."]
-position = Vector2(3264, 2432)
+position = Vector2(2976, 2416)
 collision_layer = 1
 collision_mask = 0
 script = ExtResource("13_cracked")
@@ -467,7 +471,7 @@ collision_mask = 0
 shape = SubResource("ShapeSecretFloor")
 
 [node name="SecretArmorCeil" type="StaticBody2D" parent="."]
-position = Vector2(2432, 2176)
+position = Vector2(2304, 2176)
 collision_layer = 1
 collision_mask = 0
 

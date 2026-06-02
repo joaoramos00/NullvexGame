@@ -249,6 +249,14 @@ func take_damage(amount: int, _source_id: String = "") -> void:
 	if current_hp == 0:
 		_die()
 
+func kill() -> void:
+	# Instant death that ignores i-frames and armor — used by hazards like lava.
+	if is_dead:
+		return
+	current_hp = 0
+	hp_changed.emit(current_hp, max_hp)
+	_die()
+
 func _die() -> void:
 	is_dead = true
 	velocity = Vector2.ZERO

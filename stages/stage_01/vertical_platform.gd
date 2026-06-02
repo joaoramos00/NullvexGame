@@ -20,4 +20,6 @@ func _physics_process(delta: float) -> void:
 	elif _traveled <= -move_distance * 0.5:
 		_traveled = -move_distance * 0.5
 		_dir = 1.0
-	move_and_collide(Vector2(0.0, step))
+	# AnimatableBody2D com sync_to_physics carrega o player ao mover via
+	# position; move_and_collide é proibido nesse modo (gera erro e não carrega).
+	position.y += step

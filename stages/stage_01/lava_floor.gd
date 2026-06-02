@@ -2,6 +2,7 @@
 extends Area2D
 
 @export var damage_per_second: float = 40.0
+@export var instant_kill: bool = false
 
 var _bodies_inside: Array[Node] = []
 
@@ -11,6 +12,9 @@ func _ready() -> void:
 
 func _on_body_entered(body: Node) -> void:
 	if body is CharacterBase:
+		if instant_kill:
+			(body as CharacterBase).kill()
+			return
 		_bodies_inside.append(body)
 
 func _on_body_exited(body: Node) -> void:
