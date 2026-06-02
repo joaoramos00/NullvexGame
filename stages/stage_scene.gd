@@ -33,6 +33,7 @@ func _ready() -> void:
 func _process(_delta: float) -> void:
 	if is_instance_valid(_player):
 		$Camera2D.global_position = _player.global_position
+	queue_redraw()
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_just_pressed("pause"):
