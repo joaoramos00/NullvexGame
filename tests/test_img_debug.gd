@@ -12,37 +12,36 @@ func _ready() -> void:
     get_tree().quit(0)
 
 func test_sprite_data() -> void:
-    assert(ImgDebug._SPRITES.size() == 6, "deve ter 6 sprites")
+    # ZAEL: 9 anims, ZARA: 2, MINIBOSS: 5 = 16 total
+    assert(ImgDebug._SPRITES.size() == 16, "deve ter 16 sprites")
     assert(ImgDebug._SPRITES[0].char == "ZAEL", "índice 0 deve ser ZAEL")
     assert(ImgDebug._SPRITES[0].anim == "Idle", "índice 0 deve ser Idle")
     assert(ImgDebug._SPRITES[0].frames == 8, "Idle deve ter 8 frames")
     assert(ImgDebug._SPRITES[0].fps == 8.0, "Idle deve ter 8.0 fps")
-    assert(ImgDebug._SPRITES[4].char == "ZARA", "índice 4 deve ser ZARA")
-    assert(ImgDebug._SPRITES[4].anim == "Walk", "índice 4 deve ser Walk")
+    assert(ImgDebug._SPRITES[9].char == "ZARA", "índice 9 deve ser ZARA")
+    assert(ImgDebug._SPRITES[9].anim == "Walk", "índice 9 deve ser Walk")
     print("PASS: sprite_data")
 
 func test_tile_data() -> void:
-    assert(ImgDebug._TILESETS.size() == 2, "deve ter 2 tilesets")
+    # 2 (stage00) + 6 (stage01) + 5*7 (stages 02-08) = 43 tilesets
+    assert(ImgDebug._TILESETS.size() == 43, "deve ter 43 tilesets")
     assert(ImgDebug._TILESETS[0].name == "Stage_00T", "índice 0 deve ser Stage_00T")
     assert(ImgDebug._TILESETS[0].cols == 4, "Stage_00T deve ter 4 colunas")
     assert(ImgDebug._TILESETS[0].rows == 4, "Stage_00T deve ter 4 linhas")
     assert(ImgDebug._TILESETS[0].tile_size == 32, "Stage_00T tile_size deve ser 32")
-    assert(ImgDebug._TILESETS[1].name == "Stage_01T", "índice 1 deve ser Stage_01T")
-    assert(ImgDebug._TILESETS[1].cols == 4, "Stage_01T deve ter 4 colunas")
-    assert(ImgDebug._TILESETS[1].rows == 4, "Stage_01T deve ter 4 linhas")
-    assert(ImgDebug._TILESETS[1].tile_size == 32, "Stage_01T tile_size deve ser 32")
-    assert(ImgDebug._TILE_DESCS.has("Stage_01T:0,0"), "deve ter desc Stage_01T:0,0")
-    assert(ImgDebug._TILE_DESCS.has("Stage_01T:3,3"), "deve ter desc Stage_01T:3,3 (canto superior esquerdo)")
-    assert(ImgDebug._TILE_DESCS.has("Stage_01T:2,1"), "deve ter desc Stage_01T:2,1 (centro fill)")
+    assert(ImgDebug._TILESETS[1].name == "Stage_00_glass", "índice 1 deve ser Stage_00_glass")
     assert(ImgDebug._TILE_DESCS.has("Stage_00T:0,0"), "deve ter desc Stage_00T:0,0")
     print("PASS: tile_data")
 
 func test_tile_descs_complete() -> void:
+    # Stage_00T tem descs explícitas; zone tilesets usam _ZONE_TILE_DESCS como fallback
     for ts in ImgDebug._TILESETS:
         for row in ts.rows:
             for col in ts.cols:
-                var key := "%s:%d,%d" % [ts.name, col, row]
-                assert(ImgDebug._TILE_DESCS.has(key), "faltando desc: " + key)
+                var full_key  := "%s:%d,%d" % [ts.name, col, row]
+                var coord_key := "%d,%d" % [col, row]
+                var ok := ImgDebug._TILE_DESCS.has(full_key) or ImgDebug._ZONE_TILE_DESCS.has(coord_key)
+                assert(ok, "faltando desc: " + full_key)
     print("PASS: tile_descs_complete")
 
 func test_tile_displays_populated() -> void:

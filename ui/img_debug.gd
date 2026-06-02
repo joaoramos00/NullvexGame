@@ -1914,100 +1914,100 @@ func _refresh_tiles() -> void:
             sc.add_child(panel)
             ts_panels.append(panel)
 
-        var info_lbl := Label.new()
-        info_lbl.text = "clique num tile para zoom  ·  %dx%d, %dpx cada" % [ts_data.cols, ts_data.rows, ts_data.tile_size]
-        info_lbl.add_theme_font_size_override("font_size", 17)
-        info_lbl.add_theme_color_override("font_color", Color(0.5, 0.5, 0.5))
-        panel.add_child(info_lbl)
+            var info_lbl := Label.new()
+            info_lbl.text = "clique num tile para zoom  ·  %dx%d, %dpx cada" % [ts_data.cols, ts_data.rows, ts_data.tile_size]
+            info_lbl.add_theme_font_size_override("font_size", 17)
+            info_lbl.add_theme_color_override("font_color", Color(0.5, 0.5, 0.5))
+            panel.add_child(info_lbl)
 
-        var content_row := HBoxContainer.new()
-        content_row.add_theme_constant_override("separation", 16)
-        panel.add_child(content_row)
+            var content_row := HBoxContainer.new()
+            content_row.add_theme_constant_override("separation", 16)
+            panel.add_child(content_row)
 
-        var grid := GridContainer.new()
-        grid.columns = ts_data.cols
-        grid.add_theme_constant_override("h_separation", 4)
-        grid.add_theme_constant_override("v_separation", 4)
-        content_row.add_child(grid)
+            var grid := GridContainer.new()
+            grid.columns = ts_data.cols
+            grid.add_theme_constant_override("h_separation", 4)
+            grid.add_theme_constant_override("v_separation", 4)
+            content_row.add_child(grid)
 
-        var zoom_panel := Panel.new()
-        zoom_panel.custom_minimum_size = Vector2(160, 160)
-        var zoom_style := StyleBoxFlat.new()
-        zoom_style.bg_color = Color(0.05, 0.05, 0.12)
-        zoom_style.border_color = Color(1.0, 0.9, 0.2)
-        zoom_style.set_border_width_all(1)
-        zoom_panel.add_theme_stylebox_override("panel", zoom_style)
-        content_row.add_child(zoom_panel)
+            var zoom_panel := Panel.new()
+            zoom_panel.custom_minimum_size = Vector2(160, 160)
+            var zoom_style := StyleBoxFlat.new()
+            zoom_style.bg_color = Color(0.05, 0.05, 0.12)
+            zoom_style.border_color = Color(1.0, 0.9, 0.2)
+            zoom_style.set_border_width_all(1)
+            zoom_panel.add_theme_stylebox_override("panel", zoom_style)
+            content_row.add_child(zoom_panel)
 
-        var preview_rect := TextureRect.new()
-        preview_rect.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-        preview_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-        preview_rect.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-        preview_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
-        zoom_panel.add_child(preview_rect)
+            var preview_rect := TextureRect.new()
+            preview_rect.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+            preview_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+            preview_rect.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+            preview_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+            zoom_panel.add_child(preview_rect)
 
-        var desc_lbl := Label.new()
-        desc_lbl.text = ""
-        desc_lbl.add_theme_font_size_override("font_size", 18)
-        desc_lbl.add_theme_color_override("font_color", Color(0.85, 0.85, 0.6))
-        desc_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-        panel.add_child(desc_lbl)
+            var desc_lbl := Label.new()
+            desc_lbl.text = ""
+            desc_lbl.add_theme_font_size_override("font_size", 18)
+            desc_lbl.add_theme_color_override("font_color", Color(0.85, 0.85, 0.6))
+            desc_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+            panel.add_child(desc_lbl)
 
-        _tile_displays[ts_data.name] = {
-            "info":    info_lbl,
-            "preview": preview_rect,
-            "desc":    desc_lbl,
-            "data":    ts_data,
-        }
+            _tile_displays[ts_data.name] = {
+                "info":    info_lbl,
+                "preview": preview_rect,
+                "desc":    desc_lbl,
+                "data":    ts_data,
+            }
 
-        var tex    := load(ts_data.path) as Texture2D
-        var ts_px: int = ts_data.tile_size
+            var tex    := load(ts_data.path) as Texture2D
+            var ts_px: int = ts_data.tile_size
 
-        for row in ts_data.rows:
-            for col in ts_data.cols:
-                var cell := VBoxContainer.new()
-                cell.add_theme_constant_override("separation", 2)
-                grid.add_child(cell)
+            for row in ts_data.rows:
+                for col in ts_data.cols:
+                    var cell := VBoxContainer.new()
+                    cell.add_theme_constant_override("separation", 2)
+                    grid.add_child(cell)
 
-                var at := AtlasTexture.new()
-                at.atlas = tex
-                at.filter_clip = true
-                at.region = Rect2(col * ts_px, row * ts_px, ts_px, ts_px)
+                    var at := AtlasTexture.new()
+                    at.atlas = tex
+                    at.filter_clip = true
+                    at.region = Rect2(col * ts_px, row * ts_px, ts_px, ts_px)
 
-                var tile_panel := Panel.new()
-                tile_panel.custom_minimum_size = Vector2(_TILE_DISPLAY, _TILE_DISPLAY)
-                tile_panel.mouse_filter = Control.MOUSE_FILTER_STOP
-                var tile_style := StyleBoxFlat.new()
-                tile_style.bg_color = Color(0.08, 0.08, 0.18)
-                tile_style.border_color = Color(1.0, 0.9, 0.2)
-                tile_style.set_border_width_all(1)
-                tile_panel.add_theme_stylebox_override("panel", tile_style)
-                var c: int = col
-                var r: int = row
-                var ts_n: String = ts_data.name
-                tile_panel.gui_input.connect(func(ev): _on_tile_input(ev, c, r, ts_n))
-                cell.add_child(tile_panel)
+                    var tile_panel := Panel.new()
+                    tile_panel.custom_minimum_size = Vector2(_TILE_DISPLAY, _TILE_DISPLAY)
+                    tile_panel.mouse_filter = Control.MOUSE_FILTER_STOP
+                    var tile_style := StyleBoxFlat.new()
+                    tile_style.bg_color = Color(0.08, 0.08, 0.18)
+                    tile_style.border_color = Color(1.0, 0.9, 0.2)
+                    tile_style.set_border_width_all(1)
+                    tile_panel.add_theme_stylebox_override("panel", tile_style)
+                    var c: int = col
+                    var r: int = row
+                    var ts_n: String = ts_data.name
+                    tile_panel.gui_input.connect(func(ev): _on_tile_input(ev, c, r, ts_n))
+                    cell.add_child(tile_panel)
 
-                var tile_rect := TextureRect.new()
-                tile_rect.texture = at
-                tile_rect.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-                tile_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-                tile_rect.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-                tile_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
-                tile_panel.add_child(tile_rect)
+                    var tile_rect := TextureRect.new()
+                    tile_rect.texture = at
+                    tile_rect.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+                    tile_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+                    tile_rect.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+                    tile_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+                    tile_panel.add_child(tile_rect)
 
-                var _bkey := "%s:%d,%d" % [ts_data.name, col, row]
-                var _bdesc: String = _TILE_DESCS.get(_bkey, _ZONE_TILE_DESCS.get("%d,%d" % [col, row], ""))
-                var is_blank: bool = _bdesc.begins_with("Transparente")
-                var coord_lbl := Label.new()
-                coord_lbl.text = "—" if is_blank else "%d,%d" % [col, row]
-                coord_lbl.add_theme_font_size_override("font_size", 15)
-                coord_lbl.add_theme_color_override(
-                    "font_color",
-                    Color(0.3, 0.3, 0.3) if is_blank else Color(0.6, 0.6, 0.6)
-                )
-                coord_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-                cell.add_child(coord_lbl)
+                    var _bkey := "%s:%d,%d" % [ts_data.name, col, row]
+                    var _bdesc: String = _TILE_DESCS.get(_bkey, _ZONE_TILE_DESCS.get("%d,%d" % [col, row], ""))
+                    var is_blank: bool = _bdesc.begins_with("Transparente")
+                    var coord_lbl := Label.new()
+                    coord_lbl.text = "—" if is_blank else "%d,%d" % [col, row]
+                    coord_lbl.add_theme_font_size_override("font_size", 15)
+                    coord_lbl.add_theme_color_override(
+                        "font_color",
+                        Color(0.3, 0.3, 0.3) if is_blank else Color(0.6, 0.6, 0.6)
+                    )
+                    coord_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+                    cell.add_child(coord_lbl)
 
     # Colisões tab
     # Highlight do primeiro stage por padrão
@@ -2376,7 +2376,7 @@ func _refresh_tiles() -> void:
     plat_panel.add_child(pview)
     pview.set_dims(2, 3)
 
-    show_tab.call(0)
+    show_section.call(0, 0)
 
 func _on_tile_input(event: InputEvent, col: int, row: int, ts_name: String) -> void:
     if not (event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT):
