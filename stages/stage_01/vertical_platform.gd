@@ -1,22 +1,23 @@
-extends StaticBody2D
+extends AnimatableBody2D
 
 @export var move_distance: float = 256.0
 @export var speed: float = 70.0
 @export var start_going_up: bool = false
 
-var _start_y: float = 0.0
 var _dir: float = 1.0
+var _traveled: float = 0.0
 
 func _ready() -> void:
-	_start_y = global_position.y
+	sync_to_physics = true
 	_dir = -1.0 if start_going_up else 1.0
 
 func _physics_process(delta: float) -> void:
-	var half := move_distance * 0.5
-	global_position.y += _dir * speed * delta
-	if global_position.y >= _start_y + half:
-		global_position.y = _start_y + half
+	var step := _dir * speed * delta
+	_traveled += step
+	if _traveled >= move_distance * 0.5:
+		_traveled = move_distance * 0.5
 		_dir = -1.0
-	elif global_position.y <= _start_y - half:
-		global_position.y = _start_y - half
+	elif _traveled <= -move_distance * 0.5:
+		_traveled = -move_distance * 0.5
 		_dir = 1.0
+	move_and_collide(Vector2(0.0, step))
