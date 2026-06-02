@@ -95,14 +95,20 @@ func _draw() -> void:
 			var center: Vector2 = (child as Node2D).position + (shape_child as Node2D).position
 			var rect := Rect2(center - size * 0.5, size)
 			var tex: Texture2D = null
+			var use_fill := false
 			if child.has_meta("tileset_override"):
 				var path: String = child.get_meta("tileset_override")
+				if ResourceLoader.exists(path):
+					tex = load(path) as Texture2D
+				use_fill = true
+			elif child.has_meta("platform_override"):
+				var path: String = child.get_meta("platform_override")
 				if ResourceLoader.exists(path):
 					tex = load(path) as Texture2D
 			if tex == null:
 				tex = _get_zone_tileset(center)
 			if tex != null:
-				if child.has_meta("tileset_override"):
+				if use_fill:
 					_draw_fill_tiles(rect, tex)
 				else:
 					_draw_platform_tiles(rect, tex)
