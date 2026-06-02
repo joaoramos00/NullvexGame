@@ -386,6 +386,30 @@ collision_mask = 0
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Z2Plat7"]
 shape = SubResource("ShapeZ2Plat")
 
+[node name="Z2Bridge1" type="StaticBody2D" parent="."]
+position = Vector2(9760, 2640)
+collision_layer = 1
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Z2Bridge1"]
+shape = SubResource("ShapeZ2Plat")
+
+[node name="Z2Bridge2" type="StaticBody2D" parent="."]
+position = Vector2(10176, 2640)
+collision_layer = 1
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Z2Bridge2"]
+shape = SubResource("ShapeZ2Plat")
+
+[node name="Z2Bridge3" type="StaticBody2D" parent="."]
+position = Vector2(10592, 2640)
+collision_layer = 1
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Z2Bridge3"]
+shape = SubResource("ShapeZ2Plat")
+
 [node name="LavaFossa1" type="Area2D" parent="."]
 position = Vector2(4096, 2688)
 collision_layer = 0
