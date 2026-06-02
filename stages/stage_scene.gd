@@ -31,8 +31,25 @@ func _ready() -> void:
 	StageManager.spawn_position = $PlayerSpawn.global_position
 	$Camera2D.zoom = Vector2(2.2, 2.2)
 	AudioManager.play_bgm(AudioLibrary.get_stage_bgm(StageManager.current_stage_id))
+	_apply_kill_plane()
 	_load_zone_data()
 	queue_redraw()
+
+func _apply_kill_plane() -> void:
+	# The kill plane must sit below the level's lowest floor. A fixed value would
+	# kill the player on legitimately low platforms (e.g. the vertical shaft in
+	# stage 01, whose ShaftP3 at y=1700 fell below the old hardcoded KILL_Y=1500).
+	var lowest: float = -INF
+	for child in get_children():
+		if not (child is StaticBody2D or child is AnimatableBody2D):
+			continue
+		for sc in (child as Node).get_children():
+			if sc is CollisionShape2D and (sc as CollisionShape2D).shape is RectangleShape2D:
+				var size: Vector2 = ((sc as CollisionShape2D).shape as RectangleShape2D).size
+				var bottom: float = (child as Node2D).position.y + (sc as Node2D).position.y + size.y * 0.5
+				lowest = maxf(lowest, bottom)
+	if lowest > -INF:
+		_player.kill_y = maxf(CharacterBase.KILL_Y, lowest + 600.0)
 
 func _process(_delta: float) -> void:
 	if is_instance_valid(_player):
