@@ -128,13 +128,14 @@ func _draw_platform_tiles(rect: Rect2, tex: Texture2D) -> void:
 	var ts     := _TS
 	var src_ts := _SRC_TS
 	var cols := ceili(rect.size.x / ts)
-	var rows := ceili(rect.size.y / ts)
+	var phys_rows := ceili(rect.size.y / ts)
+	var rows := maxi(phys_rows, 7 if phys_rows >= 2 else 0)
 	for row in rows:
 		for col in cols:
 			var tile := _tile_at(col, cols, row, rows)
 			var dx := rect.position.x + col * ts
 			var dy := rect.position.y + row * ts - src_ts
-			var dh := minf(ts, rect.position.y + rect.size.y - dy)
+			var dh := minf(float(ts), rect.position.y + rect.size.y - dy) if row < phys_rows else float(ts)
 			if cols > 1:
 				var fill := _gap_fill_tile(row, rows)
 				if col == 0:
