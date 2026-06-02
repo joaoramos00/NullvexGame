@@ -110,6 +110,8 @@ func _draw() -> void:
 			if tex != null:
 				if use_fill:
 					_draw_fill_tiles(rect, tex)
+				elif child.has_meta("platform_override"):
+					_draw_lava_tiles(rect, tex)
 				else:
 					_draw_platform_tiles(rect, tex)
 			else:
@@ -129,6 +131,23 @@ func _draw_fill_tiles(rect: Rect2, tex: Texture2D) -> void:
 			var dh := minf(ts, rect.position.y + rect.size.y - dy)
 			draw_texture_rect_region(tex, Rect2(dx, dy, dw, dh),
 				Rect2(src.position, Vector2(src_ts * dw / ts, src_ts * dh / ts)))
+
+func _draw_lava_tiles(rect: Rect2, tex: Texture2D) -> void:
+	var ts     := _TS
+	var src_ts := _SRC_TS
+	var cols := ceili(rect.size.x / ts)
+	var phys_rows := ceili(rect.size.y / ts)
+	var rows := maxi(phys_rows, 7 if phys_rows >= 2 else 0)
+	for row in rows:
+		var tx := 3 * src_ts if row == 0 else 2 * src_ts
+		var ty := 0           if row == 0 else src_ts
+		for col in cols:
+			var dx := rect.position.x + col * ts
+			var dy := rect.position.y + row * ts - src_ts
+			var dh := minf(float(ts), rect.position.y + rect.size.y - dy) if row < phys_rows else float(ts)
+			var dw := minf(float(ts), rect.position.x + rect.size.x - dx)
+			draw_texture_rect_region(tex, Rect2(dx, dy, dw, dh),
+				Rect2(tx, ty, src_ts * dw / ts, src_ts * dh / ts))
 
 func _draw_platform_tiles(rect: Rect2, tex: Texture2D) -> void:
 	var ts     := _TS
