@@ -19,6 +19,7 @@
 [ext_resource type="Script" path="res://stages/collectible.gd" id="14_col_script"]
 [ext_resource type="Script" path="res://stages/stage_01/geyser.gd" id="15_geyser"]
 [ext_resource type="Script" path="res://stages/stage_01/moving_platform.gd" id="16_movplat"]
+[ext_resource type="Script" path="res://stages/stage_01/vertical_platform.gd" id="19_vplat"]
 [ext_resource type="Texture2D" path="res://stages/stage_01/Stage_01T_z4.png" id="18_z4tex"]
 
 [sub_resource type="RectangleShape2D" id="ShapeZ1Floor"]
@@ -204,33 +205,49 @@ collision_mask = 0
 shape = SubResource("ShapeShaftWall")
 
 [node name="ShaftP1" type="StaticBody2D" parent="."]
-position = Vector2(3072, 1344)
+position = Vector2(3072, 950)
 collision_layer = 1
 collision_mask = 0
+script = ExtResource("19_vplat")
+move_distance = 220.0
+speed = 65.0
+start_going_up = false
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="ShaftP1"]
 shape = SubResource("ShapeShaftPlat")
 
 [node name="ShaftP2" type="StaticBody2D" parent="."]
-position = Vector2(3200, 1600)
+position = Vector2(3200, 1280)
 collision_layer = 1
 collision_mask = 0
+script = ExtResource("19_vplat")
+move_distance = 220.0
+speed = 65.0
+start_going_up = true
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="ShaftP2"]
 shape = SubResource("ShapeShaftPlat")
 
 [node name="ShaftP3" type="StaticBody2D" parent="."]
-position = Vector2(3072, 1856)
+position = Vector2(3072, 1700)
 collision_layer = 1
 collision_mask = 0
+script = ExtResource("19_vplat")
+move_distance = 280.0
+speed = 70.0
+start_going_up = false
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="ShaftP3"]
 shape = SubResource("ShapeShaftPlat")
 
 [node name="ShaftP4" type="StaticBody2D" parent="."]
-position = Vector2(3200, 2112)
+position = Vector2(3200, 2150)
 collision_layer = 1
 collision_mask = 0
+script = ExtResource("19_vplat")
+move_distance = 280.0
+speed = 70.0
+start_going_up = true
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="ShaftP4"]
 shape = SubResource("ShapeShaftPlat")
