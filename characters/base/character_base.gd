@@ -9,7 +9,7 @@ const GRAVITY := 980.0
 const SPEED := 200.0
 const JUMP_VELOCITY := -480.0
 const DASH_SPEED := 720.0
-const KILL_Y := 1500.0
+const KILL_Y := 1500.0  # default; stages override via `kill_y` (see stage_scene._apply_kill_plane)
 const DASH_DURATION := 0.22
 const DASH_COOLDOWN := 0.4
 const DOUBLE_TAP_WINDOW := 0.25
@@ -31,6 +31,7 @@ var is_invincible: bool = false
 var active_ability: String = ""
 var facing_right: bool = true
 var gravity_scale: float = 1.0
+var kill_y: float = KILL_Y  # world-space Y below which the player dies; set per-stage
 
 var _is_dashing: bool = false
 var _dash_timer: float = 0.0
@@ -58,7 +59,7 @@ func _ready() -> void:
 func _physics_process(delta: float) -> void:
 	if is_dead:
 		return
-	if global_position.y > KILL_Y:
+	if global_position.y > kill_y:
 		_die()
 		return
 	_tick_timers(delta)
