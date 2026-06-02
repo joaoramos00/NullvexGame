@@ -133,7 +133,7 @@ position = Vector2(3500, 850)
 checkpoint_index = 2
 
 [node name="Z1LavaFloor" type="StaticBody2D" parent="."]
-position = Vector2(1728, 1280)
+position = Vector2(1728, 1200)
 collision_layer = 0
 collision_mask = 0
 metadata/platform_override = "res://stages/stage_01/Stage_01_lava.png"
