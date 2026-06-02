@@ -25,7 +25,7 @@
 size = Vector2(2752, 128)
 
 [sub_resource type="RectangleShape2D" id="ShapeZ1Lava"]
-size = Vector2(2752, 64)
+size = Vector2(2432, 64)
 
 [sub_resource type="RectangleShape2D" id="ShapeZ1Ceil"]
 size = Vector2(2752, 64)
@@ -34,7 +34,7 @@ size = Vector2(2752, 64)
 size = Vector2(256, 32)
 
 [sub_resource type="RectangleShape2D" id="ShapeShaftWall"]
-size = Vector2(64, 1664)
+size = Vector2(64, 2048)
 
 [sub_resource type="RectangleShape2D" id="ShapeShaftPlat"]
 size = Vector2(128, 32)
@@ -129,17 +129,17 @@ position = Vector2(3500, 850)
 checkpoint_index = 2
 
 [node name="Z1LavaBase" type="Polygon2D" parent="."]
-position = Vector2(1888, 1056)
+position = Vector2(1728, 1056)
 color = Color(0.62, 0.1, 0.0, 1.0)
-polygon = PackedVector2Array(-1376, -32, 1376, -32, 1376, 32, -1376, 32)
+polygon = PackedVector2Array(-1216, -32, 1216, -32, 1216, 32, -1216, 32)
 
 [node name="Z1LavaGlow" type="Polygon2D" parent="."]
-position = Vector2(1888, 1025)
+position = Vector2(1728, 1025)
 color = Color(1.0, 0.42, 0.0, 1.0)
-polygon = PackedVector2Array(-1376, -1, 1376, -1, 1376, 7, -1376, 7)
+polygon = PackedVector2Array(-1216, -1, 1216, -1, 1216, 7, -1216, 7)
 
 [node name="Z1Lava" type="Area2D" parent="."]
-position = Vector2(1888, 1056)
+position = Vector2(1728, 1056)
 collision_layer = 0
 collision_mask = 2
 script = ExtResource("12_lava")
@@ -188,7 +188,7 @@ collision_mask = 0
 shape = SubResource("ShapeZ1Plat")
 
 [node name="ShaftWallL" type="StaticBody2D" parent="."]
-position = Vector2(2976, 1856)
+position = Vector2(2976, 1664)
 collision_layer = 1
 collision_mask = 0
 
@@ -196,7 +196,7 @@ collision_mask = 0
 shape = SubResource("ShapeShaftWall")
 
 [node name="ShaftWallR" type="StaticBody2D" parent="."]
-position = Vector2(3296, 1856)
+position = Vector2(3296, 1664)
 collision_layer = 1
 collision_mask = 0
 
