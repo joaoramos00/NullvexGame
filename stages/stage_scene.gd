@@ -110,10 +110,8 @@ func _draw() -> void:
 			if tex != null:
 				if use_fill:
 					_draw_fill_tiles(rect, tex)
-				elif child.has_meta("platform_override"):
-					_draw_lava_tiles(rect, tex)
 				else:
-					_draw_platform_tiles(rect, tex)
+					_draw_lava_tiles(rect, tex)
 			else:
 				draw_rect(rect, platform_color)
 
