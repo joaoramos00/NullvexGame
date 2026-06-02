@@ -21,9 +21,80 @@ const _SPRITES: Array = [
 ]
 
 const _TILESETS: Array = [
-    {"name": "Stage_00T", "path": "res://stages/stage_00/Stage_00T.png", "cols": 4, "rows": 4, "tile_size": 32},
-    {"name": "Stage_01T", "path": "res://stages/stage_01/Stage_01T.png", "cols": 4, "rows": 4, "tile_size": 32},
+    # Stage 00 — intro
+    {"name": "Stage_00T",       "path": "res://stages/stage_00/Stage_00T.png",       "cols": 4, "rows": 4, "tile_size": 32},
+    {"name": "Stage_00_glass",  "path": "res://stages/stage_00/stage_00_glass.png",  "cols": 4, "rows": 4, "tile_size": 32},
+    # Stage 01 — Ignarath (fogo/vulcão)
+    {"name": "Stage_01T_z1",    "path": "res://stages/stage_01/Stage_01T_z1.png",    "cols": 4, "rows": 4, "tile_size": 32},
+    {"name": "Stage_01T_z2",    "path": "res://stages/stage_01/Stage_01T_z2.png",    "cols": 4, "rows": 4, "tile_size": 32},
+    {"name": "Stage_01T_z3",    "path": "res://stages/stage_01/Stage_01T_z3.png",    "cols": 4, "rows": 4, "tile_size": 32},
+    {"name": "Stage_01T_z4",    "path": "res://stages/stage_01/Stage_01T_z4.png",    "cols": 4, "rows": 4, "tile_size": 32},
+    {"name": "Stage_01_glass",  "path": "res://stages/stage_01/stage_01_glass.png",  "cols": 4, "rows": 4, "tile_size": 32},
+    {"name": "Stage_01_lava",   "path": "res://stages/stage_01/Stage_01_lava.png",   "cols": 4, "rows": 4, "tile_size": 32},
+    # Stage 02 — Cryovex (gelo)
+    {"name": "Stage_02T_z1",    "path": "res://stages/stage_02/Stage_02T_z1.png",    "cols": 4, "rows": 4, "tile_size": 32},
+    {"name": "Stage_02T_z2",    "path": "res://stages/stage_02/Stage_02T_z2.png",    "cols": 4, "rows": 4, "tile_size": 32},
+    {"name": "Stage_02T_z3",    "path": "res://stages/stage_02/Stage_02T_z3.png",    "cols": 4, "rows": 4, "tile_size": 32},
+    {"name": "Stage_02T_z4",    "path": "res://stages/stage_02/Stage_02T_z4.png",    "cols": 4, "rows": 4, "tile_size": 32},
+    {"name": "Stage_02_glass",  "path": "res://stages/stage_02/stage_02_glass.png",  "cols": 4, "rows": 4, "tile_size": 32},
+    # Stage 03 — Voltrix (raio)
+    {"name": "Stage_03T_z1",    "path": "res://stages/stage_03/Stage_03T_z1.png",    "cols": 4, "rows": 4, "tile_size": 32},
+    {"name": "Stage_03T_z2",    "path": "res://stages/stage_03/Stage_03T_z2.png",    "cols": 4, "rows": 4, "tile_size": 32},
+    {"name": "Stage_03T_z3",    "path": "res://stages/stage_03/Stage_03T_z3.png",    "cols": 4, "rows": 4, "tile_size": 32},
+    {"name": "Stage_03T_z4",    "path": "res://stages/stage_03/Stage_03T_z4.png",    "cols": 4, "rows": 4, "tile_size": 32},
+    {"name": "Stage_03_glass",  "path": "res://stages/stage_03/stage_03_glass.png",  "cols": 4, "rows": 4, "tile_size": 32},
+    # Stage 04 — Gravitus (gravidade)
+    {"name": "Stage_04T_z1",    "path": "res://stages/stage_04/Stage_04T_z1.png",    "cols": 4, "rows": 4, "tile_size": 32},
+    {"name": "Stage_04T_z2",    "path": "res://stages/stage_04/Stage_04T_z2.png",    "cols": 4, "rows": 4, "tile_size": 32},
+    {"name": "Stage_04T_z3",    "path": "res://stages/stage_04/Stage_04T_z3.png",    "cols": 4, "rows": 4, "tile_size": 32},
+    {"name": "Stage_04T_z4",    "path": "res://stages/stage_04/Stage_04T_z4.png",    "cols": 4, "rows": 4, "tile_size": 32},
+    {"name": "Stage_04_glass",  "path": "res://stages/stage_04/stage_04_glass.png",  "cols": 4, "rows": 4, "tile_size": 32},
+    # Stage 05 — Galerix (vento)
+    {"name": "Stage_05T_z1",    "path": "res://stages/stage_05/Stage_05T_z1.png",    "cols": 4, "rows": 4, "tile_size": 32},
+    {"name": "Stage_05T_z2",    "path": "res://stages/stage_05/Stage_05T_z2.png",    "cols": 4, "rows": 4, "tile_size": 32},
+    {"name": "Stage_05T_z3",    "path": "res://stages/stage_05/Stage_05T_z3.png",    "cols": 4, "rows": 4, "tile_size": 32},
+    {"name": "Stage_05T_z4",    "path": "res://stages/stage_05/Stage_05T_z4.png",    "cols": 4, "rows": 4, "tile_size": 32},
+    {"name": "Stage_05_glass",  "path": "res://stages/stage_05/stage_05_glass.png",  "cols": 4, "rows": 4, "tile_size": 32},
+    # Stage 06 — Umbraex (sombra)
+    {"name": "Stage_06T_z1",    "path": "res://stages/stage_06/Stage_06T_z1.png",    "cols": 4, "rows": 4, "tile_size": 32},
+    {"name": "Stage_06T_z2",    "path": "res://stages/stage_06/Stage_06T_z2.png",    "cols": 4, "rows": 4, "tile_size": 32},
+    {"name": "Stage_06T_z3",    "path": "res://stages/stage_06/Stage_06T_z3.png",    "cols": 4, "rows": 4, "tile_size": 32},
+    {"name": "Stage_06T_z4",    "path": "res://stages/stage_06/Stage_06T_z4.png",    "cols": 4, "rows": 4, "tile_size": 32},
+    {"name": "Stage_06_glass",  "path": "res://stages/stage_06/stage_06_glass.png",  "cols": 4, "rows": 4, "tile_size": 32},
+    # Stage 07 — Luxar (luz)
+    {"name": "Stage_07T_z1",    "path": "res://stages/stage_07/Stage_07T_z1.png",    "cols": 4, "rows": 4, "tile_size": 32},
+    {"name": "Stage_07T_z2",    "path": "res://stages/stage_07/Stage_07T_z2.png",    "cols": 4, "rows": 4, "tile_size": 32},
+    {"name": "Stage_07T_z3",    "path": "res://stages/stage_07/Stage_07T_z3.png",    "cols": 4, "rows": 4, "tile_size": 32},
+    {"name": "Stage_07T_z4",    "path": "res://stages/stage_07/Stage_07T_z4.png",    "cols": 4, "rows": 4, "tile_size": 32},
+    {"name": "Stage_07_glass",  "path": "res://stages/stage_07/stage_07_glass.png",  "cols": 4, "rows": 4, "tile_size": 32},
+    # Stage 08 — Terragor (terra)
+    {"name": "Stage_08T_z1",    "path": "res://stages/stage_08/Stage_08T_z1.png",    "cols": 4, "rows": 4, "tile_size": 32},
+    {"name": "Stage_08T_z2",    "path": "res://stages/stage_08/Stage_08T_z2.png",    "cols": 4, "rows": 4, "tile_size": 32},
+    {"name": "Stage_08T_z3",    "path": "res://stages/stage_08/Stage_08T_z3.png",    "cols": 4, "rows": 4, "tile_size": 32},
+    {"name": "Stage_08T_z4",    "path": "res://stages/stage_08/Stage_08T_z4.png",    "cols": 4, "rows": 4, "tile_size": 32},
+    {"name": "Stage_08_glass",  "path": "res://stages/stage_08/stage_08_glass.png",  "cols": 4, "rows": 4, "tile_size": 32},
 ]
+
+# Descrições funcionais — mesma estrutura 4×4 para todos os zone tilesets.
+# Prefixo do nome do tileset + ":col,row"
+const _ZONE_TILE_DESCS: Dictionary = {
+    "0,0": "Canto inferior esquerdo",
+    "1,0": "Lateral direita da coluna lisa",
+    "2,0": "L da coluna com chão do lado direito",
+    "3,0": "Plataforma reta",
+    "0,1": "Canto superior esquerdo com canto inferior direito",
+    "1,1": "L da coluna com chão do lado esquerdo",
+    "2,1": "Centro — miolo de preenchimento (100% opaco)",
+    "3,1": "L da coluna com teto do lado direito",
+    "0,2": "Canto superior direito",
+    "1,2": "Teto reto",
+    "2,2": "L da coluna com teto do lado esquerdo",
+    "3,2": "Lateral esquerda da coluna lisa",
+    "0,3": "Transparente — tile vazio (alpha = 0)",
+    "1,3": "Canto inferior direito",
+    "2,3": "Canto inferior esquerdo com canto superior direito",
+    "3,3": "Canto superior esquerdo",
+}
 
 const _TILE_DESCS: Dictionary = {
     # Stage_00T
@@ -43,23 +114,6 @@ const _TILE_DESCS: Dictionary = {
     "Stage_00T:1,3": "Canto inferior direito",
     "Stage_00T:2,3": "Canto inferior esquerdo com canto superior direito",
     "Stage_00T:3,3": "Canto superior esquerdo",
-    # Stage_01T — fogo/vulcão (mesma estrutura funcional do Stage_00T)
-    "Stage_01T:0,0": "Canto inferior esquerdo",
-    "Stage_01T:1,0": "Lateral direita da coluna lisa",
-    "Stage_01T:2,0": "L da coluna com chão do lado direito",
-    "Stage_01T:3,0": "Plataforma reta",
-    "Stage_01T:0,1": "Canto superior esquerdo com canto inferior direito",
-    "Stage_01T:1,1": "L da coluna com chão do lado esquerdo",
-    "Stage_01T:2,1": "Centro do tile — miolo de preenchimento todo preenchido",
-    "Stage_01T:3,1": "L da coluna com teto do lado direito",
-    "Stage_01T:0,2": "Canto superior direito",
-    "Stage_01T:1,2": "Teto reto",
-    "Stage_01T:2,2": "L da coluna com teto do lado esquerdo",
-    "Stage_01T:3,2": "Lateral esquerda da coluna lisa",
-    "Stage_01T:0,3": "Transparente — tile vazio (alpha = 0), não utilizado",
-    "Stage_01T:1,3": "Canto inferior direito",
-    "Stage_01T:2,3": "Canto inferior esquerdo com canto superior direito",
-    "Stage_01T:3,3": "Canto superior esquerdo",
 }
 
 # Visualização da colisão lateral: dois Zaels, um em cada parede
@@ -1881,7 +1935,9 @@ func _refresh_tiles() -> void:
                 tile_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
                 tile_panel.add_child(tile_rect)
 
-                var is_blank: bool = _TILE_DESCS.get("%s:%d,%d" % [ts_data.name, col, row], "").begins_with("Transparente")
+                var _bkey := "%s:%d,%d" % [ts_data.name, col, row]
+                var _bdesc: String = _TILE_DESCS.get(_bkey, _ZONE_TILE_DESCS.get("%d,%d" % [col, row], ""))
+                var is_blank: bool = _bdesc.begins_with("Transparente")
                 var coord_lbl := Label.new()
                 coord_lbl.text = "—" if is_blank else "%d,%d" % [col, row]
                 coord_lbl.add_theme_font_size_override("font_size", 15)
@@ -2268,7 +2324,10 @@ func _on_tile_input(event: InputEvent, col: int, row: int, ts_name: String) -> v
         return
     var d: Dictionary = _tile_displays[ts_name]
     var ts_data: Dictionary = d.data
-    var is_empty: bool = _TILE_DESCS.get("%s:%d,%d" % [ts_name, col, row], "").begins_with("Transparente")
+    var _tile_key := "%s:%d,%d" % [ts_name, col, row]
+    var _coord_key := "%d,%d" % [col, row]
+    var _desc: String = _TILE_DESCS.get(_tile_key, _ZONE_TILE_DESCS.get(_coord_key, ""))
+    var is_empty: bool = _desc.begins_with("Transparente")
     if is_instance_valid(d.info):
         if is_empty:
             d.info.text = "Tile (%d,%d) — transparente (alpha = 0)" % [col, row]
@@ -2282,4 +2341,4 @@ func _on_tile_input(event: InputEvent, col: int, row: int, ts_name: String) -> v
         at.region = Rect2(col * ts_px, row * ts_px, ts_px, ts_px)
         d.preview.texture = at
     if is_instance_valid(d.desc):
-        d.desc.text = _TILE_DESCS.get("%s:%d,%d" % [ts_name, col, row], "")
+        d.desc.text = _desc
