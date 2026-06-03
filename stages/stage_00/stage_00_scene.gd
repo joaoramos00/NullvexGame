@@ -117,7 +117,9 @@ func _ready() -> void:
 	_setup_corr1()
 	_setup_doors()
 	_setup_corr2_section()
-	_setup_miniboss_trigger()
+	if not DebugBoot.no_enemies:
+		_setup_miniboss_trigger()
+	_maybe_spawn_bot()
 	_setup_zone_triggers()
 	_spawn_zone_enemies(1)
 	_spawn_zone_enemies(2)
@@ -249,6 +251,8 @@ func _on_boss_door_opened(_door: Node2D) -> void:
 # ─── Boss ─────────────────────────────────────────────────────────────────────
 
 func _spawn_boss() -> void:
+	if DebugBoot.no_enemies:
+		return
 	if _boss_spawned:
 		return
 	_boss_spawned = true
@@ -425,6 +429,8 @@ func _clear_zone_enemies(zone: int) -> void:
 	arr.clear()
 
 func _spawn_zone_enemies(zone: int) -> void:
+	if DebugBoot.no_enemies:
+		return
 	var grunt_positions: Array
 	var flyer_positions: Array
 	match zone:
@@ -734,3 +740,10 @@ func _tile_at(col: int, cols: int, row: int, rows: int) -> Vector2i:
 	if is_left:  return Vector2i(3, 2)        # LEFT
 	if is_right: return Vector2i(1, 0)        # RIGHT
 	return Vector2i(2, 1)                     # FILL
+
+func _maybe_spawn_bot() -> void:
+	if not DebugBoot.bot_enabled:
+		return
+	var bot := preload("res://tests/bot/stage_bot.gd").new()
+	bot.name = "StageBot"
+	add_child(bot)
