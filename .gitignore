@@ -5,3 +5,17 @@ export/
 .claude/settings.local.json
 .mcp.json
 characters/bosses/intro_boss/.pixellab_ids
+
+# >>> OpenCastle managed (do not edit) >>>
+CLAUDE.md
+.claude/agents/
+.claude/skills/
+.claude/commands/
+!.opencastle/
+!.mcp.json
+# <<< OpenCastle managed <<<
+
+# StageBot — artefatos de saída (regerados a cada run)
+tests/bot/shots/
+tests/bot/results/
+tests/bot/node_modules/
