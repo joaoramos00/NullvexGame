@@ -11,14 +11,19 @@ const BASE = "http://localhost:8080";
 const URL = `${BASE}/?stage=${stage}&bot=1&noenemies=1`;
 const BOOT_TIMEOUT = 30_000;
 const RUN_TIMEOUT = 180_000;
+// HEADED=1 abre a janela do browser pra acompanhar ao vivo; SLOWMO=ms desacelera as ações.
+const HEADED = process.env.HEADED === "1";
+const SLOWMO = Number(process.env.SLOWMO ?? 0);
 
 const shotsDir = resolve(__dirname, "shots", stage);
 const resultsDir = resolve(__dirname, "results");
 await mkdir(shotsDir, { recursive: true });
 await mkdir(resultsDir, { recursive: true });
 
-const browser = await chromium.launch();
+const browser = await chromium.launch({ headless: !HEADED, slowMo: SLOWMO });
 const page = await browser.newPage({ viewport: { width: 1280, height: 720 } });
+// Em modo headed, segura a janela aberta um instante no fim pra inspeção.
+const HOLD_END = HEADED ? 2500 : 0;
 
 const result = { status: "FAIL", stage, segments_completed: 0, shots: [], stuck: null, duration_ms: 0 };
 const started = Date.now();
@@ -62,6 +67,7 @@ await runDone;
 
 clearTimeout(runTimer);
 result.duration_ms = Date.now() - started;
+if (HOLD_END > 0) await new Promise((r) => setTimeout(r, HOLD_END));
 await browser.close();
 await writeFile(resolve(resultsDir, `${stage}.json`), JSON.stringify(result, null, 2));
 

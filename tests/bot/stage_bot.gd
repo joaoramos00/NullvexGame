@@ -2,9 +2,11 @@
 extends Node
 
 const TOL := 24.0
+const JUMP_X_TOL := 48.0   # jump_to completa ao aterrissar perto do x-alvo (altura implícita pela plataforma)
 const STUCK_EPS := 2.0
 const STUCK_TIMEOUT := 4.0
 const JUMP_HOLD := 0.12
+const DASH_HOLD := 0.08
 
 var _player: CharacterBody2D = null
 var _path: Array = []
@@ -13,6 +15,7 @@ var _seg_time: float = 0.0
 var _last_dist: float = INF
 var _stuck_timer: float = 0.0
 var _jump_hold: float = 0.0
+var _dash_hold: float = 0.0
 var _done: bool = false
 
 func _ready() -> void:
@@ -39,10 +42,21 @@ func _load_path() -> Array:
 func _physics_process(delta: float) -> void:
 	if _done or _player == null:
 		return
+	# Detecção de morte: queda/dano que mata o player desincroniza o caminho.
+	if _player.is_dead:
+		var dp := _player.global_position
+		print("BOT_STUCK:died@%d,%d" % [int(dp.x), int(dp.y)])
+		_done = true
+		_release_all()
+		return
 	if _jump_hold > 0.0:
 		_jump_hold -= delta
 		if _jump_hold <= 0.0:
 			Input.action_release("jump")
+	if _dash_hold > 0.0:
+		_dash_hold -= delta
+		if _dash_hold <= 0.0:
+			Input.action_release("dash")
 	if _idx >= _path.size():
 		_finish()
 		return
@@ -51,12 +65,14 @@ func _physics_process(delta: float) -> void:
 	var complete := false
 	match t:
 		"walk_to":    complete = _do_walk_to(seg)
+		"dash_to":    complete = _do_dash_to(seg)
+		"jump_to":    complete = _do_jump_to(seg)
 		"climb_to":   complete = _do_climb_to(seg)
 		"drop":       complete = _do_drop(seg)
 		"wait":       complete = _do_wait(seg, delta)
 		"screenshot": complete = _do_screenshot(seg)
 		_:            complete = true
-	if not complete and (t == "walk_to" or t == "climb_to"):
+	if not complete and (t == "walk_to" or t == "dash_to" or t == "jump_to" or t == "climb_to"):
 		if _check_stuck(seg, delta):
 			return
 	if complete:
@@ -83,6 +99,29 @@ func _do_walk_to(seg: Dictionary) -> bool:
 		return true
 	_press_dir(signf(dx))
 	if _player.is_on_wall() and _player.is_on_floor():
+		_tap_jump()
+	return false
+
+func _do_dash_to(seg: Dictionary) -> bool:
+	# Avança com dash (burst de 720 px/s, gravidade off) — cobre chão rápido e
+	# atravessa vãos curtos dando dash na beirada. Completa ao parar perto do x.
+	var tx := float(seg.get("x", _player.global_position.x))
+	var dx := tx - _player.global_position.x
+	if _player.is_on_floor() and absf(dx) < TOL:
+		return true
+	_press_dir(signf(dx))
+	if _player.is_on_floor():
+		_tap_dash()
+	return false
+
+func _do_jump_to(seg: Dictionary) -> bool:
+	# Pula proativamente rumo a uma plataforma à frente. Completa ao aterrissar
+	# perto do x-alvo (a altura é implícita — qual plataforma está naquele x).
+	var tx := float(seg.get("x", _player.global_position.x))
+	if _player.is_on_floor() and absf(tx - _player.global_position.x) < JUMP_X_TOL:
+		return true
+	_press_dir(signf(tx - _player.global_position.x))
+	if _player.is_on_floor():
 		_tap_jump()
 	return false
 
@@ -129,6 +168,8 @@ func _dist_to_goal(seg: Dictionary) -> float:
 	var p := _player.global_position
 	match str(seg.get("t", "")):
 		"walk_to":  return absf(float(seg.get("x", p.x)) - p.x)
+		"dash_to":  return absf(float(seg.get("x", p.x)) - p.x)
+		"jump_to":  return absf(float(seg.get("x", p.x)) - p.x)
 		"climb_to": return absf(p.y - float(seg.get("y", p.y)))
 		_:          return 0.0
 
@@ -146,7 +187,17 @@ func _release_dirs() -> void:
 	Input.action_release("move_left")
 	Input.action_release("move_right")
 
+func _release_all() -> void:
+	_release_dirs()
+	Input.action_release("jump")
+	Input.action_release("dash")
+
 func _tap_jump() -> void:
 	if _jump_hold <= 0.0 and not Input.is_action_pressed("jump"):
 		Input.action_press("jump")
 		_jump_hold = JUMP_HOLD
+
+func _tap_dash() -> void:
+	if _dash_hold <= 0.0 and not Input.is_action_pressed("dash"):
+		Input.action_press("dash")
+		_dash_hold = DASH_HOLD
