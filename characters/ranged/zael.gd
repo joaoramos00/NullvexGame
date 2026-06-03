@@ -389,7 +389,11 @@ func _update_animation() -> void:
             _sprite.play("dash")
     elif not is_on_floor():
         if _is_wall_sliding:
-            _sprite.play("wall_slide")
+            # Sprite único (frame 1) + encarando o lado OPOSTO à parede (estilo MMX).
+            _sprite.stop()
+            _sprite.animation = "wall_slide"
+            _sprite.frame = 0
+            _sprite.flip_h = _wall_normal.x < 0.0
         elif _is_shooting:
             if _sprite.animation not in ["shoot_1", "shoot_2", "shoot_3"]:
                 _sprite.play("jump_shoot")
