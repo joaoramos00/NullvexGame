@@ -127,11 +127,16 @@ func _do_jump_to(seg: Dictionary) -> bool:
 
 func _do_climb_to(seg: Dictionary) -> bool:
 	var ty := float(seg.get("y", _player.global_position.y))
-	if _player.global_position.y <= ty:
+	# Completa só ao POUSAR em cima (não no pico do pulo) — segura a direção contra
+	# a parede o tempo todo, que carrega o player por cima da borda quando a parede acaba.
+	if _player.is_on_floor() and _player.global_position.y <= ty:
 		return true
 	var dir := -1.0 if str(seg.get("side", "left")) == "left" else 1.0
 	_press_dir(dir)
-	if _player.is_on_wall():
+	# leap=true: pula do chão pra alcançar uma plataforma flutuante num vão e dá
+	# wall-jump na face dela (parede fina). Sem leap: só wall-jump em parede adjacente.
+	var leap := bool(seg.get("leap", false))
+	if _player.is_on_wall() or (leap and _player.is_on_floor()):
 		_tap_jump()
 	return false
 

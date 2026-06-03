@@ -6,13 +6,23 @@ extends RefCounted
 func path() -> Array:
 	return [
 		{"t": "screenshot", "label": "00_spawn"},
-		# ── Zona 1 (chão y~1088 com vãos de ~400px) ──
-		{"t": "walk_to", "x": 2380.0},               # beirada do Floor_Z1A
-		{"t": "dash_to", "x": 2820.0},               # dash atravessa o vão 1 → Floor_Z1B
-		{"t": "walk_to", "x": 4180.0},               # Floor_Z1B
-		{"t": "dash_to", "x": 4620.0},               # dash atravessa o vão 2 → Floor_Z1C
-		{"t": "walk_to", "x": 5500.0},               # Floor_Z1C
-		{"t": "screenshot", "label": "01_zona1"},
+		# ── Bloco 1 (Debug_Plat 550): pulo — walk_to auto-pula nele ──
+		{"t": "walk_to", "x": 2360.0},               # passa pelo Debug_Plat até a beirada do Floor_Z1A
+		# ── Bloco 2 (degrau 2600): pula, ANDA no topo, pula no fim ──
+		{"t": "jump_to", "x": 2540.0},               # 1 pulo: sobe no degrau
+		{"t": "screenshot", "label": "01_degrau"},
+		{"t": "walk_to", "x": 2700.0},               # anda no topo até a beirada (sem pular)
+		{"t": "jump_to", "x": 2900.0},               # 1 pulo: desce na beirada → Floor_Z1B
+		# ── Bloco 3 (Block_Z1A 3400): wall-jump ──
+		{"t": "walk_to", "x": 3210.0},               # até a face do Block_Z1A
+		{"t": "climb_to", "y": 880.0, "side": "right"},
+		{"t": "screenshot", "label": "02_block_topo"},
+		{"t": "walk_to", "x": 4180.0},               # topo do Block_Z1A + Floor_Z1B até a beirada do vão 2
+		# ── Plat_Z1B fina (vão 2): pula no vão + wall-jump na face ──
+		{"t": "climb_to", "y": 900.0, "side": "right", "leap": true},
+		{"t": "screenshot", "label": "03_platz1b_topo"},
+		{"t": "walk_to", "x": 5500.0},               # anda no topo da Plat_Z1B, cai no Floor_Z1C e segue
+		{"t": "screenshot", "label": "04_zona1_fim"},
 		{"t": "walk_to", "x": 6878.0},               # Corr1 → sala do miniboss (vazia)
 		{"t": "screenshot", "label": "02_miniboss"},
 		# ── Zona 2 (escada de degraus altos — wall-jump normal) ──
