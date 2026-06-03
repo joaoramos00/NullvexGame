@@ -205,11 +205,7 @@ func _handle_dash(delta: float) -> void:
 		if on_ground:
 			_start_dash()
 			return
-		if _is_wall_sliding and _wall_dash_available:
-			_wall_dash_available = false
-			_is_wall_sliding = false
-			_start_dash(_wall_normal.x)
-			return
+		# (wall-dash removido: dashar na parede corria pra fora dela e atrapalhava o wall-jump)
 	if _dash_cooldown_timer <= 0.0 and on_ground:
 		for dir in [[1.0, "move_right"], [-1.0, "move_left"]]:
 			if Input.is_action_just_pressed(dir[1]):
