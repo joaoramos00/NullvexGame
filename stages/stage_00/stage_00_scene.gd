@@ -119,6 +119,8 @@ func _ready() -> void:
 	_setup_corr2_section()
 	if not DebugBoot.no_enemies:
 		_setup_miniboss_trigger()
+	else:
+		_open_miniboss_gate_for_debug()
 	_maybe_spawn_bot()
 	_setup_zone_triggers()
 	_spawn_zone_enemies(1)
@@ -284,7 +286,7 @@ func _setup_corr2_section() -> void:
 	_corr2.ceil_size        = Vector2.ZERO
 	_corr2.entry_x          = 7326.0
 	_corr2.exit_x           = 8222.0
-	_corr2.entry_manual     = true
+	_corr2.entry_manual     = not DebugBoot.no_enemies  # debug: corredor auto-abre (sem miniboss pra derrotar)
 	_corr2.save_checkpoint  = false
 	_corr2.heal_on_entry    = false
 	_corr2.cam_center       = Vector2(7774.0, 1024.0)
@@ -340,6 +342,12 @@ func _on_miniboss_room_entered(body: Node2D) -> void:
 	_camera_locked   = true
 	_camera_target   = _MINIBOSS_CAM_CENTER
 	_camera_zoom_tgt = _MINIBOSS_CAM_ZOOM
+
+func _open_miniboss_gate_for_debug() -> void:
+	# no_enemies: sem miniboss pra derrotar, a parede de saída fica aberta (senão tranca a sala).
+	var rwall := get_node_or_null("MiniBoss_RWall")
+	if rwall:
+		rwall.get_node("CollisionShape2D").set_deferred("disabled", true)
 
 func _on_miniboss_defeated() -> void:
 	var rwall := get_node_or_null("MiniBoss_RWall")
