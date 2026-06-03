@@ -32,8 +32,8 @@ func test_wall_slide_flag_set_when_on_wall() -> void:
 	_assert(c.has_method("_update_wall_slide"), "_update_wall_slide existe")
 	_assert("_is_wall_sliding" in c, "_is_wall_sliding exposta")
 	_assert(c.WALL_SLIDE_SPEED == 60.0, "WALL_SLIDE_SPEED == 60.0")
-	_assert(c.WALL_JUMP_H == 280.0, "WALL_JUMP_H == 280.0")
-	_assert(c.WALL_JUMP_V == -480.0, "WALL_JUMP_V == -480.0")
+	_assert(c.WALL_JUMP_H == 300.0, "WALL_JUMP_H == 300.0")
+	_assert(c.WALL_JUMP_V == -500.0, "WALL_JUMP_V == -500.0")
 	c.queue_free()
 
 func test_wall_jump_velocity_applied() -> void:
@@ -45,9 +45,10 @@ func test_wall_jump_velocity_applied() -> void:
 	# _apply_wall_jump usa wall_normal armazenado; setar diretamente
 	c._wall_normal = Vector2(1.0, 0.0)
 	c._apply_wall_jump()
-	_assert(c.velocity.x == 280.0, "Wall jump: velocidade horizontal = 280")
-	_assert(c.velocity.y == -480.0, "Wall jump: velocidade vertical = -480")
+	_assert(c.velocity.x == 300.0, "Wall jump: velocidade horizontal = 300 (pra longe da parede)")
+	_assert(c.velocity.y == -500.0, "Wall jump: velocidade vertical = -500")
 	_assert(c._is_wall_sliding == false, "Wall jump: _is_wall_sliding resetado")
+	_assert(c._wall_jump_lock_timer == c.WALL_JUMP_LOCK, "Wall jump: lockout do air-control ativado (arco diagonal)")
 	c.queue_free()
 
 func test_no_wall_slide_on_floor() -> void:
