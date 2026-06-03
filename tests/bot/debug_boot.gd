@@ -39,4 +39,14 @@ func _get_query_string() -> String:
 	return "&".join(parts)
 
 func _boot() -> void:
-	pass  # preenchido na Task 2
+	if _booted or stage_id < 0:
+		return
+	_booted = true
+	GameManager.reset()
+	GameManager.set_active_character(active_char)
+	StageManager.current_stage_id = stage_id
+	var path := "res://stages/stage_%02d/stage_%02d.tscn" % [stage_id, stage_id]
+	if not ResourceLoader.exists(path):
+		push_error("DebugBoot: cena inexistente %s" % path)
+		return
+	get_tree().change_scene_to_file(path)
