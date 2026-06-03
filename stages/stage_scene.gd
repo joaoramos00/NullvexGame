@@ -24,8 +24,12 @@ func _ready() -> void:
 		GameManager.set_active_character("zael")
 	_player = _spawn_player()
 	for child in get_children():
+		if DebugBoot.no_enemies and (child is EnemyBase or child is BossBase):
+			child.queue_free()
+			continue
 		if child is BossBase:
 			child.player = _player
+	_maybe_spawn_bot()
 	$StageController.setup(_player)
 	$HUD.connect_to_player(_player)
 	StageManager.spawn_position = $PlayerSpawn.global_position
@@ -231,3 +235,10 @@ func _tile_at(col: int, cols: int, row: int, rows: int) -> Vector2i:
 	if is_left:  return Vector2i(3, 2)
 	if is_right: return Vector2i(1, 0)
 	return Vector2i(2, 1)
+
+func _maybe_spawn_bot() -> void:
+	if not DebugBoot.bot_enabled:
+		return
+	var bot := preload("res://tests/bot/stage_bot.gd").new()
+	bot.name = "StageBot"
+	add_child(bot)
