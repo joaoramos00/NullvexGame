@@ -1,0 +1,11 @@
+{
+  "name": "stagebot-runner",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "bot": "node run_stage_bot.mjs"
+  },
+  "dependencies": {
+    "playwright": "^1.48.0"
+  }
+}
