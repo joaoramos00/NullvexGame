@@ -40,6 +40,7 @@ const _SRC := 32
 @export var glass_col_rows:  int   = 33
 @export var glass_col_bot:   float = 960.0
 @export var glass_mirror:    bool  = false  # lateral na direita (fills à esq, lateral espelhada à dir)
+@export var glass_cap_right: bool  = false  # fecha a direita com tile-espelho (3,2) sobre a porta de saída
 
 # ─── Checkpoint ───────────────────────────────────────────────────────────────
 @export var checkpoint_index:     int   = 1
@@ -251,11 +252,14 @@ func _draw_glass() -> void:
 				draw_texture_rect_region(glass_tex, Rect2(glass_fill_x + col * _TS, dy, _TS, _TS), fill_src)
 			draw_texture_rect_region(glass_tex, Rect2(glass_lateral_x, dy, _TS, _TS), right_lat_src)
 	else:
+		var cap_src := Rect2(3 * _SRC, 2 * _SRC, _SRC, _SRC)  # tile (3,2) — borda lisa (espelho)
 		for row in glass_col_rows:
 			var dy := col_top + row * _TS
 			draw_texture_rect_region(glass_tex, Rect2(glass_lateral_x, dy, _TS, _TS), lat_src)
 			for col in glass_fill_cols:
 				draw_texture_rect_region(glass_tex, Rect2(glass_fill_x + col * _TS, dy, _TS, _TS), fill_src)
+			if glass_cap_right:
+				draw_texture_rect_region(glass_tex, Rect2(glass_fill_x + glass_fill_cols * _TS, dy, _TS, _TS), cap_src)
 
 # ─── Utilitários de tile (espelham stage_00_scene.gd) ────────────────────────
 
