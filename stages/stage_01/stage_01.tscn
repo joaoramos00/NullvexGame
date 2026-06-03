@@ -4,6 +4,7 @@
 [ext_resource type="Script" path="res://stages/corridor_section.gd" id="15_corr_script"]
 [ext_resource type="Texture2D" path="res://stages/stage_01/Stage_01T_z2.png" id="16_z2tex"]
 [ext_resource type="Texture2D" path="res://stages/stage_01/stage_01_glass.png" id="17_glasstex"]
+[ext_resource type="Texture2D" uid="uid://omjko5i2edu6" path="res://stages/door_pixellab.png" id="20_doortex"]
 [ext_resource type="PackedScene" uid="uid://stage_controller" path="res://stages/stage_controller.tscn" id="2_sc"]
 [ext_resource type="PackedScene" uid="uid://checkpoint" path="res://stages/checkpoint.tscn" id="3_cp"]
 [ext_resource type="PackedScene" uid="uid://collectible" path="res://stages/collectible.tscn" id="4_col"]
@@ -689,6 +690,7 @@ position_smoothing_speed = 8.0
 script = ExtResource("15_corr_script")
 tileset = ExtResource("16_z2tex")
 glass_tex = ExtResource("17_glasstex")
+door_tex = ExtResource("20_doortex")
 floor_center = Vector2(10272, 2688)
 floor_size = Vector2(960, 128)
 ceil_center = Vector2(10272, 2176)
@@ -843,6 +845,7 @@ position = Vector2(17700, 512)
 script = ExtResource("15_corr_script")
 tileset = ExtResource("18_z4tex")
 glass_tex = ExtResource("17_glasstex")
+door_tex = ExtResource("20_doortex")
 floor_center = Vector2(19968, 1024)
 floor_size = Vector2(960, 128)
 ceil_center = Vector2(19968, 448)

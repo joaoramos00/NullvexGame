@@ -64,6 +64,12 @@ var _exit_door:  Node       = null
 
 func setup(player: CharacterBase) -> void:
 	_player = player
+	# Calibra porta e vidro ao piso (face onde o player anda). Sem isto, valores
+	# mal ajustados fazem a colisão do vidro bater na cabeça do player e a porta
+	# ficar alta demais — selando a entrada (bug Corridor1/2 da stage 01).
+	var floor_top := floor_center.y - floor_size.y * 0.5
+	door_cy       = floor_top - 64.0    # porta abraça o corpo do player
+	glass_col_bot = floor_top - 128.0   # fundo do vidro acima da cabeça (porta de 128px no chão)
 	_build_collision()
 	_setup_doors()
 	queue_redraw()
