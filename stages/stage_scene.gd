@@ -65,6 +65,9 @@ func _spawn_player() -> CharacterBase:
 	var p: CharacterBase = scene.instantiate()
 	p.global_position = $PlayerSpawn.global_position
 	add_child(p)
+	# As portas de checkpoint (CorridorSection) abrem via TriggerArea que checa
+	# is_in_group("player"); sem este grupo a porta nunca abre (bug stage 01).
+	p.add_to_group("player")
 	return p
 
 func _load_zone_data() -> void:
