@@ -75,7 +75,7 @@ func show_for_stage(stage_id: int, boss_name: String) -> void:
 func _choose(character: String) -> void:
     if _standalone:
         GameManager.set_active_character(character)
-        StageManager.load_stage(1)
+        StageManager.load_stage(0)  # jogo novo começa no intro obrigatório (stage 00)
     else:
         visible = false
         character_chosen.emit(character)
