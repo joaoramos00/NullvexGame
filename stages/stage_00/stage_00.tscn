@@ -171,7 +171,7 @@ size = Vector2(64, 816)
 script = ExtResource("1_script")
 
 [node name="PlayerSpawn" type="Node2D" parent="."]
-position = Vector2(7600, 992)
+position = Vector2(300, 1000)
 
 [node name="StageController" parent="." instance=ExtResource("2_sc")]
 
