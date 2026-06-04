@@ -692,21 +692,29 @@ class _PlatformView extends Control:
     var tile_tex: Texture2D
     var rows: int = 2
     var cols: int = 3
-    var mode: String = "platform"   # "platform" | "room"
+    var mode: String = "platform"   # "platform" | "room" | "floor_platform"
 
     const _TS := 32.0   # tamanho source
     const _TD := 48.0   # tamanho exibido
     const _EMPTY := Vector2i(0, 3)
+    # Modo "floor_platform": piso reto + plataforma elevada (sem vão) + piso reto.
+    # cols = largura da plataforma; rows = elevação dela acima do piso.
+    const _FP_SIDE  := 3   # tiles de piso de cada lado da plataforma
+    const _FP_DEPTH := 2   # tiles de piso abaixo da superfície
 
     func set_dims(r: int, c: int) -> void:
         rows = r
         cols = c
-        custom_minimum_size = Vector2(c * _TD, r * _TD)
+        var gd := _fp_grid() if mode == "floor_platform" else Vector2i(c, r)
+        custom_minimum_size = Vector2(gd.x * _TD, gd.y * _TD)
         queue_redraw()
 
     func _draw() -> void:
         draw_rect(Rect2(Vector2.ZERO, size), Color(0.04, 0.06, 0.14))
         if not tile_tex:
+            return
+        if mode == "floor_platform":
+            _draw_floor_platform()
             return
         for row in rows:
             for col in cols:
@@ -795,6 +803,67 @@ class _PlatformView extends Control:
         if is_left:  return Vector2i(3, 2)
         if is_right: return Vector2i(1, 0)
         return Vector2i(2, 1)
+
+    # ── Modo piso+plataforma+piso ─────────────────────────────────────────────
+    # Heightfield: colunas das laterais têm topo no nível do piso; colunas do meio
+    # sobem `rows` tiles. Marching-squares por célula escolhe o tile pela máscara
+    # de faces expostas (eixos em screen-space, row 0 = topo).
+    func _fp_grid() -> Vector2i:
+        var ctot: int = _FP_SIDE + cols + _FP_SIDE
+        var rtot: int = rows + _FP_DEPTH
+        return Vector2i(ctot, rtot)
+
+    func _fp_solid(c: int, r: int) -> bool:
+        var g := _fp_grid()
+        if c < 0 or r < 0 or c >= g.x or r >= g.y:
+            return false
+        var in_plat: bool = c >= _FP_SIDE and c < _FP_SIDE + cols
+        if in_plat:
+            return true              # plataforma: sólida do topo (row 0) até a base
+        return r >= rows             # piso lateral: sólido a partir da superfície
+
+    func _fp_tile(c: int, r: int) -> Vector2i:
+        var eu := not _fp_solid(c, r - 1)   # exposto em cima
+        var ed := not _fp_solid(c, r + 1)   # exposto embaixo
+        var el := not _fp_solid(c - 1, r)   # exposto à esquerda
+        var er := not _fp_solid(c + 1, r)   # exposto à direita
+        # Cantos convexos (dois lados adjacentes expostos)
+        if eu and el: return Vector2i(1, 3)   # canto sup-esq (sólido inf-dir)
+        if eu and er: return Vector2i(0, 0)   # canto sup-dir (sólido inf-esq)
+        if ed and el: return Vector2i(0, 2)   # canto inf-esq (sólido sup-dir)
+        if ed and er: return Vector2i(3, 3)   # canto inf-dir (sólido sup-esq)
+        # Faces (um lado exposto)
+        if eu: return Vector2i(3, 0)   # TOP
+        if ed: return Vector2i(1, 2)   # BOTTOM
+        if el: return Vector2i(3, 2)   # LEFT
+        if er: return Vector2i(1, 0)   # RIGHT
+        # Cantos côncavos (degrau): diagonal superior vazia, ortogonais sólidas
+        if not _fp_solid(c - 1, r - 1): return Vector2i(2, 0)   # entalhe sup-esq
+        if not _fp_solid(c + 1, r - 1): return Vector2i(1, 1)   # entalhe sup-dir
+        return Vector2i(2, 1)   # FILL
+
+    func _draw_floor_platform() -> void:
+        var g := _fp_grid()
+        for r in g.y:
+            for c in g.x:
+                if not _fp_solid(c, r):
+                    continue
+                var t := _fp_tile(c, r)
+                draw_texture_rect_region(tile_tex,
+                    Rect2(c * _TD, r * _TD, _TD, _TD),
+                    Rect2(t.x * _TS, t.y * _TS, _TS, _TS))
+        # Linha amarela na superfície que o player percorre (piso → plataforma → piso)
+        var yellow := Color(1.0, 0.9, 0.0, 0.9)
+        var floor_y := rows * _TD
+        var plat_y  := 0.0
+        var lx := _FP_SIDE * _TD
+        var rx := (_FP_SIDE + cols) * _TD
+        var w  := g.x * _TD
+        draw_line(Vector2(0.0, floor_y), Vector2(lx, floor_y), yellow, 1.5)   # piso esq
+        draw_line(Vector2(lx, floor_y), Vector2(lx, plat_y), yellow, 1.5)     # sobe
+        draw_line(Vector2(lx, plat_y), Vector2(rx, plat_y), yellow, 1.5)      # topo plat
+        draw_line(Vector2(rx, plat_y), Vector2(rx, floor_y), yellow, 1.5)     # desce
+        draw_line(Vector2(rx, floor_y), Vector2(w, floor_y), yellow, 1.5)     # piso dir
 
 # Nó que vive dentro do SubViewport — desenha fundo, tiles e linhas de colisão
 class _MovWorld extends Node2D:
@@ -2310,11 +2379,11 @@ func _refresh_tiles() -> void:
     var mode_btns: Array = []
     var _sw := func(mkey: String, mlbl: String) -> void:
         pview.mode = mkey
-        pview.queue_redraw()
+        pview.set_dims(pview.rows, pview.cols)   # recalcula min size p/ o grid do modo
         for b: Button in mode_btns:
             b.modulate = Color(1.0, 1.0, 0.0) if b.text == mlbl else Color(0.6, 0.6, 0.6)
 
-    for me: Array in [["Plataforma", "platform"], ["Sala", "room"]]:
+    for me: Array in [["Plataforma", "platform"], ["Sala", "room"], ["Piso+Plat", "floor_platform"]]:
         var mbtn := Button.new()
         mbtn.text = me[0]
         mbtn.add_theme_font_size_override("font_size", 24)

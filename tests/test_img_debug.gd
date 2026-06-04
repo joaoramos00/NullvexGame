@@ -9,6 +9,7 @@ func _ready() -> void:
     test_char_change_resets_anim()
     test_frame_cycling()
     test_platform_tab_shows_panel()
+    test_floor_platform_tiles()
     print("ALL TESTS PASSED")
     get_tree().quit(0)
 
@@ -118,6 +119,37 @@ func test_platform_tab_shows_panel() -> void:
 
     panel.queue_free()
     print("PASS: platform_tab_shows_panel")
+
+# Modo "Piso+Plat": valida o tile de cada célula-chave do heightfield
+# (cols=3 largura da plataforma, rows=2 elevação; lados=3, prof.=2 → grid 9x4).
+func test_floor_platform_tiles() -> void:
+    var pv = ImgDebug._PlatformView.new()
+    pv.mode = "floor_platform"
+    pv.cols = 3   # largura da plataforma
+    pv.rows = 2   # elevação acima do piso
+
+    var grid: Vector2i = pv._fp_grid()
+    assert(grid == Vector2i(9, 4), "grid deve ser 9x4, veio " + str(grid))
+
+    # Topo da plataforma
+    assert(pv._fp_tile(3, 0) == Vector2i(1, 3), "canto sup-esq da plataforma")
+    assert(pv._fp_tile(4, 0) == Vector2i(3, 0), "topo reto da plataforma (TOP)")
+    assert(pv._fp_tile(5, 0) == Vector2i(0, 0), "canto sup-dir da plataforma")
+    # Paredes da plataforma
+    assert(pv._fp_tile(3, 1) == Vector2i(3, 2), "parede esquerda da plataforma (LEFT)")
+    assert(pv._fp_tile(5, 1) == Vector2i(1, 0), "parede direita da plataforma (RIGHT)")
+    # Junções côncavas (degrau encontra o piso)
+    assert(pv._fp_tile(3, 2) == Vector2i(2, 0), "junção esquerda côncava")
+    assert(pv._fp_tile(5, 2) == Vector2i(1, 1), "junção direita côncava")
+    # Piso lateral
+    assert(pv._fp_tile(1, 2) == Vector2i(3, 0), "superfície do piso (TOP)")
+    assert(pv._fp_tile(0, 2) == Vector2i(1, 3), "canto sup-esq do piso esquerdo")
+    # Miolo e base
+    assert(pv._fp_tile(4, 2) == Vector2i(2, 1), "miolo preenchido (FILL)")
+    assert(pv._fp_tile(4, 3) == Vector2i(1, 2), "base da plataforma (BOTTOM)")
+
+    pv.free()
+    print("PASS: floor_platform_tiles")
 
 func _find_button(node: Node, text: String) -> Button:
     if node is Button and (node as Button).text == text:
