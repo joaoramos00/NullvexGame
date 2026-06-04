@@ -8,6 +8,7 @@ func _ready() -> void:
     test_initial_state()
     test_char_change_resets_anim()
     test_frame_cycling()
+    test_platform_tab_shows_panel()
     print("ALL TESTS PASSED")
     get_tree().quit(0)
 
@@ -90,3 +91,39 @@ func test_frame_cycling() -> void:
     assert(panel._frame == 0, "frame 7 deve ciclar para 0 (8 frames total)")
     panel.queue_free()
     print("PASS: frame_cycling")
+
+# Regressão: clicar na aba "Plataformas" deve tornar o painel visível e esconder
+# os outros. Bug: show_section (lambda) capturava _plat_panel_ref como null por valor
+# antes da atribuição → is_instance_valid() sempre false → aba abria em branco.
+func test_platform_tab_shows_panel() -> void:
+    var panel = load("res://ui/img_debug.tscn").instantiate()
+    add_child(panel)
+    panel._show_section("TILES")
+
+    assert(panel._plat_panel_ref != null, "_plat_panel_ref deve existir")
+    assert(panel._col_panel_ref != null, "_col_panel_ref deve existir")
+    assert(panel._plat_panel_ref.get_child_count() > 0,
+        "painel Plataformas deve ter controles/tiles")
+
+    var plat_btn := _find_button(panel, "Plataformas")
+    assert(plat_btn != null, "botão Plataformas deve existir")
+    plat_btn.emit_signal("pressed")
+    assert(panel._plat_panel_ref.visible, "aba Plataformas deve ficar visível ao clicar")
+
+    var col_btn := _find_button(panel, "Colisões")
+    assert(col_btn != null, "botão Colisões deve existir")
+    col_btn.emit_signal("pressed")
+    assert(panel._col_panel_ref.visible, "aba Colisões deve ficar visível ao clicar")
+    assert(not panel._plat_panel_ref.visible, "Plataformas deve esconder ao trocar de aba")
+
+    panel.queue_free()
+    print("PASS: platform_tab_shows_panel")
+
+func _find_button(node: Node, text: String) -> Button:
+    if node is Button and (node as Button).text == text:
+        return node
+    for child in node.get_children():
+        var found := _find_button(child, text)
+        if found != null:
+            return found
+    return null
