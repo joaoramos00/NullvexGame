@@ -21,7 +21,7 @@ const ZONE1_GRUNTS := [
 const ZONE1_FLYERS := [Vector2(2100, 906), Vector2(4900, 906)]
 
 const ZONE2_GRUNTS := [
-	Vector2(8360, 1024), Vector2(8540, 1024),   # Seção 1 — Entrada
+	# (removidos os 2 grunts da entrada — logo após o miniboss)
 	Vector2(9090, 592),                           # Seção 2 — Degrau 2
 	Vector2(9892, 296), Vector2(10292, 232), Vector2(10692, 296),  # Seção 3 — Flutuantes
 	Vector2(10960, 216), Vector2(11260, 152),
@@ -45,7 +45,7 @@ const ZONE3_FLYERS := [
 	Vector2(14100, 180),  # Sala B
 ]
 
-const BOSS_SPAWN := Vector2(18722, 784)
+const BOSS_SPAWN := Vector2(17750, 200)
 const CP2_ENTRY_X := 16524.0  # centro visual Corr2_Wall_L (tile X 16492–16556)
 const CP2_EXIT_X  := 17120.0  # centro visual Corr2_Wall_R (tile X 17088–17152)
 
@@ -59,8 +59,8 @@ const _CORR3_DOOR_CY := 212.0   # centro do Corr3 elevado: (80+344)/2
 
 const _MINIBOSS_CAM_CENTER := Vector2(6878.0, 896.0)
 const _MINIBOSS_CAM_ZOOM   := 2.0                      # sala 960px total, zoom 2x
-const _BOSS_CAM_CENTER     := Vector2(18124.0, 520.0)
-const _BOSS_CAM_ZOOM       := 1080.0 / 1264.0         # ≈ 0.855 — preenche tela pela altura
+const _BOSS_CAM_CENTER     := Vector2(17570.0, 88.0)   # centro da sala (igual miniboss)
+const _BOSS_CAM_ZOOM       := 2.0                       # mesma da miniboss
 
 var _player: CharacterBase = null
 var _corr1: CorridorSection = null
@@ -80,17 +80,23 @@ var _camera_locked   := false
 var _camera_target   := Vector2.ZERO
 var _camera_zoom_tgt := 2.2
 
+# Zona 3 — plataforma móvel do gauntlet "Exame Final"
+const _Z3_MOVPLAT_DIST  := 360.0
+const _Z3_MOVPLAT_SPEED := 90.0
+var _z3_movplat: AnimatableBody2D = null
+var _z3_movplat_start_x: float = 0.0
+var _z3_movplat_dir: float = 1.0
+
 
 # ─── Lifecycle ──────────────────────────────────────────────────────────────
 
 func _ready() -> void:
 	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 
-	# Boss_LWall split em Top/Bot — colisão começa desabilitada
-	for lwall_name: String in ["Boss_LWall_Top", "Boss_LWall_Bot"]:
-		var lwall := get_node_or_null(lwall_name)
-		if lwall:
-			lwall.get_node("CollisionShape2D").disabled = true
+	# Boss_LWall é a abertura da sala — colisão começa desabilitada (parede selada ao spawnar o boss)
+	var boss_lwall := get_node_or_null("Boss_LWall")
+	if boss_lwall:
+		boss_lwall.get_node("CollisionShape2D").disabled = true
 
 	# Paredes de corredor são visuais — as portas de checkpoint fazem a barreira
 	for _cwall_name in ["Corr2_Wall_L", "Corr2_Wall_R"]:
@@ -105,6 +111,7 @@ func _ready() -> void:
 
 	StageManager.spawn_position = $PlayerSpawn.global_position
 	_spawn_player()
+	_apply_debug_zone_spawn()
 	$StageController.setup(_player)
 	$HUD.connect_to_player(_player)
 
@@ -131,6 +138,7 @@ func _ready() -> void:
 	# Checkpoint 1 will be saved when player passes through CP1 entry door
 
 	_add_debug_platform()
+	_build_zone3()
 	queue_redraw()
 
 func _process(_delta: float) -> void:
@@ -245,10 +253,9 @@ func _on_boss_door_opened(_door: Node2D) -> void:
 	_spawn_boss()
 	# After a short delay, seal the boss room by re-enabling Boss_LWall collision
 	await get_tree().create_timer(1.0).timeout
-	for lwall_name: String in ["Boss_LWall_Top", "Boss_LWall_Bot"]:
-		var lwall := get_node_or_null(lwall_name)
-		if is_instance_valid(lwall):
-			lwall.get_node("CollisionShape2D").set_deferred("disabled", false)
+	var boss_lwall := get_node_or_null("Boss_LWall")
+	if is_instance_valid(boss_lwall):
+		boss_lwall.get_node("CollisionShape2D").set_deferred("disabled", false)
 
 # ─── Boss ─────────────────────────────────────────────────────────────────────
 
@@ -261,10 +268,10 @@ func _spawn_boss() -> void:
 	_boss = _BOSS_SCENE.instantiate()
 	_boss.global_position = BOSS_SPAWN
 	_boss.player = _player
-	# Arena bounds for the boss room (x: 16680–18520, floor: 1080)
-	_boss.arena_left  = 17202.0
-	_boss.arena_right = 19042.0
-	_boss.arena_floor = 1080.0
+	# Arena bounds for the boss room (interior x: 17154–17986, floor top y: 280)
+	_boss.arena_left  = 17200.0
+	_boss.arena_right = 17940.0
+	_boss.arena_floor = 280.0
 	add_child(_boss)
 	_boss.boss_defeated.connect(_on_boss_defeated)
 
@@ -342,6 +349,23 @@ func _on_miniboss_room_entered(body: Node2D) -> void:
 	_camera_locked   = true
 	_camera_target   = _MINIBOSS_CAM_CENTER
 	_camera_zoom_tgt = _MINIBOSS_CAM_ZOOM
+
+func _apply_debug_zone_spawn() -> void:
+	# Param ?zone=N: spawna direto numa zona pra testar (debug). Atualiza o respawn também.
+	if DebugBoot.zone <= 0 or not is_instance_valid(_player):
+		return
+	var pos := Vector2.ZERO
+	match DebugBoot.zone:
+		2: pos = Vector2(8400, 1000)    # entrada da zona 2 (pós-miniboss)
+		3: pos = Vector2(13100, 220)    # zona 3 (gauntlet)
+		4: pos = Vector2(17570, 200)    # sala do boss (debug)
+		_: return                        # zona 1 = início normal
+	_player.global_position = pos
+	StageManager.spawn_position = pos
+	if DebugBoot.zone == 4:  # debug: trava a câmera na sala do boss (visão real da luta)
+		_camera_locked   = true
+		_camera_target   = _BOSS_CAM_CENTER
+		_camera_zoom_tgt = _BOSS_CAM_ZOOM
 
 func _open_miniboss_gate_for_debug() -> void:
 	# no_enemies: sem miniboss pra derrotar, a parede de saída fica aberta (senão tranca a sala).
@@ -490,12 +514,68 @@ func _add_debug_platform() -> void:
 	plat.position = Vector2(550, 1096)  # top face y=1000, 3 linhas de tile
 	add_child(plat)
 
+# ─── Zona 3 — gauntlet "Exame Final" (dash → wall-jump → plataforma móvel) ──────
+
+func _build_zone3() -> void:
+	# Remove a zona 3 antiga (divisores intransponíveis — vão de 58px < player 80px).
+	for n in ["Div_Z3_1_Top","Div_Z3_1_Bot","Div_Z3_2_Top","Div_Z3_2_Bot","Div_Z3_3_Top","Div_Z3_3_Bot","SubPlat_Z3_A","SubPlat_Z3_B","SubPlat_Z3_C","SubPlat_Z3_D","CorrZ3_Rooms_Floor","CorrZ3_Rooms_Ceil","CorrZ3_Entry_Ceil","CorrZ3_Cont_Ceil"]:
+		var node := get_node_or_null(n)
+		if node:
+			node.queue_free()
+	# 1) DASH: vão de 260px depois do entry floor (12922–13400) → Floor A
+	# 2) WALL-JUMP: parede alta sobre o Floor A
+	_add_z3_static("Z3_FloorA", Vector2(14205, 344), Vector2(1090, 128))  # x 13660–14750, topo y280
+	_add_z3_static("Z3_Wall",   Vector2(14250, 200), Vector2(300, 160))   # x 14100–14400, topo y120
+	# 3) PLATAFORMA MÓVEL sobre o fosso (x 14750–15200) → CorrZ3_Cont_Floor (15200–16492)
+	var mp := AnimatableBody2D.new()
+	mp.name = "Z3MovingPlat"
+	mp.sync_to_physics = true
+	mp.collision_layer = 1
+	mp.collision_mask = 0
+	var cs := CollisionShape2D.new()
+	var shape := RectangleShape2D.new()
+	shape.size = Vector2(192, 32)
+	cs.shape = shape
+	mp.add_child(cs)
+	mp.position = Vector2(14975, 296)  # topo y280
+	add_child(mp)
+	_z3_movplat = mp
+	_z3_movplat_start_x = mp.position.x
+	# Teto com COLISÃO (player bate a cabeça se chegar) — alinhado ao fundo do glass (y=-192).
+	# Prefixo "Glass_" → não desenha tile por cima (o painel de glass já é o visual).
+	_add_z3_static("Glass_Z3_Ceil", Vector2(14707, -256), Vector2(3570, 128))  # x 12922–16492, face de baixo y=-192
+
+func _add_z3_static(node_name: String, center: Vector2, size: Vector2) -> void:
+	var body := StaticBody2D.new()
+	body.name = node_name
+	body.collision_layer = 1
+	body.collision_mask = 0
+	body.position = center
+	var cs := CollisionShape2D.new()
+	var shape := RectangleShape2D.new()
+	shape.size = size
+	cs.shape = shape
+	body.add_child(cs)
+	add_child(body)
+
+func _physics_process(delta: float) -> void:
+	if _z3_movplat and is_instance_valid(_z3_movplat):
+		var half := _Z3_MOVPLAT_DIST * 0.5
+		_z3_movplat.position.x += _z3_movplat_dir * _Z3_MOVPLAT_SPEED * delta
+		if _z3_movplat.position.x >= _z3_movplat_start_x + half:
+			_z3_movplat.position.x = _z3_movplat_start_x + half
+			_z3_movplat_dir = -1.0
+		elif _z3_movplat.position.x <= _z3_movplat_start_x - half:
+			_z3_movplat.position.x = _z3_movplat_start_x - half
+			_z3_movplat_dir = 1.0
+
 # ─── Drawing ─────────────────────────────────────────────────────────────────
 
 func _draw() -> void:
 	_draw_background()
 	_draw_glass_panels()
 	_draw_platforms()
+	_draw_boss_room()
 	_draw_door_underlays()
 
 func _draw_glass_panels() -> void:
@@ -508,16 +588,19 @@ func _draw_glass_panels() -> void:
 	var col_rows := 20
 	var col_top  := -1152.0
 
-	# ── Zona 3 — glass acima do interior fechado (x 12858–16506) ─────────────
+	# ── Zona 3 — glass com TETO MAIS ALTO (headroom pro gauntlet) ────────────
+	# Antes: 20 linhas → fundo em y=128 (vão de só 152px, player entrava no teto).
+	# Agora: 15 linhas → fundo em y=-192 (vão de ~472px sobre o chão y280).
+	var z3_rows := 15
 	var z3_fill_cols := 56  # 12922 + 56×64 = 16506 ≈ entrada do Corr3
-	for row in col_rows:
+	for row in z3_rows:
 		var dy := col_top + row * ts
 		draw_texture_rect_region(_GLASS_TEX, Rect2(12858.0, dy, ts, ts), lat_src)
 		for col in z3_fill_cols:
 			draw_texture_rect_region(_GLASS_TEX, Rect2(12922.0 + col * ts, dy, ts, ts), fill_src)
 
-	# ── Corredor 3 → sala do chefe (x 16428–17196) ───────────────────────────
-	var c2_fill_cols := 11  # x=16492→17196, cobre Boss_LWall
+	# ── Corredor 3 → sala do chefe (x 16428–17132) ───────────────────────────
+	var c2_fill_cols := 10  # x=16492→17132, para na porta (sem invadir a sala)
 	for row in col_rows:
 		var dy := col_top + row * ts
 		draw_texture_rect_region(_GLASS_TEX, Rect2(16428.0, dy, ts, ts), lat_src)
@@ -598,7 +681,7 @@ func _draw_background() -> void:
 
 func _draw_platforms() -> void:
 	for child in get_children():
-		if not child is StaticBody2D:
+		if not (child is StaticBody2D or child is AnimatableBody2D):  # AnimatableBody2D = plataforma móvel
 			continue
 		if child is CheckpointDoor:
 			continue
@@ -611,6 +694,9 @@ func _draw_platforms() -> void:
 				continue
 			var cs := shape_child as CollisionShape2D
 			var n_check: String = (child as Node).name
+			# Sala do boss é desenhada como grid unificado em _draw_boss_room()
+			if n_check.begins_with("Boss_"):
+				continue
 			if cs.disabled and not n_check.begins_with("MiniBoss_"):
 				continue
 			var size: Vector2 = (cs.shape as RectangleShape2D).size
@@ -623,12 +709,71 @@ func _draw_platforms() -> void:
 				var above_rows := ceili((door_top - rect.position.y) / _TS)  # 5 tiles
 				var top_rect   := Rect2(rect.position.x, rect.position.y, rect.size.x, above_rows * _TS)
 				_draw_room_tiles(top_rect, n, true)
-			elif n == "Boss_LWall_Top" or n == "Boss_LWall_Bot":
-				_draw_room_tiles(rect, "Boss_LWall")
-			elif n.begins_with("Corr") or n.begins_with("Boss_") or n.begins_with("MiniBoss_"):
+			elif n.begins_with("Corr") or n.begins_with("MiniBoss_"):
 				_draw_room_tiles(rect, n)
 			else:
 				_draw_platform_tiles(rect, _TILESET)
+
+func _draw_boss_room() -> void:
+	# Sala do boss desenhada como grid unificado N×M (mesmo padrão do img_debug _room_at):
+	# cantos côncavos corretos em uma única passada, com a abertura da porta na parede esquerda.
+	# Mapeamento canônico (screen-space): TL=(3,1) TR=(2,2) BL=(2,0) BR=(1,1)
+	#   teto=(1,2) chão=(3,0) parede_esq=(3,2) parede_dir=(1,0)
+	var lwall  := get_node_or_null("Boss_LWall")  as Node2D
+	var rwall  := get_node_or_null("Boss_RWall")  as Node2D
+	var ceil_n := get_node_or_null("Boss_Ceil")   as Node2D
+	var floor_n := get_node_or_null("Boss_Floor") as Node2D
+	if not (lwall and rwall and ceil_n and floor_n):
+		return
+	var ts     := _TS
+	var src_ts := _SRC_TS
+	var left   := lwall.position.x - ts * 0.5
+	var right  := rwall.position.x + ts * 0.5
+	var top    := ceil_n.position.y - ts * 0.5
+	var bottom := floor_n.position.y + ts * 0.5
+	var cols := int(round((right - left) / ts))
+	var rows := int(round((bottom - top) / ts))
+	# Abertura da porta na parede esquerda: linhas que cobrem o vão do corredor (Corr2)
+	var corr_ceil  := get_node_or_null("Corr2_Ceil")  as Node2D
+	var corr_floor := get_node_or_null("Corr2_Floor") as Node2D
+	var pass_top: float  = (corr_ceil.position.y  + ts * 0.5) if corr_ceil  else 144.0
+	var pass_bot: float  = (corr_floor.position.y - ts * 0.5) if corr_floor else 280.0
+	var door_lo := int(ceil((pass_top - top) / ts))
+	var door_hi := int(floor((pass_bot - top) / ts)) - 1
+	for row in rows:
+		for col in cols:
+			var is_l := col == 0
+			var is_r := col == cols - 1
+			var is_t := row == 0
+			var is_b := row == rows - 1
+			if not (is_l or is_r or is_t or is_b):
+				continue  # interior vazio
+			if is_l and not is_t and not is_b and row >= door_lo and row <= door_hi:
+				continue  # abertura da porta
+			# Porta encosta no chão? Então o piso atravessa reto (rente ao corredor),
+			# sem canto na base da parede da porta.
+			var door_to_floor := door_hi >= rows - 2
+			var bl_is_floor := is_b and is_l and door_to_floor
+			var tile: Vector2i
+			# Shifts de meia-célula p/ a face sólida coincidir com a colisão (igual
+			# _draw_room_tiles): chão sobe, teto desce, paredes entram. Sem isso o piso
+			# do boss fica meio tile abaixo do corredor e o personagem parece flutuar.
+			var tx := 0
+			var ty := 0
+			if   is_t and is_l:     tile = Vector2i(3, 1); tx =  src_ts; ty =  src_ts   # canto sup-esq
+			elif is_t and is_r:     tile = Vector2i(2, 2); tx = -src_ts; ty =  src_ts   # canto sup-dir
+			elif bl_is_floor:       tile = Vector2i(3, 0);              ty = -src_ts    # chão rente à porta (sem canto)
+			elif is_b and is_l:     tile = Vector2i(2, 0); tx =  src_ts; ty = -src_ts   # canto inf-esq
+			elif is_b and is_r:     tile = Vector2i(1, 1); tx = -src_ts; ty = -src_ts   # canto inf-dir
+			elif is_t:              tile = Vector2i(1, 2);              ty =  src_ts    # teto
+			elif is_b:              tile = Vector2i(3, 0);              ty = -src_ts    # chão
+			elif is_l:              tile = Vector2i(3, 2); tx =  src_ts                 # parede esquerda
+			else:                   tile = Vector2i(1, 0); tx = -src_ts                 # parede direita
+			var dx := left + col * ts + tx
+			var dy := top + row * ts + ty
+			draw_texture_rect_region(_TILESET,
+				Rect2(dx, dy, ts, ts),
+				Rect2(tile.x * src_ts, tile.y * src_ts, src_ts, src_ts))
 
 func _draw_platform_tiles(rect: Rect2, tex: Texture2D) -> void:
 	var ts     := _TS
