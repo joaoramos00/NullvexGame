@@ -8,6 +8,8 @@ func _ready() -> void:
     test_initial_state()
     test_char_change_resets_anim()
     test_frame_cycling()
+    test_platform_tab_shows_panel()
+    test_floor_platform_tiles()
     print("ALL TESTS PASSED")
     get_tree().quit(0)
 
@@ -90,3 +92,70 @@ func test_frame_cycling() -> void:
     assert(panel._frame == 0, "frame 7 deve ciclar para 0 (8 frames total)")
     panel.queue_free()
     print("PASS: frame_cycling")
+
+# Regressão: clicar na aba "Plataformas" deve tornar o painel visível e esconder
+# os outros. Bug: show_section (lambda) capturava _plat_panel_ref como null por valor
+# antes da atribuição → is_instance_valid() sempre false → aba abria em branco.
+func test_platform_tab_shows_panel() -> void:
+    var panel = load("res://ui/img_debug.tscn").instantiate()
+    add_child(panel)
+    panel._show_section("TILES")
+
+    assert(panel._plat_panel_ref != null, "_plat_panel_ref deve existir")
+    assert(panel._col_panel_ref != null, "_col_panel_ref deve existir")
+    assert(panel._plat_panel_ref.get_child_count() > 0,
+        "painel Plataformas deve ter controles/tiles")
+
+    var plat_btn := _find_button(panel, "Plataformas")
+    assert(plat_btn != null, "botão Plataformas deve existir")
+    plat_btn.emit_signal("pressed")
+    assert(panel._plat_panel_ref.visible, "aba Plataformas deve ficar visível ao clicar")
+
+    var col_btn := _find_button(panel, "Colisões")
+    assert(col_btn != null, "botão Colisões deve existir")
+    col_btn.emit_signal("pressed")
+    assert(panel._col_panel_ref.visible, "aba Colisões deve ficar visível ao clicar")
+    assert(not panel._plat_panel_ref.visible, "Plataformas deve esconder ao trocar de aba")
+
+    panel.queue_free()
+    print("PASS: platform_tab_shows_panel")
+
+# Modo "Piso+Plat": valida o tile de cada célula-chave do heightfield
+# (cols=3 largura da plataforma, rows=2 elevação; lados=3, prof.=2 → grid 9x4).
+func test_floor_platform_tiles() -> void:
+    var pv = ImgDebug._PlatformView.new()
+    pv.mode = "floor_platform"
+    pv.cols = 3   # largura da plataforma
+    pv.rows = 2   # elevação acima do piso
+
+    var grid: Vector2i = pv._fp_grid()
+    assert(grid == Vector2i(9, 4), "grid deve ser 9x4, veio " + str(grid))
+
+    # Topo da plataforma
+    assert(pv._fp_tile(3, 0) == Vector2i(1, 3), "canto sup-esq da plataforma")
+    assert(pv._fp_tile(4, 0) == Vector2i(3, 0), "topo reto da plataforma (TOP)")
+    assert(pv._fp_tile(5, 0) == Vector2i(0, 0), "canto sup-dir da plataforma")
+    # Paredes da plataforma (eixos invertidos: esq=(1,0), dir=(3,2))
+    assert(pv._fp_tile(3, 1) == Vector2i(1, 0), "parede esquerda visual da plataforma")
+    assert(pv._fp_tile(5, 1) == Vector2i(3, 2), "parede direita visual da plataforma")
+    # Junções côncavas (degrau encontra o piso)
+    assert(pv._fp_tile(3, 2) == Vector2i(1, 1), "junção esquerda côncava")
+    assert(pv._fp_tile(5, 2) == Vector2i(2, 0), "junção direita côncava")
+    # Piso lateral
+    assert(pv._fp_tile(1, 2) == Vector2i(3, 0), "superfície do piso (TOP)")
+    assert(pv._fp_tile(0, 2) == Vector2i(1, 3), "canto sup-esq do piso esquerdo")
+    # Miolo e base
+    assert(pv._fp_tile(4, 2) == Vector2i(2, 1), "miolo preenchido (FILL)")
+    assert(pv._fp_tile(4, 3) == Vector2i(1, 2), "base da plataforma (BOTTOM)")
+
+    pv.free()
+    print("PASS: floor_platform_tiles")
+
+func _find_button(node: Node, text: String) -> Button:
+    if node is Button and (node as Button).text == text:
+        return node
+    for child in node.get_children():
+        var found := _find_button(child, text)
+        if found != null:
+            return found
+    return null

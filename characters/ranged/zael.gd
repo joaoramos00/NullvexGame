@@ -46,7 +46,7 @@ const HURT_DURATION       := 0.3
 const _SHOOT_DURATIONS    := [0.1, 0.2, 0.3]  # duração de shoot_1/2/3 a 10fps
 const _SQUAT_DURATION     := 0.1
 const _DASH_JUMP_BUFFER   := 0.35  # janela após o dash terminar para ainda fazer dash-jump
-const _DASH_JUMP_SPEED    := 620.0 # velocidade horizontal do dash-jump (< DASH_SPEED=720)
+const _DASH_JUMP_SPEED    := 460.0 # velocidade horizontal do dash-jump (reduzida; < DASH_SPEED=720)
 const _JUMP_BUFFER_TIME   := 0.25  # buffer de input: pulo pressionado antes do dash ainda dispara
 
 var _charge_timer: float = 0.0
@@ -220,12 +220,14 @@ func _setup_sprite_frames() -> void:
     _sprite.play("idle")
 
 func _handle_jump() -> void:
+    # Wall-jump tem PRIORIDADE: funciona mesmo durante o dash-jump (encerra o dash-jump).
+    if Input.is_action_just_pressed("jump") and _is_wall_sliding:
+        _dash_jump = false
+        _apply_wall_jump()
+        return
     if _jump_squat_timer >= 0.0 or _dash_jump:
         return
     if Input.is_action_just_pressed("jump"):
-        if _is_wall_sliding:
-            _apply_wall_jump()
-            return
         if is_on_floor() or _coyote_timer > 0.0:
             _jump_squat_timer = 0.0
             if not _is_dashing:
@@ -284,6 +286,8 @@ func _physics_process(delta: float) -> void:
         _dash_jump = false
     elif is_on_floor():
         _dash_jump = false
+    elif is_on_wall():
+        _dash_jump = false  # encostou na parede no ar → encerra o dash-jump (libera wall-slide/wall-jump)
     if _landing_timer > 0.0:
         _landing_timer = max(0.0, _landing_timer - delta)
     _handle_shooting(delta)
@@ -389,7 +393,11 @@ func _update_animation() -> void:
             _sprite.play("dash")
     elif not is_on_floor():
         if _is_wall_sliding:
-            _sprite.play("wall_slide")
+            # Sprite único (frame 1) + encarando o lado OPOSTO à parede (estilo MMX).
+            _sprite.stop()
+            _sprite.animation = "wall_slide"
+            _sprite.frame = 0
+            _sprite.flip_h = _wall_normal.x < 0.0
         elif _is_shooting:
             if _sprite.animation not in ["shoot_1", "shoot_2", "shoot_3"]:
                 _sprite.play("jump_shoot")
