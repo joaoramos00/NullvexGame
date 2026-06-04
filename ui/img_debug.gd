@@ -832,14 +832,16 @@ class _PlatformView extends Control:
         if eu and er: return Vector2i(0, 0)   # canto sup-dir (sólido inf-esq)
         if ed and el: return Vector2i(0, 2)   # canto inf-esq (sólido sup-dir)
         if ed and er: return Vector2i(3, 3)   # canto inf-dir (sólido sup-esq)
-        # Faces (um lado exposto)
+        # Faces (um lado exposto) — eixos invertidos do tileset: parede visual
+        # esquerda usa (1,0) e direita usa (3,2) (mesma convenção de _tile_at).
         if eu: return Vector2i(3, 0)   # TOP
         if ed: return Vector2i(1, 2)   # BOTTOM
-        if el: return Vector2i(3, 2)   # LEFT
-        if er: return Vector2i(1, 0)   # RIGHT
-        # Cantos côncavos (degrau): diagonal superior vazia, ortogonais sólidas
-        if not _fp_solid(c - 1, r - 1): return Vector2i(2, 0)   # entalhe sup-esq
-        if not _fp_solid(c + 1, r - 1): return Vector2i(1, 1)   # entalhe sup-dir
+        if el: return Vector2i(1, 0)   # parede esquerda visual
+        if er: return Vector2i(3, 2)   # parede direita visual
+        # Cantos côncavos (degrau): diagonal superior vazia, ortogonais sólidas.
+        # Espelhados pela mesma convenção (cf. _room_at): entalhe sup-esq → (1,1).
+        if not _fp_solid(c - 1, r - 1): return Vector2i(1, 1)   # entalhe sup-esq
+        if not _fp_solid(c + 1, r - 1): return Vector2i(2, 0)   # entalhe sup-dir
         return Vector2i(2, 1)   # FILL
 
     func _draw_floor_platform() -> void:
