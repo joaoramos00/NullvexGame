@@ -135,12 +135,12 @@ func test_floor_platform_tiles() -> void:
     assert(pv._fp_tile(3, 0) == Vector2i(1, 3), "canto sup-esq da plataforma")
     assert(pv._fp_tile(4, 0) == Vector2i(3, 0), "topo reto da plataforma (TOP)")
     assert(pv._fp_tile(5, 0) == Vector2i(0, 0), "canto sup-dir da plataforma")
-    # Paredes da plataforma
-    assert(pv._fp_tile(3, 1) == Vector2i(3, 2), "parede esquerda da plataforma (LEFT)")
-    assert(pv._fp_tile(5, 1) == Vector2i(1, 0), "parede direita da plataforma (RIGHT)")
+    # Paredes da plataforma (eixos invertidos: esq=(1,0), dir=(3,2))
+    assert(pv._fp_tile(3, 1) == Vector2i(1, 0), "parede esquerda visual da plataforma")
+    assert(pv._fp_tile(5, 1) == Vector2i(3, 2), "parede direita visual da plataforma")
     # Junções côncavas (degrau encontra o piso)
-    assert(pv._fp_tile(3, 2) == Vector2i(2, 0), "junção esquerda côncava")
-    assert(pv._fp_tile(5, 2) == Vector2i(1, 1), "junção direita côncava")
+    assert(pv._fp_tile(3, 2) == Vector2i(1, 1), "junção esquerda côncava")
+    assert(pv._fp_tile(5, 2) == Vector2i(2, 0), "junção direita côncava")
     # Piso lateral
     assert(pv._fp_tile(1, 2) == Vector2i(3, 0), "superfície do piso (TOP)")
     assert(pv._fp_tile(0, 2) == Vector2i(1, 3), "canto sup-esq do piso esquerdo")
