@@ -17,8 +17,9 @@ const COYOTE_TIME := 0.12
 const INVINCIBILITY_DURATION := 1.5
 const AIR_WALK_DURATION := 0.3
 const WALL_SLIDE_SPEED := 60.0
-const WALL_JUMP_H := 280.0
-const WALL_JUMP_V := -480.0
+const WALL_JUMP_H := 300.0
+const WALL_JUMP_V := -500.0
+const WALL_JUMP_LOCK := 0.20  # trava o air-control horizontal após o wall-jump → arco diagonal (MMX)
 const WALL_CLING_TIME := 0.18
 const JUMP_BUFFER_TIME := 0.10
 const WALL_JUMP_DIAGONAL_V := -560.0
@@ -46,6 +47,7 @@ var _is_wall_sliding := false
 var _wall_normal := Vector2.ZERO
 var _wall_cling_timer: float = 0.0
 var _jump_buffer_timer: float = 0.0
+var _wall_jump_lock_timer: float = 0.0
 var _wall_dash_available: bool = false
 var _was_wall_sliding: bool = false
 var door_walk_speed: float = 0.0
@@ -86,6 +88,8 @@ func _tick_timers(delta: float) -> void:
 		_air_walk_timer -= delta
 	if _jump_buffer_timer > 0.0:
 		_jump_buffer_timer -= delta
+	if _wall_jump_lock_timer > 0.0:
+		_wall_jump_lock_timer -= delta
 	if _wall_cling_timer > 0.0:
 		_wall_cling_timer -= delta
 	if is_on_floor():
@@ -148,19 +152,21 @@ func _handle_movement() -> void:
 	if door_walk_speed != 0.0:
 		velocity.x = door_walk_speed
 		return
+	if _wall_jump_lock_timer > 0.0:
+		return  # preserva o impulso diagonal do wall-jump (arco MMX) antes do air-control
 	var direction := Input.get_axis("move_left", "move_right")
 	if direction != 0.0:
 		velocity.x = direction * SPEED
 	else:
 		velocity.x = move_toward(velocity.x, 0.0, SPEED)
 
-func _apply_wall_jump(diagonal: bool = false) -> void:
-	if diagonal:
-		velocity.x = _wall_normal.x * WALL_JUMP_DIAGONAL_H
-		velocity.y = WALL_JUMP_DIAGONAL_V
-	else:
-		velocity.x = _wall_normal.x * WALL_JUMP_H
-		velocity.y = WALL_JUMP_V
+func _apply_wall_jump() -> void:
+	# MMX: chuta sempre na diagonal pra cima e pra LONGE da parede. O lockout
+	# (ver _handle_movement) segura o impulso horizontal por um instante pro arco
+	# diagonal acontecer — sem ele, o air-control zerava o empurrão e subia reto.
+	velocity.x = _wall_normal.x * WALL_JUMP_H
+	velocity.y = WALL_JUMP_V
+	_wall_jump_lock_timer = WALL_JUMP_LOCK
 	_is_wall_sliding = false
 	_wall_cling_timer = 0.0
 	_jump_buffer_timer = 0.0
@@ -176,10 +182,7 @@ func _handle_jump() -> void:
 	if _jump_buffer_timer <= 0.0:
 		return
 	if _is_wall_sliding:
-		var dir := Input.get_axis("move_left", "move_right")
-		# pressing into the wall → diagonal climb; pressing away → horizontal kick
-		var pressing_into_wall := (dir * _wall_normal.x) < 0.0
-		_apply_wall_jump(pressing_into_wall)
+		_apply_wall_jump()
 		return
 	if is_on_floor() or _coyote_timer > 0.0:
 		velocity.y = JUMP_VELOCITY
@@ -202,11 +205,7 @@ func _handle_dash(delta: float) -> void:
 		if on_ground:
 			_start_dash()
 			return
-		if _is_wall_sliding and _wall_dash_available:
-			_wall_dash_available = false
-			_is_wall_sliding = false
-			_start_dash(_wall_normal.x)
-			return
+		# (wall-dash removido: dashar na parede corria pra fora dela e atrapalhava o wall-jump)
 	if _dash_cooldown_timer <= 0.0 and on_ground:
 		for dir in [[1.0, "move_right"], [-1.0, "move_left"]]:
 			if Input.is_action_just_pressed(dir[1]):

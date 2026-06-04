@@ -11,7 +11,7 @@
 size = Vector2(2400, 64)
 
 [sub_resource type="RectangleShape2D" id="shape_PlatZ1A"]
-size = Vector2(448, 64)
+size = Vector2(256, 180)
 
 [sub_resource type="RectangleShape2D" id="shape_FloorZ1B"]
 size = Vector2(1400, 64)
@@ -51,14 +51,11 @@ size = Vector2(64, 264)
 size = Vector2(64, 264)
 
 [sub_resource type="RectangleShape2D" id="shape_BossFloor"]
-size = Vector2(2000, 64)
+size = Vector2(896, 64)
 
 [sub_resource type="RectangleShape2D" id="shape_BossCeil"]
-size = Vector2(2000, 64)
+size = Vector2(896, 64)
 
-
-[sub_resource type="RectangleShape2D" id="shape_BossRWall"]
-size = Vector2(64, 1280)
 
 [sub_resource type="RectangleShape2D" id="shape_GoalZone"]
 size = Vector2(400, 240)
@@ -161,17 +158,11 @@ size = Vector2(1292, 64)
 [sub_resource type="RectangleShape2D" id="shape_CorrZ3ContCeil"]
 size = Vector2(1292, 64)
 
-[sub_resource type="RectangleShape2D" id="shape_BossLWallTop"]
-size = Vector2(64, 200)
-
-[sub_resource type="RectangleShape2D" id="shape_BossLWallBot"]
-size = Vector2(64, 816)
-
 [node name="Stage00" type="Node2D"]
 script = ExtResource("1_script")
 
 [node name="PlayerSpawn" type="Node2D" parent="."]
-position = Vector2(7600, 992)
+position = Vector2(300, 1000)
 
 [node name="StageController" parent="." instance=ExtResource("2_sc")]
 
@@ -182,7 +173,7 @@ position = Vector2(1200, 1120)
 shape = SubResource("shape_FloorZ1A")
 
 [node name="Plat_Z1A" type="StaticBody2D" parent="."]
-position = Vector2(2600, 928)
+position = Vector2(2600, 1090)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Plat_Z1A"]
 shape = SubResource("shape_PlatZ1A")
@@ -287,26 +278,32 @@ position = Vector2(17152, 212)
 shape = SubResource("shape_Corr2WallR")
 
 [node name="Boss_Floor" type="StaticBody2D" parent="."]
-position = Vector2(18122, 1120)
+position = Vector2(17570, 312)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Boss_Floor"]
 shape = SubResource("shape_BossFloor")
 
 [node name="Boss_Ceil" type="StaticBody2D" parent="."]
-position = Vector2(18122, -80)
+position = Vector2(17570, -136)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Boss_Ceil"]
 shape = SubResource("shape_BossCeil")
 
+[node name="Boss_LWall" type="StaticBody2D" parent="."]
+position = Vector2(17122, 88)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Boss_LWall"]
+disabled = true
+shape = SubResource("shape_MiniBossWall")
 
 [node name="Boss_RWall" type="StaticBody2D" parent="."]
-position = Vector2(19124, 520)
+position = Vector2(18018, 88)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Boss_RWall"]
-shape = SubResource("shape_BossRWall")
+shape = SubResource("shape_MiniBossWall")
 
 [node name="GoalZone" type="Area2D" parent="."]
-position = Vector2(18322, 960)
+position = Vector2(17570, 220)
 collision_layer = 0
 collision_mask = 2
 
@@ -493,18 +490,6 @@ position = Vector2(15846, 112)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="CorrZ3_Cont_Ceil"]
 shape = SubResource("shape_CorrZ3ContCeil")
-
-[node name="Boss_LWall_Top" type="StaticBody2D" parent="."]
-position = Vector2(17124, -20)
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Boss_LWall_Top"]
-shape = SubResource("shape_BossLWallTop")
-
-[node name="Boss_LWall_Bot" type="StaticBody2D" parent="."]
-position = Vector2(17124, 752)
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Boss_LWall_Bot"]
-shape = SubResource("shape_BossLWallBot")
 
 [node name="Camera2D" type="Camera2D" parent="."]
 limit_left = 0
