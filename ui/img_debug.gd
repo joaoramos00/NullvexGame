@@ -1362,6 +1362,10 @@ var _tile_info_label: Label
 var _tile_preview_rect: TextureRect
 var _tile_desc_label: Label
 var _tile_displays: Dictionary = {}
+# Membros (não locais): a lambda show_section os lê por self em call-time.
+# Como locais, seriam capturados por valor (null) antes da atribuição → painel nunca aparece.
+var _col_panel_ref: VBoxContainer
+var _plat_panel_ref: VBoxContainer
 
 func _ready() -> void:
     texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
@@ -1843,8 +1847,8 @@ func _refresh_tiles() -> void:
     ts_area.add_theme_constant_override("separation", 4)
     _tiles_box.add_child(ts_area)
 
-    var _col_panel_ref: VBoxContainer
-    var _plat_panel_ref: VBoxContainer
+    # _col_panel_ref / _plat_panel_ref são membros da classe (ver topo): a lambda
+    # show_section precisa lê-los em call-time, não capturá-los como null por valor.
     var stage_conts: Array = []
 
     var show_section := func(sec: int, sub: int) -> void:
