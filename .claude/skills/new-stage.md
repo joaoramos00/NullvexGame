@@ -366,6 +366,36 @@ func _gap_fill_tile(row: int, rows: int) -> Vector2i:
 
 Os nomes estão **invertidos** em relação ao espaço visual — não alterar sem rever toda a tabela de tiles.
 
+### Formas compostas (marching-squares / heightfield)
+
+Para formas que **não** são um retângulo simples — ex.: piso reto + plataforma
+elevada + piso reto (modo "Piso+Plat" do ImgDebug), terreno com degraus, etc. —
+não dá para usar `_tile_at` direto. Trate como um **heightfield** (cada coluna tem
+um topo sólido) e escolha o tile por célula a partir das **faces expostas**
+(vizinho daquele lado é vazio). Esta tabela é empírica e respeita os eixos
+invertidos do tileset (validada visualmente — a primeira versão saiu com paredes
+e junções espelhadas justamente por ignorar a inversão):
+
+| Faces expostas (screen-space) | Tile | Nome |
+|---|---|---|
+| só topo | `(3,0)` | TOP (superfície) |
+| só base | `(1,2)` | BOTTOM |
+| só esquerda | `(1,0)` | parede **esquerda** visual |
+| só direita | `(3,2)` | parede **direita** visual |
+| topo + esquerda | `(1,3)` | canto sup-esq |
+| topo + direita | `(0,0)` | canto sup-dir |
+| base + esquerda | `(0,2)` | canto inf-esq |
+| base + direita | `(3,3)` | canto inf-dir |
+| nenhuma, diagonal sup-esq vazia | `(1,1)` | côncavo (entalhe sup-esq) |
+| nenhuma, diagonal sup-dir vazia | `(2,0)` | côncavo (entalhe sup-dir) |
+| nenhuma (interior) | `(2,1)` | FILL |
+
+**Armadilha confirmada:** parede esquerda usa `(1,0)` e direita usa `(3,2)` —
+ao contrário do que os nomes "Lateral esquerda/direita" sugerem. O mesmo
+espelhamento vale para as junções côncavas. Sempre derivar do `_tile_at`/`_room_at`
+(que são visualmente confirmados), nunca do raciocínio de máscara "natural".
+Implementação de referência: `_fp_tile()` em `ui/img_debug.gd`.
+
 ### Checklist ao criar plataformas
 
 - [ ] `_TS = 64`, `_SRC_TS = 32` — nunca misturar as duas escalas
