@@ -4,6 +4,7 @@ extends Node
 var bot_enabled: bool = false
 var no_enemies:  bool = false
 var stage_id:    int  = -1
+var zone:        int  = -1   # spawna direto numa zona da fase (debug). -1 = início normal
 var active_char: String = "zael"
 var _booted: bool = false
 
@@ -28,6 +29,13 @@ func _ready() -> void:
 	bot_enabled = params.get("bot", "0") == "1"
 	no_enemies  = params.get("noenemies", "0") == "1"
 	active_char = params.get("char", "zael")
+	# zona: aceita "zone=3" e também o formato-flag "zone01"/"zone3"
+	zone = int(params.get("zone", "-1"))
+	if zone < 0:
+		for k: String in params:
+			if k.begins_with("zone") and k.substr(4).is_valid_int():
+				zone = int(k.substr(4))
+				break
 	call_deferred("_boot")
 
 func _get_query_string() -> String:

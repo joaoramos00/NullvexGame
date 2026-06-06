@@ -16,6 +16,7 @@ var _last_dist: float = INF
 var _stuck_timer: float = 0.0
 var _jump_hold: float = 0.0
 var _dash_hold: float = 0.0
+var _seg_jumped: bool = false   # leap one-shot por segmento (dash-jump)
 var _done: bool = false
 
 func _ready() -> void:
@@ -84,6 +85,7 @@ func _advance() -> void:
 	_seg_time = 0.0
 	_stuck_timer = 0.0
 	_last_dist = INF
+	_seg_jumped = false
 
 func _finish() -> void:
 	_done = true
@@ -112,6 +114,16 @@ func _do_dash_to(seg: Dictionary) -> bool:
 	_press_dir(signf(dx))
 	if _player.is_on_floor():
 		_tap_dash()
+		# leap=true: dash-jump uma vez p/ cruzar vãos largos. Sem jump_x, dispara assim
+		# que o dash pega velocidade (>400). Com jump_x, espera chegar na beirada (p/
+		# fossos largos, o lançamento precisa ser no fim da pista pra alcançar o outro lado).
+		if bool(seg.get("leap", false)) and not _seg_jumped and absf(_player.velocity.x) > 300.0:
+			var jx: Variant = seg.get("jump_x", null)
+			var ready: bool = (jx == null and absf(_player.velocity.x) > 400.0) \
+				or (jx != null and _player.global_position.x >= float(jx))
+			if ready:
+				_tap_jump()
+				_seg_jumped = true
 	return false
 
 func _do_jump_to(seg: Dictionary) -> bool:
@@ -161,7 +173,9 @@ func _check_stuck(seg: Dictionary, delta: float) -> bool:
 		_stuck_timer = 0.0
 	else:
 		_stuck_timer += delta
-		if _stuck_timer >= STUCK_TIMEOUT:
+		# patience: segmentos que esperam um gatilho (ex.: porta do boss que abre por
+		# proximidade e leva alguns segundos) toleram mais tempo parado antes de desistir.
+		if _stuck_timer >= float(seg.get("patience", STUCK_TIMEOUT)):
 			var p := _player.global_position
 			print("BOT_STUCK:%s@%d,%d" % [str(seg.get("label", seg.get("t", "?"))), int(p.x), int(p.y)])
 			_done = true
