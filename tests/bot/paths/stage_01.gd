@@ -16,10 +16,28 @@ func path() -> Array:
 		{"t": "screenshot", "label": "01_z1_plat2"},
 		{"t": "jump_to", "x": 1728.0, "jump_x": 1532.0},  # → Z1MovPlat2 (beirada Plat2, gap 128)
 		{"t": "jump_to", "x": 2048.0, "jump_x": 1788.0},  # → Z1Plat3 (beirada MovPlat2, gap 128)
-		{"t": "jump_to", "x": 2368.0, "jump_x": 2174.0},  # → Z1MovPlat3 (beirada Plat3, gap 128)
-		{"t": "jump_to", "x": 2688.0, "jump_x": 2430.0},  # → Z1Plat4 (beirada MovPlat3, gap 128)
+		{"t": "jump_to", "x": 2368.0, "jump_x": 2172.0},  # → Z1MovPlat3 (lança na beirada+coyote, gap 128)
+		{"t": "jump_to", "x": 2688.0, "jump_x": 2424.0},  # → Z1Plat4 (gap 128)
 		{"t": "screenshot", "label": "02_z1_plat4"},
-		# (a calibrar: entrada e descida do shaft → zona 2)
+		# ── Shaft de descida (Plat4 → zona 2). Paredes top y640; o apex do pulo (~519)
+		# passa por cima da ShaftWallL. ShaftP1-4 alternam x 3072/3200 descendo (zig-zag).
+		# ?zone=6 spawna na Plat4 e começa aqui (debug rápido do shaft). ──
+		{"t": "zone", "n": 6},
+		{"t": "jump_to", "x": 3072.0, "jump_x": 2800.0},  # pula sobre ShaftWallL → ShaftP1 (934)
+		{"t": "screenshot", "label": "03_shaft_p1"},
+		# Descida zig-zag: mira na metade INTERNA de cada plataforma (longe das paredes,
+		# senão o player encosta e o walk_to fica pulando) e no_hop desliga o hop-na-parede.
+		# Alvo PASSADO da beirada (3136 +/- TOL 24) p/ o player andar até cair de fato.
+		{"t": "walk_to", "x": 3185.0, "no_hop": true},    # anda além da beirada dir → cai na ShaftP2
+		{"t": "wait",    "seconds": 3.0},                 # ESPERA pousar antes de trocar de direção
+		{"t": "walk_to", "x": 3088.0, "no_hop": true},    # anda além da beirada esq → cai na ShaftP3
+		{"t": "wait",    "seconds": 3.0},
+		{"t": "walk_to", "x": 3230.0, "no_hop": true},    # → ShaftP4 (aceita pouso na parede dir ~3243)
+		{"t": "wait",    "seconds": 3.0},
+		{"t": "walk_to", "x": 3050.0, "no_hop": true},    # anda LEFT além da beirada 3136 → cai no Z2Floor
+		{"t": "wait",    "seconds": 3.0},
+		{"t": "walk_to", "x": 3500.0, "no_hop": true},    # Z2Floor (antes da Z2Plat1) — shaft validado
+		{"t": "screenshot", "label": "04_shaft_bottom"},
 
 		# ── Zona 2 ──
 		{"t": "zone", "n": 2},
