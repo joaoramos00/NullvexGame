@@ -33,6 +33,7 @@ func _ready() -> void:
 	$StageController.setup(_player)
 	$HUD.connect_to_player(_player)
 	StageManager.spawn_position = $PlayerSpawn.global_position
+	_apply_debug_zone_spawn()
 	$Camera2D.zoom = Vector2(2.2, 2.2)
 	AudioManager.play_bgm(AudioLibrary.get_stage_bgm(StageManager.current_stage_id))
 	_apply_kill_plane()
@@ -235,6 +236,20 @@ func _tile_at(col: int, cols: int, row: int, rows: int) -> Vector2i:
 	if is_left:  return Vector2i(3, 2)
 	if is_right: return Vector2i(1, 0)
 	return Vector2i(2, 1)
+
+# Debug: ?zone=N spawna o player direto no início de uma zona (calibração do bot).
+# Cada cena define suas zonas em _zone_spawn(); base retorna ZERO (sem spawn).
+func _apply_debug_zone_spawn() -> void:
+	if DebugBoot.zone <= 0 or not is_instance_valid(_player):
+		return
+	var pos := _zone_spawn(DebugBoot.zone)
+	if pos == Vector2.ZERO:
+		return
+	_player.global_position = pos
+	StageManager.spawn_position = pos
+
+func _zone_spawn(_zone: int) -> Vector2:
+	return Vector2.ZERO
 
 func _maybe_spawn_bot() -> void:
 	if not DebugBoot.bot_enabled:
