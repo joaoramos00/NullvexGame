@@ -35,14 +35,20 @@ func path() -> Array:
 		{"t": "jump_to", "x": 10692.0, "y": 360.0},  # Float_C
 		{"t": "jump_to", "x": 11550.0, "y": 280.0},  # Floor_Z2_Peak
 		{"t": "screenshot", "label": "05_z2_topo"},
-		# ── Zona 3 (corredor elevado y~312) ──
-		{"t": "walk_to", "x": 13161.0},              # entrada zona3
-		{"t": "screenshot", "label": "06_z3"},
-		{"t": "walk_to", "x": 15846.0},              # continuação zona3
-		{"t": "walk_to", "x": 16524.0},              # corredor do boss
-		{"t": "screenshot", "label": "07_corredor_boss"},
-		{"t": "walk_to", "x": 17120.0},              # porta do boss
-		{"t": "wait", "seconds": 2.5},               # porta abre + auto-walk
-		{"t": "walk_to", "x": 18322.0},              # sala do boss / goal
-		{"t": "screenshot", "label": "08_sala_boss"},
+		# ── Zona 3: gauntlet "Exame Final" (dash → wall-jump → plataforma móvel) ──
+		{"t": "walk_to", "x": 13380.0},              # entry floor, beirada do vão de dash
+		{"t": "screenshot", "label": "06_z3_entrada"},
+		{"t": "dash_to", "x": 13760.0, "leap": true},  # DASH-JUMP atravessa o vão de 260px → Floor A
+		{"t": "walk_to", "x": 14080.0},              # até a face da parede de wall-jump
+		{"t": "climb_to", "y": 150.0, "side": "right"},  # wall-jump sobe a parede (topo y120)
+		{"t": "screenshot", "label": "07_z3_wall"},
+		{"t": "walk_to", "x": 14520.0},              # desce do topo da parede p/ FloorA (pista de corrida)
+		{"t": "dash_to", "x": 15500.0, "leap": true, "jump_x": 14746.0},  # DASH-JUMP cruza o fosso (450px) → CorrZ3_Cont
+		{"t": "screenshot", "label": "08_z3_fosso"},
+		{"t": "walk_to", "x": 16524.0},              # Cont floor → corredor do boss
+		{"t": "screenshot", "label": "09_corredor_boss"},
+		# Encosta na porta (abre por proximidade, leva alguns seg) e ENTRA na sala antes
+		# do selo de 1s reativar a Boss_LWall — pressão contínua à direita, patience alta.
+		{"t": "walk_to", "x": 17700.0, "patience": 12.0},  # sala do boss / goal (interior 17154–17986)
+		{"t": "screenshot", "label": "10_sala_boss"},
 	]

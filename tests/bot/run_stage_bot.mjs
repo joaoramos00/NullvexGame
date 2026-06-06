@@ -8,7 +8,8 @@ import { fileURLToPath } from "node:url";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const stage = (process.argv[2] ?? "00").padStart(2, "0");
 const BASE = "http://localhost:8080";
-const URL = `${BASE}/?stage=${stage}&bot=1&noenemies=1`;
+const ZONE = process.env.ZONE ? `&zone=${process.env.ZONE}` : "";
+const URL = `${BASE}/?stage=${stage}&bot=1&noenemies=1${ZONE}`;
 const BOOT_TIMEOUT = 30_000;
 const RUN_TIMEOUT = 180_000;
 // HEADED=1 abre a janela do browser pra acompanhar ao vivo; SLOWMO=ms desacelera as ações.
