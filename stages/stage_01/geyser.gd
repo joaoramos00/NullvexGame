@@ -3,6 +3,7 @@ extends Area2D
 @export var active_time:   float = 2.5
 @export var inactive_time: float = 1.5
 @export var damage:        int   = 20
+@export var start_delay:   float = 0.0   # atrasa o 1º disparo → encadeia gêiseres em sequência
 
 var _active: bool = false
 var _timer:  float = 0.0
@@ -10,7 +11,7 @@ var _bodies_inside: Array[Node] = []
 
 func _ready() -> void:
 	monitoring = false
-	_timer = inactive_time
+	_timer = inactive_time + start_delay
 	body_entered.connect(_on_body_entered)
 	body_exited.connect(_on_body_exited)
 
