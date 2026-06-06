@@ -39,10 +39,25 @@ func path() -> Array:
 		{"t": "walk_to", "x": 3500.0, "no_hop": true},    # Z2Floor (antes da Z2Plat1) — shaft validado
 		{"t": "screenshot", "label": "04_shaft_bottom"},
 
-		# ── Zona 2 ──
+		# ── Zona 2 "Rio de Lava": entrada → rafts → elev → ledge(2 gêis) → elev →
+		# ledge(3 gêis) → raft → saída. Plats em 2560 (rafts/elev) e 2624 (ledges);
+		# rafts/elev congelam no bot. Gêiseres dão dano (bot tanka). ──
 		{"t": "zone", "n": 2},
 		{"t": "screenshot", "label": "03_z2_spawn"},
-		# (a calibrar)
+		{"t": "jump_to", "x": 3940.0, "jump_x": 3690.0},  # Z2Entry → Raft1
+		{"t": "jump_to", "x": 4280.0, "jump_x": 4030.0},  # → Raft2
+		{"t": "jump_to", "x": 4632.0, "jump_x": 4370.0},  # → Elev1 (base)
+		{"t": "jump_to", "x": 4900.0, "jump_x": 4700.0},  # → LedgeMed
+		{"t": "screenshot", "label": "04_z2_med"},
+		{"t": "walk_to", "x": 5420.0},                    # atravessa ledge médio (2 gêiseres)
+		{"t": "jump_to", "x": 5740.0, "jump_x": 5500.0},  # → Elev2 (base)
+		{"t": "jump_to", "x": 6050.0, "jump_x": 5810.0},  # → LedgeHard
+		{"t": "screenshot", "label": "05_z2_hard"},
+		{"t": "walk_to", "x": 6800.0},                    # atravessa ledge difícil (3 gêiseres)
+		{"t": "jump_to", "x": 7100.0, "jump_x": 6850.0},  # → Raft3
+		{"t": "jump_to", "x": 7480.0, "jump_x": 7190.0},  # → Z2Exit
+		{"t": "walk_to", "x": 9800.0},                    # saída → Corredor1
+		{"t": "screenshot", "label": "06_z2_exit"},
 
 		# ── Zona 3 ──
 		{"t": "zone", "n": 3},
