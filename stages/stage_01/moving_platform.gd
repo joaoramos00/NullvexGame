@@ -11,6 +11,8 @@ func _ready() -> void:
 	_start_x = global_position.x
 
 func _physics_process(delta: float) -> void:
+	if DebugBoot.bot_enabled:
+		return   # debug do bot: plataformas paradas (valida o layout, não o timing)
 	var half := move_distance * 0.5
 	global_position.x += _dir * speed * delta
 	if global_position.x >= _start_x + half:

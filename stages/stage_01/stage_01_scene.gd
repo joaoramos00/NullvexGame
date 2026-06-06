@@ -13,3 +13,12 @@ func _ready() -> void:
 func _on_camera_lock(center: Vector2, zoom: float) -> void:
 	$Camera2D.zoom = Vector2(zoom, zoom)
 	# câmera volta a seguir o player automaticamente pelo _process herdado
+
+# Debug ?zone=N: pontos de spawn no início de cada zona (calibração do bot).
+func _zone_spawn(zone: int) -> Vector2:
+	match zone:
+		2: return Vector2(3760, 2480)    # zona 2 — sobre Z2Plat1 (pós shaft ↓)
+		3: return Vector2(11300, 2480)   # zona 3 — sobre Z3Plat1
+		4: return Vector2(16960, 816)    # zona 4 — sobre Z4Plat1 (pós shaft ↑)
+		5: return Vector2(20160, 740)    # boss — sobre BossPlat1
+		_: return Vector2.ZERO           # zona 1 = início normal

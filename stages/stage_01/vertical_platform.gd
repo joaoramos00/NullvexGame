@@ -12,6 +12,8 @@ func _ready() -> void:
 	_dir = -1.0 if start_going_up else 1.0
 
 func _physics_process(delta: float) -> void:
+	if DebugBoot.bot_enabled:
+		return   # debug do bot: plataformas paradas (valida o layout, não o timing)
 	var step := _dir * speed * delta
 	_traveled += step
 	if _traveled >= move_distance * 0.5:
