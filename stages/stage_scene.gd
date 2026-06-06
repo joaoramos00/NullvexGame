@@ -34,7 +34,8 @@ func _ready() -> void:
 	$HUD.connect_to_player(_player)
 	StageManager.spawn_position = $PlayerSpawn.global_position
 	_apply_debug_zone_spawn()
-	$Camera2D.zoom = Vector2(2.2, 2.2)
+	# No modo bot, câmera mais afastada p/ enxergar o layout ao calibrar o caminho.
+	$Camera2D.zoom = Vector2(1.3, 1.3) if DebugBoot.bot_enabled else Vector2(2.2, 2.2)
 	AudioManager.play_bgm(AudioLibrary.get_stage_bgm(StageManager.current_stage_id))
 	_apply_kill_plane()
 	_load_zone_data()

@@ -108,10 +108,15 @@ func _finish() -> void:
 func _do_walk_to(seg: Dictionary) -> bool:
 	var tx := float(seg.get("x", _player.global_position.x))
 	var dx := tx - _player.global_position.x
-	if absf(dx) < TOL:
+	# land=true: só completa POUSADO no x-alvo (não no ar). Essencial p/ descidas em que
+	# o player cai de plataforma em plataforma — senão o walk_to completa no meio da queda
+	# e os segmentos dessincronizam do pouso real.
+	if absf(dx) < TOL and (not bool(seg.get("land", false)) or _player.is_on_floor()):
 		return true
 	_press_dir(signf(dx))
-	if _player.is_on_wall() and _player.is_on_floor():
+	# Hop sobre degraus pequenos ao esbarrar numa parede. no_hop desliga isso (ex.:
+	# descida do shaft, onde encostar na parede da plataforma geraria pulo infinito).
+	if not bool(seg.get("no_hop", false)) and _player.is_on_wall() and _player.is_on_floor():
 		_tap_jump()
 	return false
 
@@ -150,17 +155,27 @@ func _do_jump_to(seg: Dictionary) -> bool:
 	if _player.is_on_floor() and my_v != null and _player.global_position.y > float(my_v):
 		_release_dirs()
 		return false
-	_press_dir(signf(tx - _player.global_position.x))
-	if _player.is_on_floor():
-		# jump_x: corre até a beirada e só então pula (arco limpo na próxima plataforma;
-		# pular do meio faz o player descer na LATERAL da plataforma-alvo e cair).
-		var jx: Variant = seg.get("jump_x", null)
+	# No ar e já perto do x-alvo: cai RETO (sem ficar trocando de lado / oscilando ao
+	# cruzar o alvo). Evita o "trocando de lado" na queda em poços.
+	if not _player.is_on_floor() and absf(tx - _player.global_position.x) < 40.0:
+		_release_dirs()
+	else:
+		_press_dir(signf(tx - _player.global_position.x))
+	var jx: Variant = seg.get("jump_x", null)
+	if jx == null:
+		if _player.is_on_floor():
+			_tap_jump()   # sem jump_x: hop repetido rumo ao alvo (comportamento antigo)
+	else:
+		# jump_x: corre até a beirada e lança UMA vez. NÃO exige on_floor — o coyote time
+		# (0.12s) do personagem cobre o caso de já ter saído da plataforma 1-2 frames antes.
+		# Sem isso, em alta velocidade o player atravessa a janela de 1 frame na beirada e
+		# cai no vão SEM pular (bug Plat3→MovPlat3).
 		var fwd := signf(tx - _player.global_position.x)
-		var at_launch: bool = jx == null \
-			or (fwd >= 0.0 and _player.global_position.x >= float(jx)) \
+		var past: bool = (fwd >= 0.0 and _player.global_position.x >= float(jx)) \
 			or (fwd < 0.0 and _player.global_position.x <= float(jx))
-		if at_launch:
+		if past and not _seg_jumped:
 			_tap_jump()
+			_seg_jumped = true
 	return false
 
 func _stage_node(n: String) -> Node2D:
