@@ -2404,7 +2404,7 @@ func _refresh_tiles() -> void:
         for b: Button in mode_btns:
             b.modulate = Color(1.0, 1.0, 0.0) if b.text == mlbl else Color(0.6, 0.6, 0.6)
 
-    for me: Array in [["Plataforma", "platform"], ["Sala", "room"], ["Piso+Plat", "floor_platform"]]:
+    for me: Array in [["Plataforma", "platform"], ["Sala", "room"], ["Piso+Plat", "floor_platform"], ["Piso+Buraco", "floor_platform_hole"]]:
         var mbtn := Button.new()
         mbtn.text = me[0]
         mbtn.add_theme_font_size_override("font_size", 24)
@@ -2466,6 +2466,14 @@ func _refresh_tiles() -> void:
     rows_hb.add_child(rows_lbl)
     rows_hb.add_child(rows_p)
     ctrl_row.add_child(rows_hb)
+
+    var mirror_btn := Button.new()
+    mirror_btn.text = "Espelhar"
+    mirror_btn.add_theme_font_size_override("font_size", 18)
+    mirror_btn.pressed.connect(func():
+        pview.mirror_hole = not pview.mirror_hole
+        pview.queue_redraw())
+    ctrl_row.add_child(mirror_btn)
 
     plat_panel.add_child(pview)
     pview.set_dims(2, 3)
