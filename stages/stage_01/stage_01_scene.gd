@@ -34,7 +34,7 @@ func _ready() -> void:
 		var node := get_node_or_null(n)
 		if node:
 			node.queue_free()
-	_open_boss_ceiling_gap()
+	_relocate_and_gap_boss()
 	_build_zone2()
 	_build_zone3()
 	_build_zone4()
@@ -43,26 +43,37 @@ func _ready() -> void:
 			corr.setup(_player)
 			corr.camera_lock_requested.connect(_on_camera_lock)
 
-# Abre um vão no teto da câmara do boss (BossCeil) na coluna da cratera, p/ a queda da
-# cratera entrar. Substitui o BossCeil único por 2 segmentos com um vão no meio-direita.
-func _open_boss_ceiling_gap() -> void:
-	var ceil_node := get_node_or_null("BossCeil")
-	if ceil_node == null:
-		return
-	# BossCeil atual: centro (21184, 448), tamanho (2816, 64) → x19776–22592, y416–480.
-	var gap_cx := 21400.0   # coluna da cratera
+# Reposiciona a arena do boss +SHIFT à direita (livre da subida da z4) e recria o teto
+# com um vão na coluna da cratera, p/ a queda da cratera entrar. A subida coupled fica
+# à esquerda da arena (degraus de baixo) e ACIMA das paredes dela (degraus de cima).
+const _BOSS_SHIFT := 2600.0
+const _CRATER_CX := 22700.0
+func _relocate_and_gap_boss() -> void:
 	var gap_w := 256.0
-	var left_x := 19776.0
-	var right_x := 22592.0
+	for bn in ["BossFloor", "BossWallL", "BossWallR", "BossLava", "BossPlat1", "BossPlat2", "Ignarath"]:
+		var node := get_node_or_null(bn)
+		if node:
+			(node as Node2D).position.x += _BOSS_SHIFT
+	var ign := get_node_or_null("Ignarath")
+	if ign:
+		ign.set("arena_left", float(ign.get("arena_left")) + _BOSS_SHIFT)
+		ign.set("arena_right", float(ign.get("arena_right")) + _BOSS_SHIFT)
+	# Recria o teto deslocado com um vão na coluna da cratera.
+	var ceil_node := get_node_or_null("BossCeil")
+	if ceil_node:
+		ceil_node.queue_free()
+	var left_x := 19776.0 + _BOSS_SHIFT    # 21776
+	var right_x := 22592.0 + _BOSS_SHIFT   # 24592
 	var top := 416.0
 	var h := 64.0
-	ceil_node.queue_free()
-	var lw := (gap_cx - gap_w * 0.5) - left_x
-	var lb := _z2_static("BossCeilL", Vector2(left_x + lw * 0.5, top + h * 0.5), Vector2(lw, h))
-	lb.set_meta("tileset_override", _Z2_FLOOR_TILE)
-	var rw := right_x - (gap_cx + gap_w * 0.5)
-	var rb := _z2_static("BossCeilR", Vector2((gap_cx + gap_w * 0.5) + rw * 0.5, top + h * 0.5), Vector2(rw, h))
-	rb.set_meta("tileset_override", _Z2_FLOOR_TILE)
+	var lw := (_CRATER_CX - gap_w * 0.5) - left_x
+	if lw > 0.0:
+		var lb := _z2_static("BossCeilL", Vector2(left_x + lw * 0.5, top + h * 0.5), Vector2(lw, h))
+		lb.set_meta("tileset_override", _Z2_FLOOR_TILE)
+	var rw := right_x - (_CRATER_CX + gap_w * 0.5)
+	if rw > 0.0:
+		var rb := _z2_static("BossCeilR", Vector2((_CRATER_CX + gap_w * 0.5) + rw * 0.5, top + h * 0.5), Vector2(rw, h))
+		rb.set_meta("tileset_override", _Z2_FLOOR_TILE)
 
 func _on_camera_lock(center: Vector2, zoom: float) -> void:
 	$Camera2D.zoom = Vector2(zoom, zoom)
@@ -336,21 +347,25 @@ func _build_zone4() -> void:
 	_z3_static_floor("Z4MidA", Vector2(18560, 1648), Vector2(640, 128))   # x18240–18880
 	_z3_static_floor("Z4MidB", Vector2(19200, 1648), Vector2(640, 128))   # x18880–19520
 
-	# Escada-coupled: 10 degraus largos (256) de topo 1480 → 544. dx140 (>128 p/ o centro
-	# cair ANTES do muro do próximo) / dy104. Último centro ~x20908.
-	_z4_stair("Z4CoupStep", 19520.0, 1480.0, 140.0, 104.0, 10, 256.0)
-	# Lava-coupled: segue a altura do player; só sobe; X limitada (x18700–20700, longe
-	# da cratera em 21400, senão o player bate nela ao cair).
-	var coup := _z4_lava("Z4CoupLava", "coupled", 19700.0, 1820.0, 2000.0, 1400.0)
+	# Escada-coupled: 12 degraus largos (256), dx190/dy104, de topo 1448 → 304. Sobe ACIMA
+	# do teto da arena do boss (topo do muro 448): degraus de baixo (y>448) ficam à esq.
+	# da arena; degraus de cima (y<448) passam acima dela sem conflito. Último ~x21738.
+	_z4_stair("Z4CoupStep", 19520.0, 1480.0, 180.0, 96.0, 13, 256.0)
+	# Lava-coupled: segue a altura do player; só sobe; X limitada (x19300–22100, à esq.
+	# da cratera em 22700, senão o player bate nela ao cair).
+	var coup := _z4_lava("Z4CoupLava", "coupled", 20700.0, 1820.0, 2800.0, 1600.0)
 	coup.set("coupled_offset", 240.0)
 	if is_instance_valid(_player):
 		coup.call("set_player", _player)
 
-	# Topo: patamar do fim da escada até a borda da cratera (21400). Checkpoint+cura.
-	_z3_static_floor("Z4Top", Vector2(21150, 608), Vector2(500, 128))    # x20900–21400, topo 544
+	# Topo: patamar acima da arena (topo 250 < teto-do-muro 448, sem conflito) até a borda
+	# da cratera (22100, sobre o vão do teto da arena). Checkpoint + cura.
+	# Coplanar com o último degrau (topo 328), abutando sem sobreposição → o player anda
+	# direto do degrau 12 pro Z4Top, até a borda da cratera (22700).
+	_z3_static_floor("Z4Top", Vector2(22318, 392), Vector2(764, 128))    # x21936–22700, topo 328
 	var cp := preload("res://stages/checkpoint.tscn").instantiate()
 	cp.name = "Z4Checkpoint"
-	cp.position = Vector2(21150, 480)
+	cp.position = Vector2(22318, 264)
 	cp.set("checkpoint_index", 2)
 	add_child(cp)
 	# Cura ao chegar no topo (o nó Checkpoint só salva; a cura era do corredor).
@@ -358,8 +373,8 @@ func _build_zone4() -> void:
 	heal.name = "Z4TopHeal"
 	heal.collision_layer = 0
 	heal.collision_mask = 2
-	heal.position = Vector2(21150, 480)
-	heal.add_child(_z2_shape(Vector2(500, 160)))
+	heal.position = Vector2(22318, 264)
+	heal.add_child(_z2_shape(Vector2(764, 160)))
 	add_child(heal)
 	var healed := [false]   # Array p/ a lambda capturar por referência (não por valor)
 	heal.body_entered.connect(func(b: Node) -> void:
@@ -379,7 +394,7 @@ func _build_zone4() -> void:
 		lip.region_enabled = true
 		lip.region_rect = Rect2(0, 0, 128, 32)
 		lip.scale = Vector2(2, 2)
-		lip.position = Vector2(21400, 528)
+		lip.position = Vector2(_CRATER_CX - 128.0, 234.0)
 		var lmat := ShaderMaterial.new()
 		lmat.shader = _LAVA_SHADER
 		lip.material = lmat
@@ -420,8 +435,8 @@ func _zone_spawn(zone: int) -> Vector2:
 		2: return Vector2(3300, 2540)    # zona 2 nova — sobre a Z2Entry (pós shaft ↓)
 		3: return Vector2(10800, 2480)   # zona 3 nova — piso de entrada (runway p/ a plataforma)
 		4: return Vector2(16320, 2480)   # zona 4 — base da escada-chase
-		5: return Vector2(21184, 800)    # boss — dentro da arena
+		5: return Vector2(23784, 800)    # boss — dentro da arena (reposicionada +2600)
 		6: return Vector2(2640, 540)     # DEBUG: shaft ↓ — sobre a Z1Plat4 (testar descida)
 		7: return Vector2(18560, 1500)   # DEBUG: patamar do meio da z4
-		8: return Vector2(21150, 400)    # DEBUG: topo da escada-coupled (Z4Top)
+		8: return Vector2(22318, 200)    # DEBUG: topo da escada-coupled (Z4Top)
 		_: return Vector2.ZERO           # zona 1 = início normal
