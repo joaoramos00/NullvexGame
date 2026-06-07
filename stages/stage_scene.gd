@@ -138,7 +138,11 @@ func _draw() -> void:
 			var rect := Rect2(center - size * 0.5, size)
 			var tex: Texture2D = null
 			var mode := "lava"   # default: estático sem meta = poça/floor de lava
-			if child.has_meta("tileset_override"):
+			if child.has_meta("lava_override"):
+				# textura custom desenhada como LAVA (topo tile (3,0) + corpo (2,1))
+				tex = _cached_override_tex(child.get_meta("lava_override"))
+				mode = "lava"
+			elif child.has_meta("tileset_override"):
 				tex = _cached_override_tex(child.get_meta("tileset_override"))
 				mode = "fill"
 			elif child.has_meta("platform_override"):
