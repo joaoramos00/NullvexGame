@@ -8,6 +8,7 @@ func _ready() -> void:
 	_test_lava_floor_damages_player()
 	_test_geyser_inactive_no_damage()
 	_test_geyser_active_damages_player()
+	_test_geyser_visual_toggles()
 	_test_cracked_wall_no_galerix()
 	_test_cracked_wall_with_galerix()
 	_test_moving_platform_reverses()
@@ -44,6 +45,21 @@ func _test_geyser_active_damages_player() -> void:
 	g._timer = 0.0
 	g._process(0.001)  # dispara troca de estado
 	_assert(g.monitoring == true, "geyser ativa monitoring após timer expirar")
+	g.queue_free()
+
+func _test_geyser_visual_toggles() -> void:
+	var g := preload("res://stages/stage_01/geyser.gd").new()
+	var cs := CollisionShape2D.new()
+	var rect := RectangleShape2D.new()
+	rect.size = Vector2(64, 360)
+	cs.shape = rect
+	g.add_child(cs)
+	add_child(g)  # _ready cria o jato a partir da CollisionShape2D
+	_assert(g._fire != null, "geyser cria visual de jato de lava")
+	_assert(g._fire != null and not g._fire.visible, "jato invisível quando inativo")
+	g._timer = 0.0
+	g._process(0.001)  # → ativo
+	_assert(g._fire != null and g._fire.visible, "jato visível quando ativo")
 	g.queue_free()
 
 # ── CrackedWall ────────────────────────────────────────────────────────────────
