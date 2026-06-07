@@ -174,10 +174,11 @@ func _build_zone2() -> void:
 	# Entrada (saída do shaft) e saída (→ Corredor1) sólidas.
 	_z2_static("Z2Entry", Vector2(3350, 2688), Vector2(700, 128))   # x3000–3700 topo 2624
 	_z2_static("Z2Exit",  Vector2(8620, 2688), Vector2(2560, 128))  # x7340–9900 topo 2624
-	# Rafts horizontais (deslizam na lava; congelam no bot).
-	_z2_raft("Z2Raft1", Vector2(3940, 2592), Vector2(200, 64), 300.0, 70.0)
-	_z2_raft("Z2Raft2", Vector2(4280, 2592), Vector2(200, 64), 300.0, 70.0)
-	_z2_raft("Z2Raft3", Vector2(7100, 2592), Vector2(200, 64), 300.0, 70.0)
+	# Rafts horizontais (deslizam na lava; congelam no bot). y2640: fundo (2672) na crosta
+	# da lava (~2668) → boiando na lava; topo 2608, ainda 92px acima da superfície que mata (2700).
+	_z2_raft("Z2Raft1", Vector2(3940, 2640), Vector2(200, 64), 300.0, 70.0)
+	_z2_raft("Z2Raft2", Vector2(4280, 2640), Vector2(200, 64), 300.0, 70.0)
+	_z2_raft("Z2Raft3", Vector2(7100, 2640), Vector2(200, 64), 300.0, 70.0)
 	# Elevadores de gêiser (sobem da base aos espinhos; congelam na base no bot).
 	_z2_elev("Z2Elev1", Vector2(4632, 2592), Vector2(160, 64), 320.0, 60.0)
 	_z2_elev("Z2Elev2", Vector2(5740, 2592), Vector2(160, 64), 320.0, 60.0)
