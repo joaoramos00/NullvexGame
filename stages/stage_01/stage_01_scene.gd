@@ -160,7 +160,10 @@ func _build_zone2() -> void:
 			node.queue_free()
 	# Lava instant-kill (superfície) + corpo sólido de lava (visual) por toda a extensão.
 	_z2_lava("Z2NewLava", Vector2(6450, 2800), Vector2(7000, 200), true)
-	var z2lf := _z2_static("Z2NewLavaFloor", Vector2(6450, 2960), Vector2(7000, 240))
+	# Corpo visível alinhado com a superfície de kill (Z2NewLava topo 2700): topo do rect
+	# em 2700 (centro 2820 p/ altura 240) → crosta ~2668, logo abaixo das plataformas. Antes
+	# ficava em 2840 → havia uma faixa que matava sem mostrar lava (parecia vazio).
+	var z2lf := _z2_static("Z2NewLavaFloor", Vector2(6450, 2820), Vector2(7000, 240))
 	z2lf.set_meta("lava_override", _LAVA_TILE)  # lava da zona 2: topo (3,0) + corpo (2,1)
 	# Teto + espinhos só na região dos elevadores (perigo ao subir). Teto com tile de
 	# fill (igual base do floor) + PNG de espinhos apontando pra baixo.
