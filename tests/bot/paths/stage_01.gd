@@ -117,8 +117,8 @@ func path() -> Array:
 		{"t": "jump_to", "x": 21744.0, "jump_x": 21598.0},   # → degrau 12 (último)
 		{"t": "walk_to", "x": 22250.0, "land": true},        # anda do degrau 12 pro Z4Top (coplanar) + checkpoint
 		{"t": "screenshot", "label": "11_z4_top"},
-		{"t": "walk_to", "x": 22700.0},                      # anda até a borda da cratera (x22700)
-		{"t": "drop", "dir": 1.0},                           # cai pela boca da cratera → arena
+		{"t": "walk_to", "x": 22700.0},                      # anda pra fora da beira (Z4Top acaba em 22572) → dentro do vão da cratera
+		{"t": "drop", "dir": 1.0},                           # já caindo pela boca da cratera → arena
 		{"t": "wait", "seconds": 1.5},
 		{"t": "screenshot", "label": "12_boss"},
 	]
