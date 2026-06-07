@@ -123,6 +123,11 @@ func _draw() -> void:
 	for child in get_children():
 		if not child is StaticBody2D:
 			continue
+		if child.has_meta("skip_base_draw"):
+			continue   # desenhado por um render dedicado (ex.: sala do boss unificada)
+		if child.has_meta("fp_params"):
+			_draw_fp_node(child)   # peça piso+plataforma (heightfield) — desenho próprio
+			continue
 		for shape_child in child.get_children():
 			if not shape_child is CollisionShape2D:
 				continue
@@ -132,19 +137,20 @@ func _draw() -> void:
 			var center: Vector2 = (child as Node2D).position + (shape_child as Node2D).position
 			var rect := Rect2(center - size * 0.5, size)
 			var tex: Texture2D = null
-			var use_fill := false
+			var mode := "lava"   # default: estático sem meta = poça/floor de lava
 			if child.has_meta("tileset_override"):
 				tex = _cached_override_tex(child.get_meta("tileset_override"))
-				use_fill = true
+				mode = "fill"
 			elif child.has_meta("platform_override"):
 				tex = _cached_override_tex(child.get_meta("platform_override"))
+				mode = "platform"
 			if tex == null:
 				tex = _get_zone_tileset(center)
 			if tex != null:
-				if use_fill:
-					_draw_fill_tiles(rect, tex)
-				else:
-					_draw_lava_tiles(rect, tex)
+				match mode:
+					"fill":     _draw_fill_tiles(rect, tex)
+					"platform": _draw_platform_tiles(rect, tex)
+					_:          _draw_lava_tiles(rect, tex)
 			else:
 				draw_rect(rect, platform_color)
 
@@ -237,6 +243,68 @@ func _tile_at(col: int, cols: int, row: int, rows: int) -> Vector2i:
 	if is_left:  return Vector2i(3, 2)
 	if is_right: return Vector2i(1, 0)
 	return Vector2i(2, 1)
+
+# ─── Peça "piso + plataforma" (heightfield) ──────────────────────────────────
+# Piso reto + plataforma elevada (sem vão embaixo) + piso reto, como UM bloco só.
+# Espelha _fp_solid/_fp_tile de ui/img_debug.gd (modo "Piso+Plat"). Parâmetros via
+# meta "fp_params": {left_cols, plat_cols, right_cols, elev_rows, depth_rows,
+# left_x, surface_y, tex_path}. Colisão = 2 retângulos (piso + plataforma).
+func _fp_solid(c: int, r: int, lc: int, pc: int, er: int, total_c: int, total_r: int, hole: int) -> bool:
+	if c < 0 or r < 0 or c >= total_c or r >= total_r:
+		return false
+	var in_plat: bool = c >= lc and c < lc + pc
+	if in_plat:
+		return true          # plataforma: sólida do topo (row 0) até a base
+	if hole > 0 and c >= lc + pc:
+		return false         # buraco à direita: piso direito é abismo (vazio total)
+	if hole < 0 and c < lc:
+		return false         # buraco à esquerda: piso esquerdo é abismo
+	return r >= er           # piso lateral: sólido a partir da superfície (row = elev)
+
+func _fp_tile(c: int, r: int, lc: int, pc: int, er: int, total_c: int, total_r: int, hole: int) -> Vector2i:
+	var eu := not _fp_solid(c, r - 1, lc, pc, er, total_c, total_r, hole)
+	var ed := not _fp_solid(c, r + 1, lc, pc, er, total_c, total_r, hole)
+	var el := not _fp_solid(c - 1, r, lc, pc, er, total_c, total_r, hole)
+	var er_x := not _fp_solid(c + 1, r, lc, pc, er, total_c, total_r, hole)
+	if eu and el: return Vector2i(1, 3)   # canto sup-esq
+	if eu and er_x: return Vector2i(0, 0)  # canto sup-dir
+	if ed and el: return Vector2i(0, 2)   # canto inf-esq
+	if ed and er_x: return Vector2i(3, 3)  # canto inf-dir
+	if eu: return Vector2i(3, 0)          # TOP (superfície)
+	if ed: return Vector2i(1, 2)          # BOTTOM
+	if el: return Vector2i(1, 0)          # parede esquerda visual
+	if er_x: return Vector2i(3, 2)        # parede direita visual
+	if not _fp_solid(c - 1, r - 1, lc, pc, er, total_c, total_r, hole): return Vector2i(1, 1)  # entalhe sup-esq
+	if not _fp_solid(c + 1, r - 1, lc, pc, er, total_c, total_r, hole): return Vector2i(2, 0)  # entalhe sup-dir
+	return Vector2i(2, 1)                  # FILL
+
+func _draw_fp_node(node: Node) -> void:
+	var p: Dictionary = node.get_meta("fp_params")
+	var tex: Texture2D = _cached_override_tex(p["tex_path"])
+	if tex == null:
+		return
+	var lc: int = p["left_cols"]
+	var pc: int = p["plat_cols"]
+	var rc: int = p["right_cols"]
+	var er: int = p["elev_rows"]
+	var dr: int = p["depth_rows"]
+	var hole: int = p.get("hole_dir", 0)
+	var total_c: int = lc + pc + rc
+	var total_r: int = er + dr
+	var gx: float = p["left_x"]
+	var gy: float = float(p["surface_y"]) - er * _TS   # topo da grade (topo da plataforma)
+	var ts := _TS
+	var src := _SRC_TS
+	for r in total_r:
+		for c in total_c:
+			if not _fp_solid(c, r, lc, pc, er, total_c, total_r, hole):
+				continue
+			var t := _fp_tile(c, r, lc, pc, er, total_c, total_r, hole)
+			var dx := gx + c * ts
+			var dy := gy + r * ts - src   # alinha face sólida superior com a colisão
+			draw_texture_rect_region(tex,
+				Rect2(dx, dy, ts, ts),
+				Rect2(t.x * src, t.y * src, src, src))
 
 # Debug: ?zone=N spawna o player direto no início de uma zona (calibração do bot).
 # Cada cena define suas zonas em _zone_spawn(); base retorna ZERO (sem spawn).

@@ -8,6 +8,10 @@ signal door_closed
 
 @export var open_offset: float = -128.0
 @export var tween_duration: float = 0.35
+## 0 = abre de qualquer lado (padrão). -1 = só abre quando o corpo está à ESQUERDA
+## da porta (entra indo p/ a direita). +1 = só da direita. Corredores left→right usam -1
+## p/ a porta não reabrir/ser atravessada pelo lado de saída (bug parede transpassável).
+@export var open_from_side: int = 0
 
 @onready var _sprite: ColorRect = $ColorRect
 @onready var _collider: CollisionShape2D = $CollisionShape2D
@@ -44,5 +48,11 @@ func close() -> void:
 	door_closed.emit()
 
 func _on_body_entered(body: Node2D) -> void:
-	if body.is_in_group("player"):
-		open()
+	if not body.is_in_group("player"):
+		return
+	# Guarda direcional: não abrir quando o player chega pelo lado "errado".
+	if open_from_side < 0 and body.global_position.x > global_position.x:
+		return
+	if open_from_side > 0 and body.global_position.x < global_position.x:
+		return
+	open()
