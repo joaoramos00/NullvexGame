@@ -171,6 +171,7 @@ func test_floor_platform_hole_tiles() -> void:
     assert(pv._fp_tile(5, 1) == Vector2i(3, 2), "lateral do penhasco direito = (3,2)")
     assert(pv._fp_solid(0, 2), "piso esquerdo deve continuar sólido")
     assert(pv._fp_tile(1, 2) == Vector2i(3, 0), "superfície do piso esquerdo (TOP)")
+    assert(pv._fp_tile(0, 2) == Vector2i(1, 3), "canto sup-esq do piso esquerdo sobrevivente = (1,3)")
 
     # Buraco à esquerda (mirror_hole = true)
     pv.mirror_hole = true
@@ -181,6 +182,7 @@ func test_floor_platform_hole_tiles() -> void:
     assert(pv._fp_tile(3, 1) == Vector2i(1, 0), "lateral do penhasco esquerdo = (1,0)")
     assert(pv._fp_solid(8, 2), "piso direito deve continuar sólido")
     assert(pv._fp_tile(7, 2) == Vector2i(3, 0), "superfície do piso direito (TOP)")
+    assert(pv._fp_tile(8, 2) == Vector2i(0, 0), "canto sup-dir do piso direito sobrevivente = (0,0)")
 
     # Modo clássico não afetado
     pv.mode = "floor_platform"
