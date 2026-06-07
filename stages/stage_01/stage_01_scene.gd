@@ -325,8 +325,9 @@ func _build_zone4() -> void:
 	# Base: piso de transição após a Z3Exit (topo 2624).
 	_z3_static_floor("Z4Base", Vector2(16320, 2688), Vector2(320, 128))   # x16160–16480
 
-	# Escada-chase: 10 degraus (dy104≤118, dx192≤196) de topo 2520 → 1584.
-	_z4_stair("Z4ChaseStep", 16480.0, 2520.0, 192.0, 104.0, 10)
+	# Escada-chase: 10 degraus (dy104, dx192) de topo 2520 → 1584. Degraus estreitos (128)
+	# → buracos de lava de ~64px entre eles (pulos discretos, não escada contínua).
+	_z4_stair("Z4ChaseStep", 16480.0, 2520.0, 192.0, 104.0, 10, 128.0)
 	# Lava-chase: sobe contínua da base até o cap (logo abaixo do patamar).
 	var chase := _z4_lava("Z4ChaseLava", "chase", 17400.0, 2820.0, 3600.0, 1200.0)
 	chase.set("rise_speed", 80.0)
@@ -350,7 +351,7 @@ func _build_zone4() -> void:
 	# Escada-coupled: 12 degraus largos (256), dx190/dy104, de topo 1448 → 304. Sobe ACIMA
 	# do teto da arena do boss (topo do muro 448): degraus de baixo (y>448) ficam à esq.
 	# da arena; degraus de cima (y<448) passam acima dela sem conflito. Último ~x21738.
-	_z4_stair("Z4CoupStep", 19520.0, 1480.0, 180.0, 96.0, 13, 256.0)
+	_z4_stair("Z4CoupStep", 19520.0, 1480.0, 180.0, 96.0, 13, 128.0)
 	# Lava-coupled: segue a altura do player; só sobe; X limitada (x19300–22100, à esq.
 	# da cratera em 22700, senão o player bate nela ao cair).
 	var coup := _z4_lava("Z4CoupLava", "coupled", 20700.0, 1820.0, 2800.0, 1600.0)
@@ -362,10 +363,10 @@ func _build_zone4() -> void:
 	# da cratera (22100, sobre o vão do teto da arena). Checkpoint + cura.
 	# Coplanar com o último degrau (topo 328), abutando sem sobreposição → o player anda
 	# direto do degrau 12 pro Z4Top, até a borda da cratera (22700).
-	_z3_static_floor("Z4Top", Vector2(22318, 392), Vector2(764, 128))    # x21936–22700, topo 328
+	_z3_static_floor("Z4Top", Vector2(22250, 392), Vector2(900, 128))    # x21800–22700, topo 328 (abuta o último degrau)
 	var cp := preload("res://stages/checkpoint.tscn").instantiate()
 	cp.name = "Z4Checkpoint"
-	cp.position = Vector2(22318, 264)
+	cp.position = Vector2(22250, 264)
 	cp.set("checkpoint_index", 2)
 	add_child(cp)
 	# Cura ao chegar no topo (o nó Checkpoint só salva; a cura era do corredor).
@@ -373,8 +374,8 @@ func _build_zone4() -> void:
 	heal.name = "Z4TopHeal"
 	heal.collision_layer = 0
 	heal.collision_mask = 2
-	heal.position = Vector2(22318, 264)
-	heal.add_child(_z2_shape(Vector2(764, 160)))
+	heal.position = Vector2(22250, 264)
+	heal.add_child(_z2_shape(Vector2(900, 160)))
 	add_child(heal)
 	var healed := [false]   # Array p/ a lambda capturar por referência (não por valor)
 	heal.body_entered.connect(func(b: Node) -> void:
@@ -438,5 +439,5 @@ func _zone_spawn(zone: int) -> Vector2:
 		5: return Vector2(23784, 800)    # boss — dentro da arena (reposicionada +2600)
 		6: return Vector2(2640, 540)     # DEBUG: shaft ↓ — sobre a Z1Plat4 (testar descida)
 		7: return Vector2(18560, 1500)   # DEBUG: patamar do meio da z4
-		8: return Vector2(22318, 200)    # DEBUG: topo da escada-coupled (Z4Top)
+		8: return Vector2(22250, 200)    # DEBUG: topo da escada-coupled (Z4Top)
 		_: return Vector2.ZERO           # zona 1 = início normal
