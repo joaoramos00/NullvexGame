@@ -8,7 +8,7 @@ const _LAVA    := preload("res://stages/stage_01/lava_floor.gd")
 const _RISING_LAVA := preload("res://stages/stage_01/rising_lava.gd")
 const _LAVA_SHADER := preload("res://stages/stage_01/lava_flow.gdshader")
 const _SPIKES_TEX := preload("res://stages/stage_01/spikes.png")
-const _LAVA_TILE := "res://stages/stage_01/stage_01_lava_v2.png"  # toda lava da fase usa v2
+const _LAVA_TILE := "res://stages/stage_01/Stage_01_lava_v2.png"  # toda lava da fase usa v2 (case-sensitive no PCK web!)
 const _Z2_FLOOR_TILE := "res://stages/stage_01/Stage_01T_z2.png"  # mesmo tile do floor
 const _ROOM_TILE := preload("res://stages/stage_01/Stage_01T_z1.png")  # rocha escura: câmara do boss
 
@@ -429,7 +429,11 @@ func _build_zone4() -> void:
 	# da cratera (22100, sobre o vão do teto da arena). Checkpoint + cura.
 	# Coplanar com o último degrau (topo 328), abutando sem sobreposição → o player anda
 	# direto do degrau 12 pro Z4Top, até a borda da cratera (22700).
-	_z3_static_floor("Z4Top", Vector2(22250, 392), Vector2(900, 128))    # x21800–22700, topo 328 (abuta o último degrau)
+	# Termina na BORDA ESQUERDA do vão da cratera (22572 = _CRATER_CX-128), não no centro.
+	# Assim os 256px do vão (22572–22828) ficam todos como queda aberta à direita do Z4Top →
+	# o player anda pra fora da beira e cai limpo na arena (antes a beira ficava no meio do vão
+	# e o player re-agarrava em vez de cair). x21800–22572, topo 328 (abuta o último degrau).
+	_z3_static_floor("Z4Top", Vector2(22186, 392), Vector2(772, 128))
 	var cp := preload("res://stages/checkpoint.tscn").instantiate()
 	cp.name = "Z4Checkpoint"
 	cp.position = Vector2(22250, 264)
