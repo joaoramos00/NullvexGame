@@ -706,7 +706,8 @@ class _PlatformView extends Control:
     func set_dims(r: int, c: int) -> void:
         rows = r
         cols = c
-        var gd := _fp_grid() if mode == "floor_platform" else Vector2i(c, r)
+        var _is_fp := mode == "floor_platform" or mode == "floor_platform_hole"
+        var gd := _fp_grid() if _is_fp else Vector2i(c, r)
         custom_minimum_size = Vector2(gd.x * _TD, gd.y * _TD)
         queue_redraw()
 
@@ -714,7 +715,7 @@ class _PlatformView extends Control:
         draw_rect(Rect2(Vector2.ZERO, size), Color(0.04, 0.06, 0.14))
         if not tile_tex:
             return
-        if mode == "floor_platform":
+        if mode == "floor_platform" or mode == "floor_platform_hole":
             _draw_floor_platform()
             return
         for row in rows:
@@ -868,18 +869,22 @@ class _PlatformView extends Control:
                 draw_texture_rect_region(tile_tex,
                     Rect2(c * _TD, r * _TD, _TD, _TD),
                     Rect2(t.x * _TS, t.y * _TS, _TS, _TS))
-        # Linha amarela na superfície que o player percorre (piso → plataforma → piso)
+        # Linha amarela na superfície que o player percorre. Com buraco, o caminho
+        # para no penhasco do lado vazio (não desce nem segue como piso).
         var yellow := Color(1.0, 0.9, 0.0, 0.9)
         var floor_y := rows * _TD
         var plat_y  := 0.0
         var lx := _FP_SIDE * _TD
         var rx := (_FP_SIDE + cols) * _TD
         var w  := g.x * _TD
-        draw_line(Vector2(0.0, floor_y), Vector2(lx, floor_y), yellow, 1.5)   # piso esq
-        draw_line(Vector2(lx, floor_y), Vector2(lx, plat_y), yellow, 1.5)     # sobe
-        draw_line(Vector2(lx, plat_y), Vector2(rx, plat_y), yellow, 1.5)      # topo plat
-        draw_line(Vector2(rx, plat_y), Vector2(rx, floor_y), yellow, 1.5)     # desce
-        draw_line(Vector2(rx, floor_y), Vector2(w, floor_y), yellow, 1.5)     # piso dir
+        var hole := _fp_hole_dir()
+        if hole >= 0:
+            draw_line(Vector2(0.0, floor_y), Vector2(lx, floor_y), yellow, 1.5)   # piso esq
+            draw_line(Vector2(lx, floor_y), Vector2(lx, plat_y), yellow, 1.5)     # sobe (esq)
+        draw_line(Vector2(lx, plat_y), Vector2(rx, plat_y), yellow, 1.5)          # topo plat
+        if hole <= 0:
+            draw_line(Vector2(rx, plat_y), Vector2(rx, floor_y), yellow, 1.5)     # desce (dir)
+            draw_line(Vector2(rx, floor_y), Vector2(w, floor_y), yellow, 1.5)     # piso dir
 
 # Nó que vive dentro do SubViewport — desenha fundo, tiles e linhas de colisão
 class _MovWorld extends Node2D:
