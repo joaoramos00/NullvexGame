@@ -463,10 +463,38 @@ func _z4_lava(n: String, mode: String, center_x: float, low_y: float, width: flo
 	a.set("mode", mode)
 	a.set("low_y", low_y)
 	a.position = Vector2(center_x, low_y)
+	a.z_index = 1                            # na frente das plataformas (igual à lava da z3)
 	var cs := _z2_shape(Vector2(width, height))
 	cs.position = Vector2(0, height * 0.5)   # topo da hitbox no y do nó (= superfície)
 	a.add_child(cs)
 	add_child(a)
+	# Visual: corpo (fill) + crosta (top) tilados, com shader de fluxo (igual à lava da z3).
+	var mat := ShaderMaterial.new()
+	mat.shader = _LAVA_SHADER
+	var fill_tex: Texture2D = load("res://stages/stage_01/lava_fill.png")
+	var top_tex: Texture2D = load("res://stages/stage_01/lava_top.png")
+	if fill_tex:
+		var body := Sprite2D.new()
+		body.texture = fill_tex
+		body.centered = false
+		body.texture_repeat = CanvasItem.TEXTURE_REPEAT_ENABLED
+		body.region_enabled = true
+		body.region_rect = Rect2(0, 0, width * 0.5, (height - 64.0) * 0.5)  # *0.5 → scale 2
+		body.scale = Vector2(2, 2)
+		body.position = Vector2(-width * 0.5, 64.0)
+		body.material = mat
+		a.add_child(body)
+	if top_tex:
+		var top := Sprite2D.new()
+		top.texture = top_tex
+		top.centered = false
+		top.texture_repeat = CanvasItem.TEXTURE_REPEAT_ENABLED
+		top.region_enabled = true
+		top.region_rect = Rect2(0, 0, width * 0.5, 32.0)              # crosta ~64px no mundo
+		top.scale = Vector2(2, 2)
+		top.position = Vector2(-width * 0.5, 0.0)
+		top.material = mat
+		a.add_child(top)
 	return a
 
 # Escada ascendente de plataformas-degrau (slabs com cara de chão). Cada degrau sobe
