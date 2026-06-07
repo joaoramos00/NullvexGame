@@ -57,9 +57,12 @@ func _apply_kill_plane() -> void:
 	if lowest > -INF:
 		_player.kill_y = maxf(CharacterBase.KILL_Y, lowest + 600.0)
 
+# Câmera sobe um pouco em relação ao player: foco acima dele → o player fica um
+# pouco abaixo do centro, mostrando mais à frente/acima (limites do Camera2D ainda clampam).
+const _CAM_RISE := 70.0
 func _process(_delta: float) -> void:
 	if is_instance_valid(_player):
-		$Camera2D.global_position = _player.global_position
+		$Camera2D.global_position = _player.global_position - Vector2(0.0, _CAM_RISE)
 	queue_redraw()
 
 func _unhandled_input(event: InputEvent) -> void:
