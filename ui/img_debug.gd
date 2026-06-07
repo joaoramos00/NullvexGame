@@ -692,7 +692,8 @@ class _PlatformView extends Control:
     var tile_tex: Texture2D
     var rows: int = 2
     var cols: int = 3
-    var mode: String = "platform"   # "platform" | "room" | "floor_platform"
+    var mode: String = "platform"   # "platform" | "room" | "floor_platform" | "floor_platform_hole"
+    var mirror_hole: bool = false    # floor_platform_hole: false = buraco à direita, true = à esquerda
 
     const _TS := 32.0   # tamanho source
     const _TD := 48.0   # tamanho exibido
@@ -808,6 +809,14 @@ class _PlatformView extends Control:
     # Heightfield: colunas das laterais têm topo no nível do piso; colunas do meio
     # sobem `rows` tiles. Marching-squares por célula escolhe o tile pela máscara
     # de faces expostas (eixos em screen-space, row 0 = topo).
+
+    # Direção do buraco no modo floor_platform_hole: +1 = direita vazia, -1 = esquerda vazia.
+    # 0 nos demais modos → floor_platform clássico fica intocado.
+    func _fp_hole_dir() -> int:
+        if mode != "floor_platform_hole":
+            return 0
+        return -1 if mirror_hole else 1
+
     func _fp_grid() -> Vector2i:
         var ctot: int = _FP_SIDE + cols + _FP_SIDE
         var rtot: int = rows + _FP_DEPTH
@@ -820,6 +829,11 @@ class _PlatformView extends Control:
         var in_plat: bool = c >= _FP_SIDE and c < _FP_SIDE + cols
         if in_plat:
             return true              # plataforma: sólida do topo (row 0) até a base
+        var hole := _fp_hole_dir()
+        if hole > 0 and c >= _FP_SIDE + cols:
+            return false             # buraco à direita: lado direito é abismo (vazio total)
+        if hole < 0 and c < _FP_SIDE:
+            return false             # buraco à esquerda: lado esquerdo é abismo
         return r >= rows             # piso lateral: sólido a partir da superfície
 
     func _fp_tile(c: int, r: int) -> Vector2i:

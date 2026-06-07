@@ -10,6 +10,7 @@ func _ready() -> void:
     test_frame_cycling()
     test_platform_tab_shows_panel()
     test_floor_platform_tiles()
+    test_floor_platform_hole_tiles()
     print("ALL TESTS PASSED")
     get_tree().quit(0)
 
@@ -150,6 +151,44 @@ func test_floor_platform_tiles() -> void:
 
     pv.free()
     print("PASS: floor_platform_tiles")
+
+# Modo "Piso+Buraco": um lado vira abismo (vazio total); o penhasco da plataforma
+# sai do marching-squares. mirror_hole alterna o lado. Grid igual ao floor_platform (9x4).
+func test_floor_platform_hole_tiles() -> void:
+    var pv = ImgDebug._PlatformView.new()
+    pv.mode = "floor_platform_hole"
+    pv.cols = 3   # largura da plataforma
+    pv.rows = 2   # elevação acima do piso
+
+    assert(pv._fp_grid() == Vector2i(9, 4), "grid deve ser 9x4 (igual floor_platform)")
+
+    # Buraco à direita (padrão: mirror_hole = false)
+    pv.mirror_hole = false
+    assert(pv._fp_hole_dir() == 1, "hole_dir deve ser +1 (buraco à direita)")
+    assert(not pv._fp_solid(6, 2), "coluna 6 (lado direito) deve ser vazia")
+    assert(not pv._fp_solid(8, 0), "coluna 8 deve ser vazia")
+    assert(pv._fp_tile(5, 0) == Vector2i(0, 0), "topo do penhasco direito = (0,0)")
+    assert(pv._fp_tile(5, 1) == Vector2i(3, 2), "lateral do penhasco direito = (3,2)")
+    assert(pv._fp_solid(0, 2), "piso esquerdo deve continuar sólido")
+    assert(pv._fp_tile(1, 2) == Vector2i(3, 0), "superfície do piso esquerdo (TOP)")
+
+    # Buraco à esquerda (mirror_hole = true)
+    pv.mirror_hole = true
+    assert(pv._fp_hole_dir() == -1, "hole_dir deve ser -1 (buraco à esquerda)")
+    assert(not pv._fp_solid(2, 2), "coluna 2 (lado esquerdo) deve ser vazia")
+    assert(not pv._fp_solid(0, 0), "coluna 0 deve ser vazia")
+    assert(pv._fp_tile(3, 0) == Vector2i(1, 3), "topo do penhasco esquerdo = (1,3)")
+    assert(pv._fp_tile(3, 1) == Vector2i(1, 0), "lateral do penhasco esquerdo = (1,0)")
+    assert(pv._fp_solid(8, 2), "piso direito deve continuar sólido")
+    assert(pv._fp_tile(7, 2) == Vector2i(3, 0), "superfície do piso direito (TOP)")
+
+    # Modo clássico não afetado
+    pv.mode = "floor_platform"
+    assert(pv._fp_hole_dir() == 0, "floor_platform clássico → hole_dir 0")
+    assert(pv._fp_solid(6, 2), "no modo clássico, lado direito volta a ser piso")
+
+    pv.free()
+    print("PASS: floor_platform_hole_tiles")
 
 func _find_button(node: Node, text: String) -> Button:
     if node is Button and (node as Button).text == text:
