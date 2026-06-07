@@ -232,7 +232,7 @@ func _z2_lava(n: String, center: Vector2, size: Vector2, instakill: bool) -> voi
 	add_child(a)
 
 func _z2_raft(n: String, center: Vector2, size: Vector2, dist: float, spd: float) -> void:
-	var b := StaticBody2D.new()
+	var b := AnimatableBody2D.new()   # carrega o player parado (sync_to_physics no script)
 	b.name = n
 	b.set_script(_MOVPLAT)
 	b.collision_layer = 1

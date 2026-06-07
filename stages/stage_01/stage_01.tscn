@@ -587,7 +587,7 @@ collision_mask = 0
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Z3Plat5"]
 shape = SubResource("ShapeZ3Plat")
 
-[node name="Z3MovingPlat" type="StaticBody2D" parent="."]
+[node name="Z3MovingPlat" type="AnimatableBody2D" parent="."]
 position = Vector2(14784, 2240)
 collision_layer = 1
 collision_mask = 0
