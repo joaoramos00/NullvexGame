@@ -25,7 +25,7 @@ func _ready() -> void:
 	# Lava da zona 1 usa a textura v2 (consistente com o resto da fase).
 	var z1lf := get_node_or_null("Z1LavaFloor")
 	if z1lf:
-		z1lf.set_meta("tileset_override", _LAVA_TILE)
+		z1lf.set_meta("lava_override", _LAVA_TILE)   # lava de verdade: topo (3,0) + corpo (2,1)
 	# Final em vulcão: fora o shaft de wall-kick e o Corridor2 (substituídos pela
 	# ascensão da zona 4). Abre um vão no teto do boss p/ a queda da cratera entrar.
 	for n in ["ShaftUpWallL", "ShaftUpWallR", "ShaftUpP1", "ShaftUpP2", "ShaftUpP3",
@@ -161,7 +161,7 @@ func _build_zone2() -> void:
 	# Lava instant-kill (superfície) + corpo sólido de lava (visual) por toda a extensão.
 	_z2_lava("Z2NewLava", Vector2(6450, 2800), Vector2(7000, 200), true)
 	var z2lf := _z2_static("Z2NewLavaFloor", Vector2(6450, 2960), Vector2(7000, 240))
-	z2lf.set_meta("tileset_override", _LAVA_TILE)  # lava da zona 2 usa a textura v2
+	z2lf.set_meta("lava_override", _LAVA_TILE)  # lava da zona 2: topo (3,0) + corpo (2,1)
 	# Teto + espinhos só na região dos elevadores (perigo ao subir). Teto com tile de
 	# fill (igual base do floor) + PNG de espinhos apontando pra baixo.
 	var ceil_body := _z2_static("Z2Ceiling", Vector2(5200, 2080), Vector2(1600, 80))
