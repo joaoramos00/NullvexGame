@@ -10,6 +10,7 @@ const _LAVA_SHADER := preload("res://stages/stage_01/lava_flow.gdshader")
 const _SPIKES_TEX := preload("res://stages/stage_01/spikes.png")
 const _LAVA_TILE := "res://stages/stage_01/stage_01_lava_v2.png"  # toda lava da fase usa v2
 const _Z2_FLOOR_TILE := "res://stages/stage_01/Stage_01T_z2.png"  # mesmo tile do floor
+const _ROOM_TILE := preload("res://stages/stage_01/Stage_01T_z1.png")  # rocha escura: câmara do boss
 
 func _ready() -> void:
 	if StageManager.current_stage_id < 0:
@@ -54,6 +55,18 @@ func _relocate_and_gap_boss() -> void:
 		var node := get_node_or_null(bn)
 		if node:
 			(node as Node2D).position.x += _BOSS_SHIFT
+	# Sala do boss = câmara de rocha unificada (molde do stage_00 _draw_boss_room): o perímetro
+	# (chão/paredes/teto) é desenhado por _draw_boss_room() como um grid só, com cantos côncavos.
+	# Marca os corpos do perímetro p/ o _draw base os pular (senão renderizam como caixas de lava).
+	for bn in ["BossFloor", "BossWallL", "BossWallR"]:
+		var node := get_node_or_null(bn)
+		if node:
+			node.set_meta("skip_base_draw", true)
+	# As plataformas de combate ficam por conta do render base (rocha z1).
+	for bn in ["BossPlat1", "BossPlat2"]:
+		var node := get_node_or_null(bn)
+		if node:
+			node.set_meta("platform_override", _ROOM_TILE.resource_path)
 	var ign := get_node_or_null("Ignarath")
 	if ign:
 		ign.set("arena_left", float(ign.get("arena_left")) + _BOSS_SHIFT)
@@ -69,15 +82,68 @@ func _relocate_and_gap_boss() -> void:
 	var lw := (_CRATER_CX - gap_w * 0.5) - left_x
 	if lw > 0.0:
 		var lb := _z2_static("BossCeilL", Vector2(left_x + lw * 0.5, top + h * 0.5), Vector2(lw, h))
-		lb.set_meta("tileset_override", _Z2_FLOOR_TILE)
+		lb.set_meta("skip_base_draw", true)   # teto desenhado por _draw_boss_room()
 	var rw := right_x - (_CRATER_CX + gap_w * 0.5)
 	if rw > 0.0:
 		var rb := _z2_static("BossCeilR", Vector2((_CRATER_CX + gap_w * 0.5) + rw * 0.5, top + h * 0.5), Vector2(rw, h))
-		rb.set_meta("tileset_override", _Z2_FLOOR_TILE)
+		rb.set_meta("skip_base_draw", true)
 
 func _on_camera_lock(center: Vector2, zoom: float) -> void:
 	$Camera2D.zoom = Vector2(zoom, zoom)
 	# câmera volta a seguir o player automaticamente pelo _process herdado
+
+func _draw() -> void:
+	super._draw()       # terreno/lava/plataformas (pula o perímetro do boss via skip_base_draw)
+	_draw_boss_room()
+
+# Câmara do boss desenhada como grid unificado (molde do stage_00 _draw_boss_room): perímetro
+# de rocha (z1) com cantos côncavos corretos em uma passada. A abertura fica no TETO — a boca
+# da cratera por onde o player cai. Mapeamento (screen-space): TL=(3,1) TR=(2,2) BL=(2,0)
+# BR=(1,1), teto=(1,2) chão=(3,0) parede_esq=(3,2) parede_dir=(1,0).
+func _draw_boss_room() -> void:
+	var lwall := get_node_or_null("BossWallL") as Node2D
+	var rwall := get_node_or_null("BossWallR") as Node2D
+	var floor_n := get_node_or_null("BossFloor") as Node2D
+	if not (lwall and rwall and floor_n):
+		return
+	var ts := _TS
+	var src_ts := _SRC_TS
+	var left := lwall.position.x - ts * 0.5
+	var right := rwall.position.x + ts * 0.5
+	var bottom := floor_n.position.y + ts * 0.5
+	var top := lwall.position.y - 288.0      # topo da parede (altura 576 / 2)
+	var cols := int(round((right - left) / ts))
+	var rows := int(round((bottom - top) / ts))
+	# Abertura da cratera no teto: colunas que cobrem o vão do BossCeil (gap 256 em _CRATER_CX).
+	var gap_lo := int(floor((_CRATER_CX - 128.0 - left) / ts))
+	var gap_hi := int(ceil((_CRATER_CX + 128.0 - left) / ts)) - 1
+	for row in rows:
+		for col in cols:
+			var is_l := col == 0
+			var is_r := col == cols - 1
+			var is_t := row == 0
+			var is_b := row == rows - 1
+			if not (is_l or is_r or is_t or is_b):
+				continue   # interior vazio
+			if is_t and not is_l and not is_r and col >= gap_lo and col <= gap_hi:
+				continue   # abertura da cratera no teto
+			var tile: Vector2i
+			# Shifts de meia-célula p/ a face sólida coincidir com a colisão (igual stage_00).
+			var tx := 0
+			var ty := 0
+			if   is_t and is_l: tile = Vector2i(3, 1); tx =  src_ts; ty =  src_ts
+			elif is_t and is_r: tile = Vector2i(2, 2); tx = -src_ts; ty =  src_ts
+			elif is_b and is_l: tile = Vector2i(2, 0); tx =  src_ts; ty = -src_ts
+			elif is_b and is_r: tile = Vector2i(1, 1); tx = -src_ts; ty = -src_ts
+			elif is_t:          tile = Vector2i(1, 2);              ty =  src_ts
+			elif is_b:          tile = Vector2i(3, 0);              ty = -src_ts
+			elif is_l:          tile = Vector2i(3, 2); tx =  src_ts
+			else:               tile = Vector2i(1, 0); tx = -src_ts
+			var dx := left + col * ts + tx
+			var dy := top + row * ts + ty
+			draw_texture_rect_region(_ROOM_TILE,
+				Rect2(dx, dy, ts, ts),
+				Rect2(tile.x * src_ts, tile.y * src_ts, src_ts, src_ts))
 
 # ─── Zona 2 redesenhada: "Rio de Lava" ────────────────────────────────────────
 # Lava instant-kill embaixo; rafts horizontais + elevadores de gêiser (teto com
@@ -384,22 +450,7 @@ func _build_zone4() -> void:
 			(b as CharacterBase).heal((b as CharacterBase).max_hp))
 
 	# Cratera: a borda direita do Z4Top (x21000) sobre o vão do BossCeil → queda na arena.
-	# Lip visual de lava (sem colisão) na boca da cratera.
-	var lip := Sprite2D.new()
-	lip.name = "Z4CraterLip"
-	var lip_tex: Texture2D = load("res://stages/stage_01/lava_top.png")
-	if lip_tex:
-		lip.texture = lip_tex
-		lip.centered = false
-		lip.texture_repeat = CanvasItem.TEXTURE_REPEAT_ENABLED
-		lip.region_enabled = true
-		lip.region_rect = Rect2(0, 0, 128, 32)
-		lip.scale = Vector2(2, 2)
-		lip.position = Vector2(_CRATER_CX - 128.0, 234.0)
-		var lmat := ShaderMaterial.new()
-		lmat.shader = _LAVA_SHADER
-		lip.material = lmat
-		add_child(lip)
+	# (Sem lip visual flutuante; a boca da cratera é o vão no teto da sala do boss.)
 
 # Lava de modo (chase/coupled). low_y = superfície inicial/congelada (bot).
 func _z4_lava(n: String, mode: String, center_x: float, low_y: float, width: float,

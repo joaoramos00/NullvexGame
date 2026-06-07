@@ -79,11 +79,22 @@ func _build_collision() -> void:
 	_add_static(floor_center,  floor_size,  1)
 	if ceil_size != Vector2.ZERO:
 		_add_static(ceil_center, ceil_size, 1)
-	# Paredes sem colisão — as portas de checkpoint fazem a barreira
-	_add_static(wall_l_center, wall_l_size, 1, true)
-	_add_static(wall_r_center, wall_r_size, 1, true)
+	# Paredes SÓLIDAS acima da abertura da porta — a porta faz o vão no nível do chão.
+	# Antes ficavam desabilitadas (só a porta de 200px barrava), deixando um vão acima:
+	# o player pulava por cima / atravessava a "parede" pelo lado da zona seguinte.
+	_add_wall_above_door(wall_l_center, wall_l_size)
+	_add_wall_above_door(wall_r_center, wall_r_size)
 	if glass_tex != null:
 		_add_glass_lateral_collision()
+
+func _add_wall_above_door(wall_center: Vector2, wall_size: Vector2) -> void:
+	var door_top := door_cy - door_height * 0.5
+	var wall_top := wall_center.y - wall_size.y * 0.5
+	if door_top <= wall_top:
+		return  # porta já cobre toda a parede; nada a selar acima
+	var seg_h := door_top - wall_top
+	var seg_center := Vector2(wall_center.x, wall_top + seg_h * 0.5)
+	_add_static(seg_center, Vector2(wall_size.x, seg_h), 1)
 
 func _add_glass_lateral_collision() -> void:
 	# Bloqueia o player de passar por cima do painel de vidro.
@@ -140,8 +151,9 @@ func _setup_doors() -> void:
 
 func _make_door(x: float, w: float, h: float, open_offset: float) -> CheckpointDoor:
 	var door     := _DOOR_SCENE.instantiate() as CheckpointDoor
-	door.position    = Vector2(x, door_cy)
-	door.open_offset = open_offset
+	door.position       = Vector2(x, door_cy)
+	door.open_offset    = open_offset
+	door.open_from_side = -1   # corredor é left→right: só abre vindo da esquerda
 	var col := door.get_node("CollisionShape2D") as CollisionShape2D
 	var body_shape := (col.shape as RectangleShape2D).duplicate() as RectangleShape2D
 	body_shape.size = Vector2(w, h)
