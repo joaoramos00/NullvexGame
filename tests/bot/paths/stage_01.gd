@@ -59,17 +59,63 @@ func path() -> Array:
 		{"t": "walk_to", "x": 9800.0},                    # saída → Corredor1
 		{"t": "screenshot", "label": "06_z2_exit"},
 
-		# ── Zona 3 ──
+		# ── Zona 3 "Maré de Lava": piso+plataforma+buraco (entrada) → pula as passagens
+		# sobre a maré (congelada baixa no bot) → piso+plataforma+buraco (saída) → shaft.
+		# Entrada: piso 10560–11072 (2624) → plataforma 11072–11328 (topo 2560) → penhasco.
+		# Passagens (topo 2624): 11600/12080/12560/13040/13520/14000/14480/14960 (vãos ~160).
+		# Saída: plataforma 15240–15496 (topo 2560) → piso 15496–16392 (2624). Spawn 10800. ──
 		{"t": "zone", "n": 3},
 		{"t": "screenshot", "label": "05_z3_spawn"},
-		# (a calibrar)
+		{"t": "jump_to", "x": 11200.0, "jump_x": 10980.0},  # piso → plataforma de entrada (sobe 64)
+		{"t": "jump_to", "x": 11600.0, "jump_x": 11300.0},  # plataforma → passagem 1 (penhasco)
+		{"t": "jump_to", "x": 12080.0, "jump_x": 11740.0},  # → passagem 2
+		{"t": "jump_to", "x": 12560.0, "jump_x": 12220.0},  # → passagem 3
+		{"t": "jump_to", "x": 13040.0, "jump_x": 12700.0},  # → passagem 4
+		{"t": "screenshot", "label": "06_z3_mid"},
+		{"t": "jump_to", "x": 13520.0, "jump_x": 13180.0},  # → passagem 5
+		{"t": "jump_to", "x": 14000.0, "jump_x": 13660.0},  # → passagem 6
+		{"t": "jump_to", "x": 14480.0, "jump_x": 14140.0},  # → passagem 7
+		{"t": "jump_to", "x": 14960.0, "jump_x": 14620.0},  # → passagem 8
+		{"t": "jump_to", "x": 15368.0, "jump_x": 15100.0},  # → plataforma de saída (sobe 64)
+		{"t": "walk_to", "x": 16150.0},                      # desce p/ piso da saída (para antes do shaft ↑)
+		{"t": "screenshot", "label": "07_z3_exit"},
 
-		# ── Zona 4 ──
+		# ── Zona 4 "Ascensão do Vulcão": base → escada-chase → patamar → escada-coupled
+		# → topo(checkpoint) → cratera → cai no boss. Lavas congelam baixo no bot. ──
 		{"t": "zone", "n": 4},
-		{"t": "screenshot", "label": "07_z4_spawn"},
-		# (a calibrar)
-
-		# ── Boss ──
-		{"t": "zone", "n": 5},
-		{"t": "screenshot", "label": "09_boss"},
+		{"t": "screenshot", "label": "07_z4_base"},
+		# Escada-chase: degraus topo0 2520, dx192/dy104, largura256. Centro i=16608+i*192,
+		# muro do próximo degrau = 16672+i*192 → jump_x dispara antes do muro.
+		{"t": "jump_to", "x": 16608.0, "jump_x": 16432.0},   # base → degrau 0
+		{"t": "jump_to", "x": 16800.0, "jump_x": 16624.0},   # → degrau 1
+		{"t": "jump_to", "x": 16992.0, "jump_x": 16816.0},   # → degrau 2
+		{"t": "jump_to", "x": 17184.0, "jump_x": 17008.0},   # → degrau 3
+		{"t": "jump_to", "x": 17376.0, "jump_x": 17200.0},   # → degrau 4
+		{"t": "screenshot", "label": "08_z4_chase_mid"},
+		{"t": "jump_to", "x": 17568.0, "jump_x": 17392.0},   # → degrau 5
+		{"t": "jump_to", "x": 17760.0, "jump_x": 17584.0},   # → degrau 6
+		{"t": "jump_to", "x": 17952.0, "jump_x": 17776.0},   # → degrau 7
+		{"t": "jump_to", "x": 18144.0, "jump_x": 17968.0},   # → degrau 8
+		{"t": "jump_to", "x": 18336.0, "jump_x": 18160.0},   # → degrau 9 (último)
+		{"t": "walk_to", "x": 18800.0, "land": true},        # patamar do meio
+		{"t": "screenshot", "label": "09_z4_patamar"},
+		# Escada-coupled: degraus largos256, dx140/dy104. Centro i=19648+i*140,
+		# muro do degrau i=19520+i*140 → jump_x dispara antes do muro.
+		{"t": "jump_to", "x": 19648.0, "jump_x": 19480.0},   # patamar → degrau 0
+		{"t": "jump_to", "x": 19788.0, "jump_x": 19620.0},   # → degrau 1
+		{"t": "jump_to", "x": 19928.0, "jump_x": 19760.0},   # → degrau 2
+		{"t": "jump_to", "x": 20068.0, "jump_x": 19900.0},   # → degrau 3
+		{"t": "jump_to", "x": 20208.0, "jump_x": 20040.0},   # → degrau 4
+		{"t": "screenshot", "label": "10_z4_coup_mid"},
+		{"t": "jump_to", "x": 20348.0, "jump_x": 20180.0},   # → degrau 5
+		{"t": "jump_to", "x": 20488.0, "jump_x": 20320.0},   # → degrau 6
+		{"t": "jump_to", "x": 20628.0, "jump_x": 20460.0},   # → degrau 7
+		{"t": "jump_to", "x": 20768.0, "jump_x": 20600.0},   # → degrau 8
+		{"t": "jump_to", "x": 20908.0, "jump_x": 20740.0},   # → degrau 9 (último)
+		{"t": "walk_to", "x": 21150.0, "land": true},        # sobe no Z4Top (topo + checkpoint)
+		{"t": "screenshot", "label": "11_z4_top"},
+		{"t": "walk_to", "x": 21410.0},                      # anda até a borda da cratera (x21400)
+		{"t": "drop", "dir": 1.0},                           # cai pela boca da cratera → arena
+		{"t": "wait", "seconds": 1.5},
+		{"t": "screenshot", "label": "12_boss"},
 	]
