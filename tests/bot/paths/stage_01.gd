@@ -99,22 +99,25 @@ func path() -> Array:
 		{"t": "jump_to", "x": 18336.0, "jump_x": 18160.0},   # → degrau 9 (último)
 		{"t": "walk_to", "x": 18800.0, "land": true},        # patamar do meio
 		{"t": "screenshot", "label": "09_z4_patamar"},
-		# Escada-coupled: degraus largos256, dx140/dy104. Centro i=19648+i*140,
-		# muro do degrau i=19520+i*140 → jump_x dispara antes do muro.
-		{"t": "jump_to", "x": 19648.0, "jump_x": 19480.0},   # patamar → degrau 0
-		{"t": "jump_to", "x": 19788.0, "jump_x": 19620.0},   # → degrau 1
-		{"t": "jump_to", "x": 19928.0, "jump_x": 19760.0},   # → degrau 2
-		{"t": "jump_to", "x": 20068.0, "jump_x": 19900.0},   # → degrau 3
-		{"t": "jump_to", "x": 20208.0, "jump_x": 20040.0},   # → degrau 4
+		# Escada-coupled: 13 degraus largos256, dx180/dy96 (margem maior). Centro i=19648+i*180,
+		# muro do degrau i=19520+i*180 → jump_x dispara antes do muro (técnica do chase).
+		{"t": "jump_to", "x": 19648.0, "jump_x": 19472.0},   # patamar → degrau 0
+		{"t": "jump_to", "x": 19828.0, "jump_x": 19652.0},   # → degrau 1
+		{"t": "jump_to", "x": 20008.0, "jump_x": 19832.0},   # → degrau 2
+		{"t": "jump_to", "x": 20188.0, "jump_x": 20012.0},   # → degrau 3
+		{"t": "jump_to", "x": 20368.0, "jump_x": 20192.0},   # → degrau 4
 		{"t": "screenshot", "label": "10_z4_coup_mid"},
-		{"t": "jump_to", "x": 20348.0, "jump_x": 20180.0},   # → degrau 5
-		{"t": "jump_to", "x": 20488.0, "jump_x": 20320.0},   # → degrau 6
-		{"t": "jump_to", "x": 20628.0, "jump_x": 20460.0},   # → degrau 7
-		{"t": "jump_to", "x": 20768.0, "jump_x": 20600.0},   # → degrau 8
-		{"t": "jump_to", "x": 20908.0, "jump_x": 20740.0},   # → degrau 9 (último)
-		{"t": "walk_to", "x": 21150.0, "land": true},        # sobe no Z4Top (topo + checkpoint)
+		{"t": "jump_to", "x": 20548.0, "jump_x": 20372.0},   # → degrau 5
+		{"t": "jump_to", "x": 20728.0, "jump_x": 20552.0},   # → degrau 6
+		{"t": "jump_to", "x": 20908.0, "jump_x": 20732.0},   # → degrau 7
+		{"t": "jump_to", "x": 21088.0, "jump_x": 20912.0},   # → degrau 8
+		{"t": "jump_to", "x": 21268.0, "jump_x": 21092.0},   # → degrau 9
+		{"t": "jump_to", "x": 21448.0, "jump_x": 21272.0},   # → degrau 10
+		{"t": "jump_to", "x": 21628.0, "jump_x": 21452.0},   # → degrau 11
+		{"t": "jump_to", "x": 21808.0, "jump_x": 21632.0},   # → degrau 12 (último)
+		{"t": "walk_to", "x": 22318.0, "land": true},        # anda do degrau 12 pro Z4Top (coplanar) + checkpoint
 		{"t": "screenshot", "label": "11_z4_top"},
-		{"t": "walk_to", "x": 21410.0},                      # anda até a borda da cratera (x21400)
+		{"t": "walk_to", "x": 22700.0},                      # anda até a borda da cratera (x22700)
 		{"t": "drop", "dir": 1.0},                           # cai pela boca da cratera → arena
 		{"t": "wait", "seconds": 1.5},
 		{"t": "screenshot", "label": "12_boss"},
