@@ -19,6 +19,11 @@ TOP_PAD = 2      # respiro no topo
 RAW_DIR = Path("characters/ranged/kawagael/_raw")
 OUT = Path("characters/ranged/kawagael/KawagaelRun.png")
 
+# Ordem de exibição no ciclo (nomes das subpastas em _raw). A sequência de
+# GERAÇÃO no PixelLab (f0..f4) não é a ordem boa de animação — esta é a corrigida.
+# Frames presentes que não estiverem aqui entram ao final.
+FRAME_ORDER = ["f0", "f2", "f3", "f4", "f1"]
+
 
 def trim(img: Image.Image) -> Image.Image:
     img = img.convert("RGBA")
@@ -45,12 +50,22 @@ def build_sheet(images: list[Image.Image]) -> Image.Image:
     return sheet
 
 
+def _ordered_paths() -> list[Path]:
+    raw = {p.parent.name: p for p in RAW_DIR.glob("f*/f*_east.png")}
+    ordered = [raw[name] for name in FRAME_ORDER if name in raw]
+    for name in sorted(raw):               # frames presentes fora de FRAME_ORDER → ao final
+        if name not in FRAME_ORDER:
+            ordered.append(raw[name])
+    return ordered
+
+
 def main() -> None:
-    paths = sorted(RAW_DIR.glob("f*/f*_east.png"))
+    paths = _ordered_paths()
     if len(paths) < 2:
         raise SystemExit(f"Preciso de >=2 PNGs east em {RAW_DIR}, achei {len(paths)}: {paths}")
     if len(paths) != 8:
-        print(f"AVISO: {len(paths)}/8 frames (placeholder). Frames: {[p.parent.name for p in paths]}")
+        print(f"AVISO: {len(paths)}/8 frames (placeholder).")
+    print(f"Ordem dos frames: {[p.parent.name for p in paths]}")
     images = [Image.open(p) for p in paths]
     sheet = build_sheet(images)
     OUT.parent.mkdir(parents=True, exist_ok=True)
