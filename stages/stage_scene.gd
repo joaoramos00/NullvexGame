@@ -157,7 +157,7 @@ func _draw() -> void:
 				match mode:
 					"fill":     _draw_fill_tiles(rect, tex)
 					"platform": _draw_platform_tiles(rect, tex)
-					_:          _draw_lava_tiles(rect, tex)
+					_:          _draw_lava_tiles(rect, tex, child.get_meta("floor_holes", PackedFloat32Array()), child.get_meta("lava_skip_holes", PackedFloat32Array()))
 			else:
 				draw_rect(rect, platform_color)
 
@@ -176,22 +176,55 @@ func _draw_fill_tiles(rect: Rect2, tex: Texture2D) -> void:
 			draw_texture_rect_region(tex, Rect2(dx, dy, dw, dh),
 				Rect2(src.position, Vector2(src_ts * dw / ts, src_ts * dh / ts)))
 
-func _draw_lava_tiles(rect: Rect2, tex: Texture2D) -> void:
+func _draw_lava_tiles(rect: Rect2, tex: Texture2D, holes: PackedFloat32Array = PackedFloat32Array(),
+		skip_holes: PackedFloat32Array = PackedFloat32Array()) -> void:
 	var ts     := _TS
 	var src_ts := _SRC_TS
 	var cols := ceili(rect.size.x / ts)
 	var phys_rows := ceili(rect.size.y / ts)
 	var rows := maxi(phys_rows, 7 if phys_rows >= 2 else 0)
 	for row in rows:
-		var tx := 3 * src_ts if row == 0 else 2 * src_ts
-		var ty := 0           if row == 0 else src_ts
 		for col in cols:
 			var dx := rect.position.x + col * ts
 			var dy := rect.position.y + row * ts - src_ts
 			var dh := minf(float(ts), rect.position.y + rect.size.y - dy) if row < phys_rows else float(ts)
 			var dw := minf(float(ts), rect.position.x + rect.size.x - dx)
+			var cxw := dx + ts * 0.5
+			# skip_holes: corta a coluna por completo (lava de fundo) → fica VAZIO (fundo da cena).
+			if _in_hole(cxw, skip_holes):
+				continue
+			# Buraco: poço 2×2 no piso. Célula do poço = tile da parede (interior transparente
+			# = vazio). Abaixo das 2 linhas, o corpo do piso volta.
+			var pit := _pit_tile_at(cxw, row, holes)
+			if pit.x >= 0:
+				draw_texture_rect_region(tex, Rect2(dx, dy, dw, dh),
+					Rect2(pit.x * src_ts, pit.y * src_ts, src_ts * dw / ts, src_ts * dh / ts))
+				continue
+			var tx := (3 * src_ts) if row == 0 else (2 * src_ts)   # piso normal: topo (3,0), corpo (2,1)
+			var ty := 0 if row == 0 else src_ts
 			draw_texture_rect_region(tex, Rect2(dx, dy, dw, dh),
 				Rect2(tx, ty, src_ts * dw / ts, src_ts * dh / ts))
+
+func _in_hole(cxw: float, holes: PackedFloat32Array) -> bool:
+	for i in holes.size():
+		if absf(cxw - holes[i]) < 64.0:
+			return true
+	return false
+
+# Tile do poço numa coluna do buraco. Retorna (-1,-1) = não é poço (piso normal);
+# senão Vector2i(col,row) do tile no tileset. Poço = só 2 linhas (rows 0-1); abaixo
+# volta o corpo do piso (esconde a lava). col esq (cxw<hx): topo (0,0), baixo (2,0) |
+# col dir (cxw>=hx): topo (1,3), baixo (1,1).
+func _pit_tile_at(cxw: float, row: int, holes: PackedFloat32Array) -> Vector2i:
+	if row > 1:
+		return Vector2i(-1, -1)
+	for i in holes.size():
+		if absf(cxw - holes[i]) < 64.0:
+			var left := cxw < holes[i]
+			if row == 0:
+				return Vector2i(0, 0) if left else Vector2i(1, 3)
+			return Vector2i(2, 0) if left else Vector2i(1, 1)
+	return Vector2i(-1, -1)
 
 func _draw_platform_tiles(rect: Rect2, tex: Texture2D) -> void:
 	var ts     := _TS

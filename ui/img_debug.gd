@@ -692,8 +692,8 @@ class _PlatformView extends Control:
     var tile_tex: Texture2D
     var rows: int = 2
     var cols: int = 3
-    var mode: String = "platform"   # "platform" | "room" | "floor_platform" | "floor_platform_hole"
-    var mirror_hole: bool = false    # floor_platform_hole: false = buraco à direita, true = à esquerda
+    var mode: String = "platform"   # "platform" | "room" | "floor_platform" | "floor_platform_hole" | "floor_hole"
+    var mirror_hole: bool = false    # floor_platform_hole: false = abismo à direita, true = à esquerda
 
     const _TS := 32.0   # tamanho source
     const _TD := 48.0   # tamanho exibido
@@ -702,12 +702,15 @@ class _PlatformView extends Control:
     # cols = largura da plataforma; rows = elevação dela acima do piso.
     const _FP_SIDE  := 3   # tiles de piso de cada lado da plataforma
     const _FP_DEPTH := 2   # tiles de piso abaixo da superfície
+    # Modo "floor_hole": piso reto com um poço 2×2 cortado (mesmos tiles do jogo).
+    const _FH_SIDE := 3    # tiles de piso de cada lado do poço
+    const _FH_ROWS := 4    # profundidade do piso mostrada
 
     func set_dims(r: int, c: int) -> void:
         rows = r
         cols = c
         var _is_fp := mode == "floor_platform" or mode == "floor_platform_hole"
-        var gd := _fp_grid() if _is_fp else Vector2i(c, r)
+        var gd := _fp_grid() if _is_fp else (_fh_grid() if mode == "floor_hole" else Vector2i(c, r))
         custom_minimum_size = Vector2(gd.x * _TD, gd.y * _TD)
         queue_redraw()
 
@@ -717,6 +720,9 @@ class _PlatformView extends Control:
             return
         if mode == "floor_platform" or mode == "floor_platform_hole":
             _draw_floor_platform()
+            return
+        if mode == "floor_hole":
+            _draw_floor_hole()
             return
         for row in rows:
             for col in cols:
@@ -822,6 +828,32 @@ class _PlatformView extends Control:
         var ctot: int = _FP_SIDE + cols + _FP_SIDE
         var rtot: int = rows + _FP_DEPTH
         return Vector2i(ctot, rtot)
+
+    # ── Modo "Buraco no Piso" ─────────────────────────────────────────────────
+    # Piso reto com um poço 2×2 cortado no meio (mesmos tiles do corte real no jogo:
+    # col esq topo (0,0)/baixo (2,0); col dir topo (1,3)/baixo (1,1); abaixo = aberto).
+    func _fh_grid() -> Vector2i:
+        return Vector2i(_FH_SIDE + 2 + _FH_SIDE, _FH_ROWS)
+
+    func _draw_floor_hole() -> void:
+        var g := _fh_grid()
+        var pit_l := _FH_SIDE        # coluna esquerda do poço
+        var pit_r := _FH_SIDE + 1    # coluna direita do poço
+        for r in g.y:
+            for c in g.x:
+                var t: Vector2i
+                if c == pit_l or c == pit_r:
+                    if r > 1:
+                        continue                              # buraco aberto (piso cortado)
+                    if c == pit_l:
+                        t = Vector2i(0, 0) if r == 0 else Vector2i(2, 0)
+                    else:
+                        t = Vector2i(1, 3) if r == 0 else Vector2i(1, 1)
+                else:
+                    t = Vector2i(3, 0) if r == 0 else Vector2i(2, 1)   # piso: topo (3,0), corpo (2,1)
+                draw_texture_rect_region(tile_tex,
+                    Rect2(c * _TD, r * _TD, _TD, _TD),
+                    Rect2(t.x * _TS, t.y * _TS, _TS, _TS))
 
     func _fp_solid(c: int, r: int) -> bool:
         var g := _fp_grid()
@@ -2404,7 +2436,7 @@ func _refresh_tiles() -> void:
         for b: Button in mode_btns:
             b.modulate = Color(1.0, 1.0, 0.0) if b.text == mlbl else Color(0.6, 0.6, 0.6)
 
-    for me: Array in [["Plataforma", "platform"], ["Sala", "room"], ["Piso+Plat", "floor_platform"], ["Piso+Buraco", "floor_platform_hole"]]:
+    for me: Array in [["Plataforma", "platform"], ["Sala", "room"], ["Piso+Plat", "floor_platform"], ["Piso+Abismo", "floor_platform_hole"], ["Buraco no Piso", "floor_hole"]]:
         var mbtn := Button.new()
         mbtn.text = me[0]
         mbtn.add_theme_font_size_override("font_size", 24)

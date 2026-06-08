@@ -165,6 +165,9 @@ func _build_zone2() -> void:
 	# ficava em 2840 → havia uma faixa que matava sem mostrar lava (parecia vazio).
 	var z2lf := _z2_static("Z2NewLavaFloor", Vector2(6450, 2820), Vector2(7000, 240))
 	z2lf.set_meta("lava_override", _LAVA_TILE)  # lava da zona 2: topo (3,0) + corpo (2,1)
+	# Corta a lava de fundo nas colunas dos gêiseres → o buraco do piso fica VAZIO (fundo da
+	# cena), sem lava aparecendo dentro dele.
+	z2lf.set_meta("lava_skip_holes", PackedFloat32Array([5010.0, 5310.0, 6110.0, 6410.0, 6710.0]))
 	# Teto + espinhos só na região dos elevadores (perigo ao subir). Teto com tile de
 	# fill (igual base do floor) + PNG de espinhos apontando pra baixo.
 	var ceil_body := _z2_static("Z2Ceiling", Vector2(5200, 2080), Vector2(1600, 80))
@@ -182,16 +185,19 @@ func _build_zone2() -> void:
 	# Elevadores de gêiser (sobem da base aos espinhos; congelam na base no bot).
 	_z2_elev("Z2Elev1", Vector2(4632, 2592), Vector2(160, 64), 320.0, 60.0)
 	_z2_elev("Z2Elev2", Vector2(5740, 2592), Vector2(160, 64), 320.0, 60.0)
-	# Ledges sólidos com gêiseres encadeados.
-	_z2_static("Z2LedgeMed",  Vector2(5160, 2688), Vector2(700, 128))  # x4810–5510
-	_z2_static("Z2LedgeHard", Vector2(6410, 2688), Vector2(900, 128))  # x5960–6860
+	# Ledges sólidos com gêiseres encadeados. floor_holes = x dos gêiseres → o render do
+	# piso corta o tile ali e desenha o poço (o vulcão fica dentro do buraco).
+	var ledge_med := _z2_static("Z2LedgeMed",  Vector2(5160, 2688), Vector2(700, 128))  # x4810–5510
+	ledge_med.set_meta("floor_holes", PackedFloat32Array([5010.0, 5310.0]))
+	var ledge_hard := _z2_static("Z2LedgeHard", Vector2(6410, 2688), Vector2(900, 128))  # x5960–6860
+	ledge_hard.set_meta("floor_holes", PackedFloat32Array([6110.0, 6410.0, 6710.0]))
 	# Médio: 2 gêiseres (timing offset).
-	_z2_geyser("Z2GeyMed1", Vector2(5010, 2440), Vector2(64, 360), 1.4, 2.0, 0.0)
-	_z2_geyser("Z2GeyMed2", Vector2(5310, 2440), Vector2(64, 360), 1.4, 2.0, 1.0)
+	_z2_geyser("Z2GeyMed1", Vector2(5010, 2520), Vector2(64, 200), 1.4, 2.0, 0.0, Vector2(-8, -8))
+	_z2_geyser("Z2GeyMed2", Vector2(5310, 2520), Vector2(64, 200), 1.4, 2.0, 1.0, Vector2(14, -8))
 	# Difícil: 3 gêiseres em onda (timing mais apertado).
-	_z2_geyser("Z2GeyHard1", Vector2(6110, 2440), Vector2(64, 360), 1.2, 1.4, 0.0)
-	_z2_geyser("Z2GeyHard2", Vector2(6410, 2440), Vector2(64, 360), 1.2, 1.4, 0.8)
-	_z2_geyser("Z2GeyHard3", Vector2(6710, 2440), Vector2(64, 360), 1.2, 1.4, 1.6)
+	_z2_geyser("Z2GeyHard1", Vector2(6110, 2520), Vector2(64, 200), 1.2, 1.4, 0.0, Vector2(-22, -8))
+	_z2_geyser("Z2GeyHard2", Vector2(6410, 2520), Vector2(64, 200), 1.2, 1.1, 0.8, Vector2(-2, -8))
+	_z2_geyser("Z2GeyHard3", Vector2(6710, 2520), Vector2(64, 200), 1.2, 0.85, 1.6, Vector2(18, -8))
 
 func _z2_shape(size: Vector2) -> CollisionShape2D:
 	var cs := CollisionShape2D.new()
@@ -258,7 +264,7 @@ func _z2_elev(n: String, center: Vector2, size: Vector2, dist: float, spd: float
 	b.add_child(_z2_shape(size))
 	add_child(b)
 
-func _z2_geyser(n: String, center: Vector2, size: Vector2, act: float, inact: float, delay: float) -> void:
+func _z2_geyser(n: String, center: Vector2, size: Vector2, act: float, inact: float, delay: float, t_off: Vector2 = Vector2.ZERO) -> void:
 	var a := Area2D.new()
 	a.name = n
 	a.set_script(_GEYSER)
@@ -267,6 +273,7 @@ func _z2_geyser(n: String, center: Vector2, size: Vector2, act: float, inact: fl
 	a.set("active_time", act)
 	a.set("inactive_time", inact)
 	a.set("start_delay", delay)
+	a.set("turbine_offset", t_off)
 	a.position = center
 	a.add_child(_z2_shape(size))
 	add_child(a)
@@ -520,7 +527,7 @@ func _z4_stair(prefix: String, x0: float, top0: float, dx: float, dy: float,
 # Debug ?zone=N: pontos de spawn no início de cada zona (calibração do bot).
 func _zone_spawn(zone: int) -> Vector2:
 	match zone:
-		2: return Vector2(3300, 2540)    # zona 2 nova — sobre a Z2Entry (pós shaft ↓)
+		2: return Vector2(3760, 2480)    # zona 2 — sobre Z2Plat1 (pós shaft ↓)
 		3: return Vector2(10800, 2480)   # zona 3 nova — piso de entrada (runway p/ a plataforma)
 		4: return Vector2(16320, 2480)   # zona 4 — base da escada-chase
 		5: return Vector2(23784, 800)    # boss — dentro da arena (reposicionada +2600)
