@@ -22,7 +22,7 @@ OUT = Path("characters/ranged/kawagael/KawagaelRun.png")
 # Ordem de exibição no ciclo (nomes das subpastas em _raw). A sequência de
 # GERAÇÃO no PixelLab (f0..f4) não é a ordem boa de animação — esta é a corrigida.
 # Frames presentes que não estiverem aqui entram ao final.
-FRAME_ORDER = ["f0", "f2", "f3", "f4", "f1"]
+FRAME_ORDER = ["f1", "f2", "f3", "f4", "f0"]
 
 
 def trim(img: Image.Image) -> Image.Image:
