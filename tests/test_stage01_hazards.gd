@@ -41,25 +41,32 @@ func _test_geyser_inactive_no_damage() -> void:
 func _test_geyser_active_damages_player() -> void:
 	var g := preload("res://stages/stage_01/geyser.gd").new()
 	add_child(g)
-	# Simular transição para ativo
 	g._timer = 0.0
-	g._process(0.001)  # dispara troca de estado
-	_assert(g.monitoring == true, "geyser ativa monitoring após timer expirar")
+	g._process(0.001)  # DORMENTE → AVISO (fumaça, sem dano)
+	_assert(not g.monitoring, "geyser não dá dano na fase de aviso (fumaça)")
+	g._timer = 0.0
+	g._process(0.001)  # AVISO → SUBIDA (dano ligado)
+	_assert(g.monitoring == true, "geyser ativa dano (monitoring) na subida do jato")
 	g.queue_free()
 
 func _test_geyser_visual_toggles() -> void:
 	var g := preload("res://stages/stage_01/geyser.gd").new()
 	var cs := CollisionShape2D.new()
 	var rect := RectangleShape2D.new()
-	rect.size = Vector2(64, 360)
+	rect.size = Vector2(64, 200)
 	cs.shape = rect
 	g.add_child(cs)
-	add_child(g)  # _ready cria o jato a partir da CollisionShape2D
-	_assert(g._fire != null, "geyser cria visual de jato de lava")
-	_assert(g._fire != null and not g._fire.visible, "jato invisível quando inativo")
+	add_child(g)  # _ready cria vulcão + jato animados + sprite de subida
+	_assert(g._jet != null, "geyser cria jato animado de lava")
+	_assert(g._jet != null and not g._jet.visible, "jato (loop) invisível fora da erupção")
 	g._timer = 0.0
-	g._process(0.001)  # → ativo
-	_assert(g._fire != null and g._fire.visible, "jato visível quando ativo")
+	g._process(0.001)  # → AVISO
+	g._timer = 0.0
+	g._process(0.001)  # → SUBIDA (sprite de subida visível)
+	_assert(g._rise != null and g._rise.visible, "sprite de subida visível na fase SUBIDA")
+	g._timer = 0.0
+	g._process(0.001)  # → ATIVO (loop visível)
+	_assert(g._jet != null and g._jet.visible, "jato (loop) visível no ATIVO")
 	g.queue_free()
 
 # ── CrackedWall ────────────────────────────────────────────────────────────────
