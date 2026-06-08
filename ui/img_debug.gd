@@ -11,6 +11,8 @@ const _SPRITES: Array = [
     {"char": "ZAEL", "anim": "RunShoot",  "path": "res://characters/ranged/ZaelRunShoot.png",  "frames": 9, "fps": 10.0},
     {"char": "ZAEL", "anim": "JumpShoot", "path": "res://characters/ranged/ZaelJumpShoot.png", "frames": 2, "fps": 10.0},
     {"char": "ZAEL", "anim": "DashShoot", "path": "res://characters/ranged/ZaelDashShoot.png", "frames": 2, "fps": 12.0},
+    # Kawagael (reskin do Zael) — corrida placeholder 5/8 frames. Atualizar "frames" p/ 8 ao completar f5-f7.
+    {"char": "KAWAGAEL", "anim": "Run",   "path": "res://characters/ranged/kawagael/KawagaelRun.png", "frames": 5, "fps": 10.0},
     {"char": "ZARA", "anim": "Walk",      "path": "res://characters/melee/ZaraAndando.png",    "frames": 5, "fps": 8.0},
     {"char": "ZARA", "anim": "Run",       "path": "res://characters/melee/ZaraCorrendo.png",   "frames": 3, "fps": 10.0},
     {"char": "MINIBOSS", "anim": "Walk",  "path": "res://characters/enemies/miniboss/miniboss_walk.png",  "frames": 6, "fps": 8.0,  "frame_w": 240},
@@ -1079,7 +1081,11 @@ class _FillCeilWorld extends Node2D:
 
 # Arena jogável: SubViewport com Zael, inimigo, física e câmera
 class _MovView extends Control:
-    const _PLAYER_PATH := "res://characters/ranged/zael.tscn"
+    const _PLAYER_PATHS := [
+        "res://characters/ranged/zael.tscn",
+        "res://characters/ranged/kawagael/kawagael.tscn",
+    ]
+    const _PLAYER_NAMES := ["Zael", "Kawagael"]
     const _ENEMY_PATHS := [
         "res://characters/enemies/enemy_base.tscn",
         "res://characters/enemies/enemy_flyer.tscn",
@@ -1101,8 +1107,10 @@ class _MovView extends Control:
     var _player: CharacterBase = null
     var _enemy: Node2D = null
     var _enemy_index: int = 0
+    var _player_index: int = 0
     var _camera: Camera2D = null
     var _world: Node2D = null
+    var label_player: Label = null     # definido externamente antes de add_child
     var label_enemy: Label = null      # definido externamente antes de add_child
     var label_move_btn: Button = null  # botão de toggle de movimento
     var attack_row: Control = null     # linha de botões de ataque do MiniBoss
@@ -1186,7 +1194,7 @@ class _MovView extends Control:
     func _spawn_player() -> void:
         if is_instance_valid(_player):
             _player.queue_free()
-        var scene := load(_PLAYER_PATH) as PackedScene
+        var scene := load(_PLAYER_PATHS[_player_index]) as PackedScene
         if not scene:
             return
         _player = scene.instantiate() as CharacterBase
@@ -1239,6 +1247,20 @@ class _MovView extends Control:
         _spawn_enemy()
         _update_move_btn()
         _update_attack_row()
+
+    func on_player_prev() -> void:
+        _player_index = (_player_index - 1 + _PLAYER_PATHS.size()) % _PLAYER_PATHS.size()
+        _spawn_player()
+        _update_player_label()
+
+    func on_player_next() -> void:
+        _player_index = (_player_index + 1) % _PLAYER_PATHS.size()
+        _spawn_player()
+        _update_player_label()
+
+    func _update_player_label() -> void:
+        if is_instance_valid(label_player):
+            label_player.text = _PLAYER_NAMES[_player_index]
 
     func on_toggle_movement() -> void:
         if not is_instance_valid(_enemy):
@@ -1694,7 +1716,7 @@ func _build_ui() -> void:
     char_row.add_theme_constant_override("separation", 6)
     _sprites_box.add_child(char_row)
 
-    for c in ["ZAEL", "ZARA", "MINIBOSS"]:
+    for c in ["ZAEL", "KAWAGAEL", "ZARA", "MINIBOSS"]:
         var btn := Button.new()
         btn.text = c
         btn.add_theme_font_size_override("font_size", 28)
@@ -1764,6 +1786,40 @@ func _build_moves_box() -> void:
     top_bar.add_theme_constant_override("separation", 8)
     mov_panel.add_child(top_bar)
 
+    var mview := _MovView.new()
+    mview.custom_minimum_size   = Vector2(0.0, 480.0)
+    mview.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+    mview.size_flags_vertical   = Control.SIZE_EXPAND_FILL
+
+    # ── Seletor de personagem do player (Zael / Kawagael) ──
+    var player_lbl := Label.new()
+    player_lbl.text = "Player:"
+    player_lbl.add_theme_font_size_override("font_size", 18)
+    player_lbl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+    top_bar.add_child(player_lbl)
+
+    var btn_pprev := Button.new()
+    btn_pprev.text = "◄"
+    btn_pprev.add_theme_font_size_override("font_size", 18)
+    btn_pprev.pressed.connect(mview.on_player_prev)
+    top_bar.add_child(btn_pprev)
+
+    var lbl_pname := Label.new()
+    lbl_pname.custom_minimum_size.x = 120.0
+    lbl_pname.add_theme_font_size_override("font_size", 18)
+    lbl_pname.add_theme_color_override("font_color", Color(0.4, 1.0, 0.6))
+    lbl_pname.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+    lbl_pname.vertical_alignment   = VERTICAL_ALIGNMENT_CENTER
+    lbl_pname.text = "Zael"
+    top_bar.add_child(lbl_pname)
+    mview.label_player = lbl_pname
+
+    var btn_pnext := Button.new()
+    btn_pnext.text = "►"
+    btn_pnext.add_theme_font_size_override("font_size", 18)
+    btn_pnext.pressed.connect(mview.on_player_next)
+    top_bar.add_child(btn_pnext)
+
     var hint := Label.new()
     hint.text = "A/D: mover  ·  Z: pular  ·  X: dash  ·  J: atirar"
     hint.add_theme_font_size_override("font_size", 17)
@@ -1777,11 +1833,6 @@ func _build_moves_box() -> void:
     enemy_lbl.add_theme_font_size_override("font_size", 18)
     enemy_lbl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
     top_bar.add_child(enemy_lbl)
-
-    var mview := _MovView.new()
-    mview.custom_minimum_size        = Vector2(0.0, 480.0)
-    mview.size_flags_horizontal      = Control.SIZE_EXPAND_FILL
-    mview.size_flags_vertical        = Control.SIZE_EXPAND_FILL
 
     var btn_prev := Button.new()
     btn_prev.text = "◄"
