@@ -47,8 +47,10 @@ def build_sheet(images: list[Image.Image]) -> Image.Image:
 
 def main() -> None:
     paths = sorted(RAW_DIR.glob("f*/f*_east.png"))
+    if len(paths) < 2:
+        raise SystemExit(f"Preciso de >=2 PNGs east em {RAW_DIR}, achei {len(paths)}: {paths}")
     if len(paths) != 8:
-        raise SystemExit(f"Esperava 8 PNGs east em {RAW_DIR}, achei {len(paths)}: {paths}")
+        print(f"AVISO: {len(paths)}/8 frames (placeholder). Frames: {[p.parent.name for p in paths]}")
     images = [Image.open(p) for p in paths]
     sheet = build_sheet(images)
     OUT.parent.mkdir(parents=True, exist_ok=True)
