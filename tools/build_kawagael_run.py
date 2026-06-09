@@ -19,10 +19,10 @@ TOP_PAD = 2      # respiro no topo
 RAW_DIR = Path("characters/ranged/kawagael/_raw")
 OUT = Path("characters/ranged/kawagael/KawagaelRun.png")
 
-# Ordem de exibição no ciclo (nomes das subpastas em _raw). A sequência de
-# GERAÇÃO no PixelLab (f0..f4) não é a ordem boa de animação — esta é a corrigida.
-# Frames presentes que não estiverem aqui entram ao final.
-FRAME_ORDER = ["f1", "f2", "f3", "f4", "f0"]
+# Ordem de exibição no ciclo (nomes das subpastas em _raw) — FONTE ÚNICA DA VERDADE.
+# A sequência de GERAÇÃO no PixelLab (f0..f4) não é a ordem boa de animação.
+# Frames presentes em _raw que NÃO estiverem aqui são ignorados (ex: f3 removido).
+FRAME_ORDER = ["f1", "f2", "f4", "f0"]
 
 
 def trim(img: Image.Image) -> Image.Image:
@@ -53,9 +53,9 @@ def build_sheet(images: list[Image.Image]) -> Image.Image:
 def _ordered_paths() -> list[Path]:
     raw = {p.parent.name: p for p in RAW_DIR.glob("f*/f*_east.png")}
     ordered = [raw[name] for name in FRAME_ORDER if name in raw]
-    for name in sorted(raw):               # frames presentes fora de FRAME_ORDER → ao final
-        if name not in FRAME_ORDER:
-            ordered.append(raw[name])
+    extras = [n for n in sorted(raw) if n not in FRAME_ORDER]
+    if extras:
+        print(f"NOTA: frames presentes fora de FRAME_ORDER (ignorados): {extras}")
     return ordered
 
 
