@@ -26,6 +26,9 @@ const WALL_JUMP_DIAGONAL_V := -560.0
 const WALL_JUMP_DIAGONAL_H := 140.0
 const ICE_ACCEL := 420.0
 const ICE_FRICTION := 180.0
+const ICE_DASH_START_SPEED := 320.0
+const ICE_DASH_MAX_SPEED := 560.0
+const ICE_DASH_ACCEL := 1800.0
 
 @export var max_hp: int = 100
 var current_hp: int = 100
@@ -39,6 +42,7 @@ var kill_y: float = KILL_Y  # world-space Y below which the player dies; set per
 var _is_dashing: bool = false
 var _dash_timer: float = 0.0
 var _dash_cooldown_timer: float = 0.0
+var _dash_speed_current: float = DASH_SPEED
 var _coyote_timer: float = 0.0
 var _invincibility_timer: float = 0.0
 var _air_walk_timer: float = 0.0
@@ -151,7 +155,7 @@ func _handle_movement(delta: float) -> void:
 		velocity.x = 0.0
 		return
 	if _is_dashing:
-		velocity.x = DASH_SPEED * _dash_direction
+		_apply_dash_movement(delta)
 		return
 	if door_walk_speed != 0.0:
 		velocity.x = door_walk_speed
@@ -170,6 +174,13 @@ func _apply_horizontal_movement(direction: float, delta: float, on_floor: bool) 
 	else:
 		var friction := ICE_FRICTION * delta if _stage_on_ice and on_floor else SPEED
 		velocity.x = move_toward(velocity.x, 0.0, friction)
+
+func _apply_dash_movement(delta: float) -> void:
+	if _stage_on_ice:
+		_dash_speed_current = move_toward(_dash_speed_current, ICE_DASH_MAX_SPEED, ICE_DASH_ACCEL * delta)
+	else:
+		_dash_speed_current = DASH_SPEED
+	velocity.x = _dash_speed_current * _dash_direction
 
 func set_stage_ice(value: bool) -> void:
 	if value:
@@ -243,6 +254,7 @@ func _start_dash(dir: float = 0.0) -> void:
 	_dash_timer = DASH_DURATION
 	_dash_cooldown_timer = DASH_COOLDOWN
 	_dash_direction = dir if dir != 0.0 else (1.0 if facing_right else -1.0)
+	_dash_speed_current = ICE_DASH_START_SPEED if _stage_on_ice else DASH_SPEED
 	velocity.y = 0.0
 
 func _update_facing() -> void:
