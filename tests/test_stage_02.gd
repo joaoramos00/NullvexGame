@@ -6,6 +6,7 @@ var _failed := 0
 func _ready() -> void:
 	_test_scene_loads()
 	_test_required_nodes_exist()
+	_test_stage_ice_floor_covers_full_stage()
 	_test_collectibles_are_configured()
 	_print_results()
 	get_tree().quit(0 if _failed == 0 else 1)
@@ -43,6 +44,20 @@ func _test_required_nodes_exist() -> void:
 	]:
 		_assert(inst.get_node_or_null(node_name) != null, "%s exists" % node_name)
 	_assert(inst.get_script() != null, "stage root has custom script")
+	inst.free()
+
+func _test_stage_ice_floor_covers_full_stage() -> void:
+	var inst := _instance_stage()
+	if inst == null:
+		return
+	var ice := inst.get_node_or_null("StageIceFloor") as Area2D
+	_assert(ice != null, "StageIceFloor exists")
+	_assert(ice != null and ice.get_script() != null, "StageIceFloor uses ice floor adapter")
+	var shape_node := ice.get_node_or_null("CollisionShape2D") as CollisionShape2D if ice != null else null
+	var rect := shape_node.shape as RectangleShape2D if shape_node != null else null
+	_assert(rect != null, "StageIceFloor has rectangle shape")
+	_assert(rect != null and rect.size.x >= 14500.0, "StageIceFloor covers full stage width")
+	_assert(rect != null and rect.size.y >= 600.0, "StageIceFloor covers all stage floor heights")
 	inst.free()
 
 func _test_collectibles_are_configured() -> void:

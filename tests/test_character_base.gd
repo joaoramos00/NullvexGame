@@ -14,6 +14,8 @@ func run_tests() -> void:
     test_no_grab_wall_returns_false_with_no_collisions()
     test_stage_ice_hook_tracks_contacts()
     test_ice_horizontal_movement_slides_after_input_release()
+    test_ice_dash_starts_slower_than_normal_dash()
+    test_ice_dash_accelerates_after_start()
     print("=== All CharacterBase tests passed ===")
 
 func test_initial_hp() -> void:
@@ -121,3 +123,33 @@ func test_ice_horizontal_movement_slides_after_input_release() -> void:
         assert(cb.velocity.x < CharacterBase.SPEED, "no gelo, atrito ainda reduz velocidade")
     cb.queue_free()
     print("PASS: test_ice_horizontal_movement_slides_after_input_release")
+
+func test_ice_dash_starts_slower_than_normal_dash() -> void:
+    var cb := CharacterBase.new()
+    add_child(cb)
+    cb.max_hp = 100
+    cb._ready()
+    if cb.has_method("set_stage_ice"):
+        cb.call("set_stage_ice", true)
+        cb.call("_start_dash", 1.0)
+        cb.call("_handle_movement", 0.0)
+        assert(cb.velocity.x > 0.0, "dash no gelo ainda move o personagem")
+        assert(cb.velocity.x < CharacterBase.DASH_SPEED, "dash no gelo começa abaixo do dash normal")
+    cb.queue_free()
+    print("PASS: test_ice_dash_starts_slower_than_normal_dash")
+
+func test_ice_dash_accelerates_after_start() -> void:
+    var cb := CharacterBase.new()
+    add_child(cb)
+    cb.max_hp = 100
+    cb._ready()
+    if cb.has_method("set_stage_ice"):
+        cb.call("set_stage_ice", true)
+        cb.call("_start_dash", 1.0)
+        cb.call("_handle_movement", 0.0)
+        var initial_speed := cb.velocity.x
+        cb.call("_handle_movement", 0.1)
+        assert(cb.velocity.x > initial_speed, "dash no gelo acelera depois do começo pesado")
+        assert(cb.velocity.x < CharacterBase.DASH_SPEED, "dash no gelo não vira dash normal instantaneamente")
+    cb.queue_free()
+    print("PASS: test_ice_dash_accelerates_after_start")

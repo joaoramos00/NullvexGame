@@ -24,6 +24,9 @@ size = Vector2(220, 520)
 [sub_resource type="RectangleShape2D" id="HazardWide"]
 size = Vector2(760, 96)
 
+[sub_resource type="RectangleShape2D" id="StageIceShape"]
+size = Vector2(14500, 640)
+
 [sub_resource type="RectangleShape2D" id="HazardMedium"]
 size = Vector2(480, 96)
 
@@ -151,41 +154,14 @@ position = Vector2(12800, 980)
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Z4_BlockC"]
 shape = SubResource("BlockWide")
 
-[node name="Z1_IceFloor" type="Area2D" parent="."]
-position = Vector2(1400, 800)
+[node name="StageIceFloor" type="Area2D" parent="."]
+position = Vector2(7250, 760)
 collision_layer = 0
 collision_mask = 2
 script = ExtResource("8_icefloor")
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Z1_IceFloor"]
-shape = SubResource("HazardWide")
-
-[node name="Z2_IceFloor" type="Area2D" parent="."]
-position = Vector2(4200, 800)
-collision_layer = 0
-collision_mask = 2
-script = ExtResource("8_icefloor")
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Z2_IceFloor"]
-shape = SubResource("HazardWide")
-
-[node name="Z3_IceFloor" type="Area2D" parent="."]
-position = Vector2(9300, 760)
-collision_layer = 0
-collision_mask = 2
-script = ExtResource("8_icefloor")
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Z3_IceFloor"]
-shape = SubResource("HazardWide")
-
-[node name="Z4_IceFloor" type="Area2D" parent="."]
-position = Vector2(11900, 760)
-collision_layer = 0
-collision_mask = 2
-script = ExtResource("8_icefloor")
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Z4_IceFloor"]
-shape = SubResource("HazardWide")
+[node name="CollisionShape2D" type="CollisionShape2D" parent="StageIceFloor"]
+shape = SubResource("StageIceShape")
 
 [node name="Z2_Spikes" type="Area2D" parent="."]
 position = Vector2(4100, 760)
