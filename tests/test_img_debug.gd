@@ -9,20 +9,22 @@ func _ready() -> void:
     test_char_change_resets_anim()
     test_frame_cycling()
     test_platform_tab_shows_panel()
+    test_movement_enemy_catalog_includes_stage02_enemies()
+    test_debug_movement_scene_includes_stage02_enemies()
     test_floor_platform_tiles()
     test_floor_platform_hole_tiles()
     print("ALL TESTS PASSED")
     get_tree().quit(0)
 
 func test_sprite_data() -> void:
-    # ZAEL: 9 anims, ZARA: 2, MINIBOSS: 5 = 16 total
-    assert(ImgDebug._SPRITES.size() == 16, "deve ter 16 sprites")
+    # ZAEL: 9 anims, KAWAGAEL: 1, ZARA: 2, MINIBOSS: 5 = 17 total
+    assert(ImgDebug._SPRITES.size() == 17, "deve ter 17 sprites")
     assert(ImgDebug._SPRITES[0].char == "ZAEL", "índice 0 deve ser ZAEL")
     assert(ImgDebug._SPRITES[0].anim == "Idle", "índice 0 deve ser Idle")
     assert(ImgDebug._SPRITES[0].frames == 8, "Idle deve ter 8 frames")
     assert(ImgDebug._SPRITES[0].fps == 8.0, "Idle deve ter 8.0 fps")
-    assert(ImgDebug._SPRITES[9].char == "ZARA", "índice 9 deve ser ZARA")
-    assert(ImgDebug._SPRITES[9].anim == "Walk", "índice 9 deve ser Walk")
+    var zara_walk := ImgDebug._SPRITES.filter(func(s): return s.char == "ZARA" and s.anim == "Walk")
+    assert(zara_walk.size() == 1, "deve existir sprite ZARA Walk")
     print("PASS: sprite_data")
 
 func test_tile_data() -> void:
@@ -120,6 +122,31 @@ func test_platform_tab_shows_panel() -> void:
 
     panel.queue_free()
     print("PASS: platform_tab_shows_panel")
+
+func test_movement_enemy_catalog_includes_stage02_enemies() -> void:
+    for enemy_name in ["Ice Grunt", "Ice Flyer", "Ice Archer", "Frost Turret", "Cryo Bomber", "Glacier Shield", "Ice Wisp", "Ice MiniBoss"]:
+        assert(ImgDebug._MovView._ENEMY_NAMES.has(enemy_name), "Movimentos deve incluir " + enemy_name)
+    for path in ImgDebug._MovView._ENEMY_PATHS:
+        if path.contains("stage_02"):
+            assert(load(path) != null, "caminho de inimigo stage02 deve carregar: " + path)
+    assert(ImgDebug._MovView._ENEMY_NAMES.size() == ImgDebug._MovView._ENEMY_PATHS.size(), "nomes e caminhos de inimigos devem ter o mesmo tamanho")
+    assert(ImgDebug._MovView._ENEMY_Y.size() == ImgDebug._MovView._ENEMY_PATHS.size(), "offsets Y devem acompanhar caminhos de inimigos")
+    print("PASS: movement_enemy_catalog_includes_stage02_enemies")
+
+func test_debug_movement_scene_includes_stage02_enemies() -> void:
+    var scene := load("res://ui/debug_movement.tscn") as PackedScene
+    assert(scene != null, "debug_movement.tscn deve carregar")
+    var panel = scene.instantiate()
+    add_child(panel)
+    for enemy_name in ["Ice Grunt", "Ice Flyer", "Ice Archer", "Frost Turret", "Cryo Bomber", "Glacier Shield", "Ice Wisp", "Ice MiniBoss"]:
+        assert(panel.get("_ENEMY_NAMES").has(enemy_name), "DebugMovement deve incluir " + enemy_name)
+    for path in panel.get("_ENEMY_PATHS"):
+        if path.contains("stage_02"):
+            assert(load(path) != null, "DebugMovement caminho stage02 deve carregar: " + path)
+    assert(panel.get("_ENEMY_NAMES").size() == panel.get("_ENEMY_PATHS").size(), "DebugMovement nomes e caminhos devem ter o mesmo tamanho")
+    assert(panel.get("_ENEMY_Y").size() == panel.get("_ENEMY_PATHS").size(), "DebugMovement offsets Y devem acompanhar caminhos")
+    panel.queue_free()
+    print("PASS: debug_movement_scene_includes_stage02_enemies")
 
 # Modo "Piso+Plat": valida o tile de cada célula-chave do heightfield
 # (cols=3 largura da plataforma, rows=2 elevação; lados=3, prof.=2 → grid 9x4).

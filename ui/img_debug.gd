@@ -1089,14 +1089,26 @@ class _MovView extends Control:
     const _ENEMY_PATHS := [
         "res://characters/enemies/enemy_base.tscn",
         "res://characters/enemies/enemy_flyer.tscn",
+        "res://characters/enemies/stage_02/enemy_ice_grunt.tscn",
+        "res://characters/enemies/stage_02/enemy_ice_flyer.tscn",
+        "res://characters/enemies/stage_02/enemy_ice_archer.tscn",
+        "res://characters/enemies/stage_02/enemy_frost_turret.tscn",
+        "res://characters/enemies/stage_02/enemy_cryo_bomber.tscn",
+        "res://characters/enemies/stage_02/enemy_glacier_shield.tscn",
+        "res://characters/enemies/stage_02/enemy_ice_wisp.tscn",
+        "res://characters/enemies/stage_02/enemy_ice_miniboss.tscn",
         "res://characters/enemies/enemy_miniboss.tscn",
         "res://characters/bosses/intro_boss.tscn",
     ]
-    const _ENEMY_NAMES := ["Grunt", "Flyer", "MiniBoss", "IntroBoss"]
+    const _ENEMY_NAMES := [
+        "Grunt", "Flyer",
+        "Ice Grunt", "Ice Flyer", "Ice Archer", "Frost Turret", "Cryo Bomber", "Glacier Shield", "Ice Wisp", "Ice MiniBoss",
+        "MiniBoss", "IntroBoss",
+    ]
     const _GROUND_Y    := 16.0
     const _PLAYER_X    := 280.0
     const _ENEMY_X     := 680.0
-    const _ENEMY_Y     := [-40.0, -100.0, 3.0, -24.0]
+    const _ENEMY_Y     := [-40.0, -100.0, -40.0, -100.0, -40.0, -40.0, -42.0, -42.0, -125.0, 3.0, 3.0, -24.0]
     const _WALL_L      := 100.0
     const _WALL_R      := 1820.0
     const _GWL         := 480.0
@@ -1136,7 +1148,8 @@ class _MovView extends Control:
 
         var mw := ImgDebug._MovWorld.new()
         mw.tile_tex    = load("res://stages/stage_00/Stage_00T.png") as Texture2D
-        mw.glass_tex   = load("res://stages/stage_00/stage_00_glass.png") as Texture2D
+        if ResourceLoader.exists("res://stages/stage_00/stage_00_glass.png"):
+            mw.glass_tex = load("res://stages/stage_00/stage_00_glass.png") as Texture2D
         mw.ground_y    = _GROUND_Y
         mw.wall_l      = _WALL_L
         mw.wall_r      = _WALL_R
@@ -1372,7 +1385,8 @@ class _FillCeilView extends Control:
         ctr.add_child(svp)
         var mw := ImgDebug._FillCeilWorld.new()
         mw.tile_tex   = load("res://stages/stage_00/Stage_00T.png") as Texture2D
-        mw.glass_tex  = load("res://stages/stage_00/stage_00_glass.png") as Texture2D
+        if ResourceLoader.exists("res://stages/stage_00/stage_00_glass.png"):
+            mw.glass_tex = load("res://stages/stage_00/stage_00_glass.png") as Texture2D
         mw.fixed_mode = _fixed_mode
         mw.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
         svp.add_child(mw)
@@ -2137,7 +2151,9 @@ func _refresh_tiles() -> void:
                 "data":    ts_data,
             }
 
-            var tex    := load(ts_data.path) as Texture2D
+            var tex: Texture2D = null
+            if ResourceLoader.exists(ts_data.path):
+                tex = load(ts_data.path) as Texture2D
             var ts_px: int = ts_data.tile_size
 
             for row in ts_data.rows:
@@ -2306,7 +2322,9 @@ func _refresh_tiles() -> void:
     glass_mode_lbl.add_theme_font_size_override("font_size", 18)
     glass_mode_row.add_child(glass_mode_lbl)
 
-    var gl_tex  := load("res://stages/stage_00/stage_00_glass.png") as Texture2D
+    var gl_tex: Texture2D = null
+    if ResourceLoader.exists("res://stages/stage_00/stage_00_glass.png"):
+        gl_tex = load("res://stages/stage_00/stage_00_glass.png") as Texture2D
     var tile_t  := load("res://stages/stage_00/Stage_00T.png")      as Texture2D
     var spr_t   := load("res://characters/ranged/ZaelIdle.png")     as Texture2D
 
