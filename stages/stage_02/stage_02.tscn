@@ -1,134 +1,256 @@
 [gd_scene format=3 uid="uid://stage_02"]
 
-[ext_resource type="Script" path="res://stages/stage_scene.gd" id="1_script"]
-[ext_resource type="PackedScene" uid="uid://stage_controller" path="res://stages/stage_controller.tscn" id="2_sc"]
-[ext_resource type="PackedScene" uid="uid://checkpoint" path="res://stages/checkpoint.tscn" id="3_cp"]
-[ext_resource type="PackedScene" uid="uid://collectible" path="res://stages/collectible.tscn" id="4_col"]
-[ext_resource type="PackedScene" uid="uid://hud" path="res://ui/hud.tscn" id="5_hud"]
-[ext_resource type="PackedScene" uid="uid://pause_menu" path="res://ui/pause_menu.tscn" id="6_pause"]
-[ext_resource type="PackedScene" uid="uid://game_over" path="res://ui/game_over.tscn" id="7_gameover"]
-[ext_resource type="PackedScene" uid="uid://stage_complete" path="res://ui/stage_complete.tscn" id="8_scom"]
-[ext_resource type="PackedScene" uid="uid://cryovex" path="res://characters/bosses/cryovex.tscn" id="9_boss"]
-[ext_resource type="PackedScene" uid="uid://enemy_base" path="res://characters/enemies/enemy_base.tscn" id="10_grunt"]
-[ext_resource type="PackedScene" uid="uid://enemy_flyer" path="res://characters/enemies/enemy_flyer.tscn" id="11_flyer"]
+[ext_resource type="Script" path="res://stages/stage_02/stage_02_scene.gd" id="1_script"]
+[ext_resource type="PackedScene" path="res://stages/stage_controller.tscn" id="2_sc"]
+[ext_resource type="PackedScene" path="res://stages/collectible.tscn" id="3_col"]
+[ext_resource type="PackedScene" path="res://ui/hud.tscn" id="4_hud"]
+[ext_resource type="PackedScene" path="res://ui/pause_menu.tscn" id="5_pause"]
+[ext_resource type="PackedScene" path="res://ui/game_over.tscn" id="6_gameover"]
+[ext_resource type="PackedScene" path="res://ui/stage_complete.tscn" id="7_complete"]
+[ext_resource type="Script" path="res://stages/stage_02/ice_floor.gd" id="8_icefloor"]
+[ext_resource type="Script" path="res://stages/stage_02/ice_spikes.gd" id="9_spikes"]
+[ext_resource type="Script" path="res://stages/stage_02/blizzard_zone.gd" id="10_blizzard"]
+[ext_resource type="Script" path="res://stages/stage_02/ice_gate.gd" id="11_gate"]
 
-[sub_resource type="RectangleShape2D" id="Floor"]
-size = Vector2(5400, 40)
+[sub_resource type="RectangleShape2D" id="BlockWide"]
+size = Vector2(900, 360)
 
-[sub_resource type="RectangleShape2D" id="P1"]
-size = Vector2(350, 20)
+[sub_resource type="RectangleShape2D" id="BlockMedium"]
+size = Vector2(520, 300)
 
-[sub_resource type="RectangleShape2D" id="P2"]
-size = Vector2(300, 20)
+[sub_resource type="RectangleShape2D" id="BlockTall"]
+size = Vector2(220, 520)
 
-[sub_resource type="RectangleShape2D" id="P3"]
-size = Vector2(400, 20)
+[sub_resource type="RectangleShape2D" id="HazardWide"]
+size = Vector2(760, 96)
 
-[sub_resource type="RectangleShape2D" id="P4"]
-size = Vector2(350, 20)
+[sub_resource type="RectangleShape2D" id="HazardMedium"]
+size = Vector2(480, 96)
 
-[sub_resource type="RectangleShape2D" id="P5"]
-size = Vector2(300, 20)
+[sub_resource type="RectangleShape2D" id="GateShape"]
+size = Vector2(96, 260)
 
 [node name="Stage02" type="Node2D"]
-platform_color = Color(0.4, 0.8, 1.0, 1)
 script = ExtResource("1_script")
 
 [node name="PlayerSpawn" type="Node2D" parent="."]
-position = Vector2(200, 760)
+position = Vector2(180, 760)
 
 [node name="StageController" parent="." instance=ExtResource("2_sc")]
 
-[node name="Checkpoint1" parent="." instance=ExtResource("3_cp")]
-position = Vector2(1700, 850)
-checkpoint_index = 1
+[node name="HUD" parent="." instance=ExtResource("4_hud")]
 
-[node name="Checkpoint2" parent="." instance=ExtResource("3_cp")]
-position = Vector2(3100, 850)
-checkpoint_index = 2
+[node name="PauseMenu" parent="." instance=ExtResource("5_pause")]
 
-[node name="Floor" type="StaticBody2D" parent="."]
-position = Vector2(2700, 920)
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Floor"]
-shape = SubResource("Floor")
+[node name="GameOver" parent="." instance=ExtResource("6_gameover")]
 
-[node name="Plat1" type="StaticBody2D" parent="."]
-position = Vector2(700, 760)
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Plat1"]
-shape = SubResource("P1")
+[node name="StageComplete" parent="." instance=ExtResource("7_complete")]
 
-[node name="Plat2" type="StaticBody2D" parent="."]
-position = Vector2(1500, 680)
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Plat2"]
-shape = SubResource("P2")
+[node name="Camera2D" type="Camera2D" parent="."]
+position = Vector2(180, 690)
+limit_left = 0
+limit_top = -400
+limit_right = 14500
+limit_bottom = 1400
+position_smoothing_enabled = true
+position_smoothing_speed = 8.0
 
-[node name="Plat3" type="StaticBody2D" parent="."]
-position = Vector2(2300, 760)
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Plat3"]
-shape = SubResource("P3")
+[node name="Z1Marker" type="Node2D" parent="."]
+position = Vector2(800, 820)
 
-[node name="Plat4" type="StaticBody2D" parent="."]
-position = Vector2(3200, 660)
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Plat4"]
-shape = SubResource("P4")
+[node name="Z2Marker" type="Node2D" parent="."]
+position = Vector2(3500, 820)
 
-[node name="Plat5" type="StaticBody2D" parent="."]
-position = Vector2(4000, 740)
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Plat5"]
-shape = SubResource("P5")
+[node name="MB02Marker" type="Node2D" parent="."]
+position = Vector2(6700, 820)
 
-[node name="Heart" parent="." instance=ExtResource("4_col")]
-position = Vector2(1500, 640)
-stage_id = 2
+[node name="Z3Marker" type="Node2D" parent="."]
+position = Vector2(8700, 760)
 
-[node name="SubTank" parent="." instance=ExtResource("4_col")]
-position = Vector2(2300, 720)
+[node name="Z4Marker" type="Node2D" parent="."]
+position = Vector2(11600, 760)
+
+[node name="BossEntryMarker" type="Node2D" parent="."]
+position = Vector2(14150, 820)
+
+[node name="Z1_BlockA" type="StaticBody2D" parent="."]
+position = Vector2(450, 980)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Z1_BlockA"]
+shape = SubResource("BlockWide")
+
+[node name="Z1_BlockB" type="StaticBody2D" parent="."]
+position = Vector2(1300, 1044)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Z1_BlockB"]
+shape = SubResource("BlockMedium")
+
+[node name="Z1_BlockC" type="StaticBody2D" parent="."]
+position = Vector2(2200, 980)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Z1_BlockC"]
+shape = SubResource("BlockWide")
+
+[node name="Z2_BlockA" type="StaticBody2D" parent="."]
+position = Vector2(3200, 980)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Z2_BlockA"]
+shape = SubResource("BlockWide")
+
+[node name="Z2_BlockB" type="StaticBody2D" parent="."]
+position = Vector2(4200, 1044)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Z2_BlockB"]
+shape = SubResource("BlockMedium")
+
+[node name="Z2_BlockC" type="StaticBody2D" parent="."]
+position = Vector2(5000, 980)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Z2_BlockC"]
+shape = SubResource("BlockWide")
+
+[node name="MB02_Floor" type="StaticBody2D" parent="."]
+position = Vector2(6700, 980)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="MB02_Floor"]
+shape = SubResource("BlockWide")
+
+[node name="Z3_BlockA" type="StaticBody2D" parent="."]
+position = Vector2(8300, 1044)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Z3_BlockA"]
+shape = SubResource("BlockMedium")
+
+[node name="Z3_BlockB" type="StaticBody2D" parent="."]
+position = Vector2(9200, 940)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Z3_BlockB"]
+shape = SubResource("BlockTall")
+
+[node name="Z3_BlockC" type="StaticBody2D" parent="."]
+position = Vector2(10000, 980)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Z3_BlockC"]
+shape = SubResource("BlockWide")
+
+[node name="Z4_BlockA" type="StaticBody2D" parent="."]
+position = Vector2(11000, 980)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Z4_BlockA"]
+shape = SubResource("BlockWide")
+
+[node name="Z4_BlockB" type="StaticBody2D" parent="."]
+position = Vector2(12000, 940)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Z4_BlockB"]
+shape = SubResource("BlockTall")
+
+[node name="Z4_BlockC" type="StaticBody2D" parent="."]
+position = Vector2(12800, 980)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Z4_BlockC"]
+shape = SubResource("BlockWide")
+
+[node name="Z1_IceFloor" type="Area2D" parent="."]
+position = Vector2(1400, 800)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("8_icefloor")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Z1_IceFloor"]
+shape = SubResource("HazardWide")
+
+[node name="Z2_IceFloor" type="Area2D" parent="."]
+position = Vector2(4200, 800)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("8_icefloor")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Z2_IceFloor"]
+shape = SubResource("HazardWide")
+
+[node name="Z3_IceFloor" type="Area2D" parent="."]
+position = Vector2(9300, 760)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("8_icefloor")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Z3_IceFloor"]
+shape = SubResource("HazardWide")
+
+[node name="Z4_IceFloor" type="Area2D" parent="."]
+position = Vector2(11900, 760)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("8_icefloor")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Z4_IceFloor"]
+shape = SubResource("HazardWide")
+
+[node name="Z2_Spikes" type="Area2D" parent="."]
+position = Vector2(4100, 760)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("9_spikes")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Z2_Spikes"]
+shape = SubResource("HazardMedium")
+
+[node name="Z3_Blizzard" type="Area2D" parent="."]
+position = Vector2(9000, 620)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("10_blizzard")
+force = Vector2(180, 0)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Z3_Blizzard"]
+shape = SubResource("HazardWide")
+
+[node name="Z2_IgnarathGate" type="StaticBody2D" parent="."]
+position = Vector2(3900, 720)
+script = ExtResource("11_gate")
+required_ability = "ignarath"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Z2_IgnarathGate"]
+shape = SubResource("GateShape")
+
+[node name="HitDetector" type="Area2D" parent="Z2_IgnarathGate"]
+collision_layer = 0
+collision_mask = 8
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Z2_IgnarathGate/HitDetector"]
+shape = SubResource("GateShape")
+
+[node name="Z4_LuxarGate" type="StaticBody2D" parent="."]
+position = Vector2(12100, 720)
+script = ExtResource("11_gate")
+required_ability = "luxar"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Z4_LuxarGate"]
+shape = SubResource("GateShape")
+
+[node name="HitDetector" type="Area2D" parent="Z4_LuxarGate"]
+collision_layer = 0
+collision_mask = 8
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Z4_LuxarGate/HitDetector"]
+shape = SubResource("GateShape")
+
+[node name="SubTank" parent="." instance=ExtResource("3_col")]
+position = Vector2(980, 720)
 collectible_type = 1
 subtank_index = 0
 
-[node name="ArmorZaraHelmet" parent="." instance=ExtResource("4_col")]
-position = Vector2(3200, 620)
+[node name="ArmorZaraHelmet" parent="." instance=ExtResource("3_col")]
+position = Vector2(4100, 650)
 collectible_type = 3
 armor_piece = "helmet"
 
-[node name="SpreadZael" parent="." instance=ExtResource("4_col")]
-position = Vector2(4000, 700)
+[node name="Heart" parent="." instance=ExtResource("3_col")]
+position = Vector2(9650, 560)
+stage_id = 2
+
+[node name="SpreadZael" parent="." instance=ExtResource("3_col")]
+position = Vector2(12350, 620)
 collectible_type = 4
 ability_id = "spread"
-
-[node name="Cryovex" parent="." instance=ExtResource("9_boss")]
-position = Vector2(4600, 760)
-arena_left = 4100.0
-arena_right = 5100.0
-arena_floor = 900.0
-
-[node name="Grunt1" parent="." instance=ExtResource("10_grunt")]
-position = Vector2(400, 850)
-
-[node name="Grunt2" parent="." instance=ExtResource("10_grunt")]
-position = Vector2(1100, 850)
-
-[node name="Grunt3" parent="." instance=ExtResource("10_grunt")]
-position = Vector2(2700, 850)
-
-[node name="Grunt4" parent="." instance=ExtResource("10_grunt")]
-position = Vector2(3700, 850)
-
-[node name="Flyer1" parent="." instance=ExtResource("11_flyer")]
-position = Vector2(1050, 660)
-
-[node name="Flyer2" parent="." instance=ExtResource("11_flyer")]
-position = Vector2(2800, 640)
-
-[node name="HUD" parent="." instance=ExtResource("5_hud")]
-[node name="PauseMenu" parent="." instance=ExtResource("6_pause")]
-[node name="GameOver" parent="." instance=ExtResource("7_gameover")]
-[node name="StageComplete" parent="." instance=ExtResource("8_scom")]
-
-[node name="Camera2D" type="Camera2D" parent="."]
-limit_left = 0
-limit_top = 0
-limit_bottom = 1080
-limit_right = 5300
-position_smoothing_enabled = true
-position_smoothing_speed = 8.0
