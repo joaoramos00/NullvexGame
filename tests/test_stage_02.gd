@@ -24,14 +24,13 @@ func _instance_stage() -> Node:
 	if scene == null:
 		return null
 	var inst := scene.instantiate()
-	add_child(inst)
 	return inst
 
 func _test_scene_loads() -> void:
 	var inst := _instance_stage()
 	_assert(inst != null, "stage_02 scene instantiates")
 	if inst != null:
-		inst.queue_free()
+		inst.free()
 
 func _test_required_nodes_exist() -> void:
 	var inst := _instance_stage()
@@ -44,7 +43,7 @@ func _test_required_nodes_exist() -> void:
 	]:
 		_assert(inst.get_node_or_null(node_name) != null, "%s exists" % node_name)
 	_assert(inst.get_script() != null, "stage root has custom script")
-	inst.queue_free()
+	inst.free()
 
 func _test_collectibles_are_configured() -> void:
 	var inst := _instance_stage()
@@ -61,7 +60,7 @@ func _test_collectibles_are_configured() -> void:
 	_assert(helmet != null and helmet.armor_piece == "helmet", "Zara helmet armor_piece configured")
 	_assert(spread != null and spread.collectible_type == Collectible.Type.SHOT_ZAEL, "Spread type configured")
 	_assert(spread != null and spread.ability_id == "spread", "Spread ability_id configured")
-	inst.queue_free()
+	inst.free()
 
 func _print_results() -> void:
 	print("\n=== test_stage_02: %d passed, %d failed ===" % [_passed, _failed])
