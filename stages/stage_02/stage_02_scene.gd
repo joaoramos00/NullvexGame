@@ -11,18 +11,32 @@ var _zara_scene: PackedScene = null
 var _grunt_scene: PackedScene = null
 var _flyer_scene: PackedScene = null
 var _mb02_scene: PackedScene = null
+var _archer_scene: PackedScene = null
+var _turret_scene: PackedScene = null
+var _bomber_scene: PackedScene = null
+var _shield_scene: PackedScene = null
+var _wisp_scene: PackedScene = null
 
 const _TS := 64
 const _SRC_TS := 32
 
 const Z1_GRUNTS := [Vector2(700, 856), Vector2(1280, 792), Vector2(1840, 728), Vector2(2380, 856)]
 const Z1_FLYERS := [Vector2(1050, 650), Vector2(2100, 610)]
+const Z1_ARCHERS := [Vector2(1600, 856), Vector2(2520, 856)]
 const Z2_GRUNTS := [Vector2(3180, 856), Vector2(3650, 792), Vector2(4200, 720), Vector2(4720, 856)]
 const Z2_FLYERS := [Vector2(3450, 610), Vector2(4550, 560)]
+const Z2_ARCHERS := [Vector2(2920, 856), Vector2(5050, 856)]
+const Z2_SHIELDS := [Vector2(3980, 792)]
 const Z3_GRUNTS := [Vector2(7300, 856), Vector2(7900, 760), Vector2(8500, 650), Vector2(9100, 760), Vector2(9700, 856)]
 const Z3_FLYERS := [Vector2(8100, 560), Vector2(9000, 500), Vector2(10050, 610)]
+const Z3_TURRETS := [Vector2(7720, 700), Vector2(9480, 820)]
+const Z3_WISPS := [Vector2(8500, 500), Vector2(10000, 540)]
 const Z4_GRUNTS := [Vector2(10800, 856), Vector2(11350, 760), Vector2(11900, 650), Vector2(12600, 760)]
 const Z4_FLYERS := [Vector2(11100, 540), Vector2(12150, 500), Vector2(12900, 580)]
+const Z4_TURRETS := [Vector2(11280, 820), Vector2(12520, 820)]
+const Z4_BOMBERS := [Vector2(11600, 760), Vector2(12880, 856)]
+const Z4_SHIELDS := [Vector2(12050, 760)]
+const Z4_WISPS := [Vector2(11050, 500), Vector2(12350, 500)]
 
 const _CP1_ENTRY_X := 5400.0
 const _CP1_EXIT_X := 6200.0
@@ -76,6 +90,11 @@ func _load_resources() -> void:
 	_grunt_scene = load("res://characters/enemies/stage_02/enemy_ice_grunt.tscn") as PackedScene
 	_flyer_scene = load("res://characters/enemies/stage_02/enemy_ice_flyer.tscn") as PackedScene
 	_mb02_scene = load("res://characters/enemies/stage_02/enemy_ice_miniboss.tscn") as PackedScene
+	_archer_scene = load("res://characters/enemies/stage_02/enemy_ice_archer.tscn") as PackedScene
+	_turret_scene = load("res://characters/enemies/stage_02/enemy_frost_turret.tscn") as PackedScene
+	_bomber_scene = load("res://characters/enemies/stage_02/enemy_cryo_bomber.tscn") as PackedScene
+	_shield_scene = load("res://characters/enemies/stage_02/enemy_glacier_shield.tscn") as PackedScene
+	_wisp_scene = load("res://characters/enemies/stage_02/enemy_ice_wisp.tscn") as PackedScene
 
 func _process(_delta: float) -> void:
 	var cam := $Camera2D as Camera2D
@@ -180,38 +199,54 @@ func _spawn_zone_enemies(zone: int) -> void:
 	var target: Array[Node]
 	var grunts: Array
 	var flyers: Array
+	var archers: Array
+	var turrets: Array
+	var bombers: Array
+	var shields: Array
+	var wisps: Array
 	match zone:
 		1:
 			target = _zone1_enemies
 			grunts = Z1_GRUNTS
 			flyers = Z1_FLYERS
+			archers = Z1_ARCHERS
 		2:
 			target = _zone2_enemies
 			grunts = Z2_GRUNTS
 			flyers = Z2_FLYERS
+			archers = Z2_ARCHERS
+			shields = Z2_SHIELDS
 		3:
 			target = _zone3_enemies
 			grunts = Z3_GRUNTS
 			flyers = Z3_FLYERS
+			turrets = Z3_TURRETS
+			wisps = Z3_WISPS
 		4:
 			target = _zone4_enemies
 			grunts = Z4_GRUNTS
 			flyers = Z4_FLYERS
+			turrets = Z4_TURRETS
+			bombers = Z4_BOMBERS
+			shields = Z4_SHIELDS
+			wisps = Z4_WISPS
 		_:
 			return
 	if not target.is_empty():
 		return
-	for pos in grunts:
-		if _grunt_scene == null:
-			continue
-		var enemy := _grunt_scene.instantiate()
-		enemy.global_position = pos
-		add_child(enemy)
-		target.append(enemy)
-	for pos in flyers:
-		if _flyer_scene == null:
-			continue
-		var enemy := _flyer_scene.instantiate()
+	_spawn_enemy_list(_grunt_scene, grunts, target)
+	_spawn_enemy_list(_flyer_scene, flyers, target)
+	_spawn_enemy_list(_archer_scene, archers, target)
+	_spawn_enemy_list(_turret_scene, turrets, target)
+	_spawn_enemy_list(_bomber_scene, bombers, target)
+	_spawn_enemy_list(_shield_scene, shields, target)
+	_spawn_enemy_list(_wisp_scene, wisps, target)
+
+func _spawn_enemy_list(scene: PackedScene, positions: Array, target: Array[Node]) -> void:
+	if scene == null:
+		return
+	for pos in positions:
+		var enemy := scene.instantiate()
 		enemy.global_position = pos
 		add_child(enemy)
 		target.append(enemy)
