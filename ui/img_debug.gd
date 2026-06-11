@@ -22,6 +22,27 @@ const _SPRITES: Array = [
     {"char": "MINIBOSS", "anim": "Charge", "path": "res://characters/enemies/miniboss/miniboss_charge.png", "frames": 8, "fps": 10.0, "frame_w": 240},
 ]
 
+const _HITBOX_ENTITIES: Array = [
+    {"name": "Zael", "path": "res://characters/ranged/zael.tscn", "group": "Personagens"},
+    {"name": "Kawagael", "path": "res://characters/ranged/kawagael/kawagael.tscn", "group": "Personagens"},
+    {"name": "Zara", "path": "res://characters/melee/zara.tscn", "group": "Personagens"},
+    {"name": "Enemy Base", "path": "res://characters/enemies/enemy_base.tscn", "group": "Inimigos"},
+    {"name": "Enemy Flyer", "path": "res://characters/enemies/enemy_flyer.tscn", "group": "Inimigos"},
+    {"name": "Ice Grunt", "path": "res://characters/enemies/stage_02/enemy_ice_grunt.tscn", "group": "Inimigos"},
+    {"name": "Ice Archer", "path": "res://characters/enemies/stage_02/enemy_ice_archer.tscn", "group": "Inimigos"},
+    {"name": "Frost Turret", "path": "res://characters/enemies/stage_02/enemy_frost_turret.tscn", "group": "Inimigos"},
+    {"name": "Cryo Bomber", "path": "res://characters/enemies/stage_02/enemy_cryo_bomber.tscn", "group": "Inimigos"},
+    {"name": "Glacier Shield", "path": "res://characters/enemies/stage_02/enemy_glacier_shield.tscn", "group": "Inimigos"},
+    {"name": "Ice Wisp", "path": "res://characters/enemies/stage_02/enemy_ice_wisp.tscn", "group": "Inimigos"},
+    {"name": "Ice Miniboss", "path": "res://characters/enemies/stage_02/enemy_ice_miniboss.tscn", "group": "Bosses"},
+    {"name": "Boss Base", "path": "res://characters/bosses/boss_base.tscn", "group": "Bosses"},
+    {"name": "Intro Boss", "path": "res://characters/bosses/intro_boss.tscn", "group": "Bosses"},
+    {"name": "Zael Bullet", "path": "res://characters/ranged/zael_bullet.tscn", "group": "Projeteis"},
+    {"name": "Boss Projectile", "path": "res://characters/bosses/boss_projectile.tscn", "group": "Projeteis"},
+    {"name": "Ice Projectile", "path": "res://characters/enemies/stage_02/enemy_ice_projectile.tscn", "group": "Projeteis"},
+    {"name": "Zara Hitbox", "path": "res://characters/melee/zara_hitbox.tscn", "group": "Projeteis"},
+]
+
 const _TILESETS: Array = [
     # Stage 00 — intro
     {"name": "Stage_00T",       "path": "res://stages/stage_00/Stage_00T.png",       "cols": 4, "rows": 4, "tile_size": 32},
@@ -1512,6 +1533,7 @@ var _strip_frames: Array      = []
 var _sprites_box: VBoxContainer
 var _tiles_box: VBoxContainer
 var _moves_box: VBoxContainer
+var _hitboxes_box: VBoxContainer
 var _anim_tabs_box: HBoxContainer
 var _preview_rect: TextureRect
 var _info_label: Label
@@ -1553,6 +1575,7 @@ func _show_section(section: String) -> void:
     _sprites_box.visible = (section == "SPRITES")
     _tiles_box.visible   = (section == "TILES")
     _moves_box.visible   = (section == "MOVIMENTOS")
+    _hitboxes_box.visible = (section == "HITBOXES")
     for s in _section_btns:
         _section_btns[s].modulate = Color(1, 1, 0) if s == section else Color(0.6, 0.6, 0.6)
 
@@ -1721,6 +1744,13 @@ func _build_ui() -> void:
     section_row.add_child(mov_btn)
     _section_btns["MOVIMENTOS"] = mov_btn
 
+    var hitbox_btn := Button.new()
+    hitbox_btn.text = "HITBOXES"
+    hitbox_btn.add_theme_font_size_override("font_size", 28)
+    hitbox_btn.pressed.connect(_show_section.bind("HITBOXES"))
+    section_row.add_child(hitbox_btn)
+    _section_btns["HITBOXES"] = hitbox_btn
+
     # SPRITES BOX
     _sprites_box = VBoxContainer.new()
     _sprites_box.add_theme_constant_override("separation", 8)
@@ -1782,6 +1812,11 @@ func _build_ui() -> void:
     _moves_box = VBoxContainer.new()
     _moves_box.add_theme_constant_override("separation", 8)
     main.add_child(_moves_box)
+
+    # HITBOXES BOX
+    _hitboxes_box = VBoxContainer.new()
+    _hitboxes_box.add_theme_constant_override("separation", 8)
+    main.add_child(_hitboxes_box)
 
 func _build_moves_box() -> void:
     # ── Tab row ──────────────────────────────────────────────────────────────
