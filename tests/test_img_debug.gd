@@ -14,6 +14,7 @@ func _ready() -> void:
     test_hitbox_view_inspects_representative_entities()
     test_hitbox_view_controls_exist()
     test_hitbox_view_has_floor()
+    test_hitbox_view_aligns_character_collision_bottom_to_floor()
     test_img_debug_buttons_use_web_safe_text()
     test_movement_enemy_catalog_includes_stage02_enemies()
     test_debug_movement_scene_includes_stage02_enemies()
@@ -189,6 +190,17 @@ func test_hitbox_view_has_floor() -> void:
     view.queue_free()
     print("PASS: hitbox_view_has_floor")
 
+func test_hitbox_view_aligns_character_collision_bottom_to_floor() -> void:
+    var view := ImgDebug._HitboxView.new()
+    add_child(view)
+    var idx := view._find_first_group("Personagens")
+    assert(idx >= 0, "HitboxView deve encontrar personagem")
+    view._select_index(idx)
+    var bottom := _max_collision_shape_bottom(view._current_instance)
+    assert(is_equal_approx(bottom, view._overlay.ground_y), "fundo da hitbox do personagem deve alinhar ao piso")
+    view.queue_free()
+    print("PASS: hitbox_view_aligns_character_collision_bottom_to_floor")
+
 func test_img_debug_buttons_use_web_safe_text() -> void:
     var panel = load("res://ui/img_debug.tscn").instantiate()
     add_child(panel)
@@ -318,6 +330,24 @@ func _has_collision_shape(node: Node) -> bool:
         if _has_collision_shape(child):
             return true
     return false
+
+func _max_collision_shape_bottom(node: Node) -> float:
+    var bottom := -INF
+    if node is CollisionShape2D:
+        var cs := node as CollisionShape2D
+        bottom = maxf(bottom, _collision_shape_bottom(cs))
+    for child in node.get_children():
+        bottom = maxf(bottom, _max_collision_shape_bottom(child))
+    return bottom
+
+func _collision_shape_bottom(cs: CollisionShape2D) -> float:
+    if cs.shape is RectangleShape2D:
+        return cs.global_position.y + (cs.shape as RectangleShape2D).size.y * 0.5
+    if cs.shape is CircleShape2D:
+        return cs.global_position.y + (cs.shape as CircleShape2D).radius
+    if cs.shape is CapsuleShape2D:
+        return cs.global_position.y + (cs.shape as CapsuleShape2D).height * 0.5
+    return cs.global_position.y
 
 func _assert_buttons_without_fallback_symbols(node: Node) -> void:
     var forbidden := ["✕", "↺", "◄", "►", "▶", "⏸", "←", "→", "↻"]
