@@ -178,9 +178,9 @@ func _test_stage02_looping_enemy_frames_advance() -> void:
 	_assert(_advances_frame_after_tick("res://characters/enemies/stage_02/enemy_ice_wisp.tscn", 0.25), "ice wisp hover advances frames")
 
 func _test_stage02_shot_release_frames_spawn_projectiles() -> void:
-	_assert(_shot_enemy_spawns_one_projectile("res://characters/enemies/stage_02/enemy_ice_archer.tscn", "ice_archer"), "ice archer fires once during shot release frame")
-	_assert(_shot_enemy_spawns_one_projectile("res://characters/enemies/stage_02/enemy_frost_turret.tscn", "frost_turret"), "frost turret fires once during shot release frame")
-	_assert(_shot_enemy_spawns_one_projectile("res://characters/enemies/stage_02/enemy_cryo_bomber.tscn", "cryo_bomber"), "cryo bomber fires once during shot release frame")
+	_assert(_shot_enemy_spawns_one_projectile("res://characters/enemies/stage_02/enemy_ice_archer.tscn", "ice_archer", 3), "ice archer fires once during shot release frame")
+	_assert(_shot_enemy_spawns_one_projectile("res://characters/enemies/stage_02/enemy_frost_turret.tscn", "frost_turret", 2), "frost turret fires once during shot release frame")
+	_assert(_shot_enemy_spawns_one_projectile("res://characters/enemies/stage_02/enemy_cryo_bomber.tscn", "cryo_bomber", 3), "cryo bomber fires once during shot release frame")
 
 func _sprite_grid(path: String) -> Vector2i:
 	var scene := load(path) as PackedScene
@@ -210,27 +210,41 @@ func _advances_frame_after_tick(path: String, delta: float) -> bool:
 	enemy.queue_free()
 	return advanced
 
-func _shot_enemy_spawns_one_projectile(path: String, source: String) -> bool:
+func _shot_enemy_spawns_one_projectile(path: String, source_id: String, expected_release_frame: int) -> bool:
 	var scene := load(path) as PackedScene
 	if scene == null:
 		return false
 	var enemy := scene.instantiate() as EnemyBase
 	add_child(enemy)
+	var sprite := enemy.get_node_or_null("Sprite2D") as Sprite2D
+	if sprite == null:
+		enemy.free()
+		return false
 	enemy.set("_shoot_timer", 0.0)
 	var player := Node2D.new()
 	player.add_to_group("player")
 	add_child(player)
 	player.global_position = enemy.global_position + Vector2(180.0, 0.0)
+	var known_projectiles := {}
+	for child in get_children():
+		if child is EnemyIceProjectile:
+			known_projectiles[child.get_instance_id()] = true
+	var release_frame_projectiles := 0
+	var wrong_frame_projectiles := 0
 	for i in 12:
 		enemy._physics_process(0.12)
-	var projectiles := 0
-	for child in get_children():
-		if child is EnemyIceProjectile and child.get("source") == source:
-			projectiles += 1
-			child.queue_free()
-	player.queue_free()
-	enemy.queue_free()
-	return projectiles == 1
+		for child in get_children():
+			if child is EnemyIceProjectile and not known_projectiles.has(child.get_instance_id()):
+				known_projectiles[child.get_instance_id()] = true
+				if child.get("source_id") == source_id:
+					if sprite.frame == expected_release_frame:
+						release_frame_projectiles += 1
+					else:
+						wrong_frame_projectiles += 1
+				child.free()
+	player.free()
+	enemy.free()
+	return release_frame_projectiles == 1 and wrong_frame_projectiles == 0
 
 func _test_stage02_loads_new_enemy_scenes() -> void:
 	var scene := load("res://stages/stage_02/stage_02.tscn") as PackedScene
