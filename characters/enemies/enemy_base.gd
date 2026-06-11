@@ -99,8 +99,11 @@ func _advance_sprite_frame_loop(delta: float, frame_count: int, fps: float) -> i
 	return _sprite.frame if is_instance_valid(_sprite) else 0
 
 func _set_sprite_frame(frame_index: int) -> void:
+	_anim_frame = max(0, frame_index)
+	_anim_timer = 0.0
 	if is_instance_valid(_sprite):
-		_sprite.frame = frame_index
+		var available_frames: int = max(1, _sprite.hframes * _sprite.vframes)
+		_sprite.frame = _anim_frame % available_frames
 
 func _animate_sprite_motion(delta: float, bob_pixels: float, bob_speed: float, tilt_degrees: float = 0.0, sway_pixels: float = 0.0) -> void:
 	if not is_instance_valid(_sprite):
