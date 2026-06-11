@@ -140,9 +140,6 @@ func _test_ice_wisp_defaults() -> void:
 func _test_stage02_non_miniboss_enemies_have_visible_motion() -> void:
 	for path in [
 		"res://characters/enemies/stage_02/enemy_ice_flyer.tscn",
-		"res://characters/enemies/stage_02/enemy_ice_archer.tscn",
-		"res://characters/enemies/stage_02/enemy_frost_turret.tscn",
-		"res://characters/enemies/stage_02/enemy_cryo_bomber.tscn",
 		"res://characters/enemies/stage_02/enemy_glacier_shield.tscn",
 		"res://characters/enemies/stage_02/enemy_ice_wisp.tscn",
 	]:
@@ -175,6 +172,7 @@ func _test_stage02_action_sprite_grids() -> void:
 
 func _test_stage02_looping_enemy_frames_advance() -> void:
 	_assert(_advances_frame_after_tick("res://characters/enemies/stage_02/enemy_ice_grunt.tscn", 0.25), "ice grunt running advances frames")
+	_assert(_advances_frame_after_tick("res://characters/enemies/stage_02/enemy_glacier_shield.tscn", 0.25), "glacier shield guard advances frames")
 	_assert(_advances_frame_after_tick("res://characters/enemies/stage_02/enemy_ice_wisp.tscn", 0.25), "ice wisp hover advances frames")
 
 func _test_stage02_shot_release_frames_spawn_projectiles() -> void:

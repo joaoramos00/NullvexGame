@@ -3,6 +3,8 @@ class_name EnemyGlacierShield
 
 @export var shielded_patrol_speed: float = 48.0
 @export var front_damage_multiplier: float = 0.25
+@export var guard_frame_count: int = 4
+@export var guard_fps: float = 6.0
 
 func _init() -> void:
 	max_hp = 18
@@ -28,7 +30,7 @@ func _physics_process(delta: float) -> void:
 	move_and_slide()
 	if is_on_wall():
 		_direction = -_direction
-	_animate_sprite_motion(delta, 1.6, 5.0, 1.2, 0.8)
+	_advance_sprite_frame_loop(delta, guard_frame_count, guard_fps)
 	_sprite.flip_h = _direction < 0.0
 	_sprite.modulate.a = 0.35 if _invincible and int(Time.get_ticks_msec() / 80) % 2 == 0 else 1.0
 
