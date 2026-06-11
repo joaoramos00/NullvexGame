@@ -229,22 +229,22 @@ func _shot_enemy_spawns_one_projectile(path: String, source_id: String, expected
 	for child in get_children():
 		if child is EnemyIceProjectile:
 			known_projectiles[child.get_instance_id()] = true
-	var release_frame_projectiles := 0
-	var wrong_frame_projectiles := 0
-	for i in 12:
-		enemy._physics_process(0.12)
+	var projectile_count := 0
+	var observed_source_id := ""
+	var observed_frame := -1
+	for i in 30:
+		enemy._physics_process(0.04)
 		for child in get_children():
 			if child is EnemyIceProjectile and not known_projectiles.has(child.get_instance_id()):
 				known_projectiles[child.get_instance_id()] = true
-				if child.get("source_id") == source_id:
-					if sprite.frame == expected_release_frame:
-						release_frame_projectiles += 1
-					else:
-						wrong_frame_projectiles += 1
+				projectile_count += 1
+				if projectile_count == 1:
+					observed_source_id = child.get("source_id")
+					observed_frame = sprite.frame
 				child.free()
 	player.free()
 	enemy.free()
-	return release_frame_projectiles == 1 and wrong_frame_projectiles == 0
+	return projectile_count == 1 and observed_source_id == source_id and observed_frame == expected_release_frame
 
 func _test_stage02_loads_new_enemy_scenes() -> void:
 	var scene := load("res://stages/stage_02/stage_02.tscn") as PackedScene
