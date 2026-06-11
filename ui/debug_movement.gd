@@ -236,7 +236,7 @@ func _build_ui() -> void:
     panel.add_child(row)
 
     var btn_back := Button.new()
-    btn_back.text = "◄ ImgDebug"
+    btn_back.text = "< ImgDebug"
     btn_back.add_theme_font_size_override("font_size", 18)
     btn_back.pressed.connect(func(): get_tree().change_scene_to_file("res://ui/img_debug.tscn"))
     row.add_child(btn_back)
@@ -263,7 +263,7 @@ func _build_ui() -> void:
     row.add_child(lbl_prefix)
 
     var btn_prev := Button.new()
-    btn_prev.text = "◄"
+    btn_prev.text = "<"
     btn_prev.add_theme_font_size_override("font_size", 18)
     btn_prev.pressed.connect(_on_prev)
     row.add_child(btn_prev)
@@ -277,7 +277,7 @@ func _build_ui() -> void:
     row.add_child(_label_enemy)
 
     var btn_next := Button.new()
-    btn_next.text = "►"
+    btn_next.text = ">"
     btn_next.add_theme_font_size_override("font_size", 18)
     btn_next.pressed.connect(_on_next)
     row.add_child(btn_next)
@@ -285,7 +285,7 @@ func _build_ui() -> void:
     var hint := Label.new()
     hint.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_WIDE)
     hint.offset_top = -32.0
-    hint.text = "A/D: mover  ·  Z: pular  ·  X: dash  ·  J: atirar (segurar → L2/L3)"
+    hint.text = "A/D: mover - Z: pular - X: dash - J: atirar (segurar -> L2/L3)"
     hint.add_theme_font_size_override("font_size", 14)
     hint.add_theme_color_override("font_color", Color(0.45, 0.45, 0.45))
     hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER

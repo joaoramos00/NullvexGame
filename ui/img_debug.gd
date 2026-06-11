@@ -1304,7 +1304,7 @@ class _MovView extends Control:
             moving = (_enemy as BossBase).state == BossBase.State.COMBAT
         else:
             moving = is_instance_valid(_enemy) and _enemy.is_physics_processing()
-        label_move_btn.text = "⏸ Parar" if moving else "▶ Mover"
+        label_move_btn.text = "Parar" if moving else "Mover"
 
     func _update_attack_row() -> void:
         if is_instance_valid(attack_row):
@@ -1690,13 +1690,13 @@ func _build_ui() -> void:
 
     if OS.get_name() == "Web":
         var reload_btn := Button.new()
-        reload_btn.text = "↺ Hard Refresh"
+        reload_btn.text = "Hard Refresh"
         reload_btn.add_theme_font_size_override("font_size", 28)
         reload_btn.pressed.connect(func(): JavaScriptBridge.eval("location.reload(true)"))
         header.add_child(reload_btn)
 
     var close_btn := Button.new()
-    close_btn.text = "✕ Fechar"
+    close_btn.text = "X Fechar"
     close_btn.add_theme_font_size_override("font_size", 28)
     close_btn.pressed.connect(queue_free)
     header.add_child(close_btn)
@@ -1813,7 +1813,7 @@ func _build_moves_box() -> void:
     top_bar.add_child(player_lbl)
 
     var btn_pprev := Button.new()
-    btn_pprev.text = "◄"
+    btn_pprev.text = "<"
     btn_pprev.add_theme_font_size_override("font_size", 18)
     btn_pprev.pressed.connect(mview.on_player_prev)
     top_bar.add_child(btn_pprev)
@@ -1829,13 +1829,13 @@ func _build_moves_box() -> void:
     mview.label_player = lbl_pname
 
     var btn_pnext := Button.new()
-    btn_pnext.text = "►"
+    btn_pnext.text = ">"
     btn_pnext.add_theme_font_size_override("font_size", 18)
     btn_pnext.pressed.connect(mview.on_player_next)
     top_bar.add_child(btn_pnext)
 
     var hint := Label.new()
-    hint.text = "A/D: mover  ·  Z: pular  ·  X: dash  ·  J: atirar"
+    hint.text = "A/D: mover - Z: pular - X: dash - J: atirar"
     hint.add_theme_font_size_override("font_size", 17)
     hint.add_theme_color_override("font_color", Color(0.5, 0.5, 0.5))
     hint.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -1849,7 +1849,7 @@ func _build_moves_box() -> void:
     top_bar.add_child(enemy_lbl)
 
     var btn_prev := Button.new()
-    btn_prev.text = "◄"
+    btn_prev.text = "<"
     btn_prev.add_theme_font_size_override("font_size", 18)
     btn_prev.pressed.connect(mview.on_prev)
     top_bar.add_child(btn_prev)
@@ -1864,13 +1864,13 @@ func _build_moves_box() -> void:
     top_bar.add_child(lbl_name)
 
     var btn_next := Button.new()
-    btn_next.text = "►"
+    btn_next.text = ">"
     btn_next.add_theme_font_size_override("font_size", 18)
     btn_next.pressed.connect(mview.on_next)
     top_bar.add_child(btn_next)
 
     var btn_move := Button.new()
-    btn_move.text = "▶ Mover"
+    btn_move.text = "Mover"
     btn_move.add_theme_font_size_override("font_size", 24)
     btn_move.pressed.connect(mview.on_toggle_movement)
     top_bar.add_child(btn_move)
