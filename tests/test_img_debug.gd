@@ -13,6 +13,7 @@ func _ready() -> void:
     test_hitbox_catalog_loads_collision_scenes()
     test_hitbox_view_inspects_representative_entities()
     test_hitbox_view_controls_exist()
+    test_hitbox_view_has_floor()
     test_img_debug_buttons_use_web_safe_text()
     test_movement_enemy_catalog_includes_stage02_enemies()
     test_debug_movement_scene_includes_stage02_enemies()
@@ -178,6 +179,15 @@ func test_hitbox_view_controls_exist() -> void:
     _assert_buttons_without_fallback_symbols(panel._hitbox_view)
     panel.queue_free()
     print("PASS: hitbox_view_controls_exist")
+
+func test_hitbox_view_has_floor() -> void:
+    var view := ImgDebug._HitboxView.new()
+    add_child(view)
+    assert(view._overlay != null, "HitboxView deve ter overlay")
+    assert(view._overlay.floor_tex != null, "HitboxView deve carregar textura de piso")
+    assert(is_equal_approx(view._overlay.ground_y, 300.0), "piso deve alinhar com ground_y 300")
+    view.queue_free()
+    print("PASS: hitbox_view_has_floor")
 
 func test_img_debug_buttons_use_web_safe_text() -> void:
     var panel = load("res://ui/img_debug.tscn").instantiate()

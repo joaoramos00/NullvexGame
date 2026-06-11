@@ -1111,11 +1111,17 @@ class _FillCeilWorld extends Node2D:
                 draw_line(pos + Vector2( r, -hs), pos + Vector2( r, hs), hcol, 2.0)
 
 class _HitboxOverlay extends Node2D:
+    const _TILE_SRC := 32.0
+    const _TILE_DRAW := 64.0
+
+    var floor_tex: Texture2D = null
+    var ground_y: float = 300.0
     var shape_infos: Array = []
     var show_labels: bool = true
 
     func _draw() -> void:
-        draw_line(Vector2(0.0, 300.0), Vector2(900.0, 300.0), Color(1.0, 0.9, 0.0, 0.9), 2.0)
+        _draw_floor()
+        draw_line(Vector2(0.0, ground_y), Vector2(900.0, ground_y), Color(1.0, 0.9, 0.0, 0.9), 2.0)
         for info: Dictionary in shape_infos:
             var cs := info.node as CollisionShape2D
             if cs == null or cs.shape == null:
@@ -1160,6 +1166,19 @@ class _HitboxOverlay extends Node2D:
             draw_line(pos + Vector2(r, -half_segment), pos + Vector2(r, half_segment), color, 2.0)
         else:
             draw_circle(pos, 6.0, color)
+
+    func _draw_floor() -> void:
+        if floor_tex == null:
+            draw_rect(Rect2(0.0, ground_y, 900.0, 160.0), Color(0.16, 0.2, 0.24))
+            return
+        var top_src := Rect2(3.0 * _TILE_SRC, 0.0, _TILE_SRC, _TILE_SRC)
+        var fill_src := Rect2(2.0 * _TILE_SRC, 1.0 * _TILE_SRC, _TILE_SRC, _TILE_SRC)
+        var x := -_TILE_DRAW
+        while x < 900.0 + _TILE_DRAW:
+            draw_texture_rect_region(floor_tex, Rect2(x, ground_y - _TILE_DRAW * 0.5, _TILE_DRAW, _TILE_DRAW), top_src)
+            draw_texture_rect_region(floor_tex, Rect2(x, ground_y + _TILE_DRAW * 0.5, _TILE_DRAW, _TILE_DRAW), fill_src)
+            draw_texture_rect_region(floor_tex, Rect2(x, ground_y + _TILE_DRAW * 1.5, _TILE_DRAW, _TILE_DRAW), fill_src)
+            x += _TILE_DRAW
 
 class _HitboxView extends Control:
     const _VIEW_SIZE := Vector2(900.0, 460.0)
@@ -1228,6 +1247,8 @@ class _HitboxView extends Control:
         _world_root = Node2D.new()
         _viewport.add_child(_world_root)
         _overlay = _HitboxOverlay.new()
+        _overlay.floor_tex = load("res://stages/stage_02/Stage_02T_z1.png") as Texture2D
+        _overlay.ground_y = _ENTITY_POS.y
         _viewport.add_child(_overlay)
 
         var info_col := VBoxContainer.new()
