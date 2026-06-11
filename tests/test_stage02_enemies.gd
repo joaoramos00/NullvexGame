@@ -15,6 +15,9 @@ func _ready() -> void:
 	_test_glacier_shield_defaults()
 	_test_ice_wisp_defaults()
 	_test_stage02_non_miniboss_enemies_have_visible_motion()
+	_test_stage02_action_sprite_grids()
+	_test_stage02_looping_enemy_frames_advance()
+	_test_stage02_shot_release_frames_spawn_projectiles()
 	_test_stage02_loads_new_enemy_scenes()
 	_test_stage02_spawns_new_enemy_mix()
 	_print_results()
@@ -161,6 +164,73 @@ func _test_stage02_non_miniboss_enemies_have_visible_motion() -> void:
 				or not is_equal_approx(sprite.rotation, rot_before)
 			_assert(moved_visually, path + " advances visible enemy motion")
 		enemy.queue_free()
+
+func _test_stage02_action_sprite_grids() -> void:
+	_assert(_sprite_grid("res://characters/enemies/stage_02/enemy_ice_grunt.tscn") == Vector2i(3, 2), "ice grunt uses 6-frame running grid")
+	_assert(_sprite_grid("res://characters/enemies/stage_02/enemy_ice_archer.tscn") == Vector2i(3, 2), "ice archer uses 6-frame shot grid")
+	_assert(_sprite_grid("res://characters/enemies/stage_02/enemy_frost_turret.tscn") == Vector2i(2, 2), "frost turret uses 4-frame shot grid")
+	_assert(_sprite_grid("res://characters/enemies/stage_02/enemy_cryo_bomber.tscn") == Vector2i(3, 2), "cryo bomber uses 6-frame shot grid")
+	_assert(_sprite_grid("res://characters/enemies/stage_02/enemy_glacier_shield.tscn") == Vector2i(2, 2), "glacier shield uses 4-frame shield grid")
+	_assert(_sprite_grid("res://characters/enemies/stage_02/enemy_ice_wisp.tscn") == Vector2i(2, 2), "ice wisp uses 4-frame hover grid")
+
+func _test_stage02_looping_enemy_frames_advance() -> void:
+	_assert(_advances_frame_after_tick("res://characters/enemies/stage_02/enemy_ice_grunt.tscn", 0.25), "ice grunt running advances frames")
+	_assert(_advances_frame_after_tick("res://characters/enemies/stage_02/enemy_ice_wisp.tscn", 0.25), "ice wisp hover advances frames")
+
+func _test_stage02_shot_release_frames_spawn_projectiles() -> void:
+	_assert(_shot_enemy_spawns_one_projectile("res://characters/enemies/stage_02/enemy_ice_archer.tscn", "ice_archer"), "ice archer fires once during shot release frame")
+	_assert(_shot_enemy_spawns_one_projectile("res://characters/enemies/stage_02/enemy_frost_turret.tscn", "frost_turret"), "frost turret fires once during shot release frame")
+	_assert(_shot_enemy_spawns_one_projectile("res://characters/enemies/stage_02/enemy_cryo_bomber.tscn", "cryo_bomber"), "cryo bomber fires once during shot release frame")
+
+func _sprite_grid(path: String) -> Vector2i:
+	var scene := load(path) as PackedScene
+	if scene == null:
+		return Vector2i.ZERO
+	var enemy := scene.instantiate()
+	var sprite := enemy.get_node_or_null("Sprite2D") as Sprite2D
+	var grid := Vector2i.ZERO
+	if sprite != null:
+		grid = Vector2i(sprite.hframes, sprite.vframes)
+	enemy.free()
+	return grid
+
+func _advances_frame_after_tick(path: String, delta: float) -> bool:
+	var scene := load(path) as PackedScene
+	if scene == null:
+		return false
+	var enemy := scene.instantiate() as EnemyBase
+	add_child(enemy)
+	var sprite := enemy.get_node_or_null("Sprite2D") as Sprite2D
+	if sprite == null:
+		enemy.queue_free()
+		return false
+	var before := sprite.frame
+	enemy._physics_process(delta)
+	var advanced := sprite.frame != before
+	enemy.queue_free()
+	return advanced
+
+func _shot_enemy_spawns_one_projectile(path: String, source: String) -> bool:
+	var scene := load(path) as PackedScene
+	if scene == null:
+		return false
+	var enemy := scene.instantiate() as EnemyBase
+	add_child(enemy)
+	enemy.set("_shoot_timer", 0.0)
+	var player := Node2D.new()
+	player.add_to_group("player")
+	add_child(player)
+	player.global_position = enemy.global_position + Vector2(180.0, 0.0)
+	for i in 12:
+		enemy._physics_process(0.12)
+	var projectiles := 0
+	for child in get_children():
+		if child is EnemyIceProjectile and child.get("source") == source:
+			projectiles += 1
+			child.queue_free()
+	player.queue_free()
+	enemy.queue_free()
+	return projectiles == 1
 
 func _test_stage02_loads_new_enemy_scenes() -> void:
 	var scene := load("res://stages/stage_02/stage_02.tscn") as PackedScene
