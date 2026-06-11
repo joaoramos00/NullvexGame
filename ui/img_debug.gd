@@ -1808,19 +1808,19 @@ func _build_moves_box() -> void:
     # ── Seletor de personagem do player (Zael / Kawagael) ──
     var player_lbl := Label.new()
     player_lbl.text = "Player:"
-    player_lbl.add_theme_font_size_override("font_size", 18)
+    player_lbl.add_theme_font_size_override("font_size", 24)
     player_lbl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
     top_bar.add_child(player_lbl)
 
     var btn_pprev := Button.new()
     btn_pprev.text = "<"
-    btn_pprev.add_theme_font_size_override("font_size", 18)
+    btn_pprev.add_theme_font_size_override("font_size", 24)
     btn_pprev.pressed.connect(mview.on_player_prev)
     top_bar.add_child(btn_pprev)
 
     var lbl_pname := Label.new()
     lbl_pname.custom_minimum_size.x = 120.0
-    lbl_pname.add_theme_font_size_override("font_size", 18)
+    lbl_pname.add_theme_font_size_override("font_size", 24)
     lbl_pname.add_theme_color_override("font_color", Color(0.4, 1.0, 0.6))
     lbl_pname.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
     lbl_pname.vertical_alignment   = VERTICAL_ALIGNMENT_CENTER
@@ -1830,13 +1830,13 @@ func _build_moves_box() -> void:
 
     var btn_pnext := Button.new()
     btn_pnext.text = ">"
-    btn_pnext.add_theme_font_size_override("font_size", 18)
+    btn_pnext.add_theme_font_size_override("font_size", 24)
     btn_pnext.pressed.connect(mview.on_player_next)
     top_bar.add_child(btn_pnext)
 
     var hint := Label.new()
     hint.text = "A/D: mover - Z: pular - X: dash - J: atirar"
-    hint.add_theme_font_size_override("font_size", 17)
+    hint.add_theme_font_size_override("font_size", 18)
     hint.add_theme_color_override("font_color", Color(0.5, 0.5, 0.5))
     hint.size_flags_horizontal = Control.SIZE_EXPAND_FILL
     hint.vertical_alignment    = VERTICAL_ALIGNMENT_CENTER
@@ -1844,19 +1844,19 @@ func _build_moves_box() -> void:
 
     var enemy_lbl := Label.new()
     enemy_lbl.text = "Inimigo:"
-    enemy_lbl.add_theme_font_size_override("font_size", 18)
+    enemy_lbl.add_theme_font_size_override("font_size", 24)
     enemy_lbl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
     top_bar.add_child(enemy_lbl)
 
     var btn_prev := Button.new()
     btn_prev.text = "<"
-    btn_prev.add_theme_font_size_override("font_size", 18)
+    btn_prev.add_theme_font_size_override("font_size", 24)
     btn_prev.pressed.connect(mview.on_prev)
     top_bar.add_child(btn_prev)
 
     var lbl_name := Label.new()
     lbl_name.custom_minimum_size.x = 80.0
-    lbl_name.add_theme_font_size_override("font_size", 18)
+    lbl_name.add_theme_font_size_override("font_size", 24)
     lbl_name.add_theme_color_override("font_color", Color(0.9, 0.9, 0.3))
     lbl_name.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
     lbl_name.vertical_alignment   = VERTICAL_ALIGNMENT_CENTER
@@ -1865,7 +1865,7 @@ func _build_moves_box() -> void:
 
     var btn_next := Button.new()
     btn_next.text = ">"
-    btn_next.add_theme_font_size_override("font_size", 18)
+    btn_next.add_theme_font_size_override("font_size", 24)
     btn_next.pressed.connect(mview.on_next)
     top_bar.add_child(btn_next)
 

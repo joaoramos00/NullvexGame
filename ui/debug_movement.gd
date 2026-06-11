@@ -258,19 +258,19 @@ func _build_ui() -> void:
 
     var lbl_prefix := Label.new()
     lbl_prefix.text = "Inimigo: "
-    lbl_prefix.add_theme_font_size_override("font_size", 18)
+    lbl_prefix.add_theme_font_size_override("font_size", 24)
     lbl_prefix.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
     row.add_child(lbl_prefix)
 
     var btn_prev := Button.new()
     btn_prev.text = "<"
-    btn_prev.add_theme_font_size_override("font_size", 18)
+    btn_prev.add_theme_font_size_override("font_size", 24)
     btn_prev.pressed.connect(_on_prev)
     row.add_child(btn_prev)
 
     _label_enemy = Label.new()
     _label_enemy.custom_minimum_size.x = 80.0
-    _label_enemy.add_theme_font_size_override("font_size", 18)
+    _label_enemy.add_theme_font_size_override("font_size", 24)
     _label_enemy.add_theme_color_override("font_color", Color(0.9, 0.9, 0.3))
     _label_enemy.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
     _label_enemy.vertical_alignment   = VERTICAL_ALIGNMENT_CENTER
@@ -278,7 +278,7 @@ func _build_ui() -> void:
 
     var btn_next := Button.new()
     btn_next.text = ">"
-    btn_next.add_theme_font_size_override("font_size", 18)
+    btn_next.add_theme_font_size_override("font_size", 24)
     btn_next.pressed.connect(_on_next)
     row.add_child(btn_next)
 
