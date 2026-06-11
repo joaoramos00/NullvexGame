@@ -33,9 +33,7 @@ func _physics_process(delta: float) -> void:
 	_tick_invincibility(delta)
 	if not is_on_floor():
 		velocity.y += GRAVITY * delta
-	if is_on_floor() and not _has_floor_ahead():
-		_direction = -_direction
-	velocity.x = PATROL_SPEED * 0.55 * _direction
+	velocity.x = 0.0
 	_shoot_timer -= delta
 	var player := get_tree().get_first_node_in_group("player") as Node2D
 	if not _shot_active and player != null:
@@ -47,8 +45,6 @@ func _physics_process(delta: float) -> void:
 				_start_shot()
 	_tick_shot(delta)
 	move_and_slide()
-	if is_on_wall():
-		_direction = -_direction
 	_update_sprite()
 
 func _start_shot() -> void:

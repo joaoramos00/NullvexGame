@@ -18,6 +18,8 @@ func _ready() -> void:
 	_test_stage02_action_sprite_grids()
 	_test_stage02_looping_enemy_frames_advance()
 	_test_stage02_shot_release_frames_spawn_projectiles()
+	_test_stage02_ranged_ground_enemies_hold_position()
+	_test_stage02_fixed_facing_ranged_enemies_do_not_turn()
 	_test_stage02_loads_new_enemy_scenes()
 	_test_stage02_spawns_new_enemy_mix()
 	_print_results()
@@ -179,6 +181,21 @@ func _test_stage02_shot_release_frames_spawn_projectiles() -> void:
 	_assert(_shot_enemy_spawns_one_projectile("res://characters/enemies/stage_02/enemy_ice_archer.tscn", "ice_archer", 3), "ice archer fires once during shot release frame")
 	_assert(_shot_enemy_spawns_one_projectile("res://characters/enemies/stage_02/enemy_frost_turret.tscn", "frost_turret", 2), "frost turret fires once during shot release frame")
 	_assert(_shot_enemy_spawns_one_projectile("res://characters/enemies/stage_02/enemy_cryo_bomber.tscn", "cryo_bomber", 3), "cryo bomber fires once during shot release frame")
+	_assert(_shot_enemy_spawns_one_projectile("res://characters/enemies/stage_02/enemy_glacier_shield.tscn", "glacier_shield", 2), "glacier shield fires once during shot release frame")
+
+func _test_stage02_ranged_ground_enemies_hold_position() -> void:
+	for path in [
+		"res://characters/enemies/stage_02/enemy_ice_archer.tscn",
+		"res://characters/enemies/stage_02/enemy_frost_turret.tscn",
+		"res://characters/enemies/stage_02/enemy_cryo_bomber.tscn",
+		"res://characters/enemies/stage_02/enemy_glacier_shield.tscn",
+	]:
+		_assert(_enemy_holds_x_position(path, 0.5), path + " stays planted while processing")
+		_assert(_enemy_keeps_zero_horizontal_velocity(path, 0.5), path + " keeps zero horizontal velocity")
+
+func _test_stage02_fixed_facing_ranged_enemies_do_not_turn() -> void:
+	_assert(_enemy_keeps_fixed_facing("res://characters/enemies/stage_02/enemy_frost_turret.tscn"), "frost turret keeps fixed facing")
+	_assert(_enemy_keeps_fixed_facing("res://characters/enemies/stage_02/enemy_glacier_shield.tscn"), "glacier shield keeps fixed facing")
 
 func _sprite_grid(path: String) -> Vector2i:
 	var scene := load(path) as PackedScene
@@ -243,6 +260,51 @@ func _shot_enemy_spawns_one_projectile(path: String, source_id: String, expected
 	player.free()
 	enemy.free()
 	return projectile_count == 1 and observed_source_id == source_id and observed_frame == expected_release_frame
+
+func _enemy_holds_x_position(path: String, delta: float) -> bool:
+	var scene := load(path) as PackedScene
+	if scene == null:
+		return false
+	var enemy := scene.instantiate() as EnemyBase
+	add_child(enemy)
+	var before_x := enemy.global_position.x
+	enemy._physics_process(delta)
+	var stayed := is_equal_approx(enemy.global_position.x, before_x)
+	enemy.free()
+	return stayed
+
+func _enemy_keeps_zero_horizontal_velocity(path: String, delta: float) -> bool:
+	var scene := load(path) as PackedScene
+	if scene == null:
+		return false
+	var enemy := scene.instantiate() as EnemyBase
+	add_child(enemy)
+	enemy._physics_process(delta)
+	var stopped := is_zero_approx(enemy.velocity.x)
+	enemy.free()
+	return stopped
+
+func _enemy_keeps_fixed_facing(path: String) -> bool:
+	var scene := load(path) as PackedScene
+	if scene == null:
+		return false
+	var enemy := scene.instantiate() as EnemyBase
+	add_child(enemy)
+	var sprite := enemy.get_node_or_null("Sprite2D") as Sprite2D
+	if sprite == null:
+		enemy.free()
+		return false
+	sprite.flip_h = false
+	var player := Node2D.new()
+	player.add_to_group("player")
+	add_child(player)
+	player.global_position = enemy.global_position + Vector2(-180.0, 0.0)
+	enemy.set("_shoot_timer", 0.0)
+	enemy._physics_process(0.1)
+	var kept := sprite.flip_h == false
+	player.free()
+	enemy.free()
+	return kept
 
 func _test_stage02_loads_new_enemy_scenes() -> void:
 	var scene := load("res://stages/stage_02/stage_02.tscn") as PackedScene

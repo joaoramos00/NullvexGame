@@ -36,7 +36,6 @@ func _physics_process(delta: float) -> void:
 	var player := get_tree().get_first_node_in_group("player") as Node2D
 	if not _shot_active and player != null and global_position.distance_to(player.global_position) <= shoot_range:
 		var dir := (player.global_position - global_position).normalized()
-		_direction = signf(dir.x) if dir.x != 0.0 else _direction
 		if _shoot_timer <= 0.0:
 			_queued_shot_velocity = dir * projectile_speed
 			_start_shot()
@@ -82,5 +81,4 @@ func _tick_invincibility(delta: float) -> void:
 			_invincible = false
 
 func _update_sprite() -> void:
-	_sprite.flip_h = _direction < 0.0
 	_sprite.modulate.a = 0.35 if _invincible and int(Time.get_ticks_msec() / 80) % 2 == 0 else 1.0
