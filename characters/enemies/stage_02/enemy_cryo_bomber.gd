@@ -41,6 +41,7 @@ func _physics_process(delta: float) -> void:
 	move_and_slide()
 	if is_on_wall():
 		_direction = -_direction
+	_animate_sprite_motion(delta, 3.0, 6.5, 2.0, 1.3)
 	_update_sprite()
 
 func _lob() -> void:

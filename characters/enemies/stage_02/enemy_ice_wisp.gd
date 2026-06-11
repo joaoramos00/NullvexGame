@@ -46,6 +46,7 @@ func _physics_process(delta: float) -> void:
 	move_and_slide()
 	if is_on_wall():
 		_direction = -_direction
+	_animate_sprite_motion(delta, 4.0, 8.0, 3.0, 2.0)
 	_update_sprite()
 
 func _fire_burst(dir: Vector2) -> void:
