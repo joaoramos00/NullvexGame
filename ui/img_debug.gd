@@ -1100,6 +1100,139 @@ class _FillCeilWorld extends Node2D:
                 draw_line(pos + Vector2(-r, -hs), pos + Vector2(-r, hs), hcol, 2.0)
                 draw_line(pos + Vector2( r, -hs), pos + Vector2( r, hs), hcol, 2.0)
 
+class _HitboxView extends Control:
+    const _VIEW_SIZE := Vector2(900.0, 460.0)
+    const _ENTITY_POS := Vector2(450.0, 300.0)
+
+    var _current_index: int = 0
+    var _current_instance: Node2D = null
+    var _shape_infos: Array = []
+    var _viewport: SubViewport = null
+    var _world_root: Node2D = null
+    var _name_label: Label = null
+    var _meta_label: Label = null
+
+    func _ready() -> void:
+        _build()
+        _select_index(0)
+
+    func _build() -> void:
+        var row := HBoxContainer.new()
+        row.add_theme_constant_override("separation", 16)
+        row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+        row.size_flags_vertical = Control.SIZE_EXPAND_FILL
+        add_child(row)
+
+        var viewport_container := SubViewportContainer.new()
+        viewport_container.custom_minimum_size = _VIEW_SIZE
+        viewport_container.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+        viewport_container.size_flags_vertical = Control.SIZE_EXPAND_FILL
+        row.add_child(viewport_container)
+
+        _viewport = SubViewport.new()
+        _viewport.size = Vector2i(int(_VIEW_SIZE.x), int(_VIEW_SIZE.y))
+        _viewport.transparent_bg = false
+        _viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
+        viewport_container.add_child(_viewport)
+
+        _world_root = Node2D.new()
+        _viewport.add_child(_world_root)
+
+        var info_col := VBoxContainer.new()
+        info_col.custom_minimum_size.x = 360.0
+        info_col.size_flags_vertical = Control.SIZE_EXPAND_FILL
+        info_col.add_theme_constant_override("separation", 8)
+        row.add_child(info_col)
+
+        _name_label = Label.new()
+        _name_label.add_theme_font_size_override("font_size", 24)
+        _name_label.add_theme_color_override("font_color", Color(0.9, 0.9, 0.3))
+        info_col.add_child(_name_label)
+
+        _meta_label = Label.new()
+        _meta_label.add_theme_font_size_override("font_size", 16)
+        _meta_label.add_theme_color_override("font_color", Color(0.82, 0.82, 0.86))
+        _meta_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+        info_col.add_child(_meta_label)
+
+    func _find_first_group(group_name: String) -> int:
+        for i in ImgDebug._HITBOX_ENTITIES.size():
+            if String(ImgDebug._HITBOX_ENTITIES[i].group) == group_name:
+                return i
+        return -1
+
+    func _select_index(index: int) -> void:
+        if ImgDebug._HITBOX_ENTITIES.is_empty():
+            return
+        _current_index = wrapi(index, 0, ImgDebug._HITBOX_ENTITIES.size())
+        var entry: Dictionary = ImgDebug._HITBOX_ENTITIES[_current_index]
+        _clear_current()
+        var scene := load(String(entry.path)) as PackedScene
+        if scene == null:
+            _set_meta(entry, ["Cena nao carregou"])
+            return
+        var inst := scene.instantiate()
+        if inst is Node2D:
+            _current_instance = inst as Node2D
+        else:
+            _current_instance = Node2D.new()
+            _current_instance.add_child(inst)
+        _current_instance.position = _ENTITY_POS
+        _world_root.add_child(_current_instance)
+        _shape_infos = _collect_shapes(_current_instance)
+        _set_meta(entry, _shape_infos)
+
+    func _clear_current() -> void:
+        _shape_infos.clear()
+        if is_instance_valid(_current_instance):
+            _current_instance.queue_free()
+        _current_instance = null
+
+    func _collect_shapes(root: Node) -> Array:
+        var found: Array = []
+        _collect_shapes_into(root, found)
+        return found
+
+    func _collect_shapes_into(node: Node, found: Array) -> void:
+        if node is CollisionShape2D:
+            var cs := node as CollisionShape2D
+            found.append({
+                "path": String(_current_instance.get_path_to(cs)) if _current_instance != null else cs.name,
+                "node": cs,
+                "summary": _shape_summary(cs.shape),
+            })
+        for child in node.get_children():
+            _collect_shapes_into(child, found)
+
+    func _shape_summary(shape: Shape2D) -> String:
+        if shape == null:
+            return "sem shape"
+        if shape is RectangleShape2D:
+            return "Rectangle size=" + str((shape as RectangleShape2D).size)
+        if shape is CapsuleShape2D:
+            var cap := shape as CapsuleShape2D
+            return "Capsule radius=%.1f height=%.1f" % [cap.radius, cap.height]
+        if shape is CircleShape2D:
+            return "Circle radius=%.1f" % [(shape as CircleShape2D).radius]
+        return shape.get_class()
+
+    func _set_meta(entry: Dictionary, infos: Array) -> void:
+        if _name_label != null:
+            _name_label.text = String(entry.name)
+        if _meta_label == null:
+            return
+        var lines: Array[String] = [
+            "Grupo: " + String(entry.group),
+            "Cena: " + String(entry.path),
+            "Shapes: " + str(infos.size()),
+        ]
+        for info in infos:
+            if info is Dictionary:
+                lines.append("%s | %s" % [String(info.path), String(info.summary)])
+            else:
+                lines.append(String(info))
+        _meta_label.text = "\n".join(lines)
+
 # Arena jogável: SubViewport com Zael, inimigo, física e câmera
 class _MovView extends Control:
     const _PLAYER_PATHS := [
@@ -1817,6 +1950,11 @@ func _build_ui() -> void:
     _hitboxes_box = VBoxContainer.new()
     _hitboxes_box.add_theme_constant_override("separation", 8)
     main.add_child(_hitboxes_box)
+    var hitbox_view := _HitboxView.new()
+    hitbox_view.custom_minimum_size = Vector2(0.0, 520.0)
+    hitbox_view.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+    hitbox_view.size_flags_vertical = Control.SIZE_EXPAND_FILL
+    _hitboxes_box.add_child(hitbox_view)
 
 func _build_moves_box() -> void:
     # ── Tab row ──────────────────────────────────────────────────────────────

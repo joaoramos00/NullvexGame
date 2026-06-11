@@ -11,6 +11,7 @@ func _ready() -> void:
     test_platform_tab_shows_panel()
     test_hitbox_section_exists()
     test_hitbox_catalog_loads_collision_scenes()
+    test_hitbox_view_inspects_representative_entities()
     test_img_debug_buttons_use_web_safe_text()
     test_movement_enemy_catalog_includes_stage02_enemies()
     test_debug_movement_scene_includes_stage02_enemies()
@@ -152,6 +153,19 @@ func test_hitbox_catalog_loads_collision_scenes() -> void:
     for group_name in ["Personagens", "Inimigos", "Bosses", "Projeteis"]:
         assert(groups.has(group_name), "catálogo hitbox deve incluir grupo " + group_name)
     print("PASS: hitbox_catalog_loads_collision_scenes")
+
+func test_hitbox_view_inspects_representative_entities() -> void:
+    var view := ImgDebug._HitboxView.new()
+    add_child(view)
+    for group_name in ["Personagens", "Inimigos", "Bosses", "Projeteis"]:
+        var idx := view._find_first_group(group_name)
+        assert(idx >= 0, "HitboxView deve encontrar grupo " + group_name)
+        view._select_index(idx)
+        assert(view._current_instance != null, "HitboxView deve instanciar " + group_name)
+        assert(view._shape_infos.size() > 0, "HitboxView deve coletar shapes de " + group_name)
+        assert(view._meta_label.text.contains(group_name), "metadata deve indicar grupo " + group_name)
+    view.queue_free()
+    print("PASS: hitbox_view_inspects_representative_entities")
 
 func test_img_debug_buttons_use_web_safe_text() -> void:
     var panel = load("res://ui/img_debug.tscn").instantiate()
