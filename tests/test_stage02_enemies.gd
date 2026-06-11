@@ -20,7 +20,7 @@ func _ready() -> void:
 	_test_stage02_shot_release_frames_spawn_projectiles()
 	_test_stage02_ranged_ground_enemies_hold_position()
 	_test_stage02_fixed_facing_ranged_enemies_do_not_turn()
-	_test_stage02_ranged_enemy_hitboxes_align_with_sprite()
+	_test_stage02_ranged_enemy_hitboxes_use_tuned_body_bounds()
 	_test_stage02_loads_new_enemy_scenes()
 	_test_stage02_spawns_new_enemy_mix()
 	_print_results()
@@ -198,14 +198,23 @@ func _test_stage02_fixed_facing_ranged_enemies_do_not_turn() -> void:
 	_assert(_enemy_keeps_fixed_facing("res://characters/enemies/stage_02/enemy_frost_turret.tscn"), "frost turret keeps fixed facing")
 	_assert(_enemy_keeps_fixed_facing("res://characters/enemies/stage_02/enemy_glacier_shield.tscn"), "glacier shield keeps fixed facing")
 
-func _test_stage02_ranged_enemy_hitboxes_align_with_sprite() -> void:
-	for path in [
-		"res://characters/enemies/stage_02/enemy_ice_archer.tscn",
-		"res://characters/enemies/stage_02/enemy_frost_turret.tscn",
-		"res://characters/enemies/stage_02/enemy_cryo_bomber.tscn",
-		"res://characters/enemies/stage_02/enemy_glacier_shield.tscn",
-	]:
-		_assert(_enemy_hitbox_center_matches_sprite(path), path + " hitbox center aligns with sprite")
+func _test_stage02_ranged_enemy_hitboxes_use_tuned_body_bounds() -> void:
+	_assert(
+		_enemy_capsule_hitbox_matches("res://characters/enemies/stage_02/enemy_ice_archer.tscn", Vector2(0, -52), 18.0, 70.0),
+		"ice archer hitbox tracks body instead of lower sprite frame"
+	)
+	_assert(
+		_enemy_rectangle_hitbox_matches("res://characters/enemies/stage_02/enemy_frost_turret.tscn", Vector2(0, -40), Vector2(60, 64)),
+		"frost turret hitbox tracks compact turret body"
+	)
+	_assert(
+		_enemy_circle_hitbox_matches("res://characters/enemies/stage_02/enemy_cryo_bomber.tscn", Vector2(0, -50), 34.0),
+		"cryo bomber hitbox tracks body instead of full sprite frame"
+	)
+	_assert(
+		_enemy_rectangle_hitbox_matches("res://characters/enemies/stage_02/enemy_glacier_shield.tscn", Vector2(0, -56), Vector2(64, 88)),
+		"glacier shield hitbox tracks shield body"
+	)
 
 func _sprite_grid(path: String) -> Vector2i:
 	var scene := load(path) as PackedScene
@@ -316,21 +325,67 @@ func _enemy_keeps_fixed_facing(path: String) -> bool:
 	enemy.free()
 	return kept
 
-func _enemy_hitbox_center_matches_sprite(path: String) -> bool:
+func _enemy_capsule_hitbox_matches(path: String, expected_position: Vector2, expected_radius: float, expected_height: float) -> bool:
 	var scene := load(path) as PackedScene
 	if scene == null:
 		return false
 	var enemy := scene.instantiate() as EnemyBase
-	var sprite := enemy.get_node_or_null("Sprite2D") as Sprite2D
 	var body_shape := enemy.get_node_or_null("CollisionShape2D") as CollisionShape2D
 	var contact_shape := enemy.get_node_or_null("ContactZone/CollisionShape2D") as CollisionShape2D
-	var aligned := sprite != null \
-		and body_shape != null \
+	var shape := body_shape.shape as CapsuleShape2D if body_shape != null else null
+	var contact := contact_shape.shape as CapsuleShape2D if contact_shape != null else null
+	var matched := body_shape != null \
 		and contact_shape != null \
-		and body_shape.position.is_equal_approx(sprite.position) \
-		and contact_shape.position.is_equal_approx(sprite.position)
+		and shape != null \
+		and contact != null \
+		and body_shape.position.is_equal_approx(expected_position) \
+		and contact_shape.position.is_equal_approx(expected_position) \
+		and is_equal_approx(shape.radius, expected_radius) \
+		and is_equal_approx(shape.height, expected_height) \
+		and is_equal_approx(contact.radius, expected_radius) \
+		and is_equal_approx(contact.height, expected_height)
 	enemy.free()
-	return aligned
+	return matched
+
+func _enemy_rectangle_hitbox_matches(path: String, expected_position: Vector2, expected_size: Vector2) -> bool:
+	var scene := load(path) as PackedScene
+	if scene == null:
+		return false
+	var enemy := scene.instantiate() as EnemyBase
+	var body_shape := enemy.get_node_or_null("CollisionShape2D") as CollisionShape2D
+	var contact_shape := enemy.get_node_or_null("ContactZone/CollisionShape2D") as CollisionShape2D
+	var shape := body_shape.shape as RectangleShape2D if body_shape != null else null
+	var contact := contact_shape.shape as RectangleShape2D if contact_shape != null else null
+	var matched := body_shape != null \
+		and contact_shape != null \
+		and shape != null \
+		and contact != null \
+		and body_shape.position.is_equal_approx(expected_position) \
+		and contact_shape.position.is_equal_approx(expected_position) \
+		and shape.size.is_equal_approx(expected_size) \
+		and contact.size.is_equal_approx(expected_size)
+	enemy.free()
+	return matched
+
+func _enemy_circle_hitbox_matches(path: String, expected_position: Vector2, expected_radius: float) -> bool:
+	var scene := load(path) as PackedScene
+	if scene == null:
+		return false
+	var enemy := scene.instantiate() as EnemyBase
+	var body_shape := enemy.get_node_or_null("CollisionShape2D") as CollisionShape2D
+	var contact_shape := enemy.get_node_or_null("ContactZone/CollisionShape2D") as CollisionShape2D
+	var shape := body_shape.shape as CircleShape2D if body_shape != null else null
+	var contact := contact_shape.shape as CircleShape2D if contact_shape != null else null
+	var matched := body_shape != null \
+		and contact_shape != null \
+		and shape != null \
+		and contact != null \
+		and body_shape.position.is_equal_approx(expected_position) \
+		and contact_shape.position.is_equal_approx(expected_position) \
+		and is_equal_approx(shape.radius, expected_radius) \
+		and is_equal_approx(contact.radius, expected_radius)
+	enemy.free()
+	return matched
 
 func _test_stage02_loads_new_enemy_scenes() -> void:
 	var scene := load("res://stages/stage_02/stage_02.tscn") as PackedScene
