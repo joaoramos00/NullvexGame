@@ -201,19 +201,19 @@ func _test_stage02_fixed_facing_ranged_enemies_do_not_turn() -> void:
 
 func _test_stage02_ranged_enemy_hitboxes_use_tuned_body_bounds() -> void:
 	_assert(
-		_enemy_capsule_hitbox_matches("res://characters/enemies/stage_02/enemy_ice_archer.tscn", Vector2(0, -36), 18.0, 102.0),
+		_enemy_capsule_hitbox_matches("res://characters/enemies/stage_02/enemy_ice_archer.tscn", Vector2(0, -52), 18.0, 70.0),
 		"ice archer hitbox tracks body instead of lower sprite frame"
 	)
 	_assert(
-		_enemy_rectangle_hitbox_matches("res://characters/enemies/stage_02/enemy_frost_turret.tscn", Vector2(0, -24), Vector2(60, 96)),
+		_enemy_rectangle_hitbox_matches("res://characters/enemies/stage_02/enemy_frost_turret.tscn", Vector2(0, -40), Vector2(60, 64)),
 		"frost turret hitbox tracks compact turret body"
 	)
 	_assert(
-		_enemy_circle_hitbox_matches("res://characters/enemies/stage_02/enemy_cryo_bomber.tscn", Vector2(0, -34), 50.0),
+		_enemy_circle_hitbox_matches("res://characters/enemies/stage_02/enemy_cryo_bomber.tscn", Vector2(0, -50), 34.0),
 		"cryo bomber hitbox tracks body instead of full sprite frame"
 	)
 	_assert(
-		_enemy_rectangle_hitbox_matches("res://characters/enemies/stage_02/enemy_glacier_shield.tscn", Vector2(0, -40), Vector2(64, 120)),
+		_enemy_rectangle_hitbox_matches("res://characters/enemies/stage_02/enemy_glacier_shield.tscn", Vector2(0, -56), Vector2(64, 88)),
 		"glacier shield hitbox tracks shield body"
 	)
 
