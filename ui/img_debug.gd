@@ -1115,6 +1115,7 @@ class _HitboxOverlay extends Node2D:
     const _TILE_DRAW := 64.0
 
     var floor_tex: Texture2D = null
+    var floor_body_rows: int = 1
     var ground_y: float = 300.0
     var shape_infos: Array = []
     var show_labels: bool = true
@@ -1176,8 +1177,8 @@ class _HitboxOverlay extends Node2D:
         var x := -_TILE_DRAW
         while x < 900.0 + _TILE_DRAW:
             draw_texture_rect_region(floor_tex, Rect2(x, ground_y - _TILE_DRAW * 0.5, _TILE_DRAW, _TILE_DRAW), top_src)
-            draw_texture_rect_region(floor_tex, Rect2(x, ground_y + _TILE_DRAW * 0.5, _TILE_DRAW, _TILE_DRAW), fill_src)
-            draw_texture_rect_region(floor_tex, Rect2(x, ground_y + _TILE_DRAW * 1.5, _TILE_DRAW, _TILE_DRAW), fill_src)
+            for row in range(floor_body_rows):
+                draw_texture_rect_region(floor_tex, Rect2(x, ground_y + _TILE_DRAW * (0.5 + float(row)), _TILE_DRAW, _TILE_DRAW), fill_src)
             x += _TILE_DRAW
 
 class _HitboxView extends Control:
@@ -1247,7 +1248,7 @@ class _HitboxView extends Control:
         _world_root = Node2D.new()
         _viewport.add_child(_world_root)
         _overlay = _HitboxOverlay.new()
-        _overlay.floor_tex = load("res://stages/stage_02/Stage_02T_z1.png") as Texture2D
+        _overlay.floor_tex = load("res://stages/stage_00/Stage_00T.png") as Texture2D
         _overlay.ground_y = _ENTITY_POS.y
         _viewport.add_child(_overlay)
 
@@ -1295,6 +1296,7 @@ class _HitboxView extends Control:
         _set_sprites_visible(_current_instance, _show_sprite)
         _shape_infos = _collect_shapes(_current_instance)
         _align_current_to_floor()
+        _freeze_node_tree(_current_instance)
         _shape_infos = _collect_shapes(_current_instance)
         if _overlay != null:
             _overlay.shape_infos = _shape_infos
@@ -1355,6 +1357,19 @@ class _HitboxView extends Control:
         if cs.shape is CapsuleShape2D:
             return cs.global_position.y + (cs.shape as CapsuleShape2D).height * 0.5
         return cs.global_position.y
+
+    func _freeze_node_tree(node: Node) -> void:
+        if node == null:
+            return
+        node.set_process(false)
+        node.set_physics_process(false)
+        node.set_process_input(false)
+        node.set_process_unhandled_input(false)
+        node.process_mode = Node.PROCESS_MODE_DISABLED
+        if node is CharacterBody2D:
+            (node as CharacterBody2D).velocity = Vector2.ZERO
+        for child in node.get_children():
+            _freeze_node_tree(child)
 
     func _set_meta(entry: Dictionary, infos: Array) -> void:
         if _name_label != null:

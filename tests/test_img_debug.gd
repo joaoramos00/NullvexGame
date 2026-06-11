@@ -15,6 +15,7 @@ func _ready() -> void:
     test_hitbox_view_controls_exist()
     test_hitbox_view_has_floor()
     test_hitbox_view_aligns_character_collision_bottom_to_floor()
+    test_hitbox_view_freezes_inspected_entities()
     test_img_debug_buttons_use_web_safe_text()
     test_movement_enemy_catalog_includes_stage02_enemies()
     test_debug_movement_scene_includes_stage02_enemies()
@@ -186,6 +187,8 @@ func test_hitbox_view_has_floor() -> void:
     add_child(view)
     assert(view._overlay != null, "HitboxView deve ter overlay")
     assert(view._overlay.floor_tex != null, "HitboxView deve carregar textura de piso")
+    assert(view._overlay.floor_tex.resource_path == "res://stages/stage_00/Stage_00T.png", "piso da HitboxView deve usar Stage_00T")
+    assert(view._overlay.get("floor_body_rows") == 1, "piso da HitboxView deve ser uma plataforma baixa")
     assert(is_equal_approx(view._overlay.ground_y, 300.0), "piso deve alinhar com ground_y 300")
     view.queue_free()
     print("PASS: hitbox_view_has_floor")
@@ -200,6 +203,16 @@ func test_hitbox_view_aligns_character_collision_bottom_to_floor() -> void:
     assert(is_equal_approx(bottom, view._overlay.ground_y), "fundo da hitbox do personagem deve alinhar ao piso")
     view.queue_free()
     print("PASS: hitbox_view_aligns_character_collision_bottom_to_floor")
+
+func test_hitbox_view_freezes_inspected_entities() -> void:
+    var view := ImgDebug._HitboxView.new()
+    add_child(view)
+    var idx := view._find_first_group("Personagens")
+    assert(idx >= 0, "HitboxView deve encontrar personagem para congelar")
+    view._select_index(idx)
+    assert(_all_processing_disabled(view._current_instance), "entidade inspecionada nao deve processar fisica ou cair")
+    view.queue_free()
+    print("PASS: hitbox_view_freezes_inspected_entities")
 
 func test_img_debug_buttons_use_web_safe_text() -> void:
     var panel = load("res://ui/img_debug.tscn").instantiate()
@@ -348,6 +361,18 @@ func _collision_shape_bottom(cs: CollisionShape2D) -> float:
     if cs.shape is CapsuleShape2D:
         return cs.global_position.y + (cs.shape as CapsuleShape2D).height * 0.5
     return cs.global_position.y
+
+func _all_processing_disabled(node: Node) -> bool:
+    if node == null:
+        return true
+    if node.process_mode != Node.PROCESS_MODE_DISABLED:
+        return false
+    if node.is_processing() or node.is_physics_processing():
+        return false
+    for child in node.get_children():
+        if not _all_processing_disabled(child):
+            return false
+    return true
 
 func _assert_buttons_without_fallback_symbols(node: Node) -> void:
     var forbidden := ["✕", "↺", "◄", "►", "▶", "⏸", "←", "→", "↻"]
