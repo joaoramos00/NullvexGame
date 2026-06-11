@@ -9,6 +9,8 @@ func _ready() -> void:
     test_char_change_resets_anim()
     test_frame_cycling()
     test_platform_tab_shows_panel()
+    test_hitbox_section_exists()
+    test_hitbox_catalog_loads_collision_scenes()
     test_img_debug_buttons_use_web_safe_text()
     test_movement_enemy_catalog_includes_stage02_enemies()
     test_debug_movement_scene_includes_stage02_enemies()
@@ -123,6 +125,33 @@ func test_platform_tab_shows_panel() -> void:
 
     panel.queue_free()
     print("PASS: platform_tab_shows_panel")
+
+func test_hitbox_section_exists() -> void:
+    var panel = load("res://ui/img_debug.tscn").instantiate()
+    add_child(panel)
+    assert(panel._section_btns.has("HITBOXES"), "ImgDebug deve ter seção HITBOXES")
+    panel._show_section("HITBOXES")
+    assert(panel._hitboxes_box != null, "HITBOXES deve ter container")
+    assert(panel._hitboxes_box.visible, "HITBOXES deve ficar visível ao selecionar")
+    panel.queue_free()
+    print("PASS: hitbox_section_exists")
+
+func test_hitbox_catalog_loads_collision_scenes() -> void:
+    assert(ImgDebug._HITBOX_ENTITIES.size() >= 8, "catálogo de hitboxes deve cobrir várias entidades")
+    var groups := {}
+    for entry in ImgDebug._HITBOX_ENTITIES:
+        assert(entry.has("name"), "entrada hitbox deve ter name")
+        assert(entry.has("path"), "entrada hitbox deve ter path")
+        assert(entry.has("group"), "entrada hitbox deve ter group")
+        groups[entry.group] = true
+        var scene := load(entry.path) as PackedScene
+        assert(scene != null, "cena hitbox deve carregar: " + entry.path)
+        var inst := scene.instantiate()
+        assert(_has_collision_shape(inst), "cena hitbox deve ter CollisionShape2D: " + entry.path)
+        inst.queue_free()
+    for group_name in ["Personagens", "Inimigos", "Bosses", "Projeteis"]:
+        assert(groups.has(group_name), "catálogo hitbox deve incluir grupo " + group_name)
+    print("PASS: hitbox_catalog_loads_collision_scenes")
 
 func test_img_debug_buttons_use_web_safe_text() -> void:
     var panel = load("res://ui/img_debug.tscn").instantiate()
@@ -243,6 +272,14 @@ func _find_button(node: Node, text: String) -> Button:
         if found != null:
             return found
     return null
+
+func _has_collision_shape(node: Node) -> bool:
+    if node is CollisionShape2D:
+        return true
+    for child in node.get_children():
+        if _has_collision_shape(child):
+            return true
+    return false
 
 func _assert_buttons_without_fallback_symbols(node: Node) -> void:
     var forbidden := ["✕", "↺", "◄", "►", "▶", "⏸", "←", "→", "↻"]
