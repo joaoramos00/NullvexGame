@@ -12,6 +12,7 @@ func _ready() -> void:
     test_hitbox_section_exists()
     test_hitbox_catalog_loads_collision_scenes()
     test_hitbox_view_inspects_representative_entities()
+    test_hitbox_view_controls_exist()
     test_img_debug_buttons_use_web_safe_text()
     test_movement_enemy_catalog_includes_stage02_enemies()
     test_debug_movement_scene_includes_stage02_enemies()
@@ -167,10 +168,23 @@ func test_hitbox_view_inspects_representative_entities() -> void:
     view.queue_free()
     print("PASS: hitbox_view_inspects_representative_entities")
 
+func test_hitbox_view_controls_exist() -> void:
+    var panel = load("res://ui/img_debug.tscn").instantiate()
+    add_child(panel)
+    panel._show_section("HITBOXES")
+    assert(panel._hitbox_view != null, "ImgDebug deve guardar referencia da HitboxView")
+    for text in ["<", ">", "Todos", "Personagens", "Inimigos", "Bosses", "Projeteis", "Sprite ON", "Labels ON"]:
+        assert(_find_button(panel._hitbox_view, text) != null, "HitboxView deve ter botao " + text)
+    _assert_buttons_without_fallback_symbols(panel._hitbox_view)
+    panel.queue_free()
+    print("PASS: hitbox_view_controls_exist")
+
 func test_img_debug_buttons_use_web_safe_text() -> void:
     var panel = load("res://ui/img_debug.tscn").instantiate()
     add_child(panel)
     panel._show_section("MOVIMENTOS")
+    _assert_buttons_without_fallback_symbols(panel)
+    panel._show_section("HITBOXES")
     _assert_buttons_without_fallback_symbols(panel)
     panel.queue_free()
 
