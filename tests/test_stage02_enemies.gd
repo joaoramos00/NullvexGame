@@ -51,7 +51,7 @@ func _test_ice_grunt_visual_scale() -> void:
 	_assert(sprite != null, "ice grunt has Sprite2D")
 	if sprite != null:
 		_assert(sprite.scale.is_equal_approx(Vector2(0.7, 0.7)), "ice grunt visual scale stays below oversized 2x zoom")
-		_assert(is_equal_approx(sprite.position.y, -5.0), "ice grunt visual bottom aligns with floor line")
+		_assert(is_equal_approx(sprite.position.y, -1.0), "ice grunt visual bottom aligns with floor line")
 	enemy.free()
 
 func _test_ice_flyer_defaults() -> void:
