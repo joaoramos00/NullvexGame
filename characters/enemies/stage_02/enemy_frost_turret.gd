@@ -32,6 +32,7 @@ func _physics_process(delta: float) -> void:
 		if _shoot_timer <= 0.0:
 			_fire(dir * projectile_speed)
 			_shoot_timer = shoot_interval
+	_animate_sprite_motion(delta, 1.5, 7.5, 1.0, 0.6)
 	_update_sprite()
 
 func _fire(shot_velocity: Vector2) -> void:

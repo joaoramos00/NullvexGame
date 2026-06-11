@@ -28,6 +28,7 @@ func _physics_process(delta: float) -> void:
 	move_and_slide()
 	if is_on_wall():
 		_direction = -_direction
+	_animate_sprite_motion(delta, 1.6, 5.0, 1.2, 0.8)
 	_sprite.flip_h = _direction < 0.0
 	_sprite.modulate.a = 0.35 if _invincible and int(Time.get_ticks_msec() / 80) % 2 == 0 else 1.0
 

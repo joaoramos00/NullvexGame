@@ -14,6 +14,7 @@ func _ready() -> void:
 	_test_cryo_bomber_defaults()
 	_test_glacier_shield_defaults()
 	_test_ice_wisp_defaults()
+	_test_stage02_non_miniboss_enemies_have_visible_motion()
 	_test_stage02_loads_new_enemy_scenes()
 	_test_stage02_spawns_new_enemy_mix()
 	_print_results()
@@ -132,6 +133,34 @@ func _test_ice_wisp_defaults() -> void:
 	_assert(enemy.get("hover_amplitude") >= 16.0, "ice wisp hovers visibly")
 	_assert(enemy.get("burst_count") >= 2, "ice wisp fires bursts")
 	enemy.free()
+
+func _test_stage02_non_miniboss_enemies_have_visible_motion() -> void:
+	for path in [
+		"res://characters/enemies/stage_02/enemy_ice_flyer.tscn",
+		"res://characters/enemies/stage_02/enemy_ice_archer.tscn",
+		"res://characters/enemies/stage_02/enemy_frost_turret.tscn",
+		"res://characters/enemies/stage_02/enemy_cryo_bomber.tscn",
+		"res://characters/enemies/stage_02/enemy_glacier_shield.tscn",
+		"res://characters/enemies/stage_02/enemy_ice_wisp.tscn",
+	]:
+		var scene := load(path) as PackedScene
+		_assert(scene != null, path + " scene exists for visible motion")
+		if scene == null:
+			continue
+		var enemy := scene.instantiate() as EnemyBase
+		add_child(enemy)
+		var sprite := enemy.get_node_or_null("Sprite2D") as Sprite2D
+		_assert(sprite != null, path + " has Sprite2D for visible motion")
+		if sprite != null:
+			var frame_before := sprite.frame
+			var pos_before := sprite.position
+			var rot_before := sprite.rotation
+			enemy._physics_process(0.25)
+			var moved_visually := sprite.frame != frame_before \
+				or not sprite.position.is_equal_approx(pos_before) \
+				or not is_equal_approx(sprite.rotation, rot_before)
+			_assert(moved_visually, path + " advances visible enemy motion")
+		enemy.queue_free()
 
 func _test_stage02_loads_new_enemy_scenes() -> void:
 	var scene := load("res://stages/stage_02/stage_02.tscn") as PackedScene
