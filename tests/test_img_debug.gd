@@ -9,6 +9,7 @@ func _ready() -> void:
     test_char_change_resets_anim()
     test_frame_cycling()
     test_platform_tab_shows_panel()
+    test_img_debug_buttons_use_web_safe_text()
     test_movement_enemy_catalog_includes_stage02_enemies()
     test_debug_movement_scene_includes_stage02_enemies()
     test_floor_platform_tiles()
@@ -123,6 +124,21 @@ func test_platform_tab_shows_panel() -> void:
     panel.queue_free()
     print("PASS: platform_tab_shows_panel")
 
+func test_img_debug_buttons_use_web_safe_text() -> void:
+    var panel = load("res://ui/img_debug.tscn").instantiate()
+    add_child(panel)
+    panel._show_section("MOVIMENTOS")
+    _assert_buttons_without_fallback_symbols(panel)
+    panel.queue_free()
+
+    var scene := load("res://ui/debug_movement.tscn") as PackedScene
+    assert(scene != null, "debug_movement.tscn deve carregar")
+    var movement_panel = scene.instantiate()
+    add_child(movement_panel)
+    _assert_buttons_without_fallback_symbols(movement_panel)
+    movement_panel.queue_free()
+    print("PASS: img_debug_buttons_use_web_safe_text")
+
 func test_movement_enemy_catalog_includes_stage02_enemies() -> void:
     for enemy_name in ["Ice Grunt", "Ice Flyer", "Ice Archer", "Frost Turret", "Cryo Bomber", "Glacier Shield", "Ice Wisp", "Ice MiniBoss"]:
         assert(ImgDebug._MovView._ENEMY_NAMES.has(enemy_name), "Movimentos deve incluir " + enemy_name)
@@ -227,3 +243,12 @@ func _find_button(node: Node, text: String) -> Button:
         if found != null:
             return found
     return null
+
+func _assert_buttons_without_fallback_symbols(node: Node) -> void:
+    var forbidden := ["✕", "↺", "◄", "►", "▶", "⏸", "←", "→", "↻"]
+    if node is Button:
+        var text := (node as Button).text
+        for symbol in forbidden:
+            assert(not text.contains(symbol), "botão usa símbolo sem fallback Web: " + text)
+    for child in node.get_children():
+        _assert_buttons_without_fallback_symbols(child)
