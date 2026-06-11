@@ -1,7 +1,7 @@
 [gd_scene load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://characters/enemies/stage_02/enemy_ice_archer.gd" id="1_script"]
-[ext_resource type="Texture2D" path="res://characters/enemies/stage_02/enemy_ice_archer.png" id="2_tex"]
+[ext_resource type="Texture2D" path="res://characters/enemies/stage_02/enemy_ice_archer_shot.png" id="2_tex"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_1"]
 radius = 22.0
@@ -19,6 +19,8 @@ shape = SubResource("CapsuleShape2D_1")
 [node name="Sprite2D" type="Sprite2D" parent="."]
 position = Vector2(0, -38)
 texture = ExtResource("2_tex")
+hframes = 3
+vframes = 2
 scale = Vector2(0.42, 0.42)
 
 [node name="ContactZone" type="Area2D" parent="."]

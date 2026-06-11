@@ -1,7 +1,7 @@
 [gd_scene format=3]
 
 [ext_resource type="Script" path="res://characters/enemies/stage_02/enemy_ice_grunt.gd" id="1_script"]
-[ext_resource type="Texture2D" path="res://characters/enemies/stage_02/enemy_ice_grunt_walk.png" id="2_tex"]
+[ext_resource type="Texture2D" path="res://characters/enemies/stage_02/enemy_ice_grunt_running.png" id="2_tex"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_1"]
 radius = 20.0
