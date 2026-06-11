@@ -1100,6 +1100,57 @@ class _FillCeilWorld extends Node2D:
                 draw_line(pos + Vector2(-r, -hs), pos + Vector2(-r, hs), hcol, 2.0)
                 draw_line(pos + Vector2( r, -hs), pos + Vector2( r, hs), hcol, 2.0)
 
+class _HitboxOverlay extends Node2D:
+    var shape_infos: Array = []
+    var show_labels: bool = true
+
+    func _draw() -> void:
+        draw_line(Vector2(0.0, 300.0), Vector2(900.0, 300.0), Color(1.0, 0.9, 0.0, 0.9), 2.0)
+        for info: Dictionary in shape_infos:
+            var cs := info.node as CollisionShape2D
+            if cs == null or cs.shape == null:
+                continue
+            var color := _shape_color(String(info.path))
+            _draw_shape(cs, color)
+            if show_labels:
+                draw_string(ThemeDB.fallback_font, cs.global_position + Vector2(8.0, -8.0), String(info.path), HORIZONTAL_ALIGNMENT_LEFT, -1.0, 13.0, color)
+
+    func _shape_color(path: String) -> Color:
+        if path.contains("ContactZone"):
+            return Color(0.2, 0.9, 1.0, 0.95)
+        if path.contains("BodyHurtbox") or path.contains("Head"):
+            return Color(1.0, 0.45, 0.95, 0.95)
+        if path.contains("PunchZone"):
+            return Color(1.0, 0.55, 0.2, 0.95)
+        return Color(1.0, 0.9, 0.0, 0.95)
+
+    func _draw_shape(cs: CollisionShape2D, color: Color) -> void:
+        var shape := cs.shape
+        var pos := cs.global_position
+        var fill := Color(color.r, color.g, color.b, 0.16)
+        if shape is RectangleShape2D:
+            var size := (shape as RectangleShape2D).size
+            var rect := Rect2(pos - size * 0.5, size)
+            draw_rect(rect, fill, true)
+            draw_rect(rect, color, false, 2.0)
+        elif shape is CircleShape2D:
+            var radius := (shape as CircleShape2D).radius
+            draw_circle(pos, radius, fill)
+            draw_arc(pos, radius, 0.0, TAU, 48, color, 2.0)
+        elif shape is CapsuleShape2D:
+            var cap := shape as CapsuleShape2D
+            var r := cap.radius
+            var half_segment := maxf(0.0, (cap.height - 2.0 * r) * 0.5)
+            draw_rect(Rect2(pos + Vector2(-r, -half_segment), Vector2(r * 2.0, half_segment * 2.0)), fill, true)
+            draw_circle(pos + Vector2(0.0, -half_segment), r, fill)
+            draw_circle(pos + Vector2(0.0, half_segment), r, fill)
+            draw_arc(pos + Vector2(0.0, -half_segment), r, PI, TAU, 32, color, 2.0)
+            draw_arc(pos + Vector2(0.0, half_segment), r, 0.0, PI, 32, color, 2.0)
+            draw_line(pos + Vector2(-r, -half_segment), pos + Vector2(-r, half_segment), color, 2.0)
+            draw_line(pos + Vector2(r, -half_segment), pos + Vector2(r, half_segment), color, 2.0)
+        else:
+            draw_circle(pos, 6.0, color)
+
 class _HitboxView extends Control:
     const _VIEW_SIZE := Vector2(900.0, 460.0)
     const _ENTITY_POS := Vector2(450.0, 300.0)
@@ -1107,21 +1158,46 @@ class _HitboxView extends Control:
     var _current_index: int = 0
     var _current_instance: Node2D = null
     var _shape_infos: Array = []
+    var _filter_group: String = "Todos"
+    var _show_sprite: bool = true
+    var _show_labels: bool = true
     var _viewport: SubViewport = null
     var _world_root: Node2D = null
+    var _overlay: _HitboxOverlay = null
     var _name_label: Label = null
     var _meta_label: Label = null
+    var _sprite_btn: Button = null
+    var _labels_btn: Button = null
 
     func _ready() -> void:
         _build()
         _select_index(0)
 
     func _build() -> void:
+        var root := VBoxContainer.new()
+        root.add_theme_constant_override("separation", 8)
+        root.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+        root.size_flags_vertical = Control.SIZE_EXPAND_FILL
+        add_child(root)
+
+        var toolbar := HBoxContainer.new()
+        toolbar.add_theme_constant_override("separation", 6)
+        root.add_child(toolbar)
+
+        toolbar.add_child(_make_button("<", _on_prev))
+        toolbar.add_child(_make_button(">", _on_next))
+        for group_name in ["Todos", "Personagens", "Inimigos", "Bosses", "Projeteis"]:
+            toolbar.add_child(_make_button(group_name, _set_filter.bind(group_name)))
+        _sprite_btn = _make_button("Sprite ON", _toggle_sprite)
+        toolbar.add_child(_sprite_btn)
+        _labels_btn = _make_button("Labels ON", _toggle_labels)
+        toolbar.add_child(_labels_btn)
+
         var row := HBoxContainer.new()
         row.add_theme_constant_override("separation", 16)
         row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
         row.size_flags_vertical = Control.SIZE_EXPAND_FILL
-        add_child(row)
+        root.add_child(row)
 
         var viewport_container := SubViewportContainer.new()
         viewport_container.custom_minimum_size = _VIEW_SIZE
@@ -1135,8 +1211,14 @@ class _HitboxView extends Control:
         _viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
         viewport_container.add_child(_viewport)
 
+        var bg := ColorRect.new()
+        bg.color = Color(0.06, 0.07, 0.14)
+        bg.size = _VIEW_SIZE
+        _viewport.add_child(bg)
         _world_root = Node2D.new()
         _viewport.add_child(_world_root)
+        _overlay = _HitboxOverlay.new()
+        _viewport.add_child(_overlay)
 
         var info_col := VBoxContainer.new()
         info_col.custom_minimum_size.x = 360.0
@@ -1179,7 +1261,12 @@ class _HitboxView extends Control:
             _current_instance.add_child(inst)
         _current_instance.position = _ENTITY_POS
         _world_root.add_child(_current_instance)
+        _set_sprites_visible(_current_instance, _show_sprite)
         _shape_infos = _collect_shapes(_current_instance)
+        if _overlay != null:
+            _overlay.shape_infos = _shape_infos
+            _overlay.show_labels = _show_labels
+            _overlay.queue_redraw()
         _set_meta(entry, _shape_infos)
 
     func _clear_current() -> void:
@@ -1232,6 +1319,66 @@ class _HitboxView extends Control:
             else:
                 lines.append(String(info))
         _meta_label.text = "\n".join(lines)
+
+    func _make_button(text: String, callback: Callable) -> Button:
+        var btn := Button.new()
+        btn.text = text
+        btn.add_theme_font_size_override("font_size", 22)
+        btn.pressed.connect(callback)
+        return btn
+
+    func _on_prev() -> void:
+        _step_filtered(-1)
+
+    func _on_next() -> void:
+        _step_filtered(1)
+
+    func _set_filter(group_name: String) -> void:
+        _filter_group = group_name
+        var first := _first_filtered_index()
+        if first >= 0:
+            _select_index(first)
+
+    func _toggle_sprite() -> void:
+        _show_sprite = not _show_sprite
+        if _sprite_btn != null:
+            _sprite_btn.text = "Sprite ON" if _show_sprite else "Sprite OFF"
+        _set_sprites_visible(_current_instance, _show_sprite)
+
+    func _toggle_labels() -> void:
+        _show_labels = not _show_labels
+        if _labels_btn != null:
+            _labels_btn.text = "Labels ON" if _show_labels else "Labels OFF"
+        if _overlay != null:
+            _overlay.show_labels = _show_labels
+            _overlay.queue_redraw()
+
+    func _first_filtered_index() -> int:
+        for i in ImgDebug._HITBOX_ENTITIES.size():
+            if _entry_matches_filter(ImgDebug._HITBOX_ENTITIES[i]):
+                return i
+        return -1
+
+    func _step_filtered(direction: int) -> void:
+        if ImgDebug._HITBOX_ENTITIES.is_empty():
+            return
+        var idx := _current_index
+        for _i in ImgDebug._HITBOX_ENTITIES.size():
+            idx = wrapi(idx + direction, 0, ImgDebug._HITBOX_ENTITIES.size())
+            if _entry_matches_filter(ImgDebug._HITBOX_ENTITIES[idx]):
+                _select_index(idx)
+                return
+
+    func _entry_matches_filter(entry: Dictionary) -> bool:
+        return _filter_group == "Todos" or String(entry.group) == _filter_group
+
+    func _set_sprites_visible(node: Node, visible: bool) -> void:
+        if node == null:
+            return
+        if node is Sprite2D or node is AnimatedSprite2D:
+            (node as CanvasItem).visible = visible
+        for child in node.get_children():
+            _set_sprites_visible(child, visible)
 
 # Arena jogável: SubViewport com Zael, inimigo, física e câmera
 class _MovView extends Control:
@@ -1667,6 +1814,7 @@ var _sprites_box: VBoxContainer
 var _tiles_box: VBoxContainer
 var _moves_box: VBoxContainer
 var _hitboxes_box: VBoxContainer
+var _hitbox_view: _HitboxView
 var _anim_tabs_box: HBoxContainer
 var _preview_rect: TextureRect
 var _info_label: Label
@@ -1950,11 +2098,11 @@ func _build_ui() -> void:
     _hitboxes_box = VBoxContainer.new()
     _hitboxes_box.add_theme_constant_override("separation", 8)
     main.add_child(_hitboxes_box)
-    var hitbox_view := _HitboxView.new()
-    hitbox_view.custom_minimum_size = Vector2(0.0, 520.0)
-    hitbox_view.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-    hitbox_view.size_flags_vertical = Control.SIZE_EXPAND_FILL
-    _hitboxes_box.add_child(hitbox_view)
+    _hitbox_view = _HitboxView.new()
+    _hitbox_view.custom_minimum_size = Vector2(0.0, 520.0)
+    _hitbox_view.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+    _hitbox_view.size_flags_vertical = Control.SIZE_EXPAND_FILL
+    _hitboxes_box.add_child(_hitbox_view)
 
 func _build_moves_box() -> void:
     # ── Tab row ──────────────────────────────────────────────────────────────
