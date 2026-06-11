@@ -4,7 +4,7 @@
 [ext_resource type="Texture2D" path="res://characters/enemies/stage_02/enemy_cryo_bomber_shot.png" id="2_tex"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_1"]
-radius = 34.0
+radius = 50.0
 
 [node name="EnemyCryoBomber" type="CharacterBody2D"]
 collision_layer = 4
@@ -12,11 +12,11 @@ collision_mask = 1
 script = ExtResource("1_script")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-position = Vector2(0, -50)
+position = Vector2(0, -34)
 shape = SubResource("CircleShape2D_1")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
-position = Vector2(0, -44)
+position = Vector2(0, -76)
 texture = ExtResource("2_tex")
 hframes = 3
 vframes = 2
@@ -27,5 +27,5 @@ collision_layer = 0
 collision_mask = 2
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="ContactZone"]
-position = Vector2(0, -50)
+position = Vector2(0, -34)
 shape = SubResource("CircleShape2D_1")

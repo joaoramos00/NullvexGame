@@ -4,7 +4,7 @@
 [ext_resource type="Texture2D" path="res://characters/enemies/stage_02/enemy_frost_turret_shot.png" id="2_tex"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_1"]
-size = Vector2(60, 64)
+size = Vector2(60, 96)
 
 [node name="EnemyFrostTurret" type="CharacterBody2D"]
 collision_layer = 4
@@ -12,11 +12,11 @@ collision_mask = 1
 script = ExtResource("1_script")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-position = Vector2(0, -40)
+position = Vector2(0, -24)
 shape = SubResource("RectangleShape2D_1")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
-position = Vector2(0, -34)
+position = Vector2(0, -66)
 texture = ExtResource("2_tex")
 hframes = 2
 vframes = 2
@@ -27,5 +27,5 @@ collision_layer = 0
 collision_mask = 2
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="ContactZone"]
-position = Vector2(0, -40)
+position = Vector2(0, -24)
 shape = SubResource("RectangleShape2D_1")
