@@ -5,7 +5,7 @@
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_1"]
 radius = 18.0
-height = 70.0
+height = 102.0
 
 [node name="EnemyIceArcher" type="CharacterBody2D"]
 collision_layer = 4
@@ -13,7 +13,7 @@ collision_mask = 1
 script = ExtResource("1_script")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-position = Vector2(0, -52)
+position = Vector2(0, -68)
 shape = SubResource("CapsuleShape2D_1")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
@@ -28,5 +28,5 @@ collision_layer = 0
 collision_mask = 2
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="ContactZone"]
-position = Vector2(0, -52)
+position = Vector2(0, -68)
 shape = SubResource("CapsuleShape2D_1")
