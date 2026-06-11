@@ -1119,9 +1119,14 @@ class _HitboxOverlay extends Node2D:
     var ground_y: float = 300.0
     var shape_infos: Array = []
     var show_labels: bool = true
+    var show_floor: bool = true
+    var show_hitboxes: bool = true
 
     func _draw() -> void:
-        _draw_floor()
+        if show_floor:
+            _draw_floor()
+        if not show_hitboxes:
+            return
         draw_line(Vector2(0.0, ground_y), Vector2(900.0, ground_y), Color(1.0, 0.9, 0.0, 0.9), 2.0)
         for info: Dictionary in shape_infos:
             var cs := info.node as CollisionShape2D
@@ -1194,6 +1199,8 @@ class _HitboxView extends Control:
     var _viewport: SubViewport = null
     var _world_root: Node2D = null
     var _overlay: _HitboxOverlay = null
+    var _floor_overlay: _HitboxOverlay = null
+    var _shape_overlay: _HitboxOverlay = null
     var _name_label: Label = null
     var _meta_label: Label = null
     var _sprite_btn: Button = null
@@ -1245,12 +1252,21 @@ class _HitboxView extends Control:
         bg.color = Color(0.06, 0.07, 0.14)
         bg.size = _VIEW_SIZE
         _viewport.add_child(bg)
+        _floor_overlay = _HitboxOverlay.new()
+        _floor_overlay.floor_tex = load("res://stages/stage_00/Stage_00T.png") as Texture2D
+        _floor_overlay.ground_y = _ENTITY_POS.y
+        _floor_overlay.show_hitboxes = false
+        _floor_overlay.z_index = 0
+        _viewport.add_child(_floor_overlay)
         _world_root = Node2D.new()
+        _world_root.z_index = 1
         _viewport.add_child(_world_root)
-        _overlay = _HitboxOverlay.new()
-        _overlay.floor_tex = load("res://stages/stage_00/Stage_00T.png") as Texture2D
-        _overlay.ground_y = _ENTITY_POS.y
-        _viewport.add_child(_overlay)
+        _shape_overlay = _HitboxOverlay.new()
+        _shape_overlay.ground_y = _ENTITY_POS.y
+        _shape_overlay.show_floor = false
+        _shape_overlay.z_index = 2
+        _viewport.add_child(_shape_overlay)
+        _overlay = _floor_overlay
 
         var info_col := VBoxContainer.new()
         info_col.custom_minimum_size.x = 360.0
@@ -1298,10 +1314,10 @@ class _HitboxView extends Control:
         _align_current_to_floor()
         _freeze_node_tree(_current_instance)
         _shape_infos = _collect_shapes(_current_instance)
-        if _overlay != null:
-            _overlay.shape_infos = _shape_infos
-            _overlay.show_labels = _show_labels
-            _overlay.queue_redraw()
+        if _shape_overlay != null:
+            _shape_overlay.shape_infos = _shape_infos
+            _shape_overlay.show_labels = _show_labels
+            _shape_overlay.queue_redraw()
         _set_meta(entry, _shape_infos)
 
     func _clear_current() -> void:
@@ -1417,9 +1433,9 @@ class _HitboxView extends Control:
         _show_labels = not _show_labels
         if _labels_btn != null:
             _labels_btn.text = "Labels ON" if _show_labels else "Labels OFF"
-        if _overlay != null:
-            _overlay.show_labels = _show_labels
-            _overlay.queue_redraw()
+        if _shape_overlay != null:
+            _shape_overlay.show_labels = _show_labels
+            _shape_overlay.queue_redraw()
 
     func _first_filtered_index() -> int:
         for i in ImgDebug._HITBOX_ENTITIES.size():

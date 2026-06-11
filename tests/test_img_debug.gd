@@ -14,6 +14,7 @@ func _ready() -> void:
     test_hitbox_view_inspects_representative_entities()
     test_hitbox_view_controls_exist()
     test_hitbox_view_has_floor()
+    test_hitbox_view_draws_entities_above_floor_tiles()
     test_hitbox_view_aligns_character_collision_bottom_to_floor()
     test_hitbox_view_freezes_inspected_entities()
     test_img_debug_buttons_use_web_safe_text()
@@ -192,6 +193,16 @@ func test_hitbox_view_has_floor() -> void:
     assert(is_equal_approx(view._overlay.ground_y, 300.0), "piso deve alinhar com ground_y 300")
     view.queue_free()
     print("PASS: hitbox_view_has_floor")
+
+func test_hitbox_view_draws_entities_above_floor_tiles() -> void:
+    var view := ImgDebug._HitboxView.new()
+    add_child(view)
+    assert(view._floor_overlay != null, "HitboxView deve ter overlay separado para piso")
+    assert(view._shape_overlay != null, "HitboxView deve ter overlay separado para hitboxes")
+    assert(view._floor_overlay.z_index < view._world_root.z_index, "piso deve ficar abaixo das entidades no eixo z")
+    assert(view._world_root.z_index < view._shape_overlay.z_index, "hitboxes devem continuar acima das entidades")
+    view.queue_free()
+    print("PASS: hitbox_view_draws_entities_above_floor_tiles")
 
 func test_hitbox_view_aligns_character_collision_bottom_to_floor() -> void:
     var view := ImgDebug._HitboxView.new()
