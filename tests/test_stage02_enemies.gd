@@ -5,6 +5,7 @@ var _failed := 0
 
 func _ready() -> void:
 	_test_ice_grunt_defaults()
+	_test_ice_grunt_visual_scale()
 	_test_ice_flyer_defaults()
 	_test_ice_miniboss_defaults()
 	_test_ice_projectile_defaults()
@@ -38,6 +39,18 @@ func _test_ice_grunt_defaults() -> void:
 	var enemy: EnemyBase = script.new()
 	_assert(enemy.max_hp >= 10, "ice grunt has stronger hp than base grunt")
 	_assert(enemy.contact_damage >= 8, "ice grunt keeps meaningful contact damage")
+	enemy.free()
+
+func _test_ice_grunt_visual_scale() -> void:
+	var scene := load("res://characters/enemies/stage_02/enemy_ice_grunt.tscn") as PackedScene
+	_assert(scene != null, "ice grunt scene exists for visual scale check")
+	if scene == null:
+		return
+	var enemy := scene.instantiate()
+	var sprite := enemy.get_node_or_null("Sprite2D") as Sprite2D
+	_assert(sprite != null, "ice grunt has Sprite2D")
+	if sprite != null:
+		_assert(sprite.scale.is_equal_approx(Vector2.ONE), "ice grunt visual scale removes oversized 2x zoom")
 	enemy.free()
 
 func _test_ice_flyer_defaults() -> void:
