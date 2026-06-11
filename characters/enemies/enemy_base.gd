@@ -94,6 +94,14 @@ func _animate_sprite_frames(delta: float, frame_count: int = WALK_FRAMES, fps: f
 		_anim_frame = (_anim_frame + 1) % cycle_frames
 	_sprite.frame = _anim_frame
 
+func _advance_sprite_frame_loop(delta: float, frame_count: int, fps: float) -> int:
+	_animate_sprite_frames(delta, frame_count, fps)
+	return _sprite.frame if is_instance_valid(_sprite) else 0
+
+func _set_sprite_frame(frame_index: int) -> void:
+	if is_instance_valid(_sprite):
+		_sprite.frame = frame_index
+
 func _animate_sprite_motion(delta: float, bob_pixels: float, bob_speed: float, tilt_degrees: float = 0.0, sway_pixels: float = 0.0) -> void:
 	if not is_instance_valid(_sprite):
 		return
