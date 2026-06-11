@@ -50,7 +50,7 @@ func _test_ice_grunt_visual_scale() -> void:
 	var sprite := enemy.get_node_or_null("Sprite2D") as Sprite2D
 	_assert(sprite != null, "ice grunt has Sprite2D")
 	if sprite != null:
-		_assert(sprite.scale.is_equal_approx(Vector2.ONE), "ice grunt visual scale removes oversized 2x zoom")
+		_assert(sprite.scale.is_equal_approx(Vector2(0.7, 0.7)), "ice grunt visual scale stays below oversized 2x zoom")
 	enemy.free()
 
 func _test_ice_flyer_defaults() -> void:
