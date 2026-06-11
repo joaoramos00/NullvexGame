@@ -20,6 +20,7 @@ func _ready() -> void:
 	_test_stage02_shot_release_frames_spawn_projectiles()
 	_test_stage02_ranged_ground_enemies_hold_position()
 	_test_stage02_fixed_facing_ranged_enemies_do_not_turn()
+	_test_stage02_ranged_enemy_hitboxes_align_with_sprite()
 	_test_stage02_loads_new_enemy_scenes()
 	_test_stage02_spawns_new_enemy_mix()
 	_print_results()
@@ -197,6 +198,15 @@ func _test_stage02_fixed_facing_ranged_enemies_do_not_turn() -> void:
 	_assert(_enemy_keeps_fixed_facing("res://characters/enemies/stage_02/enemy_frost_turret.tscn"), "frost turret keeps fixed facing")
 	_assert(_enemy_keeps_fixed_facing("res://characters/enemies/stage_02/enemy_glacier_shield.tscn"), "glacier shield keeps fixed facing")
 
+func _test_stage02_ranged_enemy_hitboxes_align_with_sprite() -> void:
+	for path in [
+		"res://characters/enemies/stage_02/enemy_ice_archer.tscn",
+		"res://characters/enemies/stage_02/enemy_frost_turret.tscn",
+		"res://characters/enemies/stage_02/enemy_cryo_bomber.tscn",
+		"res://characters/enemies/stage_02/enemy_glacier_shield.tscn",
+	]:
+		_assert(_enemy_hitbox_center_matches_sprite(path), path + " hitbox center aligns with sprite")
+
 func _sprite_grid(path: String) -> Vector2i:
 	var scene := load(path) as PackedScene
 	if scene == null:
@@ -305,6 +315,22 @@ func _enemy_keeps_fixed_facing(path: String) -> bool:
 	player.free()
 	enemy.free()
 	return kept
+
+func _enemy_hitbox_center_matches_sprite(path: String) -> bool:
+	var scene := load(path) as PackedScene
+	if scene == null:
+		return false
+	var enemy := scene.instantiate() as EnemyBase
+	var sprite := enemy.get_node_or_null("Sprite2D") as Sprite2D
+	var body_shape := enemy.get_node_or_null("CollisionShape2D") as CollisionShape2D
+	var contact_shape := enemy.get_node_or_null("ContactZone/CollisionShape2D") as CollisionShape2D
+	var aligned := sprite != null \
+		and body_shape != null \
+		and contact_shape != null \
+		and body_shape.position.is_equal_approx(sprite.position) \
+		and contact_shape.position.is_equal_approx(sprite.position)
+	enemy.free()
+	return aligned
 
 func _test_stage02_loads_new_enemy_scenes() -> void:
 	var scene := load("res://stages/stage_02/stage_02.tscn") as PackedScene
