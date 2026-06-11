@@ -1294,6 +1294,8 @@ class _HitboxView extends Control:
         _world_root.add_child(_current_instance)
         _set_sprites_visible(_current_instance, _show_sprite)
         _shape_infos = _collect_shapes(_current_instance)
+        _align_current_to_floor()
+        _shape_infos = _collect_shapes(_current_instance)
         if _overlay != null:
             _overlay.shape_infos = _shape_infos
             _overlay.show_labels = _show_labels
@@ -1333,6 +1335,26 @@ class _HitboxView extends Control:
         if shape is CircleShape2D:
             return "Circle radius=%.1f" % [(shape as CircleShape2D).radius]
         return shape.get_class()
+
+    func _align_current_to_floor() -> void:
+        if _current_instance == null or _overlay == null or _shape_infos.is_empty():
+            return
+        var bottom := -INF
+        for info: Dictionary in _shape_infos:
+            var cs := info.node as CollisionShape2D
+            if cs != null:
+                bottom = maxf(bottom, _collision_shape_bottom(cs))
+        if bottom > -INF:
+            _current_instance.position.y += _overlay.ground_y - bottom
+
+    func _collision_shape_bottom(cs: CollisionShape2D) -> float:
+        if cs.shape is RectangleShape2D:
+            return cs.global_position.y + (cs.shape as RectangleShape2D).size.y * 0.5
+        if cs.shape is CircleShape2D:
+            return cs.global_position.y + (cs.shape as CircleShape2D).radius
+        if cs.shape is CapsuleShape2D:
+            return cs.global_position.y + (cs.shape as CapsuleShape2D).height * 0.5
+        return cs.global_position.y
 
     func _set_meta(entry: Dictionary, infos: Array) -> void:
         if _name_label != null:
