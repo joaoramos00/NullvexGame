@@ -21,6 +21,7 @@ func _ready() -> void:
 	_test_stage02_ranged_ground_enemies_hold_position()
 	_test_stage02_fixed_facing_ranged_enemies_do_not_turn()
 	_test_stage02_ranged_enemy_hitboxes_use_tuned_body_bounds()
+	_test_stage02_ranged_enemy_sprites_are_lifted_over_hitboxes()
 	_test_stage02_loads_new_enemy_scenes()
 	_test_stage02_spawns_new_enemy_mix()
 	_print_results()
@@ -200,21 +201,27 @@ func _test_stage02_fixed_facing_ranged_enemies_do_not_turn() -> void:
 
 func _test_stage02_ranged_enemy_hitboxes_use_tuned_body_bounds() -> void:
 	_assert(
-		_enemy_capsule_hitbox_matches("res://characters/enemies/stage_02/enemy_ice_archer.tscn", Vector2(0, -52), 18.0, 70.0),
+		_enemy_capsule_hitbox_matches("res://characters/enemies/stage_02/enemy_ice_archer.tscn", Vector2(0, -36), 18.0, 102.0),
 		"ice archer hitbox tracks body instead of lower sprite frame"
 	)
 	_assert(
-		_enemy_rectangle_hitbox_matches("res://characters/enemies/stage_02/enemy_frost_turret.tscn", Vector2(0, -40), Vector2(60, 64)),
+		_enemy_rectangle_hitbox_matches("res://characters/enemies/stage_02/enemy_frost_turret.tscn", Vector2(0, -24), Vector2(60, 96)),
 		"frost turret hitbox tracks compact turret body"
 	)
 	_assert(
-		_enemy_circle_hitbox_matches("res://characters/enemies/stage_02/enemy_cryo_bomber.tscn", Vector2(0, -50), 34.0),
+		_enemy_circle_hitbox_matches("res://characters/enemies/stage_02/enemy_cryo_bomber.tscn", Vector2(0, -34), 50.0),
 		"cryo bomber hitbox tracks body instead of full sprite frame"
 	)
 	_assert(
-		_enemy_rectangle_hitbox_matches("res://characters/enemies/stage_02/enemy_glacier_shield.tscn", Vector2(0, -56), Vector2(64, 88)),
+		_enemy_rectangle_hitbox_matches("res://characters/enemies/stage_02/enemy_glacier_shield.tscn", Vector2(0, -40), Vector2(64, 120)),
 		"glacier shield hitbox tracks shield body"
 	)
+
+func _test_stage02_ranged_enemy_sprites_are_lifted_over_hitboxes() -> void:
+	_assert(_enemy_sprite_position_matches("res://characters/enemies/stage_02/enemy_ice_archer.tscn", Vector2(0, -70)), "ice archer sprite is lifted 32px")
+	_assert(_enemy_sprite_position_matches("res://characters/enemies/stage_02/enemy_frost_turret.tscn", Vector2(0, -66)), "frost turret sprite is lifted 32px")
+	_assert(_enemy_sprite_position_matches("res://characters/enemies/stage_02/enemy_cryo_bomber.tscn", Vector2(0, -76)), "cryo bomber sprite is lifted 32px")
+	_assert(_enemy_sprite_position_matches("res://characters/enemies/stage_02/enemy_glacier_shield.tscn", Vector2(0, -80)), "glacier shield sprite is lifted 32px")
 
 func _sprite_grid(path: String) -> Vector2i:
 	var scene := load(path) as PackedScene
@@ -384,6 +391,16 @@ func _enemy_circle_hitbox_matches(path: String, expected_position: Vector2, expe
 		and contact_shape.position.is_equal_approx(expected_position) \
 		and is_equal_approx(shape.radius, expected_radius) \
 		and is_equal_approx(contact.radius, expected_radius)
+	enemy.free()
+	return matched
+
+func _enemy_sprite_position_matches(path: String, expected_position: Vector2) -> bool:
+	var scene := load(path) as PackedScene
+	if scene == null:
+		return false
+	var enemy := scene.instantiate()
+	var sprite := enemy.get_node_or_null("Sprite2D") as Sprite2D
+	var matched := sprite != null and sprite.position.is_equal_approx(expected_position)
 	enemy.free()
 	return matched
 
