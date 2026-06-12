@@ -3,6 +3,7 @@ extends Node
 
 var bot_enabled: bool = false
 var no_enemies:  bool = false
+var white_bg:    bool = false   # fundo branco de debug (?whitebg=1) — só pra visualizar tiles
 var stage_id:    int  = -1
 var zone:        int  = -1   # spawna direto numa zona da fase (debug). -1 = início normal
 var active_char: String = "zael"
@@ -28,6 +29,7 @@ func _ready() -> void:
 	stage_id    = int(params.get("stage", "-1"))
 	bot_enabled = params.get("bot", "0") == "1"
 	no_enemies  = params.get("noenemies", "0") == "1"
+	white_bg    = params.get("whitebg", "0") == "1"
 	active_char = params.get("char", "zael")
 	# zona: aceita "zone=3" e também o formato-flag "zone01"/"zone3"
 	zone = int(params.get("zone", "-1"))
