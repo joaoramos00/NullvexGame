@@ -13,6 +13,8 @@ func _ready() -> void:
     test_hitbox_catalog_loads_collision_scenes()
     test_hitbox_view_inspects_representative_entities()
     test_hitbox_view_controls_exist()
+    test_hitbox_view_hierarchical_selectors()
+    test_hitbox_view_frame_selector_updates_sprite_and_glacier_barrier()
     test_hitbox_view_has_floor()
     test_hitbox_view_draws_entities_above_floor_tiles()
     test_hitbox_view_aligns_character_collision_bottom_to_floor()
@@ -149,6 +151,8 @@ func test_hitbox_catalog_loads_collision_scenes() -> void:
         assert(entry.has("name"), "entrada hitbox deve ter name")
         assert(entry.has("path"), "entrada hitbox deve ter path")
         assert(entry.has("group"), "entrada hitbox deve ter group")
+        assert(entry.has("kind"), "entrada hitbox deve ter kind")
+        assert(entry.has("stage"), "entrada hitbox deve ter stage")
         groups[entry.group] = true
         var scene := load(entry.path) as PackedScene
         assert(scene != null, "cena hitbox deve carregar: " + entry.path)
@@ -177,11 +181,55 @@ func test_hitbox_view_controls_exist() -> void:
     add_child(panel)
     panel._show_section("HITBOXES")
     assert(panel._hitbox_view != null, "ImgDebug deve guardar referencia da HitboxView")
-    for text in ["<", ">", "Todos", "Personagens", "Inimigos", "Bosses", "Projeteis", "Sprite ON", "Labels ON"]:
+    for text in ["Todos", "Personagens", "Inimigos", "Bosses", "Projeteis", "Sprite ON", "Labels ON"]:
         assert(_find_button(panel._hitbox_view, text) != null, "HitboxView deve ter botao " + text)
+    assert(_find_button(panel._hitbox_view, "<") == null, "HitboxView nao deve usar botao anterior")
+    assert(_find_button(panel._hitbox_view, ">") == null, "HitboxView nao deve usar botao proximo")
     _assert_buttons_without_fallback_symbols(panel._hitbox_view)
     panel.queue_free()
     print("PASS: hitbox_view_controls_exist")
+
+func test_hitbox_view_hierarchical_selectors() -> void:
+    var view := ImgDebug._HitboxView.new()
+    add_child(view)
+    assert(view._type_row != null, "HitboxView deve ter linha de tipos")
+    assert(view._stage_row != null, "HitboxView deve ter linha de stages")
+    assert(view._entity_row != null, "HitboxView deve ter linha de entidades")
+
+    view._set_filter("Inimigos")
+    assert(_find_button(view._stage_row, "Stage 00") != null, "Inimigos deve listar Stage 00")
+    assert(_find_button(view._stage_row, "Stage 02") != null, "Inimigos deve listar Stage 02")
+    view._set_stage("Stage 02")
+    assert(_find_button(view._entity_row, "Ice Grunt") != null, "Stage 02 deve listar Ice Grunt")
+    assert(_find_button(view._entity_row, "Glacier Shield") != null, "Stage 02 deve listar Glacier Shield")
+
+    view._set_filter("Personagens")
+    assert(view._stage_row.get_child_count() == 0, "Personagens nao deve mostrar linha de stage")
+    assert(_find_button(view._entity_row, "Zael") != null, "Personagens deve listar Zael")
+    assert(_find_button(view._entity_row, "Kawagael") != null, "Personagens deve listar Kawagael")
+    view.queue_free()
+    print("PASS: hitbox_view_hierarchical_selectors")
+
+func test_hitbox_view_frame_selector_updates_sprite_and_glacier_barrier() -> void:
+    var view := ImgDebug._HitboxView.new()
+    add_child(view)
+    view._set_filter("Inimigos")
+    view._set_stage("Stage 02")
+    view._select_entity_by_name("Glacier Shield")
+    assert(view._frame_row != null, "HitboxView deve ter linha de frame")
+    assert(_find_button(view._frame_row, "Frame 3") != null, "Glacier Shield deve expor Frame 3")
+
+    view._select_frame(2)
+    var sprite := view._current_instance.get_node_or_null("Sprite2D") as Sprite2D
+    var barrier := view._current_instance.get_node_or_null("ShieldBarrier") as Area2D
+    assert(sprite != null and sprite.frame == 2, "selecionar frame deve atualizar Sprite2D.frame")
+    assert(barrier != null and barrier.position == Vector2(38, -40), "frame do escudo baixo deve mover barreira para baixo")
+
+    view._select_frame(0)
+    assert(sprite.frame == 0, "voltar frame deve atualizar Sprite2D.frame")
+    assert(barrier.position == Vector2(38, -56), "frame normal deve restaurar barreira")
+    view.queue_free()
+    print("PASS: hitbox_view_frame_selector_updates_sprite_and_glacier_barrier")
 
 func test_hitbox_view_has_floor() -> void:
     var view := ImgDebug._HitboxView.new()
