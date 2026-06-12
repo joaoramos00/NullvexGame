@@ -22,6 +22,8 @@ func _ready() -> void:
 	_test_stage02_fixed_facing_ranged_enemies_do_not_turn()
 	_test_stage02_ranged_enemy_hitboxes_use_tuned_body_bounds()
 	_test_stage02_ranged_enemy_sprites_are_lifted_over_hitboxes()
+	_test_glacier_shield_front_barrier_tracks_lowered_shield()
+	_test_glacier_shield_barrier_forwards_reduced_front_damage()
 	_test_stage02_loads_new_enemy_scenes()
 	_test_stage02_spawns_new_enemy_mix()
 	_print_results()
@@ -221,7 +223,41 @@ func _test_stage02_ranged_enemy_sprites_are_lifted_over_hitboxes() -> void:
 	_assert(_enemy_sprite_position_matches("res://characters/enemies/stage_02/enemy_ice_archer.tscn", Vector2(0, -70)), "ice archer sprite is lifted 32px")
 	_assert(_enemy_sprite_position_matches("res://characters/enemies/stage_02/enemy_frost_turret.tscn", Vector2(0, -66)), "frost turret sprite is lifted 32px")
 	_assert(_enemy_sprite_position_matches("res://characters/enemies/stage_02/enemy_cryo_bomber.tscn", Vector2(0, -76)), "cryo bomber sprite is lifted 32px")
-	_assert(_enemy_sprite_position_matches("res://characters/enemies/stage_02/enemy_glacier_shield.tscn", Vector2(0, -80)), "glacier shield sprite is lifted 32px")
+	_assert(_enemy_sprite_position_matches("res://characters/enemies/stage_02/enemy_glacier_shield.tscn", Vector2(0, -64)), "glacier shield sprite is lowered 16px from lifted pose")
+
+func _test_glacier_shield_front_barrier_tracks_lowered_shield() -> void:
+	var scene := load("res://characters/enemies/stage_02/enemy_glacier_shield.tscn") as PackedScene
+	_assert(scene != null, "glacier shield scene exists for barrier check")
+	if scene == null:
+		return
+	var enemy := scene.instantiate() as EnemyGlacierShield
+	add_child(enemy)
+	var barrier := enemy.get_node_or_null("ShieldBarrier") as Area2D
+	var barrier_shape := enemy.get_node_or_null("ShieldBarrier/CollisionShape2D") as CollisionShape2D
+	var rect := barrier_shape.shape as RectangleShape2D if barrier_shape != null else null
+	_assert(barrier != null, "glacier shield has front barrier area")
+	_assert(barrier != null and barrier.collision_layer == 4, "glacier shield barrier intercepts player bullets")
+	_assert(barrier_shape != null and rect != null and rect.size == Vector2(18, 72), "glacier shield barrier has narrow front hitbox")
+	_assert(barrier != null and barrier.position == Vector2(38, -56), "glacier shield barrier starts in guard position")
+	enemy._start_shot()
+	enemy._tick_shot((1.0 / enemy.guard_fps) * float(enemy.shot_release_frame) + 0.01)
+	_assert(barrier != null and barrier.position == Vector2(38, -40), "glacier shield barrier moves down when shield lowers")
+	enemy.queue_free()
+
+func _test_glacier_shield_barrier_forwards_reduced_front_damage() -> void:
+	var scene := load("res://characters/enemies/stage_02/enemy_glacier_shield.tscn") as PackedScene
+	_assert(scene != null, "glacier shield scene exists for barrier damage check")
+	if scene == null:
+		return
+	var enemy := scene.instantiate() as EnemyGlacierShield
+	add_child(enemy)
+	var barrier := enemy.get_node_or_null("ShieldBarrier") as Area2D
+	var hp_before: int = enemy.current_hp
+	if barrier != null and barrier.has_method("take_damage"):
+		barrier.take_damage(10, "single")
+	_assert(barrier != null and barrier.has_method("take_damage"), "glacier shield barrier receives damage calls")
+	_assert(enemy.current_hp == hp_before - 3, "glacier shield barrier forwards reduced front damage")
+	enemy.queue_free()
 
 func _sprite_grid(path: String) -> Vector2i:
 	var scene := load(path) as PackedScene

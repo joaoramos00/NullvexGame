@@ -19,6 +19,8 @@ var _shot_frame := 0
 var _shot_frame_timer := 0.0
 var _shot_released := false
 
+@onready var _shield_barrier := get_node_or_null("ShieldBarrier") as Area2D
+
 func _init() -> void:
 	max_hp = 18
 	contact_damage = 10
@@ -54,6 +56,7 @@ func _start_shot() -> void:
 	_shot_frame = 0
 	_shot_frame_timer = 0.0
 	_shot_released = false
+	_set_shield_barrier_lowered(false)
 	_set_sprite_frame(0)
 
 func _tick_shot(delta: float) -> void:
@@ -67,13 +70,20 @@ func _tick_shot(delta: float) -> void:
 		_shot_frame += 1
 		if _shot_frame == shot_release_frame and not _shot_released:
 			_set_sprite_frame(_shot_frame)
+			_set_shield_barrier_lowered(true)
 			_fire()
 			_shot_released = true
 		if _shot_frame >= guard_frame_count:
 			_shot_active = false
 			_shoot_timer = shoot_interval
 			_shot_frame = 0
+			_set_shield_barrier_lowered(false)
 		_set_sprite_frame(_shot_frame % guard_frame_count)
+
+func _set_shield_barrier_lowered(lowered: bool) -> void:
+	if not is_instance_valid(_shield_barrier):
+		return
+	_shield_barrier.position = Vector2(38.0, -40.0 if lowered else -56.0)
 
 func _fire() -> void:
 	var projectile := _PROJECTILE_SCENE.instantiate() as EnemyIceProjectile
