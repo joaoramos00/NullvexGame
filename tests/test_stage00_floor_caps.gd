@@ -1,9 +1,10 @@
 extends Node
 
-# Regressão: o fim de um piso reto (1 linha) deve terminar com o tile de canto
-# (0,0) limpo. O gap-fill de meia-tile (commit 5854bce) era pra paredes laterais de
-# plataforma MULTI-linha, mas rodava também em piso de 1 linha, sobrescrevendo o cap.
-# Além disso a largura precisa fechar na grade de 64px pro último (0,0) ser tile cheio.
+# Regressão: pisos retos da fase 00 devem fechar na grade de 64px para o tile de
+# canto final (0,0) ser cheio (Floor_Z1B = 1408 = 22 tiles, borda esq. em 2800).
+# NÃO testar "desligar o preenchimento de borda": os tiles de canto (0,0)/(1,3) têm
+# ~metade transparente, então o preenchimento de meia-tile é necessário — sem ele a
+# borda sólida recua e abre vão horizontal entre personagem e piso.
 # assert() não aborta headless → usamos _check + exit code.
 
 var _failed := false
@@ -23,12 +24,9 @@ func _run() -> void:
 	await get_tree().process_frame
 	await get_tree().process_frame
 
-	# 1) Gate: o edge-fill (meia-tile) só se aplica a plataforma multi-linha.
-	_check(scene.call("_edge_fill_applies", 22, 1) == false, "piso 1-linha NÃO usa edge-fill")
-	_check(scene.call("_edge_fill_applies", 3, 3) == true, "bloco multi-linha usa edge-fill")
-	_check(scene.call("_edge_fill_applies", 1, 1) == false, "1x1 não usa edge-fill")
-
-	# 2) Floor_Z1B com largura múltipla de 64 (último tile = (0,0) cheio).
+	# Floor_Z1B com largura múltipla de 64 (último tile = (0,0) cheio).
+	# (O preenchimento de meia-tile nas bordas é mantido — os tiles de canto têm
+	# ~metade transparente; removê-lo abriria vão horizontal. Ver _draw_platform_tiles.)
 	var fz1b: Node = scene.get_node_or_null("Floor_Z1B")
 	_check(fz1b != null, "Floor_Z1B deve existir")
 	if fz1b != null:
