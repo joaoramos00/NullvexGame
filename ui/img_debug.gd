@@ -1230,8 +1230,9 @@ class _HitboxOverlay extends Node2D:
 class _HitboxView extends Control:
     const _VIEW_SIZE := Vector2(900.0, 460.0)
     const _ENTITY_POS := Vector2(450.0, 300.0)
+    const _ZOOM_SCALE := 2.0
     const _PROJECTILE_DEFS := {
-        "Ice Archer": {"label": "Ice Arrow", "variant": "ice_arrow", "release_frame": 4, "offset": Vector2(52.0, -98.0), "parabolic": false},
+        "Ice Archer": {"label": "Ice Arrow", "variant": "ice_arrow", "release_frame": 4, "offset": Vector2(52.0, -82.0), "parabolic": false},
         "Frost Turret": {"label": "Ice Cannonball", "variant": "ice_cannonball", "release_frame": 3, "offset": Vector2(32.0, 0.0), "parabolic": false},
         "Cryo Bomber": {"label": "Ice Ball", "variant": "ice_ball", "release_frame": 3, "offset": Vector2(16.0, -56.0), "parabolic": true},
         "Glacier Shield": {"label": "Eye Beam", "variant": "eye_beam", "release_frame": 2, "offset": Vector2(34.0, -18.0), "parabolic": false},
@@ -1247,6 +1248,7 @@ class _HitboxView extends Control:
     var _show_sprite: bool = true
     var _show_labels: bool = true
     var _viewport: SubViewport = null
+    var _scene_root: Node2D = null
     var _world_root: Node2D = null
     var _overlay: _HitboxOverlay = null
     var _floor_overlay: _HitboxOverlay = null
@@ -1326,20 +1328,24 @@ class _HitboxView extends Control:
         bg.color = Color(0.06, 0.07, 0.14)
         bg.size = _VIEW_SIZE
         _viewport.add_child(bg)
+        _scene_root = Node2D.new()
+        _scene_root.position = _ENTITY_POS * (1.0 - _ZOOM_SCALE)
+        _scene_root.scale = Vector2(_ZOOM_SCALE, _ZOOM_SCALE)
+        _viewport.add_child(_scene_root)
         _floor_overlay = _HitboxOverlay.new()
         _floor_overlay.floor_tex = load("res://stages/stage_00/Stage_00T.png") as Texture2D
         _floor_overlay.ground_y = _ENTITY_POS.y
         _floor_overlay.show_hitboxes = false
         _floor_overlay.z_index = 0
-        _viewport.add_child(_floor_overlay)
+        _scene_root.add_child(_floor_overlay)
         _world_root = Node2D.new()
         _world_root.z_index = 1
-        _viewport.add_child(_world_root)
+        _scene_root.add_child(_world_root)
         _shape_overlay = _HitboxOverlay.new()
         _shape_overlay.ground_y = _ENTITY_POS.y
         _shape_overlay.show_floor = false
         _shape_overlay.z_index = 2
-        _viewport.add_child(_shape_overlay)
+        _scene_root.add_child(_shape_overlay)
         _overlay = _floor_overlay
 
         var info_col := VBoxContainer.new()
@@ -1443,15 +1449,16 @@ class _HitboxView extends Control:
             if cs != null:
                 bottom = maxf(bottom, _collision_shape_bottom(cs))
         if bottom > -INF:
-            _current_instance.position.y += _overlay.ground_y - bottom
+            _current_instance.position.y += (_overlay.ground_y - bottom) / _ZOOM_SCALE
 
     func _collision_shape_bottom(cs: CollisionShape2D) -> float:
+        var zoom := _ZOOM_SCALE
         if cs.shape is RectangleShape2D:
-            return cs.global_position.y + (cs.shape as RectangleShape2D).size.y * 0.5
+            return cs.global_position.y + (cs.shape as RectangleShape2D).size.y * 0.5 * zoom
         if cs.shape is CircleShape2D:
-            return cs.global_position.y + (cs.shape as CircleShape2D).radius
+            return cs.global_position.y + (cs.shape as CircleShape2D).radius * zoom
         if cs.shape is CapsuleShape2D:
-            return cs.global_position.y + (cs.shape as CapsuleShape2D).height * 0.5
+            return cs.global_position.y + (cs.shape as CapsuleShape2D).height * 0.5 * zoom
         return cs.global_position.y
 
     func _freeze_node_tree(node: Node) -> void:
