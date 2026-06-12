@@ -818,7 +818,7 @@ func _draw_platform_tiles(rect: Rect2, tex: Texture2D) -> void:
 			var dx := rect.position.x + col * ts
 			var dy := rect.position.y + row * ts - src_ts  # alinha face sólida com física
 			var dh := minf(ts, rect.position.y + rect.size.y - dy)
-			if cols > 1:
+			if _edge_fill_applies(cols, rows):
 				var fill := _gap_fill_tile(row, rows)
 				if col == 0:
 					dx -= src_ts
@@ -833,6 +833,13 @@ func _draw_platform_tiles(rect: Rect2, tex: Texture2D) -> void:
 			var dw := minf(ts, rect.position.x + rect.size.x - dx)
 			var src := Rect2(tile.x * src_ts, tile.y * src_ts, src_ts * dw / ts, src_ts * dh / ts)
 			draw_texture_rect_region(tex, Rect2(dx, dy, dw, dh), src)
+
+# O preenchimento de meia-tile nas bordas (commit 5854bce) foi feito para alinhar as
+# PAREDES LATERAIS de plataformas multi-linha. Num piso reto (rows==1) ele sobrescreve
+# o cap de canto ((0,0)/(1,3)) com meia-tile de TOP → a ponta não termina limpa.
+# Por isso só se aplica a multi-linha; pisos retos mostram o canto natural.
+func _edge_fill_applies(cols: int, rows: int) -> bool:
+	return cols > 1 and rows > 1
 
 func _gap_fill_tile(row: int, rows: int) -> Vector2i:
 	if row == 0:        return Vector2i(3, 0)  # TOP — linha visual superior
