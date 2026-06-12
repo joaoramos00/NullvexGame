@@ -259,7 +259,7 @@ func test_hitbox_view_has_floor() -> void:
     assert(view._overlay != null, "HitboxView deve ter overlay")
     assert(view._scene_root != null, "HitboxView deve ter root de cena")
     assert(view._camera != null, "HitboxView deve ter camera")
-    assert(view._camera.zoom.is_equal_approx(Vector2(0.5, 0.5)), "HitboxView deve aplicar zoom 2x na camera")
+    assert(view._camera.zoom.is_equal_approx(Vector2(2.0, 2.0)), "HitboxView deve aplicar zoom 2x na camera")
     assert(is_equal_approx(view._camera.position.y, view._overlay.ground_y + 24.0), "HitboxView deve deslocar a camera para baixo")
     assert(view._overlay.floor_tex != null, "HitboxView deve carregar textura de piso")
     assert(view._overlay.floor_tex.resource_path == "res://stages/stage_00/Stage_00T.png", "piso da HitboxView deve usar Stage_00T")
