@@ -257,6 +257,8 @@ func test_hitbox_view_has_floor() -> void:
     var view := ImgDebug._HitboxView.new()
     add_child(view)
     assert(view._overlay != null, "HitboxView deve ter overlay")
+    assert(view._scene_root != null, "HitboxView deve ter root de zoom")
+    assert(view._scene_root.scale.is_equal_approx(Vector2(2.0, 2.0)), "HitboxView deve aplicar zoom 2x")
     assert(view._overlay.floor_tex != null, "HitboxView deve carregar textura de piso")
     assert(view._overlay.floor_tex.resource_path == "res://stages/stage_00/Stage_00T.png", "piso da HitboxView deve usar Stage_00T")
     assert(view._overlay.get("floor_body_rows") == 1, "piso da HitboxView deve ser uma plataforma baixa")
@@ -280,7 +282,7 @@ func test_hitbox_view_aligns_character_collision_bottom_to_floor() -> void:
     var idx := view._find_first_group("Personagens")
     assert(idx >= 0, "HitboxView deve encontrar personagem")
     view._select_index(idx)
-    var bottom := _max_collision_shape_bottom(view._current_instance)
+    var bottom := _max_collision_shape_bottom(view._current_instance, float(view._scene_root.scale.x))
     assert(is_equal_approx(bottom, view._overlay.ground_y), "fundo da hitbox do personagem deve alinhar ao piso")
     view.queue_free()
     print("PASS: hitbox_view_aligns_character_collision_bottom_to_floor")
@@ -425,22 +427,22 @@ func _has_collision_shape(node: Node) -> bool:
             return true
     return false
 
-func _max_collision_shape_bottom(node: Node) -> float:
+func _max_collision_shape_bottom(node: Node, zoom: float = 1.0) -> float:
     var bottom := -INF
     if node is CollisionShape2D:
         var cs := node as CollisionShape2D
-        bottom = maxf(bottom, _collision_shape_bottom(cs))
+        bottom = maxf(bottom, _collision_shape_bottom(cs, zoom))
     for child in node.get_children():
-        bottom = maxf(bottom, _max_collision_shape_bottom(child))
+        bottom = maxf(bottom, _max_collision_shape_bottom(child, zoom))
     return bottom
 
-func _collision_shape_bottom(cs: CollisionShape2D) -> float:
+func _collision_shape_bottom(cs: CollisionShape2D, zoom: float = 1.0) -> float:
     if cs.shape is RectangleShape2D:
-        return cs.global_position.y + (cs.shape as RectangleShape2D).size.y * 0.5
+        return cs.global_position.y + (cs.shape as RectangleShape2D).size.y * 0.5 * zoom
     if cs.shape is CircleShape2D:
-        return cs.global_position.y + (cs.shape as CircleShape2D).radius
+        return cs.global_position.y + (cs.shape as CircleShape2D).radius * zoom
     if cs.shape is CapsuleShape2D:
-        return cs.global_position.y + (cs.shape as CapsuleShape2D).height * 0.5
+        return cs.global_position.y + (cs.shape as CapsuleShape2D).height * 0.5 * zoom
     return cs.global_position.y
 
 func _all_processing_disabled(node: Node) -> bool:
@@ -484,4 +486,4 @@ func _assert_projectile_preview_state(
     assert(bool(info.get("parabolic", false)) == expected_parabolic, entity_name + " parabola incorreta")
     if entity_name == "Ice Archer" and expected_visible:
         var offset := info.get("offset", Vector2.ZERO) as Vector2
-        assert(offset.is_equal_approx(Vector2(52.0, -98.0)), entity_name + " deve subir mais para sair do chao")
+        assert(offset.is_equal_approx(Vector2(52.0, -82.0)), entity_name + " deve subir 16px")
