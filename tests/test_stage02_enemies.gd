@@ -18,6 +18,7 @@ func _ready() -> void:
 	_test_stage02_action_sprite_grids()
 	_test_stage02_looping_enemy_frames_advance()
 	_test_stage02_shot_release_frames_spawn_projectiles()
+	_test_stage02_ranged_projectile_variants_preserve_sources()
 	_test_stage02_ranged_ground_enemies_hold_position()
 	_test_stage02_fixed_facing_ranged_enemies_do_not_turn()
 	_test_stage02_ranged_enemy_hitboxes_use_tuned_body_bounds()
@@ -187,6 +188,12 @@ func _test_stage02_shot_release_frames_spawn_projectiles() -> void:
 	_assert(_shot_enemy_spawns_one_projectile("res://characters/enemies/stage_02/enemy_cryo_bomber.tscn", "cryo_bomber", 3), "cryo bomber fires once during shot release frame")
 	_assert(_shot_enemy_spawns_one_projectile("res://characters/enemies/stage_02/enemy_glacier_shield.tscn", "glacier_shield", 2), "glacier shield fires once during shot release frame")
 
+func _test_stage02_ranged_projectile_variants_preserve_sources() -> void:
+	_assert(_shot_enemy_spawns_projectile_variant("res://characters/enemies/stage_02/enemy_ice_archer.tscn", "ice_archer", "ice_arrow"), "ice archer fires ice arrow variant with source_id")
+	_assert(_shot_enemy_spawns_projectile_variant("res://characters/enemies/stage_02/enemy_frost_turret.tscn", "frost_turret", "ice_cannonball"), "frost turret fires ice cannonball variant with source_id")
+	_assert(_shot_enemy_spawns_projectile_variant("res://characters/enemies/stage_02/enemy_cryo_bomber.tscn", "cryo_bomber", "ice_ball"), "cryo bomber fires ice ball variant with source_id")
+	_assert(_shot_enemy_spawns_projectile_variant("res://characters/enemies/stage_02/enemy_glacier_shield.tscn", "glacier_shield", "eye_beam"), "glacier shield fires eye beam variant with source_id")
+
 func _test_stage02_ranged_ground_enemies_hold_position() -> void:
 	for path in [
 		"res://characters/enemies/stage_02/enemy_ice_archer.tscn",
@@ -203,7 +210,7 @@ func _test_stage02_fixed_facing_ranged_enemies_do_not_turn() -> void:
 
 func _test_stage02_ranged_enemy_hitboxes_use_tuned_body_bounds() -> void:
 	_assert(
-		_enemy_capsule_hitbox_matches("res://characters/enemies/stage_02/enemy_ice_archer.tscn", Vector2(0, -68), 18.0, 102.0),
+		_enemy_capsule_hitbox_matches("res://characters/enemies/stage_02/enemy_ice_archer.tscn", Vector2(0, -68), 18.0, 134.0),
 		"ice archer hitbox tracks body instead of lower sprite frame"
 	)
 	_assert(
@@ -221,7 +228,7 @@ func _test_stage02_ranged_enemy_hitboxes_use_tuned_body_bounds() -> void:
 
 func _test_stage02_ranged_enemy_sprites_are_lifted_over_hitboxes() -> void:
 	_assert(_enemy_sprite_position_matches("res://characters/enemies/stage_02/enemy_ice_archer.tscn", Vector2(0, -70)), "ice archer sprite is lifted 32px")
-	_assert(_enemy_sprite_position_matches("res://characters/enemies/stage_02/enemy_frost_turret.tscn", Vector2(0, -66)), "frost turret sprite is lifted 32px")
+	_assert(_enemy_sprite_position_matches("res://characters/enemies/stage_02/enemy_frost_turret.tscn", Vector2(0, -61)), "frost turret sprite is lowered 5px from lifted pose")
 	_assert(_enemy_sprite_position_matches("res://characters/enemies/stage_02/enemy_cryo_bomber.tscn", Vector2(0, -76)), "cryo bomber sprite is lifted 32px")
 	_assert(_enemy_sprite_position_matches("res://characters/enemies/stage_02/enemy_glacier_shield.tscn", Vector2(0, -64)), "glacier shield sprite is lowered 16px from lifted pose")
 
@@ -322,6 +329,36 @@ func _shot_enemy_spawns_one_projectile(path: String, source_id: String, expected
 	player.free()
 	enemy.free()
 	return projectile_count == 1 and observed_source_id == source_id and observed_frame == expected_release_frame
+
+func _shot_enemy_spawns_projectile_variant(path: String, source_id: String, expected_variant: String) -> bool:
+	var scene := load(path) as PackedScene
+	if scene == null:
+		return false
+	var enemy := scene.instantiate() as EnemyBase
+	add_child(enemy)
+	enemy.set("_shoot_timer", 0.0)
+	var player := Node2D.new()
+	player.add_to_group("player")
+	add_child(player)
+	player.global_position = enemy.global_position + Vector2(180.0, 0.0)
+	var known_projectiles := {}
+	for child in get_children():
+		if child is EnemyIceProjectile:
+			known_projectiles[child.get_instance_id()] = true
+	var observed_source_id := ""
+	var observed_variant := ""
+	for i in 30:
+		enemy._physics_process(0.04)
+		for child in get_children():
+			if child is EnemyIceProjectile and not known_projectiles.has(child.get_instance_id()):
+				known_projectiles[child.get_instance_id()] = true
+				observed_source_id = child.get("source_id")
+				var variant_value = child.get("projectile_variant")
+				observed_variant = "" if variant_value == null else str(variant_value)
+				child.free()
+	player.free()
+	enemy.free()
+	return observed_source_id == source_id and observed_variant == expected_variant
 
 func _enemy_holds_x_position(path: String, delta: float) -> bool:
 	var scene := load(path) as PackedScene

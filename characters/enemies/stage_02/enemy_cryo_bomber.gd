@@ -74,7 +74,7 @@ func _tick_shot(delta: float) -> void:
 
 func _lob() -> void:
 	var projectile := _PROJECTILE_SCENE.instantiate() as EnemyIceProjectile
-	projectile.setup(Vector2(_direction * lob_velocity.x, lob_velocity.y), projectile_damage, "cryo_bomber", projectile_gravity)
+	projectile.setup(Vector2(_direction * lob_velocity.x, lob_velocity.y), projectile_damage, "cryo_bomber", projectile_gravity, "ice_ball")
 	get_parent().add_child(projectile)
 	projectile.global_position = global_position + Vector2(_direction * 16.0, -56.0)
 
