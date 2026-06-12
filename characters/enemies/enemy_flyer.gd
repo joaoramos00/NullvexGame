@@ -49,6 +49,7 @@ func _physics_process(delta: float) -> void:
 		_sprite.modulate.a = 0.35 if int(Time.get_ticks_msec() / 80) % 2 == 0 else 1.0
 	else:
 		_sprite.modulate.a = 1.0
+	_animate_sprite_frames(delta, 4, 8.0)
 
 func _tick_hover(delta: float) -> void:
 	_bob_time += delta

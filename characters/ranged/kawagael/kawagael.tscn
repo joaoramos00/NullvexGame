@@ -1,0 +1,19 @@
+[gd_scene load_steps=4 format=3 uid="uid://kawagael"]
+
+[ext_resource type="PackedScene" uid="uid://character_base" path="res://characters/base/character_base.tscn" id="1_base"]
+[ext_resource type="Script" path="res://characters/ranged/kawagael/kawagael.gd" id="2_kawa"]
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_kawa"]
+radius = 20.0
+height = 80.0
+
+[node name="Kawagael" instance=ExtResource("1_base")]
+script = ExtResource("2_kawa")
+
+[node name="CollisionShape2D" parent="."]
+position = Vector2(0, 42)
+shape = SubResource("CapsuleShape2D_kawa")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+position = Vector2(0, 35)
+scale = Vector2(2, 2)

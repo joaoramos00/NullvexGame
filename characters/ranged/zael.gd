@@ -234,7 +234,7 @@ func _handle_jump() -> void:
                 _jump_buffer_timer = 0.0
             _coyote_timer = 0.0
 
-func _handle_movement() -> void:
+func _handle_movement(delta: float) -> void:
     if _dash_jump:
         if is_on_floor():
             velocity.x = _DASH_JUMP_SPEED * _dash_jump_dir
@@ -243,7 +243,7 @@ func _handle_movement() -> void:
             if dir != 0.0:
                 velocity.x = dir * _DASH_JUMP_SPEED
         return
-    super._handle_movement()
+    super._handle_movement(delta)
 
 func _physics_process(delta: float) -> void:
     if _jump_squat_timer >= 0.0:

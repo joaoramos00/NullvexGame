@@ -22,6 +22,10 @@ var _invincible:          bool  = false
 var _invincibility_timer: float = 0.0
 var _anim_timer:          float = 0.0
 var _anim_frame:          int   = 0
+var _visual_motion_time:  float = 0.0
+var _visual_rest_position := Vector2.ZERO
+var _visual_rest_rotation := 0.0
+var _visual_rest_cached   := false
 
 var show_hitbox: bool = false:
 	set(value):
@@ -66,6 +70,51 @@ func _has_floor_ahead() -> bool:
 	var end   := Vector2(global_position.x + _direction * 26.0, global_position.y + 88.0)
 	var params := PhysicsRayQueryParameters2D.create(start, end)
 	return not space.intersect_ray(params).is_empty()
+
+func _cache_sprite_rest_transform() -> void:
+	if not is_instance_valid(_sprite):
+		return
+	if _visual_rest_cached:
+		return
+	_visual_rest_position = _sprite.position
+	_visual_rest_rotation = _sprite.rotation
+	_visual_rest_cached = true
+
+func _animate_sprite_frames(delta: float, frame_count: int = WALK_FRAMES, fps: float = ANIM_FPS) -> void:
+	if not is_instance_valid(_sprite):
+		return
+	var available_frames: int = max(1, _sprite.hframes * _sprite.vframes)
+	var cycle_frames: int = int(min(frame_count, available_frames))
+	if cycle_frames <= 1 or fps <= 0.0:
+		return
+	_anim_timer += delta
+	var frame_duration: float = 1.0 / fps
+	while _anim_timer >= frame_duration:
+		_anim_timer -= frame_duration
+		_anim_frame = (_anim_frame + 1) % cycle_frames
+	_sprite.frame = _anim_frame
+
+func _advance_sprite_frame_loop(delta: float, frame_count: int, fps: float) -> int:
+	_animate_sprite_frames(delta, frame_count, fps)
+	return _sprite.frame if is_instance_valid(_sprite) else 0
+
+func _set_sprite_frame(frame_index: int) -> void:
+	_anim_frame = max(0, frame_index)
+	_anim_timer = 0.0
+	if is_instance_valid(_sprite):
+		var available_frames: int = max(1, _sprite.hframes * _sprite.vframes)
+		_sprite.frame = _anim_frame % available_frames
+
+func _animate_sprite_motion(delta: float, bob_pixels: float, bob_speed: float, tilt_degrees: float = 0.0, sway_pixels: float = 0.0) -> void:
+	if not is_instance_valid(_sprite):
+		return
+	_cache_sprite_rest_transform()
+	_visual_motion_time += delta
+	var bob: float = sin(_visual_motion_time * bob_speed) * bob_pixels
+	var sway: float = sin(_visual_motion_time * bob_speed * 0.7) * sway_pixels
+	var tilt: float = sin(_visual_motion_time * bob_speed * 0.8) * deg_to_rad(tilt_degrees)
+	_sprite.position = _visual_rest_position + Vector2(sway, bob)
+	_sprite.rotation = _visual_rest_rotation + tilt
 
 func _on_contact(body: Node) -> void:
 	if body.has_method("take_damage"):

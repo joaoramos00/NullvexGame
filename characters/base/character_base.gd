@@ -24,6 +24,11 @@ const WALL_CLING_TIME := 0.18
 const JUMP_BUFFER_TIME := 0.10
 const WALL_JUMP_DIAGONAL_V := -560.0
 const WALL_JUMP_DIAGONAL_H := 140.0
+const ICE_ACCEL := 420.0
+const ICE_FRICTION := 180.0
+const ICE_DASH_START_SPEED := 320.0
+const ICE_DASH_MAX_SPEED := 560.0
+const ICE_DASH_ACCEL := 1800.0
 
 @export var max_hp: int = 100
 var current_hp: int = 100
@@ -37,6 +42,7 @@ var kill_y: float = KILL_Y  # world-space Y below which the player dies; set per
 var _is_dashing: bool = false
 var _dash_timer: float = 0.0
 var _dash_cooldown_timer: float = 0.0
+var _dash_speed_current: float = DASH_SPEED
 var _coyote_timer: float = 0.0
 var _invincibility_timer: float = 0.0
 var _air_walk_timer: float = 0.0
@@ -50,6 +56,8 @@ var _jump_buffer_timer: float = 0.0
 var _wall_jump_lock_timer: float = 0.0
 var _wall_dash_available: bool = false
 var _was_wall_sliding: bool = false
+var _stage_ice_contacts: int = 0
+var _stage_on_ice: bool = false
 var door_walk_speed: float = 0.0
 var door_locked: bool = false
 
@@ -68,7 +76,7 @@ func _physics_process(delta: float) -> void:
 	_update_wall_slide()
 	_apply_gravity(delta)
 	_handle_dash(delta)
-	_handle_movement()
+	_handle_movement(delta)
 	_handle_jump()
 	move_and_slide()
 	_update_facing()
@@ -141,13 +149,13 @@ func _apply_gravity(delta: float) -> void:
 		if _is_wall_sliding and velocity.y > WALL_SLIDE_SPEED:
 			velocity.y = WALL_SLIDE_SPEED
 
-func _handle_movement() -> void:
+func _handle_movement(delta: float) -> void:
 	if door_locked:
 		_is_dashing = false
 		velocity.x = 0.0
 		return
 	if _is_dashing:
-		velocity.x = DASH_SPEED * _dash_direction
+		_apply_dash_movement(delta)
 		return
 	if door_walk_speed != 0.0:
 		velocity.x = door_walk_speed
@@ -155,10 +163,34 @@ func _handle_movement() -> void:
 	if _wall_jump_lock_timer > 0.0:
 		return  # preserva o impulso diagonal do wall-jump (arco MMX) antes do air-control
 	var direction := Input.get_axis("move_left", "move_right")
+	_apply_horizontal_movement(direction, delta, is_on_floor())
+
+func _apply_horizontal_movement(direction: float, delta: float, on_floor: bool) -> void:
 	if direction != 0.0:
-		velocity.x = direction * SPEED
+		if _stage_on_ice and on_floor:
+			velocity.x = move_toward(velocity.x, direction * SPEED, ICE_ACCEL * delta)
+		else:
+			velocity.x = direction * SPEED
 	else:
-		velocity.x = move_toward(velocity.x, 0.0, SPEED)
+		var friction := ICE_FRICTION * delta if _stage_on_ice and on_floor else SPEED
+		velocity.x = move_toward(velocity.x, 0.0, friction)
+
+func _apply_dash_movement(delta: float) -> void:
+	if _stage_on_ice:
+		_dash_speed_current = move_toward(_dash_speed_current, ICE_DASH_MAX_SPEED, ICE_DASH_ACCEL * delta)
+	else:
+		_dash_speed_current = DASH_SPEED
+	velocity.x = _dash_speed_current * _dash_direction
+
+func set_stage_ice(value: bool) -> void:
+	if value:
+		_stage_ice_contacts += 1
+	else:
+		_stage_ice_contacts = maxi(0, _stage_ice_contacts - 1)
+	_stage_on_ice = _stage_ice_contacts > 0
+
+func apply_stage_wind(force_delta: Vector2) -> void:
+	velocity += force_delta
 
 func _apply_wall_jump() -> void:
 	# MMX: chuta sempre na diagonal pra cima e pra LONGE da parede. O lockout
@@ -222,6 +254,7 @@ func _start_dash(dir: float = 0.0) -> void:
 	_dash_timer = DASH_DURATION
 	_dash_cooldown_timer = DASH_COOLDOWN
 	_dash_direction = dir if dir != 0.0 else (1.0 if facing_right else -1.0)
+	_dash_speed_current = ICE_DASH_START_SPEED if _stage_on_ice else DASH_SPEED
 	velocity.y = 0.0
 
 func _update_facing() -> void:

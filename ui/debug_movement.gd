@@ -1,9 +1,17 @@
 extends Node2D
 
 const _PLAYER_PATH := "res://characters/ranged/zael.tscn"
-const _ENEMY_PATHS := [
+var _ENEMY_PATHS := [
     "res://characters/enemies/enemy_base.tscn",
     "res://characters/enemies/enemy_flyer.tscn",
+    "res://characters/enemies/stage_02/enemy_ice_grunt.tscn",
+    "res://characters/enemies/stage_02/enemy_ice_flyer.tscn",
+    "res://characters/enemies/stage_02/enemy_ice_archer.tscn",
+    "res://characters/enemies/stage_02/enemy_frost_turret.tscn",
+    "res://characters/enemies/stage_02/enemy_cryo_bomber.tscn",
+    "res://characters/enemies/stage_02/enemy_glacier_shield.tscn",
+    "res://characters/enemies/stage_02/enemy_ice_wisp.tscn",
+    "res://characters/enemies/stage_02/enemy_ice_miniboss.tscn",
     "res://characters/bosses/ignarath.tscn",
     "res://characters/bosses/cryovex.tscn",
     "res://characters/bosses/voltrix.tscn",
@@ -13,17 +21,18 @@ const _ENEMY_PATHS := [
     "res://characters/bosses/luxar.tscn",
     "res://characters/bosses/terragor.tscn",
 ]
-const _ENEMY_NAMES := [
+var _ENEMY_NAMES := [
     "Grunt", "Flyer",
+    "Ice Grunt", "Ice Flyer", "Ice Archer", "Frost Turret", "Cryo Bomber", "Glacier Shield", "Ice Wisp", "Ice MiniBoss",
     "Ignarath", "Cryovex", "Voltrix", "Gravitus", "Galerix", "Umbraex", "Luxar", "Terragor",
 ]
 const _GROUND_Y := 600.0
 const _PLAYER_X := 280.0
 const _ENEMY_X  := 680.0
-const _ENEMY_Y  := [560.0, 380.0, 536.0, 536.0, 536.0, 536.0, 536.0, 536.0, 536.0, 536.0]
+var _ENEMY_Y  := [560.0, 380.0, 560.0, 380.0, 560.0, 560.0, 560.0, 560.0, 430.0, 536.0, 536.0, 536.0, 536.0, 536.0, 536.0, 536.0, 536.0, 536.0]
 
 const _TILE_TEX  := preload("res://stages/stage_00/Stage_00T.png")
-const _GLASS_TEX := preload("res://stages/stage_00/stage_00_glass.png")
+var _glass_tex: Texture2D = null
 const _TS  := 32.0   # source tile size
 const _TW  := 64.0   # display tile size
 const _WL  := 100.0  # left  wall x
@@ -41,6 +50,8 @@ var _lbl_state: Label
 
 func _ready() -> void:
     _setup_game_manager()
+    if ResourceLoader.exists("res://stages/stage_00/stage_00_glass.png"):
+        _glass_tex = load("res://stages/stage_00/stage_00_glass.png") as Texture2D
     _build_physics()
     _build_ui()
     _spawn_player()
@@ -108,15 +119,21 @@ func _draw_glass_walls() -> void:
     # borda (1,0) à esquerda + fills à direita
     for i in rows:
         var ty := _GROUND_Y - float(i + 1) * _TW
-        draw_texture_rect_region(_GLASS_TEX, Rect2(_GWL - _TW, ty, _TW, _TW), lat_r)
-        draw_texture_rect_region(_GLASS_TEX, Rect2(_GWL,        ty, _TW, _TW), fill_src)
+        if _glass_tex != null:
+            draw_texture_rect_region(_glass_tex, Rect2(_GWL - _TW, ty, _TW, _TW), lat_r)
+            draw_texture_rect_region(_glass_tex, Rect2(_GWL,        ty, _TW, _TW), fill_src)
+        else:
+            draw_rect(Rect2(_GWL - _TW, ty, _TW * 2.0, _TW), Color(0.35, 0.8, 1.0, 0.35))
 
     # Parede de vidro direita (colisão em _GWR)
     # fills à esquerda + borda (3,2) à direita
     for i in rows:
         var ty := _GROUND_Y - float(i + 1) * _TW
-        draw_texture_rect_region(_GLASS_TEX, Rect2(_GWR - _TW, ty, _TW, _TW), fill_src)
-        draw_texture_rect_region(_GLASS_TEX, Rect2(_GWR,        ty, _TW, _TW), lat_l)
+        if _glass_tex != null:
+            draw_texture_rect_region(_glass_tex, Rect2(_GWR - _TW, ty, _TW, _TW), fill_src)
+            draw_texture_rect_region(_glass_tex, Rect2(_GWR,        ty, _TW, _TW), lat_l)
+        else:
+            draw_rect(Rect2(_GWR - _TW, ty, _TW * 2.0, _TW), Color(0.35, 0.8, 1.0, 0.35))
 
     # Labels
     draw_string(font, Vector2(_GWL - _TW, ty0 - 14.0),
@@ -219,7 +236,7 @@ func _build_ui() -> void:
     panel.add_child(row)
 
     var btn_back := Button.new()
-    btn_back.text = "◄ ImgDebug"
+    btn_back.text = "< ImgDebug"
     btn_back.add_theme_font_size_override("font_size", 18)
     btn_back.pressed.connect(func(): get_tree().change_scene_to_file("res://ui/img_debug.tscn"))
     row.add_child(btn_back)
@@ -241,34 +258,34 @@ func _build_ui() -> void:
 
     var lbl_prefix := Label.new()
     lbl_prefix.text = "Inimigo: "
-    lbl_prefix.add_theme_font_size_override("font_size", 18)
+    lbl_prefix.add_theme_font_size_override("font_size", 24)
     lbl_prefix.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
     row.add_child(lbl_prefix)
 
     var btn_prev := Button.new()
-    btn_prev.text = "◄"
-    btn_prev.add_theme_font_size_override("font_size", 18)
+    btn_prev.text = "<"
+    btn_prev.add_theme_font_size_override("font_size", 24)
     btn_prev.pressed.connect(_on_prev)
     row.add_child(btn_prev)
 
     _label_enemy = Label.new()
     _label_enemy.custom_minimum_size.x = 80.0
-    _label_enemy.add_theme_font_size_override("font_size", 18)
+    _label_enemy.add_theme_font_size_override("font_size", 24)
     _label_enemy.add_theme_color_override("font_color", Color(0.9, 0.9, 0.3))
     _label_enemy.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
     _label_enemy.vertical_alignment   = VERTICAL_ALIGNMENT_CENTER
     row.add_child(_label_enemy)
 
     var btn_next := Button.new()
-    btn_next.text = "►"
-    btn_next.add_theme_font_size_override("font_size", 18)
+    btn_next.text = ">"
+    btn_next.add_theme_font_size_override("font_size", 24)
     btn_next.pressed.connect(_on_next)
     row.add_child(btn_next)
 
     var hint := Label.new()
     hint.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_WIDE)
     hint.offset_top = -32.0
-    hint.text = "A/D: mover  ·  Z: pular  ·  X: dash  ·  J: atirar (segurar → L2/L3)"
+    hint.text = "A/D: mover - Z: pular - X: dash - J: atirar (segurar -> L2/L3)"
     hint.add_theme_font_size_override("font_size", 14)
     hint.add_theme_color_override("font_color", Color(0.45, 0.45, 0.45))
     hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER

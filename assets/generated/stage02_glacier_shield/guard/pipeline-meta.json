@@ -1,0 +1,175 @@
+{
+  "target": "creature",
+  "mode": "idle",
+  "prompt": "",
+  "role": "",
+  "input": "assets\\generated\\stage02_glacier_shield\\guard\\raw-sheet.png",
+  "threshold": 180,
+  "edge_threshold": 150,
+  "duration": 200,
+  "rows": 2,
+  "cols": 2,
+  "cell_size": 128,
+  "fit_scale": 0.9,
+  "trim_border": 4,
+  "edge_clean_depth": 3,
+  "align": "feet",
+  "shared_scale": true,
+  "component_mode": "largest",
+  "component_padding": 0,
+  "min_component_area": 1,
+  "edge_touch_margin": 0,
+  "frame_labels": [
+    "guard-1",
+    "guard-2",
+    "guard-3",
+    "guard-4"
+  ],
+  "frames": [
+    {
+      "grid": [
+        0,
+        0
+      ],
+      "source_box": [
+        0,
+        0,
+        627,
+        627
+      ],
+      "component_mode": "largest",
+      "component_count": 1,
+      "selected_component_area": 111661,
+      "selected_component_bbox": [
+        155,
+        73,
+        499,
+        554
+      ],
+      "crop_bbox": [
+        155,
+        73,
+        499,
+        554
+      ],
+      "edge_touch": false,
+      "output_size": [
+        82,
+        115
+      ],
+      "paste_position": [
+        23,
+        7
+      ]
+    },
+    {
+      "grid": [
+        0,
+        1
+      ],
+      "source_box": [
+        627,
+        0,
+        1254,
+        627
+      ],
+      "component_mode": "largest",
+      "component_count": 1,
+      "selected_component_area": 105585,
+      "selected_component_bbox": [
+        116,
+        105,
+        449,
+        555
+      ],
+      "crop_bbox": [
+        116,
+        105,
+        449,
+        555
+      ],
+      "edge_touch": false,
+      "output_size": [
+        79,
+        107
+      ],
+      "paste_position": [
+        24,
+        15
+      ]
+    },
+    {
+      "grid": [
+        1,
+        0
+      ],
+      "source_box": [
+        0,
+        627,
+        627,
+        1254
+      ],
+      "component_mode": "largest",
+      "component_count": 4,
+      "selected_component_area": 115063,
+      "selected_component_bbox": [
+        155,
+        38,
+        495,
+        509
+      ],
+      "crop_bbox": [
+        155,
+        38,
+        495,
+        509
+      ],
+      "edge_touch": false,
+      "output_size": [
+        81,
+        112
+      ],
+      "paste_position": [
+        23,
+        10
+      ]
+    },
+    {
+      "grid": [
+        1,
+        1
+      ],
+      "source_box": [
+        627,
+        627,
+        1254,
+        1254
+      ],
+      "component_mode": "largest",
+      "component_count": 3,
+      "selected_component_area": 111006,
+      "selected_component_bbox": [
+        96,
+        30,
+        441,
+        508
+      ],
+      "crop_bbox": [
+        96,
+        30,
+        441,
+        508
+      ],
+      "edge_touch": false,
+      "output_size": [
+        82,
+        114
+      ],
+      "paste_position": [
+        23,
+        8
+      ]
+    }
+  ],
+  "edge_touch_frames": []
+}

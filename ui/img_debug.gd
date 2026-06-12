@@ -11,6 +11,8 @@ const _SPRITES: Array = [
     {"char": "ZAEL", "anim": "RunShoot",  "path": "res://characters/ranged/ZaelRunShoot.png",  "frames": 9, "fps": 10.0},
     {"char": "ZAEL", "anim": "JumpShoot", "path": "res://characters/ranged/ZaelJumpShoot.png", "frames": 2, "fps": 10.0},
     {"char": "ZAEL", "anim": "DashShoot", "path": "res://characters/ranged/ZaelDashShoot.png", "frames": 2, "fps": 12.0},
+    # Kawagael (reskin do Zael) — corrida placeholder 5/8 frames. Atualizar "frames" p/ 8 ao completar f5-f7.
+    {"char": "KAWAGAEL", "anim": "Run",   "path": "res://characters/ranged/kawagael/KawagaelRun.png", "frames": 4, "fps": 10.0},
     {"char": "ZARA", "anim": "Walk",      "path": "res://characters/melee/ZaraAndando.png",    "frames": 5, "fps": 8.0},
     {"char": "ZARA", "anim": "Run",       "path": "res://characters/melee/ZaraCorrendo.png",   "frames": 3, "fps": 10.0},
     {"char": "MINIBOSS", "anim": "Walk",  "path": "res://characters/enemies/miniboss/miniboss_walk.png",  "frames": 6, "fps": 8.0,  "frame_w": 240},
@@ -18,6 +20,40 @@ const _SPRITES: Array = [
     {"char": "MINIBOSS", "anim": "Punch", "path": "res://characters/enemies/miniboss/miniboss_punch.png", "frames": 9, "fps": 12.0, "frame_w": 240, "label": "Punch (novo gif)"},
     {"char": "MINIBOSS", "anim": "Stomp",  "path": "res://characters/enemies/miniboss/miniboss_stomp.png",  "frames": 9, "fps": 12.0, "frame_w": 240},
     {"char": "MINIBOSS", "anim": "Charge", "path": "res://characters/enemies/miniboss/miniboss_charge.png", "frames": 8, "fps": 10.0, "frame_w": 240},
+]
+
+const _HITBOX_ENTITIES: Array = [
+    {"name": "Zael", "path": "res://characters/ranged/zael.tscn", "group": "Personagens", "kind": "Personagens", "stage": ""},
+    {"name": "Kawagael", "path": "res://characters/ranged/kawagael/kawagael.tscn", "group": "Personagens", "kind": "Personagens", "stage": ""},
+    {"name": "Zara", "path": "res://characters/melee/zara.tscn", "group": "Personagens", "kind": "Personagens", "stage": ""},
+    {"name": "Enemy Base", "path": "res://characters/enemies/enemy_base.tscn", "group": "Inimigos", "kind": "Inimigos", "stage": "Stage 00"},
+    {"name": "Enemy Flyer", "path": "res://characters/enemies/enemy_flyer.tscn", "group": "Inimigos", "kind": "Inimigos", "stage": "Stage 00"},
+    {"name": "Enemy Miniboss", "path": "res://characters/enemies/enemy_miniboss.tscn", "group": "Bosses", "kind": "Inimigos", "stage": "Stage 00"},
+    {"name": "Intro Boss", "path": "res://characters/bosses/intro_boss.tscn", "group": "Bosses", "kind": "Inimigos", "stage": "Stage 00"},
+    {"name": "Ice Grunt", "path": "res://characters/enemies/stage_02/enemy_ice_grunt.tscn", "group": "Inimigos", "kind": "Inimigos", "stage": "Stage 02"},
+    {"name": "Ice Flyer", "path": "res://characters/enemies/stage_02/enemy_ice_flyer.tscn", "group": "Inimigos", "kind": "Inimigos", "stage": "Stage 02"},
+    {"name": "Ice Archer", "path": "res://characters/enemies/stage_02/enemy_ice_archer.tscn", "group": "Inimigos", "kind": "Inimigos", "stage": "Stage 02"},
+    {"name": "Frost Turret", "path": "res://characters/enemies/stage_02/enemy_frost_turret.tscn", "group": "Inimigos", "kind": "Inimigos", "stage": "Stage 02"},
+    {"name": "Cryo Bomber", "path": "res://characters/enemies/stage_02/enemy_cryo_bomber.tscn", "group": "Inimigos", "kind": "Inimigos", "stage": "Stage 02"},
+    {"name": "Glacier Shield", "path": "res://characters/enemies/stage_02/enemy_glacier_shield.tscn", "group": "Inimigos", "kind": "Inimigos", "stage": "Stage 02"},
+    {"name": "Ice Wisp", "path": "res://characters/enemies/stage_02/enemy_ice_wisp.tscn", "group": "Inimigos", "kind": "Inimigos", "stage": "Stage 02"},
+    {"name": "Ice Miniboss", "path": "res://characters/enemies/stage_02/enemy_ice_miniboss.tscn", "group": "Bosses", "kind": "Inimigos", "stage": "Stage 02"},
+    {"name": "Cryovex", "path": "res://characters/bosses/cryovex.tscn", "group": "Bosses", "kind": "Inimigos", "stage": "Stage 02"},
+    {"name": "Boss Base", "path": "res://characters/bosses/boss_base.tscn", "group": "Bosses", "kind": "Bosses", "stage": ""},
+    {"name": "Intro Boss", "path": "res://characters/bosses/intro_boss.tscn", "group": "Bosses", "kind": "Bosses", "stage": "Stage 00"},
+    {"name": "Cryovex", "path": "res://characters/bosses/cryovex.tscn", "group": "Bosses", "kind": "Bosses", "stage": "Stage 02"},
+    {"name": "Galerix", "path": "res://characters/bosses/galerix.tscn", "group": "Bosses", "kind": "Bosses", "stage": ""},
+    {"name": "Gravitus", "path": "res://characters/bosses/gravitus.tscn", "group": "Bosses", "kind": "Bosses", "stage": ""},
+    {"name": "Ignarath", "path": "res://characters/bosses/ignarath.tscn", "group": "Bosses", "kind": "Bosses", "stage": ""},
+    {"name": "Luxar", "path": "res://characters/bosses/luxar.tscn", "group": "Bosses", "kind": "Bosses", "stage": ""},
+    {"name": "Nullvex", "path": "res://characters/bosses/nullvex.tscn", "group": "Bosses", "kind": "Bosses", "stage": ""},
+    {"name": "Terragor", "path": "res://characters/bosses/terragor.tscn", "group": "Bosses", "kind": "Bosses", "stage": ""},
+    {"name": "Umbraex", "path": "res://characters/bosses/umbraex.tscn", "group": "Bosses", "kind": "Bosses", "stage": ""},
+    {"name": "Voltrix", "path": "res://characters/bosses/voltrix.tscn", "group": "Bosses", "kind": "Bosses", "stage": ""},
+    {"name": "Zael Bullet", "path": "res://characters/ranged/zael_bullet.tscn", "group": "Projeteis", "kind": "Projeteis", "stage": ""},
+    {"name": "Boss Projectile", "path": "res://characters/bosses/boss_projectile.tscn", "group": "Projeteis", "kind": "Projeteis", "stage": ""},
+    {"name": "Ice Projectile", "path": "res://characters/enemies/stage_02/enemy_ice_projectile.tscn", "group": "Projeteis", "kind": "Projeteis", "stage": "Stage 02"},
+    {"name": "Zara Hitbox", "path": "res://characters/melee/zara_hitbox.tscn", "group": "Projeteis", "kind": "Projeteis", "stage": ""},
 ]
 
 const _TILESETS: Array = [
@@ -1077,20 +1113,666 @@ class _FillCeilWorld extends Node2D:
                 draw_line(pos + Vector2(-r, -hs), pos + Vector2(-r, hs), hcol, 2.0)
                 draw_line(pos + Vector2( r, -hs), pos + Vector2( r, hs), hcol, 2.0)
 
+class _HitboxOverlay extends Node2D:
+    const _TILE_SRC := 32.0
+    const _TILE_DRAW := 64.0
+
+    var floor_tex: Texture2D = null
+    var floor_body_rows: int = 1
+    var ground_y: float = 300.0
+    var shape_infos: Array = []
+    var projectile_preview: Dictionary = {}
+    var show_labels: bool = true
+    var show_floor: bool = true
+    var show_hitboxes: bool = true
+
+    func _draw() -> void:
+        if show_floor:
+            _draw_floor()
+        if not show_hitboxes:
+            return
+        draw_line(Vector2(0.0, ground_y), Vector2(900.0, ground_y), Color(1.0, 0.9, 0.0, 0.9), 2.0)
+        for info: Dictionary in shape_infos:
+            var cs := info.node as CollisionShape2D
+            if cs == null or cs.shape == null:
+                continue
+            var color := _shape_color(String(info.path))
+            _draw_shape(cs, color)
+            if show_labels:
+                draw_string(ThemeDB.fallback_font, cs.global_position + Vector2(8.0, -8.0), String(info.path), HORIZONTAL_ALIGNMENT_LEFT, -1.0, 13.0, color)
+        _draw_projectile_preview()
+
+    func _shape_color(path: String) -> Color:
+        if path.contains("ContactZone"):
+            return Color(0.2, 0.9, 1.0, 0.95)
+        if path.contains("BodyHurtbox") or path.contains("Head"):
+            return Color(1.0, 0.45, 0.95, 0.95)
+        if path.contains("PunchZone"):
+            return Color(1.0, 0.55, 0.2, 0.95)
+        return Color(1.0, 0.9, 0.0, 0.95)
+
+    func _draw_shape(cs: CollisionShape2D, color: Color) -> void:
+        var shape := cs.shape
+        var pos := cs.global_position
+        var fill := Color(color.r, color.g, color.b, 0.16)
+        if shape is RectangleShape2D:
+            var size := (shape as RectangleShape2D).size
+            var rect := Rect2(pos - size * 0.5, size)
+            draw_rect(rect, fill, true)
+            draw_rect(rect, color, false, 2.0)
+        elif shape is CircleShape2D:
+            var radius := (shape as CircleShape2D).radius
+            draw_circle(pos, radius, fill)
+            draw_arc(pos, radius, 0.0, TAU, 48, color, 2.0)
+        elif shape is CapsuleShape2D:
+            var cap := shape as CapsuleShape2D
+            var r := cap.radius
+            var half_segment := maxf(0.0, (cap.height - 2.0 * r) * 0.5)
+            draw_rect(Rect2(pos + Vector2(-r, -half_segment), Vector2(r * 2.0, half_segment * 2.0)), fill, true)
+            draw_circle(pos + Vector2(0.0, -half_segment), r, fill)
+            draw_circle(pos + Vector2(0.0, half_segment), r, fill)
+            draw_arc(pos + Vector2(0.0, -half_segment), r, PI, TAU, 32, color, 2.0)
+            draw_arc(pos + Vector2(0.0, half_segment), r, 0.0, PI, 32, color, 2.0)
+            draw_line(pos + Vector2(-r, -half_segment), pos + Vector2(-r, half_segment), color, 2.0)
+            draw_line(pos + Vector2(r, -half_segment), pos + Vector2(r, half_segment), color, 2.0)
+        else:
+            draw_circle(pos, 6.0, color)
+
+    func _draw_projectile_preview() -> void:
+        if projectile_preview.is_empty() or not bool(projectile_preview.get("visible", false)):
+            return
+        var pos := projectile_preview.get("position", Vector2.ZERO) as Vector2
+        var variant := String(projectile_preview.get("variant", "ice_ball"))
+        var parabolic := bool(projectile_preview.get("parabolic", false))
+        var color := Color(1.0, 0.48, 0.12, 0.95)
+        if parabolic:
+            var points := PackedVector2Array([
+                pos,
+                pos + Vector2(52.0, -60.0),
+                pos + Vector2(112.0, -72.0),
+                pos + Vector2(176.0, 10.0),
+            ])
+            for i in range(points.size() - 1):
+                draw_line(points[i], points[i + 1], Color(1.0, 0.48, 0.12, 0.72), 2.0)
+            draw_circle(pos + Vector2(52.0, -60.0), 4.0, Color(1.0, 0.72, 0.32, 0.75))
+            draw_circle(pos + Vector2(112.0, -72.0), 4.0, Color(1.0, 0.72, 0.32, 0.55))
+        match variant:
+            "ice_arrow":
+                draw_polygon(
+                    PackedVector2Array([pos + Vector2(17, 0), pos + Vector2(3, -6), pos + Vector2(-17, -4), pos + Vector2(-10, 0), pos + Vector2(-17, 4), pos + Vector2(3, 6)]),
+                    PackedColorArray([Color(0.65, 1.0, 1.0), Color(0.35, 0.78, 1.0), Color(0.18, 0.45, 0.9), Color(0.5, 0.9, 1.0), Color(0.18, 0.45, 0.9), Color(0.35, 0.78, 1.0)])
+                )
+                draw_rect(Rect2(pos - Vector2(17.0, 5.0), Vector2(34.0, 10.0)), Color(1.0, 0.48, 0.12, 0.18), true)
+                draw_rect(Rect2(pos - Vector2(17.0, 5.0), Vector2(34.0, 10.0)), color, false, 2.0)
+            "ice_cannonball":
+                draw_circle(pos, 12.0, Color(0.35, 0.82, 1.0, 0.35))
+                draw_arc(pos, 12.0, 0.0, TAU, 32, color, 2.0)
+            "eye_beam":
+                draw_rect(Rect2(pos + Vector2(-4.0, -6.0), Vector2(42.0, 12.0)), Color(0.38, 0.95, 1.0, 0.35), true)
+                draw_rect(Rect2(pos + Vector2(-4.0, -6.0), Vector2(42.0, 12.0)), color, false, 2.0)
+            _:
+                draw_circle(pos, 9.0, Color(0.55, 0.92, 1.0, 0.35))
+                draw_arc(pos, 9.0, 0.0, TAU, 32, color, 2.0)
+
+    func _draw_floor() -> void:
+        if floor_tex == null:
+            draw_rect(Rect2(0.0, ground_y, 900.0, 160.0), Color(0.16, 0.2, 0.24))
+            return
+        var top_src := Rect2(3.0 * _TILE_SRC, 0.0, _TILE_SRC, _TILE_SRC)
+        var fill_src := Rect2(2.0 * _TILE_SRC, 1.0 * _TILE_SRC, _TILE_SRC, _TILE_SRC)
+        var x := -_TILE_DRAW
+        while x < 900.0 + _TILE_DRAW:
+            draw_texture_rect_region(floor_tex, Rect2(x, ground_y - _TILE_DRAW * 0.5, _TILE_DRAW, _TILE_DRAW), top_src)
+            for row in range(floor_body_rows):
+                draw_texture_rect_region(floor_tex, Rect2(x, ground_y + _TILE_DRAW * (0.5 + float(row)), _TILE_DRAW, _TILE_DRAW), fill_src)
+            x += _TILE_DRAW
+
+class _HitboxView extends Control:
+    const _VIEW_SIZE := Vector2(900.0, 460.0)
+    const _ENTITY_POS := Vector2(450.0, 300.0)
+    const _CAMERA_ZOOM := Vector2(2.0, 2.0)
+    const _CAMERA_OFFSET_Y := 24.0
+    const _PROJECTILE_DEFS := {
+        "Ice Archer": {"label": "Ice Arrow", "variant": "ice_arrow", "release_frame": 4, "offset": Vector2(52.0, -82.0), "parabolic": false},
+        "Frost Turret": {"label": "Ice Cannonball", "variant": "ice_cannonball", "release_frame": 3, "offset": Vector2(32.0, 0.0), "parabolic": false},
+        "Cryo Bomber": {"label": "Ice Ball", "variant": "ice_ball", "release_frame": 3, "offset": Vector2(16.0, -56.0), "parabolic": true},
+        "Glacier Shield": {"label": "Eye Beam", "variant": "eye_beam", "release_frame": 2, "offset": Vector2(34.0, -18.0), "parabolic": false},
+    }
+
+    var _current_index: int = 0
+    var _current_instance: Node2D = null
+    var _shape_infos: Array = []
+    var _filter_group: String = "Todos"
+    var _selected_stage: String = ""
+    var _selected_frame: int = 0
+    var _frame_count: int = 1
+    var _show_sprite: bool = true
+    var _show_labels: bool = true
+    var _viewport: SubViewport = null
+    var _scene_root: Node2D = null
+    var _camera: Camera2D = null
+    var _world_root: Node2D = null
+    var _overlay: _HitboxOverlay = null
+    var _floor_overlay: _HitboxOverlay = null
+    var _shape_overlay: _HitboxOverlay = null
+    var _name_label: Label = null
+    var _meta_label: Label = null
+    var _sprite_btn: Button = null
+    var _labels_btn: Button = null
+    var _type_row: HBoxContainer = null
+    var _stage_row: HBoxContainer = null
+    var _entity_row: HBoxContainer = null
+    var _frame_row: HBoxContainer = null
+    var _projectile_row: HBoxContainer = null
+    var _projectile_label: Label = null
+    var _current_projectile_info: Dictionary = {}
+
+    func _ready() -> void:
+        _build()
+        _select_index(0)
+
+    func _build() -> void:
+        var root := VBoxContainer.new()
+        root.add_theme_constant_override("separation", 8)
+        root.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+        root.size_flags_vertical = Control.SIZE_EXPAND_FILL
+        add_child(root)
+
+        _type_row = HBoxContainer.new()
+        _type_row.add_theme_constant_override("separation", 6)
+        root.add_child(_type_row)
+        for group_name in ["Todos", "Personagens", "Inimigos", "Bosses", "Projeteis"]:
+            _type_row.add_child(_make_button(group_name, _set_filter.bind(group_name)))
+
+        _stage_row = HBoxContainer.new()
+        _stage_row.add_theme_constant_override("separation", 6)
+        root.add_child(_stage_row)
+
+        _entity_row = HBoxContainer.new()
+        _entity_row.add_theme_constant_override("separation", 6)
+        root.add_child(_entity_row)
+
+        _frame_row = HBoxContainer.new()
+        _frame_row.add_theme_constant_override("separation", 6)
+        root.add_child(_frame_row)
+
+        _projectile_row = HBoxContainer.new()
+        _projectile_row.add_theme_constant_override("separation", 6)
+        root.add_child(_projectile_row)
+
+        var toolbar := HBoxContainer.new()
+        toolbar.add_theme_constant_override("separation", 6)
+        root.add_child(toolbar)
+        _sprite_btn = _make_button("Sprite ON", _toggle_sprite)
+        toolbar.add_child(_sprite_btn)
+        _labels_btn = _make_button("Labels ON", _toggle_labels)
+        toolbar.add_child(_labels_btn)
+
+        var row := HBoxContainer.new()
+        row.add_theme_constant_override("separation", 16)
+        row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+        row.size_flags_vertical = Control.SIZE_EXPAND_FILL
+        root.add_child(row)
+
+        var viewport_container := SubViewportContainer.new()
+        viewport_container.custom_minimum_size = _VIEW_SIZE
+        viewport_container.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+        viewport_container.size_flags_vertical = Control.SIZE_EXPAND_FILL
+        row.add_child(viewport_container)
+
+        _viewport = SubViewport.new()
+        _viewport.size = Vector2i(int(_VIEW_SIZE.x), int(_VIEW_SIZE.y))
+        _viewport.transparent_bg = false
+        _viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
+        viewport_container.add_child(_viewport)
+
+        var bg := ColorRect.new()
+        bg.color = Color(0.06, 0.07, 0.14)
+        bg.size = _VIEW_SIZE
+        _viewport.add_child(bg)
+        _scene_root = Node2D.new()
+        _viewport.add_child(_scene_root)
+        _camera = Camera2D.new()
+        _camera.position = _ENTITY_POS + Vector2(0.0, _CAMERA_OFFSET_Y)
+        _camera.zoom = _CAMERA_ZOOM
+        _camera.position_smoothing_enabled = false
+        _camera.process_callback = Camera2D.CAMERA2D_PROCESS_IDLE
+        _scene_root.add_child(_camera)
+        _camera.call_deferred("make_current")
+        _floor_overlay = _HitboxOverlay.new()
+        _floor_overlay.floor_tex = load("res://stages/stage_00/Stage_00T.png") as Texture2D
+        _floor_overlay.ground_y = _ENTITY_POS.y
+        _floor_overlay.show_hitboxes = false
+        _floor_overlay.z_index = 0
+        _scene_root.add_child(_floor_overlay)
+        _world_root = Node2D.new()
+        _world_root.z_index = 1
+        _scene_root.add_child(_world_root)
+        _shape_overlay = _HitboxOverlay.new()
+        _shape_overlay.ground_y = _ENTITY_POS.y
+        _shape_overlay.show_floor = false
+        _shape_overlay.z_index = 2
+        _scene_root.add_child(_shape_overlay)
+        _overlay = _floor_overlay
+
+        var info_col := VBoxContainer.new()
+        info_col.custom_minimum_size.x = 360.0
+        info_col.size_flags_vertical = Control.SIZE_EXPAND_FILL
+        info_col.add_theme_constant_override("separation", 8)
+        row.add_child(info_col)
+
+        _name_label = Label.new()
+        _name_label.add_theme_font_size_override("font_size", 24)
+        _name_label.add_theme_color_override("font_color", Color(0.9, 0.9, 0.3))
+        info_col.add_child(_name_label)
+
+        _meta_label = Label.new()
+        _meta_label.add_theme_font_size_override("font_size", 16)
+        _meta_label.add_theme_color_override("font_color", Color(0.82, 0.82, 0.86))
+        _meta_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+        info_col.add_child(_meta_label)
+        _refresh_hierarchy_rows()
+
+    func _find_first_group(group_name: String) -> int:
+        for i in ImgDebug._HITBOX_ENTITIES.size():
+            if String(ImgDebug._HITBOX_ENTITIES[i].group) == group_name:
+                return i
+        return -1
+
+    func _select_index(index: int) -> void:
+        if ImgDebug._HITBOX_ENTITIES.is_empty():
+            return
+        _current_index = wrapi(index, 0, ImgDebug._HITBOX_ENTITIES.size())
+        var entry: Dictionary = ImgDebug._HITBOX_ENTITIES[_current_index]
+        _clear_current()
+        var scene := load(String(entry.path)) as PackedScene
+        if scene == null:
+            _set_meta(entry, ["Cena nao carregou"])
+            return
+        var inst := scene.instantiate()
+        if inst is Node2D:
+            _current_instance = inst as Node2D
+        else:
+            _current_instance = Node2D.new()
+            _current_instance.add_child(inst)
+        _current_instance.position = _ENTITY_POS
+        _world_root.add_child(_current_instance)
+        _set_sprites_visible(_current_instance, _show_sprite)
+        _selected_frame = mini(_selected_frame, max(0, _detect_frame_count(_current_instance) - 1))
+        _apply_selected_frame()
+        _shape_infos = _collect_shapes(_current_instance)
+        _align_current_to_floor()
+        _freeze_node_tree(_current_instance)
+        _apply_selected_frame()
+        _shape_infos = _collect_shapes(_current_instance)
+        if _shape_overlay != null:
+            _shape_overlay.shape_infos = _shape_infos
+            _shape_overlay.show_labels = _show_labels
+            _shape_overlay.queue_redraw()
+        _set_meta(entry, _shape_infos)
+        _refresh_frame_row()
+        _refresh_projectile_row()
+
+    func _clear_current() -> void:
+        _shape_infos.clear()
+        if is_instance_valid(_current_instance):
+            _current_instance.queue_free()
+        _current_instance = null
+
+    func _collect_shapes(root: Node) -> Array:
+        var found: Array = []
+        _collect_shapes_into(root, found)
+        return found
+
+    func _collect_shapes_into(node: Node, found: Array) -> void:
+        if node is CollisionShape2D:
+            var cs := node as CollisionShape2D
+            found.append({
+                "path": String(_current_instance.get_path_to(cs)) if _current_instance != null else cs.name,
+                "node": cs,
+                "summary": _shape_summary(cs.shape),
+            })
+        for child in node.get_children():
+            _collect_shapes_into(child, found)
+
+    func _shape_summary(shape: Shape2D) -> String:
+        if shape == null:
+            return "sem shape"
+        if shape is RectangleShape2D:
+            return "Rectangle size=" + str((shape as RectangleShape2D).size)
+        if shape is CapsuleShape2D:
+            var cap := shape as CapsuleShape2D
+            return "Capsule radius=%.1f height=%.1f" % [cap.radius, cap.height]
+        if shape is CircleShape2D:
+            return "Circle radius=%.1f" % [(shape as CircleShape2D).radius]
+        return shape.get_class()
+
+    func _align_current_to_floor() -> void:
+        if _current_instance == null or _overlay == null or _shape_infos.is_empty():
+            return
+        var bottom := -INF
+        for info: Dictionary in _shape_infos:
+            var cs := info.node as CollisionShape2D
+            if cs != null:
+                bottom = maxf(bottom, _collision_shape_bottom(cs))
+        if bottom > -INF:
+            _current_instance.position.y += _overlay.ground_y - bottom
+
+    func _collision_shape_bottom(cs: CollisionShape2D) -> float:
+        if cs.shape is RectangleShape2D:
+            return cs.global_position.y + (cs.shape as RectangleShape2D).size.y * 0.5
+        if cs.shape is CircleShape2D:
+            return cs.global_position.y + (cs.shape as CircleShape2D).radius
+        if cs.shape is CapsuleShape2D:
+            return cs.global_position.y + (cs.shape as CapsuleShape2D).height * 0.5
+        return cs.global_position.y
+
+    func _freeze_node_tree(node: Node) -> void:
+        if node == null:
+            return
+        node.set_process(false)
+        node.set_physics_process(false)
+        node.set_process_input(false)
+        node.set_process_unhandled_input(false)
+        node.process_mode = Node.PROCESS_MODE_DISABLED
+        if node is CharacterBody2D:
+            (node as CharacterBody2D).velocity = Vector2.ZERO
+        for child in node.get_children():
+            _freeze_node_tree(child)
+
+    func _set_meta(entry: Dictionary, infos: Array) -> void:
+        if _name_label != null:
+            _name_label.text = String(entry.name)
+        if _meta_label == null:
+            return
+        var lines: Array[String] = [
+            "Grupo: " + String(entry.group),
+            "Cena: " + String(entry.path),
+            "Shapes: " + str(infos.size()),
+        ]
+        for info in infos:
+            if info is Dictionary:
+                lines.append("%s | %s" % [String(info.path), String(info.summary)])
+            else:
+                lines.append(String(info))
+        _meta_label.text = "\n".join(lines)
+
+    func _make_button(text: String, callback: Callable) -> Button:
+        var btn := Button.new()
+        btn.text = text
+        btn.add_theme_font_size_override("font_size", 22)
+        btn.pressed.connect(callback)
+        return btn
+
+    func _clear_container(container: Container) -> void:
+        if container == null:
+            return
+        for child in container.get_children():
+            container.remove_child(child)
+            child.free()
+
+    func _on_prev() -> void:
+        _step_filtered(-1)
+
+    func _on_next() -> void:
+        _step_filtered(1)
+
+    func _set_filter(group_name: String) -> void:
+        _filter_group = group_name
+        _selected_stage = _first_stage_for_filter()
+        _selected_frame = 0
+        _refresh_hierarchy_rows()
+        var first := _first_filtered_index()
+        if first >= 0:
+            _select_index(first)
+
+    func _set_stage(stage_name: String) -> void:
+        _selected_stage = stage_name
+        _selected_frame = 0
+        _refresh_hierarchy_rows()
+        var first := _first_filtered_index()
+        if first >= 0:
+            _select_index(first)
+
+    func _select_entity_by_name(entity_name: String) -> void:
+        for i in ImgDebug._HITBOX_ENTITIES.size():
+            var entry: Dictionary = ImgDebug._HITBOX_ENTITIES[i]
+            if String(entry.name) == entity_name and _entry_matches_filter(entry):
+                _selected_frame = 0
+                _select_index(i)
+                return
+
+    func _refresh_hierarchy_rows() -> void:
+        _refresh_stage_row()
+        _refresh_entity_row()
+
+    func _refresh_stage_row() -> void:
+        _clear_container(_stage_row)
+        if _filter_group != "Inimigos":
+            return
+        var stages: Array[String] = []
+        for entry in ImgDebug._HITBOX_ENTITIES:
+            if not _entry_matches_kind(entry):
+                continue
+            var stage := String(entry.stage)
+            if stage != "" and not stages.has(stage):
+                stages.append(stage)
+        stages.sort()
+        if _selected_stage == "" and not stages.is_empty():
+            _selected_stage = stages[0]
+        for stage in stages:
+            _stage_row.add_child(_make_button(stage, _set_stage.bind(stage)))
+
+    func _refresh_entity_row() -> void:
+        _clear_container(_entity_row)
+        for i in ImgDebug._HITBOX_ENTITIES.size():
+            var entry: Dictionary = ImgDebug._HITBOX_ENTITIES[i]
+            if _entry_matches_filter(entry):
+                _entity_row.add_child(_make_button(String(entry.name), _select_index.bind(i)))
+
+    func _first_stage_for_filter() -> String:
+        if _filter_group != "Inimigos":
+            return ""
+        for entry in ImgDebug._HITBOX_ENTITIES:
+            if _entry_matches_kind(entry) and String(entry.stage) != "":
+                return String(entry.stage)
+        return ""
+
+    func _entry_matches_kind(entry: Dictionary) -> bool:
+        return _filter_group == "Todos" or String(entry.kind) == _filter_group
+
+    func _toggle_sprite() -> void:
+        _show_sprite = not _show_sprite
+        if _sprite_btn != null:
+            _sprite_btn.text = "Sprite ON" if _show_sprite else "Sprite OFF"
+        _set_sprites_visible(_current_instance, _show_sprite)
+
+    func _toggle_labels() -> void:
+        _show_labels = not _show_labels
+        if _labels_btn != null:
+            _labels_btn.text = "Labels ON" if _show_labels else "Labels OFF"
+        if _shape_overlay != null:
+            _shape_overlay.show_labels = _show_labels
+            _shape_overlay.queue_redraw()
+
+    func _first_filtered_index() -> int:
+        for i in ImgDebug._HITBOX_ENTITIES.size():
+            if _entry_matches_filter(ImgDebug._HITBOX_ENTITIES[i]):
+                return i
+        return -1
+
+    func _step_filtered(direction: int) -> void:
+        if ImgDebug._HITBOX_ENTITIES.is_empty():
+            return
+        var idx := _current_index
+        for _i in ImgDebug._HITBOX_ENTITIES.size():
+            idx = wrapi(idx + direction, 0, ImgDebug._HITBOX_ENTITIES.size())
+            if _entry_matches_filter(ImgDebug._HITBOX_ENTITIES[idx]):
+                _select_index(idx)
+                return
+
+    func _entry_matches_filter(entry: Dictionary) -> bool:
+        if not _entry_matches_kind(entry):
+            return false
+        if _filter_group == "Inimigos" and _selected_stage != "":
+            return String(entry.stage) == _selected_stage
+        return true
+
+    func _set_sprites_visible(node: Node, visible: bool) -> void:
+        if node == null:
+            return
+        if node is Sprite2D or node is AnimatedSprite2D:
+            (node as CanvasItem).visible = visible
+        for child in node.get_children():
+            _set_sprites_visible(child, visible)
+
+    func _refresh_frame_row() -> void:
+        _clear_container(_frame_row)
+        _frame_count = _detect_frame_count(_current_instance)
+        for i in _frame_count:
+            _frame_row.add_child(_make_button("Frame " + str(i + 1), _select_frame.bind(i)))
+
+    func _detect_frame_count(node: Node) -> int:
+        var sprite := _find_sprite2d(node)
+        if sprite != null:
+            return max(1, sprite.hframes * sprite.vframes)
+        var animated := _find_animated_sprite2d(node)
+        if animated != null and animated.sprite_frames != null and animated.animation != "":
+            return max(1, animated.sprite_frames.get_frame_count(animated.animation))
+        return 1
+
+    func _select_frame(frame_index: int) -> void:
+        _selected_frame = clampi(frame_index, 0, max(0, _frame_count - 1))
+        _apply_selected_frame()
+        _shape_infos = _collect_shapes(_current_instance)
+        if _shape_overlay != null:
+            _shape_overlay.shape_infos = _shape_infos
+            _shape_overlay.queue_redraw()
+        if _current_index >= 0 and _current_index < ImgDebug._HITBOX_ENTITIES.size():
+            _set_meta(ImgDebug._HITBOX_ENTITIES[_current_index], _shape_infos)
+        _refresh_projectile_row()
+
+    func _apply_selected_frame() -> void:
+        if _current_instance == null:
+            return
+        var sprite := _find_sprite2d(_current_instance)
+        if sprite != null:
+            sprite.frame = clampi(_selected_frame, 0, max(0, sprite.hframes * sprite.vframes - 1))
+        var animated := _find_animated_sprite2d(_current_instance)
+        if animated != null:
+            animated.frame = clampi(_selected_frame, 0, max(0, _detect_frame_count(_current_instance) - 1))
+        _apply_hitbox_frame_state()
+
+    func _apply_hitbox_frame_state() -> void:
+        if _current_instance == null:
+            return
+        if _current_instance.name == "EnemyGlacierShield":
+            var barrier := _current_instance.get_node_or_null("ShieldBarrier") as Area2D
+            if barrier != null:
+                match _selected_frame:
+                    1:
+                        barrier.position = Vector2(38.0, -52.0)
+                    2:
+                        barrier.position = Vector2(38.0, -40.0)
+                    _:
+                        barrier.position = Vector2(38.0, -56.0)
+
+    func _refresh_projectile_row() -> void:
+        _clear_container(_projectile_row)
+        _current_projectile_info = {}
+        if _shape_overlay != null:
+            _shape_overlay.projectile_preview = {}
+            _shape_overlay.queue_redraw()
+        if _current_index < 0 or _current_index >= ImgDebug._HITBOX_ENTITIES.size():
+            return
+        var entry: Dictionary = ImgDebug._HITBOX_ENTITIES[_current_index]
+        var def_value = _PROJECTILE_DEFS.get(String(entry.name))
+        if not (def_value is Dictionary):
+            if _projectile_row != null:
+                _projectile_row.visible = false
+            return
+        var projectile_def := (def_value as Dictionary).duplicate()
+        var release_frame := int(projectile_def.release_frame)
+        var is_release := _selected_frame == release_frame
+        projectile_def["visible"] = is_release
+        projectile_def["position"] = _projectile_spawn_position(projectile_def.get("offset", Vector2.ZERO) as Vector2)
+        _current_projectile_info = projectile_def
+        if _projectile_row != null:
+            _projectile_row.visible = true
+            var title := Label.new()
+            title.text = "Projetil:"
+            title.add_theme_font_size_override("font_size", 18)
+            _projectile_row.add_child(title)
+            _projectile_label = Label.new()
+            _projectile_label.text = "%s no Frame %d%s" % [
+                String(projectile_def.label),
+                release_frame + 1,
+                " (visivel)" if is_release else "",
+            ]
+            _projectile_label.add_theme_font_size_override("font_size", 18)
+            _projectile_label.add_theme_color_override("font_color", Color(1.0, 0.72, 0.32) if is_release else Color(0.82, 0.82, 0.86))
+            _projectile_row.add_child(_projectile_label)
+        if _shape_overlay != null:
+            _shape_overlay.projectile_preview = projectile_def
+            _shape_overlay.queue_redraw()
+
+    func _projectile_spawn_position(offset: Vector2) -> Vector2:
+        if _current_instance == null:
+            return _ENTITY_POS + offset
+        return _current_instance.global_position + offset
+
+    func _find_sprite2d(node: Node) -> Sprite2D:
+        if node is Sprite2D:
+            return node as Sprite2D
+        if node == null:
+            return null
+        for child in node.get_children():
+            var found := _find_sprite2d(child)
+            if found != null:
+                return found
+        return null
+
+    func _find_animated_sprite2d(node: Node) -> AnimatedSprite2D:
+        if node is AnimatedSprite2D:
+            return node as AnimatedSprite2D
+        if node == null:
+            return null
+        for child in node.get_children():
+            var found := _find_animated_sprite2d(child)
+            if found != null:
+                return found
+        return null
+
 # Arena jogável: SubViewport com Zael, inimigo, física e câmera
 class _MovView extends Control:
-    const _PLAYER_PATH := "res://characters/ranged/zael.tscn"
+    const _PLAYER_PATHS := [
+        "res://characters/ranged/zael.tscn",
+        "res://characters/ranged/kawagael/kawagael.tscn",
+    ]
+    const _PLAYER_NAMES := ["Zael", "Kawagael"]
     const _ENEMY_PATHS := [
         "res://characters/enemies/enemy_base.tscn",
         "res://characters/enemies/enemy_flyer.tscn",
+        "res://characters/enemies/stage_02/enemy_ice_grunt.tscn",
+        "res://characters/enemies/stage_02/enemy_ice_flyer.tscn",
+        "res://characters/enemies/stage_02/enemy_ice_archer.tscn",
+        "res://characters/enemies/stage_02/enemy_frost_turret.tscn",
+        "res://characters/enemies/stage_02/enemy_cryo_bomber.tscn",
+        "res://characters/enemies/stage_02/enemy_glacier_shield.tscn",
+        "res://characters/enemies/stage_02/enemy_ice_wisp.tscn",
+        "res://characters/enemies/stage_02/enemy_ice_miniboss.tscn",
         "res://characters/enemies/enemy_miniboss.tscn",
         "res://characters/bosses/intro_boss.tscn",
     ]
-    const _ENEMY_NAMES := ["Grunt", "Flyer", "MiniBoss", "IntroBoss"]
+    const _ENEMY_NAMES := [
+        "Grunt", "Flyer",
+        "Ice Grunt", "Ice Flyer", "Ice Archer", "Frost Turret", "Cryo Bomber", "Glacier Shield", "Ice Wisp", "Ice MiniBoss",
+        "MiniBoss", "IntroBoss",
+    ]
     const _GROUND_Y    := 16.0
     const _PLAYER_X    := 280.0
     const _ENEMY_X     := 680.0
-    const _ENEMY_Y     := [-40.0, -100.0, 3.0, -24.0]
+    const _ENEMY_Y     := [-40.0, -100.0, -40.0, -100.0, -40.0, -40.0, -42.0, -42.0, -125.0, 3.0, 3.0, -24.0]
     const _WALL_L      := 100.0
     const _WALL_R      := 1820.0
     const _GWL         := 480.0
@@ -1101,8 +1783,10 @@ class _MovView extends Control:
     var _player: CharacterBase = null
     var _enemy: Node2D = null
     var _enemy_index: int = 0
+    var _player_index: int = 0
     var _camera: Camera2D = null
     var _world: Node2D = null
+    var label_player: Label = null     # definido externamente antes de add_child
     var label_enemy: Label = null      # definido externamente antes de add_child
     var label_move_btn: Button = null  # botão de toggle de movimento
     var attack_row: Control = null     # linha de botões de ataque do MiniBoss
@@ -1128,7 +1812,8 @@ class _MovView extends Control:
 
         var mw := ImgDebug._MovWorld.new()
         mw.tile_tex    = load("res://stages/stage_00/Stage_00T.png") as Texture2D
-        mw.glass_tex   = load("res://stages/stage_00/stage_00_glass.png") as Texture2D
+        if ResourceLoader.exists("res://stages/stage_00/stage_00_glass.png"):
+            mw.glass_tex = load("res://stages/stage_00/stage_00_glass.png") as Texture2D
         mw.ground_y    = _GROUND_Y
         mw.wall_l      = _WALL_L
         mw.wall_r      = _WALL_R
@@ -1186,7 +1871,7 @@ class _MovView extends Control:
     func _spawn_player() -> void:
         if is_instance_valid(_player):
             _player.queue_free()
-        var scene := load(_PLAYER_PATH) as PackedScene
+        var scene := load(_PLAYER_PATHS[_player_index]) as PackedScene
         if not scene:
             return
         _player = scene.instantiate() as CharacterBase
@@ -1240,6 +1925,20 @@ class _MovView extends Control:
         _update_move_btn()
         _update_attack_row()
 
+    func on_player_prev() -> void:
+        _player_index = (_player_index - 1 + _PLAYER_PATHS.size()) % _PLAYER_PATHS.size()
+        _spawn_player()
+        _update_player_label()
+
+    func on_player_next() -> void:
+        _player_index = (_player_index + 1) % _PLAYER_PATHS.size()
+        _spawn_player()
+        _update_player_label()
+
+    func _update_player_label() -> void:
+        if is_instance_valid(label_player):
+            label_player.text = _PLAYER_NAMES[_player_index]
+
     func on_toggle_movement() -> void:
         if not is_instance_valid(_enemy):
             return
@@ -1269,7 +1968,7 @@ class _MovView extends Control:
             moving = (_enemy as BossBase).state == BossBase.State.COMBAT
         else:
             moving = is_instance_valid(_enemy) and _enemy.is_physics_processing()
-        label_move_btn.text = "⏸ Parar" if moving else "▶ Mover"
+        label_move_btn.text = "Parar" if moving else "Mover"
 
     func _update_attack_row() -> void:
         if is_instance_valid(attack_row):
@@ -1350,7 +2049,8 @@ class _FillCeilView extends Control:
         ctr.add_child(svp)
         var mw := ImgDebug._FillCeilWorld.new()
         mw.tile_tex   = load("res://stages/stage_00/Stage_00T.png") as Texture2D
-        mw.glass_tex  = load("res://stages/stage_00/stage_00_glass.png") as Texture2D
+        if ResourceLoader.exists("res://stages/stage_00/stage_00_glass.png"):
+            mw.glass_tex = load("res://stages/stage_00/stage_00_glass.png") as Texture2D
         mw.fixed_mode = _fixed_mode
         mw.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
         svp.add_child(mw)
@@ -1476,6 +2176,8 @@ var _strip_frames: Array      = []
 var _sprites_box: VBoxContainer
 var _tiles_box: VBoxContainer
 var _moves_box: VBoxContainer
+var _hitboxes_box: VBoxContainer
+var _hitbox_view: _HitboxView
 var _anim_tabs_box: HBoxContainer
 var _preview_rect: TextureRect
 var _info_label: Label
@@ -1517,6 +2219,7 @@ func _show_section(section: String) -> void:
     _sprites_box.visible = (section == "SPRITES")
     _tiles_box.visible   = (section == "TILES")
     _moves_box.visible   = (section == "MOVIMENTOS")
+    _hitboxes_box.visible = (section == "HITBOXES")
     for s in _section_btns:
         _section_btns[s].modulate = Color(1, 1, 0) if s == section else Color(0.6, 0.6, 0.6)
 
@@ -1654,13 +2357,13 @@ func _build_ui() -> void:
 
     if OS.get_name() == "Web":
         var reload_btn := Button.new()
-        reload_btn.text = "↺ Hard Refresh"
+        reload_btn.text = "Hard Refresh"
         reload_btn.add_theme_font_size_override("font_size", 28)
         reload_btn.pressed.connect(func(): JavaScriptBridge.eval("location.reload(true)"))
         header.add_child(reload_btn)
 
     var close_btn := Button.new()
-    close_btn.text = "✕ Fechar"
+    close_btn.text = "X Fechar"
     close_btn.add_theme_font_size_override("font_size", 28)
     close_btn.pressed.connect(queue_free)
     header.add_child(close_btn)
@@ -1685,6 +2388,13 @@ func _build_ui() -> void:
     section_row.add_child(mov_btn)
     _section_btns["MOVIMENTOS"] = mov_btn
 
+    var hitbox_btn := Button.new()
+    hitbox_btn.text = "HITBOXES"
+    hitbox_btn.add_theme_font_size_override("font_size", 28)
+    hitbox_btn.pressed.connect(_show_section.bind("HITBOXES"))
+    section_row.add_child(hitbox_btn)
+    _section_btns["HITBOXES"] = hitbox_btn
+
     # SPRITES BOX
     _sprites_box = VBoxContainer.new()
     _sprites_box.add_theme_constant_override("separation", 8)
@@ -1694,7 +2404,7 @@ func _build_ui() -> void:
     char_row.add_theme_constant_override("separation", 6)
     _sprites_box.add_child(char_row)
 
-    for c in ["ZAEL", "ZARA", "MINIBOSS"]:
+    for c in ["ZAEL", "KAWAGAEL", "ZARA", "MINIBOSS"]:
         var btn := Button.new()
         btn.text = c
         btn.add_theme_font_size_override("font_size", 28)
@@ -1747,6 +2457,16 @@ func _build_ui() -> void:
     _moves_box.add_theme_constant_override("separation", 8)
     main.add_child(_moves_box)
 
+    # HITBOXES BOX
+    _hitboxes_box = VBoxContainer.new()
+    _hitboxes_box.add_theme_constant_override("separation", 8)
+    main.add_child(_hitboxes_box)
+    _hitbox_view = _HitboxView.new()
+    _hitbox_view.custom_minimum_size = Vector2(0.0, 520.0)
+    _hitbox_view.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+    _hitbox_view.size_flags_vertical = Control.SIZE_EXPAND_FILL
+    _hitboxes_box.add_child(_hitbox_view)
+
 func _build_moves_box() -> void:
     # ── Tab row ──────────────────────────────────────────────────────────────
     var tab_row := HBoxContainer.new()
@@ -1764,9 +2484,43 @@ func _build_moves_box() -> void:
     top_bar.add_theme_constant_override("separation", 8)
     mov_panel.add_child(top_bar)
 
+    var mview := _MovView.new()
+    mview.custom_minimum_size   = Vector2(0.0, 480.0)
+    mview.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+    mview.size_flags_vertical   = Control.SIZE_EXPAND_FILL
+
+    # ── Seletor de personagem do player (Zael / Kawagael) ──
+    var player_lbl := Label.new()
+    player_lbl.text = "Player:"
+    player_lbl.add_theme_font_size_override("font_size", 24)
+    player_lbl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+    top_bar.add_child(player_lbl)
+
+    var btn_pprev := Button.new()
+    btn_pprev.text = "<"
+    btn_pprev.add_theme_font_size_override("font_size", 24)
+    btn_pprev.pressed.connect(mview.on_player_prev)
+    top_bar.add_child(btn_pprev)
+
+    var lbl_pname := Label.new()
+    lbl_pname.custom_minimum_size.x = 120.0
+    lbl_pname.add_theme_font_size_override("font_size", 24)
+    lbl_pname.add_theme_color_override("font_color", Color(0.4, 1.0, 0.6))
+    lbl_pname.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+    lbl_pname.vertical_alignment   = VERTICAL_ALIGNMENT_CENTER
+    lbl_pname.text = "Zael"
+    top_bar.add_child(lbl_pname)
+    mview.label_player = lbl_pname
+
+    var btn_pnext := Button.new()
+    btn_pnext.text = ">"
+    btn_pnext.add_theme_font_size_override("font_size", 24)
+    btn_pnext.pressed.connect(mview.on_player_next)
+    top_bar.add_child(btn_pnext)
+
     var hint := Label.new()
-    hint.text = "A/D: mover  ·  Z: pular  ·  X: dash  ·  J: atirar"
-    hint.add_theme_font_size_override("font_size", 17)
+    hint.text = "A/D: mover - Z: pular - X: dash - J: atirar"
+    hint.add_theme_font_size_override("font_size", 18)
     hint.add_theme_color_override("font_color", Color(0.5, 0.5, 0.5))
     hint.size_flags_horizontal = Control.SIZE_EXPAND_FILL
     hint.vertical_alignment    = VERTICAL_ALIGNMENT_CENTER
@@ -1774,24 +2528,19 @@ func _build_moves_box() -> void:
 
     var enemy_lbl := Label.new()
     enemy_lbl.text = "Inimigo:"
-    enemy_lbl.add_theme_font_size_override("font_size", 18)
+    enemy_lbl.add_theme_font_size_override("font_size", 24)
     enemy_lbl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
     top_bar.add_child(enemy_lbl)
 
-    var mview := _MovView.new()
-    mview.custom_minimum_size        = Vector2(0.0, 480.0)
-    mview.size_flags_horizontal      = Control.SIZE_EXPAND_FILL
-    mview.size_flags_vertical        = Control.SIZE_EXPAND_FILL
-
     var btn_prev := Button.new()
-    btn_prev.text = "◄"
-    btn_prev.add_theme_font_size_override("font_size", 18)
+    btn_prev.text = "<"
+    btn_prev.add_theme_font_size_override("font_size", 24)
     btn_prev.pressed.connect(mview.on_prev)
     top_bar.add_child(btn_prev)
 
     var lbl_name := Label.new()
     lbl_name.custom_minimum_size.x = 80.0
-    lbl_name.add_theme_font_size_override("font_size", 18)
+    lbl_name.add_theme_font_size_override("font_size", 24)
     lbl_name.add_theme_color_override("font_color", Color(0.9, 0.9, 0.3))
     lbl_name.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
     lbl_name.vertical_alignment   = VERTICAL_ALIGNMENT_CENTER
@@ -1799,13 +2548,13 @@ func _build_moves_box() -> void:
     top_bar.add_child(lbl_name)
 
     var btn_next := Button.new()
-    btn_next.text = "►"
-    btn_next.add_theme_font_size_override("font_size", 18)
+    btn_next.text = ">"
+    btn_next.add_theme_font_size_override("font_size", 24)
     btn_next.pressed.connect(mview.on_next)
     top_bar.add_child(btn_next)
 
     var btn_move := Button.new()
-    btn_move.text = "▶ Mover"
+    btn_move.text = "Mover"
     btn_move.add_theme_font_size_override("font_size", 24)
     btn_move.pressed.connect(mview.on_toggle_movement)
     top_bar.add_child(btn_move)
@@ -2086,7 +2835,9 @@ func _refresh_tiles() -> void:
                 "data":    ts_data,
             }
 
-            var tex    := load(ts_data.path) as Texture2D
+            var tex: Texture2D = null
+            if ResourceLoader.exists(ts_data.path):
+                tex = load(ts_data.path) as Texture2D
             var ts_px: int = ts_data.tile_size
 
             for row in ts_data.rows:
@@ -2255,7 +3006,9 @@ func _refresh_tiles() -> void:
     glass_mode_lbl.add_theme_font_size_override("font_size", 18)
     glass_mode_row.add_child(glass_mode_lbl)
 
-    var gl_tex  := load("res://stages/stage_00/stage_00_glass.png") as Texture2D
+    var gl_tex: Texture2D = null
+    if ResourceLoader.exists("res://stages/stage_00/stage_00_glass.png"):
+        gl_tex = load("res://stages/stage_00/stage_00_glass.png") as Texture2D
     var tile_t  := load("res://stages/stage_00/Stage_00T.png")      as Texture2D
     var spr_t   := load("res://characters/ranged/ZaelIdle.png")     as Texture2D
 
