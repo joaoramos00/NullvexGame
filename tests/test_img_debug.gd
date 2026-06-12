@@ -482,3 +482,6 @@ func _assert_projectile_preview_state(
     assert(String(info.get("variant", "")) == expected_variant, entity_name + " deve usar variant " + expected_variant)
     assert(bool(info.get("visible", false)) == expected_visible, entity_name + " visibilidade do projetil no frame incorreta")
     assert(bool(info.get("parabolic", false)) == expected_parabolic, entity_name + " parabola incorreta")
+    if entity_name == "Ice Archer" and expected_visible:
+        var offset := info.get("offset", Vector2.ZERO) as Vector2
+        assert(offset.is_equal_approx(Vector2(52.0, -98.0)), entity_name + " deve subir mais para sair do chao")

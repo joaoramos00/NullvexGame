@@ -1231,7 +1231,7 @@ class _HitboxView extends Control:
     const _VIEW_SIZE := Vector2(900.0, 460.0)
     const _ENTITY_POS := Vector2(450.0, 300.0)
     const _PROJECTILE_DEFS := {
-        "Ice Archer": {"label": "Ice Arrow", "variant": "ice_arrow", "release_frame": 4, "offset": Vector2(36.0, -18.0), "parabolic": false},
+        "Ice Archer": {"label": "Ice Arrow", "variant": "ice_arrow", "release_frame": 4, "offset": Vector2(52.0, -98.0), "parabolic": false},
         "Frost Turret": {"label": "Ice Cannonball", "variant": "ice_cannonball", "release_frame": 3, "offset": Vector2(32.0, 0.0), "parabolic": false},
         "Cryo Bomber": {"label": "Ice Ball", "variant": "ice_ball", "release_frame": 3, "offset": Vector2(16.0, -56.0), "parabolic": true},
         "Glacier Shield": {"label": "Eye Beam", "variant": "eye_beam", "release_frame": 2, "offset": Vector2(34.0, -18.0), "parabolic": false},
