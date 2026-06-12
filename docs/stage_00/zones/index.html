@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Debug por zona — Fase 00</title>
+<style>
+  body { background:#15151c; color:#e0e0e6; font-family:system-ui, sans-serif; margin:0; padding:24px; }
+  h1 { font-size:20px; margin:0 0 4px; }
+  p.sub { color:#9a9aa6; margin:0 0 20px; }
+  h2 { font-size:16px; margin:28px 0 8px; color:#cfcfe0; border-bottom:1px solid #2a2a36; padding-bottom:4px; }
+  .map { background:#0a0a12; border:1px solid #2a2a36; border-radius:6px; overflow:auto; }
+  .map img { display:block; width:100%; height:auto; }
+  .legend { display:flex; flex-wrap:wrap; gap:6px 14px; margin:0 0 8px; font-size:12px; }
+  .legend span { display:inline-flex; align-items:center; gap:5px; }
+  .sw { width:12px; height:12px; border-radius:2px; display:inline-block; }
+  nav { position:sticky; top:0; background:#15151ce6; backdrop-filter:blur(4px); padding:8px 0; margin-bottom:8px; }
+  nav a { color:#7ab8f7; margin-right:12px; text-decoration:none; font-size:13px; }
+  nav a:hover { text-decoration:underline; }
+</style>
+</head>
+<body>
+<h1>Debug por zona — Fase 00</h1>
+<p class="sub">IDs por tipo, globais na fase. Mapeamento completo ID → nó real em <code>legenda.md</code>. Cada mapa é SVG vetorial — dê zoom (Ctrl + scroll) à vontade.</p>
+
+<div class="legend">
+  <span><i class="sw" style="background:#8c8c8c"></i>floor</span>
+  <span><i class="sw" style="background:#4dd959"></i>plat</span>
+  <span><i class="sw" style="background:#8cf28c"></i>sub</span>
+  <span><i class="sw" style="background:#33e6e6"></i>movp</span>
+  <span><i class="sw" style="background:#a6a640"></i>step</span>
+  <span><i class="sw" style="background:#996b40"></i>block</span>
+  <span><i class="sw" style="background:#4d80f2"></i>wall</span>
+  <span><i class="sw" style="background:#334db3"></i>ceil</span>
+  <span><i class="sw" style="background:#73bff2"></i>glass</span>
+  <span><i class="sw" style="background:#808ca6"></i>cover</span>
+  <span><i class="sw" style="background:#f2d933"></i>door</span>
+  <span><i class="sw" style="background:#f28c26"></i>zone</span>
+  <span><i class="sw" style="background:#e640d9"></i>goal</span>
+  <span><i class="sw" style="background:#b32626"></i>bound</span>
+  <span><i class="sw" style="background:#f2f2f2"></i>spawn</span>
+  <span><i class="sw" style="background:#e64040"></i>grunt</span>
+  <span><i class="sw" style="background:#f273b3"></i>flyer</span>
+  <span><i class="sw" style="background:#a64dd9"></i>mboss</span>
+  <span><i class="sw" style="background:#99331a"></i>boss</span>
+  <span><i class="sw" style="background:#b3b3b3"></i>misc</span>
+</div>
+
+<nav>
+  <a href="#z1">Z1</a><a href="#corr1">Corr1</a><a href="#miniboss">MiniBoss</a><a href="#corr2">Corr2</a><a href="#z2">Z2</a><a href="#z3">Z3</a><a href="#boss">Boss</a>
+</nav>
+
+<h2 id="z1">Z1 — entrada</h2>
+<div class="map"><img src="z1.svg" alt="Z1"></div>
+<h2 id="corr1">Corr1</h2>
+<div class="map"><img src="corr1.svg" alt="Corr1"></div>
+<h2 id="miniboss">MiniBoss</h2>
+<div class="map"><img src="miniboss.svg" alt="MiniBoss"></div>
+<h2 id="corr2">Corr2</h2>
+<div class="map"><img src="corr2.svg" alt="Corr2"></div>
+<h2 id="z2">Z2</h2>
+<div class="map"><img src="z2.svg" alt="Z2"></div>
+<h2 id="z3">Z3 — corredor + gauntlet</h2>
+<div class="map"><img src="z3.svg" alt="Z3"></div>
+<h2 id="boss">Boss</h2>
+<div class="map"><img src="boss.svg" alt="Boss"></div>
+
+</body>
+</html>
