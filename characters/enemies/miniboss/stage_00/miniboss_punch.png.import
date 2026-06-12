@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bo8l1vlsgrbp7"
-path="res://.godot/imported/miniboss_idle.png-7baeca944df0e4e428c6615c02f0eb6b.ctex"
+uid="uid://vx3ap32erri0"
+path="res://.godot/imported/miniboss_punch.png-805350a8b5ffd7859203bd5bf2cc97cf.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://characters/enemies/miniboss/miniboss_idle.png"
-dest_files=["res://.godot/imported/miniboss_idle.png-7baeca944df0e4e428c6615c02f0eb6b.ctex"]
+source_file="res://characters/enemies/miniboss/stage_00/miniboss_punch.png"
+dest_files=["res://.godot/imported/miniboss_punch.png-805350a8b5ffd7859203bd5bf2cc97cf.ctex"]
 
 [params]
 

@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dcg7p44i64tic"
-path="res://.godot/imported/miniboss_walk.png-be68bf83671404d2bbcfb6ab703929ac.ctex"
+uid="uid://d1emxhv2yi0ma"
+path="res://.godot/imported/miniboss_stomp.png-126f3221cd20796d8766c40f83a14ad7.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://characters/enemies/miniboss/miniboss_walk.png"
-dest_files=["res://.godot/imported/miniboss_walk.png-be68bf83671404d2bbcfb6ab703929ac.ctex"]
+source_file="res://characters/enemies/miniboss/stage_00/miniboss_stomp.png"
+dest_files=["res://.godot/imported/miniboss_stomp.png-126f3221cd20796d8766c40f83a14ad7.ctex"]
 
 [params]
 
