@@ -217,11 +217,16 @@ func test_hitbox_view_frame_selector_updates_sprite_and_glacier_barrier() -> voi
     view._set_stage("Stage 02")
     view._select_entity_by_name("Glacier Shield")
     assert(view._frame_row != null, "HitboxView deve ter linha de frame")
+    assert(_find_button(view._frame_row, "Frame 2") != null, "Glacier Shield deve expor Frame 2")
     assert(_find_button(view._frame_row, "Frame 3") != null, "Glacier Shield deve expor Frame 3")
 
-    view._select_frame(2)
     var sprite := view._current_instance.get_node_or_null("Sprite2D") as Sprite2D
     var barrier := view._current_instance.get_node_or_null("ShieldBarrier") as Area2D
+    view._select_frame(1)
+    assert(sprite != null and sprite.frame == 1, "selecionar frame 2 deve atualizar Sprite2D.frame")
+    assert(barrier != null and barrier.position == Vector2(38, -52), "frame 2 deve baixar barreira do escudo em 4px")
+
+    view._select_frame(2)
     assert(sprite != null and sprite.frame == 2, "selecionar frame deve atualizar Sprite2D.frame")
     assert(barrier != null and barrier.position == Vector2(38, -40), "frame do escudo baixo deve mover barreira para baixo")
 

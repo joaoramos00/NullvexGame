@@ -1603,7 +1603,13 @@ class _HitboxView extends Control:
         if _current_instance.name == "EnemyGlacierShield":
             var barrier := _current_instance.get_node_or_null("ShieldBarrier") as Area2D
             if barrier != null:
-                barrier.position = Vector2(38.0, -40.0 if _selected_frame == 2 else -56.0)
+                match _selected_frame:
+                    1:
+                        barrier.position = Vector2(38.0, -52.0)
+                    2:
+                        barrier.position = Vector2(38.0, -40.0)
+                    _:
+                        barrier.position = Vector2(38.0, -56.0)
 
     func _find_sprite2d(node: Node) -> Sprite2D:
         if node is Sprite2D:
