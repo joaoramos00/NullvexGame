@@ -1230,7 +1230,8 @@ class _HitboxOverlay extends Node2D:
 class _HitboxView extends Control:
     const _VIEW_SIZE := Vector2(900.0, 460.0)
     const _ENTITY_POS := Vector2(450.0, 300.0)
-    const _ZOOM_SCALE := 2.0
+    const _CAMERA_ZOOM := Vector2(0.5, 0.5)
+    const _CAMERA_OFFSET_Y := 24.0
     const _PROJECTILE_DEFS := {
         "Ice Archer": {"label": "Ice Arrow", "variant": "ice_arrow", "release_frame": 4, "offset": Vector2(52.0, -82.0), "parabolic": false},
         "Frost Turret": {"label": "Ice Cannonball", "variant": "ice_cannonball", "release_frame": 3, "offset": Vector2(32.0, 0.0), "parabolic": false},
@@ -1249,6 +1250,7 @@ class _HitboxView extends Control:
     var _show_labels: bool = true
     var _viewport: SubViewport = null
     var _scene_root: Node2D = null
+    var _camera: Camera2D = null
     var _world_root: Node2D = null
     var _overlay: _HitboxOverlay = null
     var _floor_overlay: _HitboxOverlay = null
@@ -1329,9 +1331,14 @@ class _HitboxView extends Control:
         bg.size = _VIEW_SIZE
         _viewport.add_child(bg)
         _scene_root = Node2D.new()
-        _scene_root.position = _ENTITY_POS * (1.0 - _ZOOM_SCALE)
-        _scene_root.scale = Vector2(_ZOOM_SCALE, _ZOOM_SCALE)
         _viewport.add_child(_scene_root)
+        _camera = Camera2D.new()
+        _camera.position = _ENTITY_POS + Vector2(0.0, _CAMERA_OFFSET_Y)
+        _camera.zoom = _CAMERA_ZOOM
+        _camera.position_smoothing_enabled = false
+        _camera.process_callback = Camera2D.CAMERA2D_PROCESS_IDLE
+        _scene_root.add_child(_camera)
+        _camera.call_deferred("make_current")
         _floor_overlay = _HitboxOverlay.new()
         _floor_overlay.floor_tex = load("res://stages/stage_00/Stage_00T.png") as Texture2D
         _floor_overlay.ground_y = _ENTITY_POS.y
@@ -1449,7 +1456,7 @@ class _HitboxView extends Control:
             if cs != null:
                 bottom = maxf(bottom, _collision_shape_bottom(cs))
         if bottom > -INF:
-            _current_instance.position.y += (_overlay.ground_y - bottom) / _ZOOM_SCALE
+            _current_instance.position.y += _overlay.ground_y - bottom
 
     func _collision_shape_bottom(cs: CollisionShape2D) -> float:
         if cs.shape is RectangleShape2D:
