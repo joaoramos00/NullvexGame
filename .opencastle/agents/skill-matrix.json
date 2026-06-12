@@ -2,8 +2,7 @@
   "skillDependencies": {
     "validation-gates": [
       "fast-review",
-      "browser-testing",
-      "codebase-tool",
+      "chrome-devtools",
       "panel-majority-vote"
     ],
     "fast-review": [
@@ -12,7 +11,6 @@
     ],
     "decomposition": [
       "panel-majority-vote",
-      "project-consistency",
       "self-improvement"
     ],
     "agent-hooks": [
@@ -27,125 +25,112 @@
     "team-lead-reference": [
       "orchestration-protocols"
     ],
-    "deployment-infrastructure": [
-      "security-hardening",
-      "codebase-tool"
-    ],
     "git-workflow": [
       "task-management"
     ],
     "self-improvement": [
       "agent-memory"
-    ],
-    "testing-workflow": [
-      "e2e-testing"
     ]
   },
   "bindings": {
-    "framework": {
-      "entries": [],
-      "description": "SSR/SSG, routing, layouts, Server/Client Components"
-    },
-    "database": {
-      "entries": [],
-      "description": "Schema, migrations, auth flow, roles"
-    },
-    "cms": {
-      "entries": [],
-      "description": "Document types, queries, schema management"
-    },
-    "deployment": {
-      "entries": [],
-      "description": "Hosting, cron jobs, env vars, caching, headers"
-    },
     "codebase-tool": {
-      "entries": [],
-      "description": "Task running, building, linting, testing, code generation"
+      "entries": [
+        {
+          "name": "Godot Engine",
+          "skill": "run-tests",
+          "notes": "Local skill at .claude/skills/run-tests.md — headless test runner"
+        }
+      ],
+      "description": "Godot project runner, headless tests, export pipeline"
     },
     "testing": {
-      "entries": [],
-      "description": "Unit testing frameworks, coverage, test planning"
+      "entries": [
+        {
+          "name": "Godot Headless Tests",
+          "skill": "run-tests",
+          "notes": "Local skill at .claude/skills/run-tests.md"
+        }
+      ],
+      "description": "Godot headless test scenes (extends Node + .tscn)"
     },
     "e2e-testing": {
       "entries": [
         {
           "name": "Chrome DevTools",
-          "skill": "browser-testing"
+          "skill": "chrome-devtools"
         }
       ],
-      "description": "Browser automation, E2E testing, viewport testing, visual validation"
+      "description": "Browser validation of web export at localhost:8080"
+    },
+    "deployment": {
+      "entries": [
+        {
+          "name": "GitHub Pages",
+          "skill": "web-export",
+          "notes": "Local skill at .claude/skills/web-export.md"
+        }
+      ],
+      "description": "Godot web export + GitHub Pages CI deploy"
     },
     "task-management": {
       "entries": [],
-      "description": "Issue tracking, naming, priorities, workflow states"
+      "description": "Issue tracking — GitHub Issues (no external tool configured)"
     },
     "knowledge-management": {
       "entries": [],
-      "description": "Workspace knowledge base, research capture, ADRs, specs, page hierarchy"
+      "description": "Docs in docs/superpowers/ — specs and plans"
+    },
+    "framework": {
+      "entries": [],
+      "description": "N/A — Godot is the engine, not a web framework"
+    },
+    "database": {
+      "entries": [],
+      "description": "N/A — no database; game state is in-memory (GameManager save/load)"
+    },
+    "cms": {
+      "entries": [],
+      "description": "N/A — no CMS"
     },
     "design": {
-      "entries": [],
-      "description": "Design tokens, component inspection, asset export, design-to-code"
-    },
-    "email": {
-      "entries": [],
-      "description": "Transactional email, templates, domain config, delivery"
-    },
-    "payments": {
-      "entries": [],
-      "description": "Payment processing, subscriptions, invoicing, webhooks"
+      "entries": [
+        {
+          "name": "PixelLab AI",
+          "skill": "pixellab",
+          "notes": "Local skill at .claude/skills/pixellab.md — sprite/tileset generation"
+        }
+      ],
+      "description": "Pixel art sprite and tileset generation via PixelLab AI"
     },
     "observability": {
       "entries": [],
-      "description": "Error tracking, performance monitoring, alerts, tracing"
+      "description": "No external monitoring — logs in .opencastle/logs/events.ndjson"
+    },
+    "email": {
+      "entries": [],
+      "description": "N/A"
+    },
+    "payments": {
+      "entries": [],
+      "description": "N/A"
     },
     "notifications": {
       "entries": [],
-      "description": "Team messaging, alerts, bot integrations, channel management"
+      "description": "N/A"
     }
   },
   "agents": {
     "Developer": {
       "slots": [
-        "framework",
-        "email",
-        "payments",
-        "notifications"
+        "codebase-tool"
       ],
       "directSkills": [
         "validation-gates",
         "code-commenting",
-        "react-development",
-        "api-patterns"
-      ]
-    },
-    "Database Engineer": {
-      "slots": [
-        "database"
-      ],
-      "directSkills": [
-        "validation-gates",
-        "security-hardening"
-      ]
-    },
-    "UI/UX Expert": {
-      "slots": [
-        "e2e-testing",
-        "design"
-      ],
-      "directSkills": [
-        "validation-gates",
-        "frontend-design",
-        "accessibility-standards",
-        "react-development"
-      ]
-    },
-    "Content Engineer": {
-      "slots": [
-        "cms"
-      ],
-      "directSkills": [
-        "validation-gates"
+        "new-enemy",
+        "new-boss",
+        "new-stage",
+        "new-corridor"
       ]
     },
     "Testing Expert": {
@@ -155,43 +140,52 @@
       ],
       "directSkills": [
         "validation-gates",
-        "testing-workflow"
+        "testing-workflow",
+        "run-tests"
       ]
     },
-    "Security Expert": {
+    "UI/UX Expert": {
       "slots": [
-        "database"
+        "e2e-testing"
       ],
       "directSkills": [
         "validation-gates",
-        "documentation-standards",
-        "security-hardening"
+        "frontend-design",
+        "accessibility-standards"
       ]
     },
     "Data Expert": {
-      "slots": [],
+      "slots": [
+        "design"
+      ],
       "directSkills": [
         "validation-gates",
-        "data-engineering"
+        "data-engineering",
+        "pixellab"
       ]
     },
     "DevOps Expert": {
       "slots": [
-        "deployment",
-        "observability"
+        "deployment"
       ],
       "directSkills": [
         "validation-gates",
-        "documentation-standards"
+        "documentation-standards",
+        "web-export"
       ]
     },
     "Performance Expert": {
-      "slots": [
-        "observability"
-      ],
+      "slots": [],
       "directSkills": [
         "validation-gates",
         "performance-optimization"
+      ]
+    },
+    "Security Expert": {
+      "slots": [],
+      "directSkills": [
+        "validation-gates",
+        "security-hardening"
       ]
     },
     "Architect": {
@@ -200,37 +194,8 @@
         "knowledge-management"
       ],
       "directSkills": [
-        "documentation-standards"
-      ]
-    },
-    "Copywriter": {
-      "slots": [
-        "cms"
-      ],
-      "directSkills": [
-        "documentation-standards"
-      ]
-    },
-    "SEO Specialist": {
-      "slots": [
-        "framework",
-        "cms"
-      ],
-      "directSkills": [
-        "validation-gates",
         "documentation-standards",
-        "seo-patterns"
-      ]
-    },
-    "API Designer": {
-      "slots": [
-        "framework"
-      ],
-      "directSkills": [
-        "validation-gates",
-        "documentation-standards",
-        "api-patterns",
-        "security-hardening"
+        "context-map"
       ]
     },
     "Release Manager": {
@@ -240,7 +205,8 @@
       ],
       "directSkills": [
         "validation-gates",
-        "documentation-standards"
+        "documentation-standards",
+        "web-export"
       ]
     },
     "Documentation Writer": {
@@ -259,6 +225,13 @@
       "directSkills": [
         "context-map",
         "self-improvement"
+      ]
+    },
+    "Reviewer": {
+      "slots": [],
+      "directSkills": [
+        "fast-review",
+        "validation-gates"
       ]
     },
     "Team Lead (OpenCastle)": {
