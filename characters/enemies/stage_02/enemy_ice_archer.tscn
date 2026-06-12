@@ -4,8 +4,8 @@
 [ext_resource type="Texture2D" path="res://characters/enemies/stage_02/enemy_ice_archer_shot.png" id="2_tex"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_1"]
-radius = 18.0
-height = 134.0
+radius = 34.0
+height = 102.0
 
 [node name="EnemyIceArcher" type="CharacterBody2D"]
 collision_layer = 4
