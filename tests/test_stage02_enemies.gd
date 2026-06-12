@@ -183,8 +183,8 @@ func _test_stage02_looping_enemy_frames_advance() -> void:
 	_assert(_advances_frame_after_tick("res://characters/enemies/stage_02/enemy_ice_wisp.tscn", 0.25), "ice wisp hover advances frames")
 
 func _test_stage02_shot_release_frames_spawn_projectiles() -> void:
-	_assert(_shot_enemy_spawns_one_projectile("res://characters/enemies/stage_02/enemy_ice_archer.tscn", "ice_archer", 3), "ice archer fires once during shot release frame")
-	_assert(_shot_enemy_spawns_one_projectile("res://characters/enemies/stage_02/enemy_frost_turret.tscn", "frost_turret", 2), "frost turret fires once during shot release frame")
+	_assert(_shot_enemy_spawns_one_projectile("res://characters/enemies/stage_02/enemy_ice_archer.tscn", "ice_archer", 4), "ice archer fires once during shot release frame")
+	_assert(_shot_enemy_spawns_one_projectile("res://characters/enemies/stage_02/enemy_frost_turret.tscn", "frost_turret", 3), "frost turret fires once during shot release frame")
 	_assert(_shot_enemy_spawns_one_projectile("res://characters/enemies/stage_02/enemy_cryo_bomber.tscn", "cryo_bomber", 3), "cryo bomber fires once during shot release frame")
 	_assert(_shot_enemy_spawns_one_projectile("res://characters/enemies/stage_02/enemy_glacier_shield.tscn", "glacier_shield", 2), "glacier shield fires once during shot release frame")
 

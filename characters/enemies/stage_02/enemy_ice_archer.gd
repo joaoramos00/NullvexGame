@@ -10,7 +10,7 @@ const _PROJECTILE_SCENE := preload("res://characters/enemies/stage_02/enemy_ice_
 @export var aim_y_tolerance: float = 150.0
 @export var shot_frame_count: int = 6
 @export var shot_fps: float = 10.0
-@export var shot_release_frame: int = 3
+@export var shot_release_frame: int = 4
 
 var _shoot_timer := 0.35
 var _shot_active := false
