@@ -23,34 +23,37 @@ const _SPRITES: Array = [
 ]
 
 const _HITBOX_ENTITIES: Array = [
-    {"name": "Zael", "path": "res://characters/ranged/zael.tscn", "group": "Personagens"},
-    {"name": "Kawagael", "path": "res://characters/ranged/kawagael/kawagael.tscn", "group": "Personagens"},
-    {"name": "Zara", "path": "res://characters/melee/zara.tscn", "group": "Personagens"},
-    {"name": "Enemy Base", "path": "res://characters/enemies/enemy_base.tscn", "group": "Inimigos"},
-    {"name": "Enemy Flyer", "path": "res://characters/enemies/enemy_flyer.tscn", "group": "Inimigos"},
-    {"name": "Ice Grunt", "path": "res://characters/enemies/stage_02/enemy_ice_grunt.tscn", "group": "Inimigos"},
-    {"name": "Ice Flyer", "path": "res://characters/enemies/stage_02/enemy_ice_flyer.tscn", "group": "Inimigos"},
-    {"name": "Ice Archer", "path": "res://characters/enemies/stage_02/enemy_ice_archer.tscn", "group": "Inimigos"},
-    {"name": "Frost Turret", "path": "res://characters/enemies/stage_02/enemy_frost_turret.tscn", "group": "Inimigos"},
-    {"name": "Cryo Bomber", "path": "res://characters/enemies/stage_02/enemy_cryo_bomber.tscn", "group": "Inimigos"},
-    {"name": "Glacier Shield", "path": "res://characters/enemies/stage_02/enemy_glacier_shield.tscn", "group": "Inimigos"},
-    {"name": "Ice Wisp", "path": "res://characters/enemies/stage_02/enemy_ice_wisp.tscn", "group": "Inimigos"},
-    {"name": "Ice Miniboss", "path": "res://characters/enemies/stage_02/enemy_ice_miniboss.tscn", "group": "Bosses"},
-    {"name": "Boss Base", "path": "res://characters/bosses/boss_base.tscn", "group": "Bosses"},
-    {"name": "Intro Boss", "path": "res://characters/bosses/intro_boss.tscn", "group": "Bosses"},
-    {"name": "Cryovex", "path": "res://characters/bosses/cryovex.tscn", "group": "Bosses"},
-    {"name": "Galerix", "path": "res://characters/bosses/galerix.tscn", "group": "Bosses"},
-    {"name": "Gravitus", "path": "res://characters/bosses/gravitus.tscn", "group": "Bosses"},
-    {"name": "Ignarath", "path": "res://characters/bosses/ignarath.tscn", "group": "Bosses"},
-    {"name": "Luxar", "path": "res://characters/bosses/luxar.tscn", "group": "Bosses"},
-    {"name": "Nullvex", "path": "res://characters/bosses/nullvex.tscn", "group": "Bosses"},
-    {"name": "Terragor", "path": "res://characters/bosses/terragor.tscn", "group": "Bosses"},
-    {"name": "Umbraex", "path": "res://characters/bosses/umbraex.tscn", "group": "Bosses"},
-    {"name": "Voltrix", "path": "res://characters/bosses/voltrix.tscn", "group": "Bosses"},
-    {"name": "Zael Bullet", "path": "res://characters/ranged/zael_bullet.tscn", "group": "Projeteis"},
-    {"name": "Boss Projectile", "path": "res://characters/bosses/boss_projectile.tscn", "group": "Projeteis"},
-    {"name": "Ice Projectile", "path": "res://characters/enemies/stage_02/enemy_ice_projectile.tscn", "group": "Projeteis"},
-    {"name": "Zara Hitbox", "path": "res://characters/melee/zara_hitbox.tscn", "group": "Projeteis"},
+    {"name": "Zael", "path": "res://characters/ranged/zael.tscn", "group": "Personagens", "kind": "Personagens", "stage": ""},
+    {"name": "Kawagael", "path": "res://characters/ranged/kawagael/kawagael.tscn", "group": "Personagens", "kind": "Personagens", "stage": ""},
+    {"name": "Zara", "path": "res://characters/melee/zara.tscn", "group": "Personagens", "kind": "Personagens", "stage": ""},
+    {"name": "Enemy Base", "path": "res://characters/enemies/enemy_base.tscn", "group": "Inimigos", "kind": "Inimigos", "stage": "Stage 00"},
+    {"name": "Enemy Flyer", "path": "res://characters/enemies/enemy_flyer.tscn", "group": "Inimigos", "kind": "Inimigos", "stage": "Stage 00"},
+    {"name": "Enemy Miniboss", "path": "res://characters/enemies/enemy_miniboss.tscn", "group": "Bosses", "kind": "Inimigos", "stage": "Stage 00"},
+    {"name": "Intro Boss", "path": "res://characters/bosses/intro_boss.tscn", "group": "Bosses", "kind": "Inimigos", "stage": "Stage 00"},
+    {"name": "Ice Grunt", "path": "res://characters/enemies/stage_02/enemy_ice_grunt.tscn", "group": "Inimigos", "kind": "Inimigos", "stage": "Stage 02"},
+    {"name": "Ice Flyer", "path": "res://characters/enemies/stage_02/enemy_ice_flyer.tscn", "group": "Inimigos", "kind": "Inimigos", "stage": "Stage 02"},
+    {"name": "Ice Archer", "path": "res://characters/enemies/stage_02/enemy_ice_archer.tscn", "group": "Inimigos", "kind": "Inimigos", "stage": "Stage 02"},
+    {"name": "Frost Turret", "path": "res://characters/enemies/stage_02/enemy_frost_turret.tscn", "group": "Inimigos", "kind": "Inimigos", "stage": "Stage 02"},
+    {"name": "Cryo Bomber", "path": "res://characters/enemies/stage_02/enemy_cryo_bomber.tscn", "group": "Inimigos", "kind": "Inimigos", "stage": "Stage 02"},
+    {"name": "Glacier Shield", "path": "res://characters/enemies/stage_02/enemy_glacier_shield.tscn", "group": "Inimigos", "kind": "Inimigos", "stage": "Stage 02"},
+    {"name": "Ice Wisp", "path": "res://characters/enemies/stage_02/enemy_ice_wisp.tscn", "group": "Inimigos", "kind": "Inimigos", "stage": "Stage 02"},
+    {"name": "Ice Miniboss", "path": "res://characters/enemies/stage_02/enemy_ice_miniboss.tscn", "group": "Bosses", "kind": "Inimigos", "stage": "Stage 02"},
+    {"name": "Cryovex", "path": "res://characters/bosses/cryovex.tscn", "group": "Bosses", "kind": "Inimigos", "stage": "Stage 02"},
+    {"name": "Boss Base", "path": "res://characters/bosses/boss_base.tscn", "group": "Bosses", "kind": "Bosses", "stage": ""},
+    {"name": "Intro Boss", "path": "res://characters/bosses/intro_boss.tscn", "group": "Bosses", "kind": "Bosses", "stage": "Stage 00"},
+    {"name": "Cryovex", "path": "res://characters/bosses/cryovex.tscn", "group": "Bosses", "kind": "Bosses", "stage": "Stage 02"},
+    {"name": "Galerix", "path": "res://characters/bosses/galerix.tscn", "group": "Bosses", "kind": "Bosses", "stage": ""},
+    {"name": "Gravitus", "path": "res://characters/bosses/gravitus.tscn", "group": "Bosses", "kind": "Bosses", "stage": ""},
+    {"name": "Ignarath", "path": "res://characters/bosses/ignarath.tscn", "group": "Bosses", "kind": "Bosses", "stage": ""},
+    {"name": "Luxar", "path": "res://characters/bosses/luxar.tscn", "group": "Bosses", "kind": "Bosses", "stage": ""},
+    {"name": "Nullvex", "path": "res://characters/bosses/nullvex.tscn", "group": "Bosses", "kind": "Bosses", "stage": ""},
+    {"name": "Terragor", "path": "res://characters/bosses/terragor.tscn", "group": "Bosses", "kind": "Bosses", "stage": ""},
+    {"name": "Umbraex", "path": "res://characters/bosses/umbraex.tscn", "group": "Bosses", "kind": "Bosses", "stage": ""},
+    {"name": "Voltrix", "path": "res://characters/bosses/voltrix.tscn", "group": "Bosses", "kind": "Bosses", "stage": ""},
+    {"name": "Zael Bullet", "path": "res://characters/ranged/zael_bullet.tscn", "group": "Projeteis", "kind": "Projeteis", "stage": ""},
+    {"name": "Boss Projectile", "path": "res://characters/bosses/boss_projectile.tscn", "group": "Projeteis", "kind": "Projeteis", "stage": ""},
+    {"name": "Ice Projectile", "path": "res://characters/enemies/stage_02/enemy_ice_projectile.tscn", "group": "Projeteis", "kind": "Projeteis", "stage": "Stage 02"},
+    {"name": "Zara Hitbox", "path": "res://characters/melee/zara_hitbox.tscn", "group": "Projeteis", "kind": "Projeteis", "stage": ""},
 ]
 
 const _TILESETS: Array = [
@@ -1194,6 +1197,9 @@ class _HitboxView extends Control:
     var _current_instance: Node2D = null
     var _shape_infos: Array = []
     var _filter_group: String = "Todos"
+    var _selected_stage: String = ""
+    var _selected_frame: int = 0
+    var _frame_count: int = 1
     var _show_sprite: bool = true
     var _show_labels: bool = true
     var _viewport: SubViewport = null
@@ -1205,6 +1211,10 @@ class _HitboxView extends Control:
     var _meta_label: Label = null
     var _sprite_btn: Button = null
     var _labels_btn: Button = null
+    var _type_row: HBoxContainer = null
+    var _stage_row: HBoxContainer = null
+    var _entity_row: HBoxContainer = null
+    var _frame_row: HBoxContainer = null
 
     func _ready() -> void:
         _build()
@@ -1217,14 +1227,27 @@ class _HitboxView extends Control:
         root.size_flags_vertical = Control.SIZE_EXPAND_FILL
         add_child(root)
 
+        _type_row = HBoxContainer.new()
+        _type_row.add_theme_constant_override("separation", 6)
+        root.add_child(_type_row)
+        for group_name in ["Todos", "Personagens", "Inimigos", "Bosses", "Projeteis"]:
+            _type_row.add_child(_make_button(group_name, _set_filter.bind(group_name)))
+
+        _stage_row = HBoxContainer.new()
+        _stage_row.add_theme_constant_override("separation", 6)
+        root.add_child(_stage_row)
+
+        _entity_row = HBoxContainer.new()
+        _entity_row.add_theme_constant_override("separation", 6)
+        root.add_child(_entity_row)
+
+        _frame_row = HBoxContainer.new()
+        _frame_row.add_theme_constant_override("separation", 6)
+        root.add_child(_frame_row)
+
         var toolbar := HBoxContainer.new()
         toolbar.add_theme_constant_override("separation", 6)
         root.add_child(toolbar)
-
-        toolbar.add_child(_make_button("<", _on_prev))
-        toolbar.add_child(_make_button(">", _on_next))
-        for group_name in ["Todos", "Personagens", "Inimigos", "Bosses", "Projeteis"]:
-            toolbar.add_child(_make_button(group_name, _set_filter.bind(group_name)))
         _sprite_btn = _make_button("Sprite ON", _toggle_sprite)
         toolbar.add_child(_sprite_btn)
         _labels_btn = _make_button("Labels ON", _toggle_labels)
@@ -1284,6 +1307,7 @@ class _HitboxView extends Control:
         _meta_label.add_theme_color_override("font_color", Color(0.82, 0.82, 0.86))
         _meta_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
         info_col.add_child(_meta_label)
+        _refresh_hierarchy_rows()
 
     func _find_first_group(group_name: String) -> int:
         for i in ImgDebug._HITBOX_ENTITIES.size():
@@ -1310,15 +1334,19 @@ class _HitboxView extends Control:
         _current_instance.position = _ENTITY_POS
         _world_root.add_child(_current_instance)
         _set_sprites_visible(_current_instance, _show_sprite)
+        _selected_frame = mini(_selected_frame, max(0, _detect_frame_count(_current_instance) - 1))
+        _apply_selected_frame()
         _shape_infos = _collect_shapes(_current_instance)
         _align_current_to_floor()
         _freeze_node_tree(_current_instance)
+        _apply_selected_frame()
         _shape_infos = _collect_shapes(_current_instance)
         if _shape_overlay != null:
             _shape_overlay.shape_infos = _shape_infos
             _shape_overlay.show_labels = _show_labels
             _shape_overlay.queue_redraw()
         _set_meta(entry, _shape_infos)
+        _refresh_frame_row()
 
     func _clear_current() -> void:
         _shape_infos.clear()
@@ -1411,6 +1439,13 @@ class _HitboxView extends Control:
         btn.pressed.connect(callback)
         return btn
 
+    func _clear_container(container: Container) -> void:
+        if container == null:
+            return
+        for child in container.get_children():
+            container.remove_child(child)
+            child.free()
+
     func _on_prev() -> void:
         _step_filtered(-1)
 
@@ -1419,9 +1454,67 @@ class _HitboxView extends Control:
 
     func _set_filter(group_name: String) -> void:
         _filter_group = group_name
+        _selected_stage = _first_stage_for_filter()
+        _selected_frame = 0
+        _refresh_hierarchy_rows()
         var first := _first_filtered_index()
         if first >= 0:
             _select_index(first)
+
+    func _set_stage(stage_name: String) -> void:
+        _selected_stage = stage_name
+        _selected_frame = 0
+        _refresh_hierarchy_rows()
+        var first := _first_filtered_index()
+        if first >= 0:
+            _select_index(first)
+
+    func _select_entity_by_name(entity_name: String) -> void:
+        for i in ImgDebug._HITBOX_ENTITIES.size():
+            var entry: Dictionary = ImgDebug._HITBOX_ENTITIES[i]
+            if String(entry.name) == entity_name and _entry_matches_filter(entry):
+                _selected_frame = 0
+                _select_index(i)
+                return
+
+    func _refresh_hierarchy_rows() -> void:
+        _refresh_stage_row()
+        _refresh_entity_row()
+
+    func _refresh_stage_row() -> void:
+        _clear_container(_stage_row)
+        if _filter_group != "Inimigos":
+            return
+        var stages: Array[String] = []
+        for entry in ImgDebug._HITBOX_ENTITIES:
+            if not _entry_matches_kind(entry):
+                continue
+            var stage := String(entry.stage)
+            if stage != "" and not stages.has(stage):
+                stages.append(stage)
+        stages.sort()
+        if _selected_stage == "" and not stages.is_empty():
+            _selected_stage = stages[0]
+        for stage in stages:
+            _stage_row.add_child(_make_button(stage, _set_stage.bind(stage)))
+
+    func _refresh_entity_row() -> void:
+        _clear_container(_entity_row)
+        for i in ImgDebug._HITBOX_ENTITIES.size():
+            var entry: Dictionary = ImgDebug._HITBOX_ENTITIES[i]
+            if _entry_matches_filter(entry):
+                _entity_row.add_child(_make_button(String(entry.name), _select_index.bind(i)))
+
+    func _first_stage_for_filter() -> String:
+        if _filter_group != "Inimigos":
+            return ""
+        for entry in ImgDebug._HITBOX_ENTITIES:
+            if _entry_matches_kind(entry) and String(entry.stage) != "":
+                return String(entry.stage)
+        return ""
+
+    func _entry_matches_kind(entry: Dictionary) -> bool:
+        return _filter_group == "Todos" or String(entry.kind) == _filter_group
 
     func _toggle_sprite() -> void:
         _show_sprite = not _show_sprite
@@ -1454,7 +1547,11 @@ class _HitboxView extends Control:
                 return
 
     func _entry_matches_filter(entry: Dictionary) -> bool:
-        return _filter_group == "Todos" or String(entry.group) == _filter_group
+        if not _entry_matches_kind(entry):
+            return false
+        if _filter_group == "Inimigos" and _selected_stage != "":
+            return String(entry.stage) == _selected_stage
+        return true
 
     func _set_sprites_visible(node: Node, visible: bool) -> void:
         if node == null:
@@ -1463,6 +1560,72 @@ class _HitboxView extends Control:
             (node as CanvasItem).visible = visible
         for child in node.get_children():
             _set_sprites_visible(child, visible)
+
+    func _refresh_frame_row() -> void:
+        _clear_container(_frame_row)
+        _frame_count = _detect_frame_count(_current_instance)
+        for i in _frame_count:
+            _frame_row.add_child(_make_button("Frame " + str(i + 1), _select_frame.bind(i)))
+
+    func _detect_frame_count(node: Node) -> int:
+        var sprite := _find_sprite2d(node)
+        if sprite != null:
+            return max(1, sprite.hframes * sprite.vframes)
+        var animated := _find_animated_sprite2d(node)
+        if animated != null and animated.sprite_frames != null and animated.animation != "":
+            return max(1, animated.sprite_frames.get_frame_count(animated.animation))
+        return 1
+
+    func _select_frame(frame_index: int) -> void:
+        _selected_frame = clampi(frame_index, 0, max(0, _frame_count - 1))
+        _apply_selected_frame()
+        _shape_infos = _collect_shapes(_current_instance)
+        if _shape_overlay != null:
+            _shape_overlay.shape_infos = _shape_infos
+            _shape_overlay.queue_redraw()
+        if _current_index >= 0 and _current_index < ImgDebug._HITBOX_ENTITIES.size():
+            _set_meta(ImgDebug._HITBOX_ENTITIES[_current_index], _shape_infos)
+
+    func _apply_selected_frame() -> void:
+        if _current_instance == null:
+            return
+        var sprite := _find_sprite2d(_current_instance)
+        if sprite != null:
+            sprite.frame = clampi(_selected_frame, 0, max(0, sprite.hframes * sprite.vframes - 1))
+        var animated := _find_animated_sprite2d(_current_instance)
+        if animated != null:
+            animated.frame = clampi(_selected_frame, 0, max(0, _detect_frame_count(_current_instance) - 1))
+        _apply_hitbox_frame_state()
+
+    func _apply_hitbox_frame_state() -> void:
+        if _current_instance == null:
+            return
+        if _current_instance.name == "EnemyGlacierShield":
+            var barrier := _current_instance.get_node_or_null("ShieldBarrier") as Area2D
+            if barrier != null:
+                barrier.position = Vector2(38.0, -40.0 if _selected_frame == 2 else -56.0)
+
+    func _find_sprite2d(node: Node) -> Sprite2D:
+        if node is Sprite2D:
+            return node as Sprite2D
+        if node == null:
+            return null
+        for child in node.get_children():
+            var found := _find_sprite2d(child)
+            if found != null:
+                return found
+        return null
+
+    func _find_animated_sprite2d(node: Node) -> AnimatedSprite2D:
+        if node is AnimatedSprite2D:
+            return node as AnimatedSprite2D
+        if node == null:
+            return null
+        for child in node.get_children():
+            var found := _find_animated_sprite2d(child)
+            if found != null:
+                return found
+        return null
 
 # Arena jogável: SubViewport com Zael, inimigo, física e câmera
 class _MovView extends Control:
