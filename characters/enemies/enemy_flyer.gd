@@ -53,7 +53,13 @@ func _physics_process(delta: float) -> void:
 
 func _tick_hover(delta: float) -> void:
 	_bob_time += delta
-	if abs(global_position.x - _start_x) >= patrol_range:
+	# Inverte só ao CRUZAR a borda indo pra fora (offset e direção no mesmo sentido).
+	# Sem essa guarda, um flyer deslocado além do range (ex.: após um DIVE, já que
+	# RETREAT não restaura X) flipava _direction todo frame → velocity.x alternava
+	# +/- e o sprite ficava "parado" trocando esquerda↔direita. Assim ele volta
+	# consistentemente para a zona de patrulha em torno de _start_x.
+	var off: float = global_position.x - _start_x
+	if absf(off) >= patrol_range and signf(off) == signf(_direction):
 		_direction = -_direction
 	velocity.x = PATROL_SPEED * _direction
 	velocity.y = sin(_bob_time * bob_speed) * bob_amplitude

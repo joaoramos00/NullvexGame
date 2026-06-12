@@ -137,7 +137,7 @@ func _ready() -> void:
 	# Default respawn at stage start (index 0 means spawn_position)
 	# Checkpoint 1 will be saved when player passes through CP1 entry door
 
-	_add_debug_platform()
+	_setup_floor_platform()
 	_build_zone3()
 	queue_redraw()
 
@@ -500,19 +500,47 @@ func _get_zone_array(zone: int) -> Array[Node]:
 		3: return _zone3_enemies
 	return _zone1_enemies  # fallback (never reached)
 
-# ─── Debug ───────────────────────────────────────────────────────────────────
+# ─── Piso + plataforma (heightfield) ─────────────────────────────────────────
+# Funde a antiga "Debug_Plat" ao Floor_Z1A como UMA peça piso+plataforma (modo
+# "Piso+Plat" do ImgDebug): piso reto + plataforma elevada + piso reto, com paredes
+# e junções côncavas via marching-squares. Floor_Z1A vira nó fp (desenho próprio via
+# _draw_fp_node) e ganha uma 2ª colisão (a plataforma elevada).
+const _FP_PLAT_COLS := 4    # 256px (4 tiles)
+const _FP_LEFT_COLS := 7    # plataforma começa em x=448 (~posição da antiga Debug_Plat)
+const _FP_ELEV_ROWS := 1    # sobe 1 tile (64px) — saltável
+const _FP_DEPTH_ROWS := 2   # piso desenhado 2 tiles (junção côncava renderiza)
 
-func _add_debug_platform() -> void:
-	var plat := StaticBody2D.new()
-	plat.name = "Debug_Plat"
-	plat.collision_layer = 1
-	var cs := CollisionShape2D.new()
-	var shape := RectangleShape2D.new()
-	shape.size = Vector2(256, 192)
-	cs.shape = shape
-	plat.add_child(cs)
-	plat.position = Vector2(550, 1096)  # top face y=1000, 3 linhas de tile
-	add_child(plat)
+func _setup_floor_platform() -> void:
+	var floor_node := get_node_or_null("Floor_Z1A") as StaticBody2D
+	if floor_node == null:
+		return
+	var fcs := floor_node.get_node_or_null("CollisionShape2D") as CollisionShape2D
+	if fcs == null or not (fcs.shape is RectangleShape2D):
+		return
+	var fsize: Vector2 = (fcs.shape as RectangleShape2D).size
+	var ftop_world: float = floor_node.position.y + fcs.position.y - fsize.y * 0.5  # superfície
+	var fleft_world: float = floor_node.position.x + fcs.position.x - fsize.x * 0.5
+	var total_cols: int = ceili(fsize.x / float(_TS))
+	var right_cols: int = total_cols - _FP_LEFT_COLS - _FP_PLAT_COLS
+
+	# Colisão da plataforma elevada (degrau sólido do topo até a superfície do piso).
+	var plat_left: float = fleft_world + _FP_LEFT_COLS * _TS
+	var plat_top: float = ftop_world - _FP_ELEV_ROWS * _TS
+	var plat_w: float = _FP_PLAT_COLS * _TS
+	var plat_h: float = _FP_ELEV_ROWS * _TS
+	var pcs := CollisionShape2D.new()
+	var pshape := RectangleShape2D.new()
+	pshape.size = Vector2(plat_w, plat_h)
+	pcs.shape = pshape
+	var plat_center := Vector2(plat_left + plat_w * 0.5, plat_top + plat_h * 0.5)
+	pcs.position = plat_center - floor_node.position   # local ao Floor_Z1A
+	floor_node.add_child(pcs)
+
+	floor_node.set_meta("fp_params", {
+		"left_cols": _FP_LEFT_COLS, "plat_cols": _FP_PLAT_COLS, "right_cols": right_cols,
+		"elev_rows": _FP_ELEV_ROWS, "depth_rows": _FP_DEPTH_ROWS,
+		"left_x": fleft_world, "surface_y": ftop_world, "surface_w": fsize.x,
+	})
 
 # ─── Zona 3 — gauntlet "Exame Final" (dash → wall-jump → plataforma móvel) ──────
 
@@ -618,9 +646,10 @@ func _draw_door_underlays() -> void:
 		draw_texture_rect(_DOOR_TEX, dst, false)
 
 func _draw_background() -> void:
-	# DEBUG: fundo branco para visualizar tiles
-	draw_rect(Rect2(-500, -1200, 22000, 4000), Color.WHITE)
-	return
+	# Fundo branco SÓ em debug (?whitebg=1) — para visualizar os tiles isolados.
+	if DebugBoot.white_bg:
+		draw_rect(Rect2(-500, -1200, 22000, 4000), Color.WHITE)
+		return
 	# Sky — dark night with orange/red tones (destroyed city at dusk)
 	draw_rect(Rect2(0, -1200, 20000, 2600), Color(0.08, 0.05, 0.06))
 
@@ -686,6 +715,9 @@ func _draw_platforms() -> void:
 		if child is CheckpointDoor:
 			continue
 		if (child as Node).name.begins_with("Glass_"):
+			continue
+		if child.has_meta("fp_params"):   # peça piso+plataforma (heightfield) — desenho próprio
+			_draw_fp_node(child)
 			continue
 		for shape_child in child.get_children():
 			if not shape_child is CollisionShape2D:
@@ -786,6 +818,10 @@ func _draw_platform_tiles(rect: Rect2, tex: Texture2D) -> void:
 			var dx := rect.position.x + col * ts
 			var dy := rect.position.y + row * ts - src_ts  # alinha face sólida com física
 			var dh := minf(ts, rect.position.y + rect.size.y - dy)
+			# Preenche as bordas com meia-tile sólida. NÃO REMOVER para piso reto:
+			# os tiles de canto (0,0)/(1,3) têm ~metade transparente (chanfro); sem este
+			# preenchimento a borda sólida fica recuada da colisão → vão horizontal entre
+			# o personagem (que colide na borda real) e o piso visível.
 			if cols > 1:
 				var fill := _gap_fill_tile(row, rows)
 				if col == 0:
@@ -806,6 +842,70 @@ func _gap_fill_tile(row: int, rows: int) -> Vector2i:
 	if row == 0:        return Vector2i(3, 0)  # TOP — linha visual superior
 	if row == rows - 1: return Vector2i(1, 2)  # BOTTOM — linha visual inferior
 	return Vector2i(2, 1)                       # FILL — interior
+
+# ─── Peça "piso + plataforma" (heightfield) ──────────────────────────────────
+# Espelha _fp_solid/_fp_tile de ui/img_debug.gd (modo "Piso+Plat") e stage_scene.gd.
+# Piso reto + plataforma elevada (sem vão embaixo) + piso reto, como UM bloco só.
+func _fp_solid(c: int, r: int, lc: int, pc: int, er: int, total_c: int, total_r: int, hole: int) -> bool:
+	if c < 0 or r < 0 or c >= total_c or r >= total_r:
+		return false
+	var in_plat: bool = c >= lc and c < lc + pc
+	if in_plat:
+		return true
+	if hole > 0 and c >= lc + pc:
+		return false
+	if hole < 0 and c < lc:
+		return false
+	return r >= er
+
+func _fp_tile(c: int, r: int, lc: int, pc: int, er: int, total_c: int, total_r: int, hole: int) -> Vector2i:
+	var eu := not _fp_solid(c, r - 1, lc, pc, er, total_c, total_r, hole)
+	var ed := not _fp_solid(c, r + 1, lc, pc, er, total_c, total_r, hole)
+	var el := not _fp_solid(c - 1, r, lc, pc, er, total_c, total_r, hole)
+	var er_x := not _fp_solid(c + 1, r, lc, pc, er, total_c, total_r, hole)
+	if eu and el: return Vector2i(1, 3)   # canto sup-esq
+	if eu and er_x: return Vector2i(0, 0)  # canto sup-dir
+	if ed and el: return Vector2i(0, 2)   # canto inf-esq
+	if ed and er_x: return Vector2i(3, 3)  # canto inf-dir
+	if eu: return Vector2i(3, 0)          # TOP (superfície)
+	if ed: return Vector2i(1, 2)          # BOTTOM
+	if el: return Vector2i(1, 0)          # parede esquerda visual
+	if er_x: return Vector2i(3, 2)        # parede direita visual
+	if not _fp_solid(c - 1, r - 1, lc, pc, er, total_c, total_r, hole): return Vector2i(1, 1)  # entalhe sup-esq
+	if not _fp_solid(c + 1, r - 1, lc, pc, er, total_c, total_r, hole): return Vector2i(2, 0)  # entalhe sup-dir
+	return Vector2i(2, 1)                  # FILL
+
+func _draw_fp_node(node: Node) -> void:
+	var p: Dictionary = node.get_meta("fp_params")
+	var tex := _TILESET
+	if tex == null:
+		return
+	var lc: int = p["left_cols"]
+	var pc: int = p["plat_cols"]
+	var rc: int = p["right_cols"]
+	var er: int = p["elev_rows"]
+	var dr: int = p["depth_rows"]
+	var hole: int = p.get("hole_dir", 0)
+	var total_c: int = lc + pc + rc
+	var total_r: int = er + dr
+	var ts := _TS
+	var src := _SRC_TS
+	var gx: float = p["left_x"]
+	var gy: float = float(p["surface_y"]) - er * ts   # topo da grade (topo da plataforma)
+	var surface_right: float = gx + float(p.get("surface_w", total_c * ts))
+	for r in total_r:
+		for c in total_c:
+			if not _fp_solid(c, r, lc, pc, er, total_c, total_r, hole):
+				continue
+			var t := _fp_tile(c, r, lc, pc, er, total_c, total_r, hole)
+			var dx := gx + c * ts
+			var dy := gy + r * ts - src   # alinha face sólida superior com a colisão
+			var dw: float = minf(float(ts), surface_right - dx)   # clamp à largura real do piso
+			if dw <= 0.0:
+				continue
+			draw_texture_rect_region(tex,
+				Rect2(dx, dy, dw, float(ts)),
+				Rect2(t.x * src, t.y * src, src * dw / ts, src))
 
 func _draw_room_tiles(rect: Rect2, piece_name: String, skip_bottom_corner: bool = false) -> void:
 	var ts     := _TS
