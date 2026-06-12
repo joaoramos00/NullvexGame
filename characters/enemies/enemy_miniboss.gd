@@ -7,7 +7,7 @@ const _TEX_WALK  := preload("res://characters/enemies/miniboss/miniboss_walk.png
 const _TEX_IDLE  := preload("res://characters/enemies/miniboss/miniboss_idle.png")
 const _TEX_PUNCH := preload("res://characters/enemies/miniboss/miniboss_punch.png")
 const _TEX_STOMP   := preload("res://characters/enemies/miniboss/miniboss_stomp.png")
-const _TEX_CHARGE  := preload("res://characters/enemies/miniboss/miniboss_charge.png")
+const _TEX_CHARGE  := preload("res://characters/enemies/miniboss/miniboss_stomp.png")
 
 const _WALK_FRAMES   := 6
 const _IDLE_FRAMES   := 4

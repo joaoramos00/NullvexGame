@@ -1,0 +1,35 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://characters/enemies/stage_02/enemy_ice_miniboss.gd" id="1_script"]
+[ext_resource type="Texture2D" path="res://characters/enemies/stage_02/enemy_ice_miniboss_idle.png" id="2_idle"]
+
+[sub_resource type="CapsuleShape2D" id="shape_body"]
+radius = 34.0
+height = 110.0
+
+[sub_resource type="RectangleShape2D" id="shape_contact"]
+size = Vector2(86, 136)
+
+[node name="EnemyIceMiniBoss" type="CharacterBody2D"]
+collision_layer = 4
+collision_mask = 1
+script = ExtResource("1_script")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0, -72)
+shape = SubResource("shape_body")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+position = Vector2(0, -88)
+texture = ExtResource("2_idle")
+hframes = 3
+vframes = 3
+scale = Vector2(2, 2)
+
+[node name="ContactZone" type="Area2D" parent="."]
+collision_layer = 0
+collision_mask = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ContactZone"]
+position = Vector2(0, -72)
+shape = SubResource("shape_contact")

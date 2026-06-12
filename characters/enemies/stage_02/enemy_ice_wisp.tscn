@@ -1,0 +1,28 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://characters/enemies/stage_02/enemy_ice_wisp.gd" id="1_script"]
+[ext_resource type="Texture2D" path="res://characters/enemies/stage_02/enemy_ice_wisp_hover.png" id="2_tex"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_1"]
+radius = 24.0
+
+[node name="EnemyIceWisp" type="CharacterBody2D"]
+collision_layer = 4
+collision_mask = 1
+script = ExtResource("1_script")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_1")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("2_tex")
+hframes = 2
+vframes = 2
+scale = Vector2(1, 1)
+
+[node name="ContactZone" type="Area2D" parent="."]
+collision_layer = 0
+collision_mask = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ContactZone"]
+shape = SubResource("CircleShape2D_1")

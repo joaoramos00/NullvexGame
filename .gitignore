@@ -19,3 +19,4 @@ CLAUDE.md
 tests/bot/shots/
 tests/bot/results/
 tests/bot/node_modules/
+.worktrees/

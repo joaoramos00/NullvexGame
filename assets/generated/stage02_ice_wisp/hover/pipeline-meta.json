@@ -1,0 +1,175 @@
+{
+  "target": "creature",
+  "mode": "hover",
+  "prompt": "",
+  "role": "",
+  "input": "assets\\generated\\stage02_ice_wisp\\hover\\raw-sheet.png",
+  "threshold": 100,
+  "edge_threshold": 150,
+  "duration": 200,
+  "rows": 2,
+  "cols": 2,
+  "cell_size": 128,
+  "fit_scale": 0.92,
+  "trim_border": 4,
+  "edge_clean_depth": 3,
+  "align": "center",
+  "shared_scale": true,
+  "component_mode": "largest",
+  "component_padding": 0,
+  "min_component_area": 1,
+  "edge_touch_margin": 0,
+  "frame_labels": [
+    "hover-1",
+    "hover-2",
+    "hover-3",
+    "hover-4"
+  ],
+  "frames": [
+    {
+      "grid": [
+        0,
+        0
+      ],
+      "source_box": [
+        0,
+        0,
+        627,
+        627
+      ],
+      "component_mode": "largest",
+      "component_count": 5,
+      "selected_component_area": 30820,
+      "selected_component_bbox": [
+        233,
+        219,
+        424,
+        487
+      ],
+      "crop_bbox": [
+        233,
+        219,
+        424,
+        487
+      ],
+      "edge_touch": false,
+      "output_size": [
+        80,
+        112
+      ],
+      "paste_position": [
+        24,
+        8
+      ]
+    },
+    {
+      "grid": [
+        0,
+        1
+      ],
+      "source_box": [
+        627,
+        0,
+        1254,
+        627
+      ],
+      "component_mode": "largest",
+      "component_count": 5,
+      "selected_component_area": 31521,
+      "selected_component_bbox": [
+        173,
+        168,
+        370,
+        446
+      ],
+      "crop_bbox": [
+        173,
+        168,
+        370,
+        446
+      ],
+      "edge_touch": false,
+      "output_size": [
+        82,
+        116
+      ],
+      "paste_position": [
+        23,
+        6
+      ]
+    },
+    {
+      "grid": [
+        1,
+        0
+      ],
+      "source_box": [
+        0,
+        627,
+        627,
+        1254
+      ],
+      "component_mode": "largest",
+      "component_count": 5,
+      "selected_component_area": 31708,
+      "selected_component_bbox": [
+        233,
+        122,
+        428,
+        403
+      ],
+      "crop_bbox": [
+        233,
+        122,
+        428,
+        403
+      ],
+      "edge_touch": false,
+      "output_size": [
+        81,
+        117
+      ],
+      "paste_position": [
+        23,
+        5
+      ]
+    },
+    {
+      "grid": [
+        1,
+        1
+      ],
+      "source_box": [
+        627,
+        627,
+        1254,
+        1254
+      ],
+      "component_mode": "largest",
+      "component_count": 5,
+      "selected_component_area": 31202,
+      "selected_component_bbox": [
+        180,
+        169,
+        374,
+        437
+      ],
+      "crop_bbox": [
+        180,
+        169,
+        374,
+        437
+      ],
+      "edge_touch": false,
+      "output_size": [
+        81,
+        112
+      ],
+      "paste_position": [
+        23,
+        8
+      ]
+    }
+  ],
+  "edge_touch_frames": []
+}

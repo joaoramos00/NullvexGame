@@ -12,6 +12,10 @@ func run_tests() -> void:
     test_death_signal_on_lethal_damage()
     test_is_dead_flag_set()
     test_no_grab_wall_returns_false_with_no_collisions()
+    test_stage_ice_hook_tracks_contacts()
+    test_ice_horizontal_movement_slides_after_input_release()
+    test_ice_dash_starts_slower_than_normal_dash()
+    test_ice_dash_accelerates_after_start()
     print("=== All CharacterBase tests passed ===")
 
 func test_initial_hp() -> void:
@@ -87,3 +91,65 @@ func test_no_grab_wall_returns_false_with_no_collisions() -> void:
     assert(cb._touching_no_grab_wall() == false, "_touching_no_grab_wall false sem colisões")
     cb.queue_free()
     print("PASS: test_no_grab_wall_returns_false_with_no_collisions")
+
+func test_stage_ice_hook_tracks_contacts() -> void:
+    var cb := CharacterBase.new()
+    add_child(cb)
+    cb.max_hp = 100
+    cb._ready()
+    assert(cb.has_method("set_stage_ice"), "CharacterBase expõe set_stage_ice")
+    if cb.has_method("set_stage_ice"):
+        cb.call("set_stage_ice", true)
+        assert(cb.get("_stage_on_ice") == true, "set_stage_ice(true) ativa gelo")
+        cb.call("set_stage_ice", true)
+        cb.call("set_stage_ice", false)
+        assert(cb.get("_stage_on_ice") == true, "um contato restante mantém gelo ativo")
+        cb.call("set_stage_ice", false)
+        assert(cb.get("_stage_on_ice") == false, "sem contatos remove gelo")
+    cb.queue_free()
+    print("PASS: test_stage_ice_hook_tracks_contacts")
+
+func test_ice_horizontal_movement_slides_after_input_release() -> void:
+    var cb := CharacterBase.new()
+    add_child(cb)
+    cb.max_hp = 100
+    cb._ready()
+    assert(cb.has_method("_apply_horizontal_movement"), "CharacterBase expõe helper de movimento horizontal")
+    if cb.has_method("set_stage_ice") and cb.has_method("_apply_horizontal_movement"):
+        cb.call("set_stage_ice", true)
+        cb.velocity.x = CharacterBase.SPEED
+        cb.call("_apply_horizontal_movement", 0.0, 0.1, true)
+        assert(cb.velocity.x > 0.0, "no gelo, soltar direcional mantém deslize")
+        assert(cb.velocity.x < CharacterBase.SPEED, "no gelo, atrito ainda reduz velocidade")
+    cb.queue_free()
+    print("PASS: test_ice_horizontal_movement_slides_after_input_release")
+
+func test_ice_dash_starts_slower_than_normal_dash() -> void:
+    var cb := CharacterBase.new()
+    add_child(cb)
+    cb.max_hp = 100
+    cb._ready()
+    if cb.has_method("set_stage_ice"):
+        cb.call("set_stage_ice", true)
+        cb.call("_start_dash", 1.0)
+        cb.call("_handle_movement", 0.0)
+        assert(cb.velocity.x > 0.0, "dash no gelo ainda move o personagem")
+        assert(cb.velocity.x < CharacterBase.DASH_SPEED, "dash no gelo começa abaixo do dash normal")
+    cb.queue_free()
+    print("PASS: test_ice_dash_starts_slower_than_normal_dash")
+
+func test_ice_dash_accelerates_after_start() -> void:
+    var cb := CharacterBase.new()
+    add_child(cb)
+    cb.max_hp = 100
+    cb._ready()
+    if cb.has_method("set_stage_ice"):
+        cb.call("set_stage_ice", true)
+        cb.call("_start_dash", 1.0)
+        cb.call("_handle_movement", 0.0)
+        var initial_speed := cb.velocity.x
+        cb.call("_handle_movement", 0.1)
+        assert(cb.velocity.x > initial_speed, "dash no gelo acelera depois do começo pesado")
+        assert(cb.velocity.x < CharacterBase.DASH_SPEED, "dash no gelo não vira dash normal instantaneamente")
+    cb.queue_free()
+    print("PASS: test_ice_dash_accelerates_after_start")
