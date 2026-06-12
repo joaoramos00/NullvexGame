@@ -4,6 +4,15 @@
 **Spec:** `docs/superpowers/specs/2026-06-06-stage00-zone-debug-png-design.md`
 **Branch:** `feat/kawagael-reskin` (trabalho de debug-tooling, sem conflito com o reskin)
 
+> **Status 2026-06-12 — IMPLEMENTADO, com pivot para SVG headless.**
+> Fase 1 (`ZoneClassifier` + testes) entregue. Fase 2 entregue, mas o render por GPU
+> (`SubViewport`/PNG) **reiniciava a máquina** (Radeon 520, viewport 4096px) — trocado
+> por emissão de **SVG vetorial headless** (zero GPU). `tools/zone_debug.gd` instancia
+> a `stage_00` só para coletar geometria viva e escreve um `.svg` por área + legenda.
+> Rodar: `Godot --headless --path . res://tools/zone_debug.tscn -- --area=all`.
+> A descrição de Fase 2 abaixo (SubViewport/modos real+esquemático/PNG) é o plano
+> original; a entrega real é SVG headless.
+
 ## Objetivo
 
 Gerar, por área da fase 00, um PNG rotulado onde cada elemento/inimigo recebe um ID

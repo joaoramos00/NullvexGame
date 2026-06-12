@@ -80,12 +80,15 @@ func area_by_name(node_name: String) -> String:
 	return ""
 
 
-## Área final: nome primeiro, senão pela faixa X do centro.
+## Área final: nome primeiro; senão um hint (ex.: ancestral CorridorSection); senão
+## pela faixa X do centro.
 ## area_extents: { area: [min_x, max_x] } computado dos membros já atribuídos por nome.
-func classify_area(node_name: String, center: Vector2, area_extents: Dictionary) -> String:
+func classify_area(node_name: String, center: Vector2, area_extents: Dictionary, hint: String = "") -> String:
 	var by_name := area_by_name(node_name)
 	if by_name != "":
 		return by_name
+	if hint != "":
+		return hint
 	# Fallback por X: a área cujo intervalo contém center.x; se nenhum, a mais próxima.
 	var best := ""
 	var best_dist := INF
@@ -150,7 +153,7 @@ func classify(records: Array) -> Dictionary:
 	var ext := area_extents(records)
 	for rec in records:
 		var center: Vector2 = rec.rect.position + rec.rect.size * 0.5
-		rec.area = classify_area(rec.name, center, ext)
+		rec.area = classify_area(rec.name, center, ext, rec.get("area_hint", ""))
 	assign_ids(records)
 
 	var bboxes: Dictionary = {}

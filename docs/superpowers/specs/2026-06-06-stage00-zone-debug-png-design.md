@@ -1,9 +1,20 @@
-# Spec — Gerador de PNG de debug por zona (Fase 00)
+# Spec — Gerador de debug por zona (Fase 00)
 
 **Data:** 2026-06-06
 **Objetivo:** Facilitar o debug das zonas da fase 00 gerando, por área, uma imagem
 rotulada onde cada elemento e inimigo recebe um ID curto (`plat001`, `grunt001`…)
 que mapeia de volta ao nó real. Acompanha uma legenda `ID → nó real → rect`.
+
+> **Revisão 2026-06-12 — pivot para SVG headless (ZERO GPU).**
+> O design original renderizava PNGs via `SubViewport`/`Camera2D` (modos *real* e
+> *esquemático*). Em hardware com GPU fraca (AMD Radeon 520) renderizar a `stage_00`
+> inteira num viewport de até 4096px **reiniciava a máquina** (crash de driver
+> Vulkan). A solução: trocar o render por GPU por emissão de **SVG vetorial** gerado
+> **headless**. O classifier roda igual; a saída é um `.svg` por área (retângulos por
+> tipo + rótulos). Abre no navegador, zoom infinito, texto selecionável, não toca a
+> GPU. O modo *real* (tiles fotográficos) foi descartado — o vetorial é o que importa
+> pro debug de zona. Trechos abaixo com `SubViewport`/PNG/`--mode` refletem o design
+> antigo; a implementação atual é SVG headless (`--headless … -- --area=…`).
 
 ## Problema
 

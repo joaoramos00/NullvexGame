@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="12826 -416 3762 1212" width="2400" height="773" font-family="monospace">
+<rect x="12826" y="-416" width="3762" height="1212" fill="#0a0a12"/>
+<rect x="12922" y="-100" width="3570" height="800" fill="#f28c26" fill-opacity="0.82" stroke="#f7b472" stroke-width="2"/>
+<rect x="12924" y="-98" width="112.16" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="12928" y="-74" font-size="24" fill="#f7b472">zone004</text>
+<rect x="12922" y="-320" width="3570" height="128" fill="#73bff2" fill-opacity="0.82" stroke="#a4d6f7" stroke-width="2"/>
+<rect x="12924" y="-318" width="127.04" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="12928" y="-294" font-size="24" fill="#a4d6f7">glass003</text>
+<rect x="13660" y="280" width="1090" height="128" fill="#8c8c8c" fill-opacity="0.82" stroke="#b4b4b4" stroke-width="2"/>
+<rect x="13662" y="282" width="127.04" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="13666" y="306" font-size="24" fill="#b4b4b4">floor009</text>
+<rect x="15200" y="280" width="1292" height="64" fill="#8c8c8c" fill-opacity="0.82" stroke="#b4b4b4" stroke-width="2"/>
+<rect x="15202" y="282" width="127.04" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="15206" y="306" font-size="24" fill="#b4b4b4">floor010</text>
+<rect x="14100" y="120" width="300" height="160" fill="#4d80f2" fill-opacity="0.82" stroke="#8bacf7" stroke-width="2"/>
+<rect x="14102" y="122" width="112.16" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="14106" y="146" font-size="24" fill="#8bacf7">wall003</text>
+<rect x="12922" y="280" width="478" height="64" fill="#8c8c8c" fill-opacity="0.82" stroke="#b4b4b4" stroke-width="2"/>
+<rect x="12924" y="282" width="127.04" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="12928" y="306" font-size="24" fill="#b4b4b4">floor008</text>
+<rect x="13545.33" y="159.86" width="72" height="96" fill="#e64040" fill-opacity="0.82" stroke="#ee8383" stroke-width="2"/>
+<rect x="13547.33" y="161.86" width="127.04" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="13551.33" y="185.86" font-size="24" fill="#ee8383">grunt016</text>
+<rect x="13985.33" y="149.85" width="72" height="96" fill="#e64040" fill-opacity="0.82" stroke="#ee8383" stroke-width="2"/>
+<rect x="13987.33" y="151.85" width="127.04" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="13991.33" y="175.85" font-size="24" fill="#ee8383">grunt017</text>
+<rect x="14185.33" y="31.94" width="72" height="96" fill="#e64040" fill-opacity="0.82" stroke="#ee8383" stroke-width="2"/>
+<rect x="14187.33" y="33.94" width="127.04" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="14191.33" y="57.94" font-size="24" fill="#ee8383">grunt018</text>
+<rect x="14605.33" y="159.86" width="72" height="96" fill="#e64040" fill-opacity="0.82" stroke="#ee8383" stroke-width="2"/>
+<rect x="14607.33" y="161.86" width="127.04" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="14611.33" y="185.86" font-size="24" fill="#ee8383">grunt019</text>
+<rect x="14805.33" y="159.86" width="72" height="96" fill="#e64040" fill-opacity="0.82" stroke="#ee8383" stroke-width="2"/>
+<rect x="14807.33" y="161.86" width="127.04" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="14811.33" y="185.86" font-size="24" fill="#ee8383">grunt020</text>
+<rect x="15326.66" y="191.93" width="72" height="96" fill="#e64040" fill-opacity="0.82" stroke="#ee8383" stroke-width="2"/>
+<rect x="15328.66" y="193.93" width="127.04" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="15332.66" y="217.93" font-size="24" fill="#ee8383">grunt021</text>
+<rect x="15786.66" y="191.93" width="72" height="96" fill="#e64040" fill-opacity="0.82" stroke="#ee8383" stroke-width="2"/>
+<rect x="15788.66" y="193.93" width="127.04" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="15792.66" y="217.93" font-size="24" fill="#ee8383">grunt022</text>
+<rect x="13606.66" y="124.43" width="72" height="96" fill="#f273b3" fill-opacity="0.82" stroke="#f7a4cd" stroke-width="2"/>
+<rect x="13608.66" y="126.43" width="127.04" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="13612.66" y="150.43" font-size="24" fill="#f7a4cd">flyer009</text>
+<rect x="14039.92" y="112.98" width="72" height="96" fill="#f273b3" fill-opacity="0.82" stroke="#f7a4cd" stroke-width="2"/>
+<rect x="14041.92" y="114.98" width="127.04" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="14045.92" y="138.98" font-size="24" fill="#f7a4cd">flyer010</text>
+<rect x="13246.66" y="191.93" width="72" height="96" fill="#e64040" fill-opacity="0.82" stroke="#ee8383" stroke-width="2"/>
+<rect x="13248.66" y="193.93" width="127.04" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="13252.66" y="217.93" font-size="24" fill="#ee8383">grunt015</text>
+<rect x="13066.66" y="191.93" width="72" height="96" fill="#e64040" fill-opacity="0.82" stroke="#ee8383" stroke-width="2"/>
+<rect x="13068.66" y="193.93" width="127.04" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="13072.66" y="217.93" font-size="24" fill="#ee8383">grunt014</text>
+<rect x="14903" y="280" width="192" height="32" fill="#33e6e6" fill-opacity="0.82" stroke="#7aeeee" stroke-width="2"/>
+<rect x="14905" y="282" width="112.16" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="14909" y="306" font-size="24" fill="#7aeeee">movp001</text>
+</svg>

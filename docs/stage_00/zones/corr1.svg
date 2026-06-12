@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="5384 -1248 1206 2496" width="1160" height="2400" font-family="monospace">
+<rect x="5384" y="-1248" width="1206" height="2496" fill="#0a0a12"/>
+<rect x="5480" y="-1152" width="128" height="2048" fill="#73bff2" fill-opacity="0.82" stroke="#a4d6f7" stroke-width="2"/>
+<rect x="5482" y="-1150" width="127.04" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="5486" y="-1126" font-size="24" fill="#a4d6f7">glass001</text>
+<rect x="5534" y="1088" width="896" height="64" fill="#b3b3b3" fill-opacity="0.82" stroke="#cdcdcd" stroke-width="2"/>
+<rect x="5536" y="1090" width="112.16" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="5540" y="1114" font-size="24" fill="#cdcdcd">misc004</text>
+<rect x="5534" y="896" width="896" height="64" fill="#b3b3b3" fill-opacity="0.82" stroke="#cdcdcd" stroke-width="2"/>
+<rect x="5536" y="898" width="112.16" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="5540" y="922" font-size="24" fill="#cdcdcd">misc003</text>
+<rect x="5532.67" y="924" width="66.67" height="200" fill="#f2d933" fill-opacity="0.82" stroke="#f7e67a" stroke-width="2"/>
+<rect x="5534.67" y="926" width="112.16" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="5538.67" y="950" font-size="24" fill="#f7e67a">door001</text>
+<rect x="6396.67" y="924" width="66.67" height="200" fill="#f2d933" fill-opacity="0.82" stroke="#f7e67a" stroke-width="2"/>
+<rect x="6398.67" y="926" width="112.16" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="6402.67" y="950" font-size="24" fill="#f7e67a">door002</text>
+<rect x="5502" y="896" width="64" height="28" fill="#b3b3b3" fill-opacity="0.82" stroke="#cdcdcd" stroke-width="2"/>
+<rect x="5504" y="898" width="112.16" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="5508" y="922" font-size="24" fill="#cdcdcd">misc001</text>
+<rect x="6430" y="896" width="64" height="28" fill="#b3b3b3" fill-opacity="0.82" stroke="#cdcdcd" stroke-width="2"/>
+<rect x="6432" y="898" width="112.16" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="6436" y="922" font-size="24" fill="#cdcdcd">misc005</text>
+</svg>
