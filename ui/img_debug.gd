@@ -1230,7 +1230,7 @@ class _HitboxOverlay extends Node2D:
 class _HitboxView extends Control:
     const _VIEW_SIZE := Vector2(900.0, 460.0)
     const _ENTITY_POS := Vector2(450.0, 300.0)
-    const _CAMERA_ZOOM := Vector2(0.5, 0.5)
+    const _CAMERA_ZOOM := Vector2(2.0, 2.0)
     const _CAMERA_OFFSET_Y := 24.0
     const _PROJECTILE_DEFS := {
         "Ice Archer": {"label": "Ice Arrow", "variant": "ice_arrow", "release_frame": 4, "offset": Vector2(52.0, -82.0), "parabolic": false},
