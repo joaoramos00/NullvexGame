@@ -87,7 +87,7 @@ func _set_shield_barrier_lowered(lowered: bool) -> void:
 
 func _fire() -> void:
 	var projectile := _PROJECTILE_SCENE.instantiate() as EnemyIceProjectile
-	projectile.setup(Vector2(_direction * projectile_speed, 0.0), projectile_damage, "glacier_shield")
+	projectile.setup(Vector2(_direction * projectile_speed, 0.0), projectile_damage, "glacier_shield", 0.0, "eye_beam")
 	get_parent().add_child(projectile)
 	projectile.global_position = global_position + Vector2(_direction * 34.0, -18.0)
 

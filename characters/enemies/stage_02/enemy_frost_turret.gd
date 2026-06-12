@@ -70,7 +70,7 @@ func _tick_shot(delta: float) -> void:
 
 func _fire(shot_velocity: Vector2) -> void:
 	var projectile := _PROJECTILE_SCENE.instantiate() as EnemyIceProjectile
-	projectile.setup(shot_velocity, projectile_damage, "frost_turret")
+	projectile.setup(shot_velocity, projectile_damage, "frost_turret", 0.0, "ice_cannonball")
 	get_parent().add_child(projectile)
 	projectile.global_position = global_position + shot_velocity.normalized() * 32.0
 
