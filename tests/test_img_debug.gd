@@ -282,7 +282,7 @@ func test_hitbox_view_aligns_character_collision_bottom_to_floor() -> void:
     var idx := view._find_first_group("Personagens")
     assert(idx >= 0, "HitboxView deve encontrar personagem")
     view._select_index(idx)
-    var bottom := _max_collision_shape_bottom(view._current_instance, float(view._scene_root.scale.x))
+    var bottom := _max_collision_shape_bottom(view._current_instance)
     assert(is_equal_approx(bottom, view._overlay.ground_y), "fundo da hitbox do personagem deve alinhar ao piso")
     view.queue_free()
     print("PASS: hitbox_view_aligns_character_collision_bottom_to_floor")
@@ -427,22 +427,22 @@ func _has_collision_shape(node: Node) -> bool:
             return true
     return false
 
-func _max_collision_shape_bottom(node: Node, zoom: float = 1.0) -> float:
+func _max_collision_shape_bottom(node: Node) -> float:
     var bottom := -INF
     if node is CollisionShape2D:
         var cs := node as CollisionShape2D
-        bottom = maxf(bottom, _collision_shape_bottom(cs, zoom))
+        bottom = maxf(bottom, _collision_shape_bottom(cs))
     for child in node.get_children():
-        bottom = maxf(bottom, _max_collision_shape_bottom(child, zoom))
+        bottom = maxf(bottom, _max_collision_shape_bottom(child))
     return bottom
 
-func _collision_shape_bottom(cs: CollisionShape2D, zoom: float = 1.0) -> float:
+func _collision_shape_bottom(cs: CollisionShape2D) -> float:
     if cs.shape is RectangleShape2D:
-        return cs.global_position.y + (cs.shape as RectangleShape2D).size.y * 0.5 * zoom
+        return cs.global_position.y + (cs.shape as RectangleShape2D).size.y * 0.5
     if cs.shape is CircleShape2D:
-        return cs.global_position.y + (cs.shape as CircleShape2D).radius * zoom
+        return cs.global_position.y + (cs.shape as CircleShape2D).radius
     if cs.shape is CapsuleShape2D:
-        return cs.global_position.y + (cs.shape as CapsuleShape2D).height * 0.5 * zoom
+        return cs.global_position.y + (cs.shape as CapsuleShape2D).height * 0.5
     return cs.global_position.y
 
 func _all_processing_disabled(node: Node) -> bool:
