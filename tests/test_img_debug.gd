@@ -15,6 +15,7 @@ func _ready() -> void:
     test_hitbox_view_controls_exist()
     test_hitbox_view_hierarchical_selectors()
     test_hitbox_view_frame_selector_updates_sprite_and_glacier_barrier()
+    test_hitbox_view_projectile_row_tracks_stage02_release_frames()
     test_hitbox_view_has_floor()
     test_hitbox_view_draws_entities_above_floor_tiles()
     test_hitbox_view_aligns_character_collision_bottom_to_floor()
@@ -236,6 +237,22 @@ func test_hitbox_view_frame_selector_updates_sprite_and_glacier_barrier() -> voi
     view.queue_free()
     print("PASS: hitbox_view_frame_selector_updates_sprite_and_glacier_barrier")
 
+func test_hitbox_view_projectile_row_tracks_stage02_release_frames() -> void:
+    var view := ImgDebug._HitboxView.new()
+    add_child(view)
+    view._set_filter("Inimigos")
+    view._set_stage("Stage 02")
+
+    _assert_projectile_preview_state(view, "Ice Archer", 3, false, "ice_arrow", false)
+    _assert_projectile_preview_state(view, "Ice Archer", 4, true, "ice_arrow", false)
+    _assert_projectile_preview_state(view, "Frost Turret", 2, false, "ice_cannonball", false)
+    _assert_projectile_preview_state(view, "Frost Turret", 3, true, "ice_cannonball", false)
+    _assert_projectile_preview_state(view, "Cryo Bomber", 3, true, "ice_ball", true)
+    _assert_projectile_preview_state(view, "Glacier Shield", 2, true, "eye_beam", false)
+
+    view.queue_free()
+    print("PASS: hitbox_view_projectile_row_tracks_stage02_release_frames")
+
 func test_hitbox_view_has_floor() -> void:
     var view := ImgDebug._HitboxView.new()
     add_child(view)
@@ -446,3 +463,22 @@ func _assert_buttons_without_fallback_symbols(node: Node) -> void:
             assert(not text.contains(symbol), "botão usa símbolo sem fallback Web: " + text)
     for child in node.get_children():
         _assert_buttons_without_fallback_symbols(child)
+
+func _assert_projectile_preview_state(
+    view: ImgDebug._HitboxView,
+    entity_name: String,
+    frame_index: int,
+    expected_visible: bool,
+    expected_variant: String,
+    expected_parabolic: bool
+) -> void:
+    view._select_entity_by_name(entity_name)
+    view._select_frame(frame_index)
+    var row := view.get("_projectile_row") as Control
+    assert(row != null and row.visible, entity_name + " deve mostrar linha Projetil")
+    var info_value = view.get("_current_projectile_info")
+    assert(info_value is Dictionary, entity_name + " deve expor metadata de projetil")
+    var info := info_value as Dictionary
+    assert(String(info.get("variant", "")) == expected_variant, entity_name + " deve usar variant " + expected_variant)
+    assert(bool(info.get("visible", false)) == expected_visible, entity_name + " visibilidade do projetil no frame incorreta")
+    assert(bool(info.get("parabolic", false)) == expected_parabolic, entity_name + " parabola incorreta")

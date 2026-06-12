@@ -1121,6 +1121,7 @@ class _HitboxOverlay extends Node2D:
     var floor_body_rows: int = 1
     var ground_y: float = 300.0
     var shape_infos: Array = []
+    var projectile_preview: Dictionary = {}
     var show_labels: bool = true
     var show_floor: bool = true
     var show_hitboxes: bool = true
@@ -1139,6 +1140,7 @@ class _HitboxOverlay extends Node2D:
             _draw_shape(cs, color)
             if show_labels:
                 draw_string(ThemeDB.fallback_font, cs.global_position + Vector2(8.0, -8.0), String(info.path), HORIZONTAL_ALIGNMENT_LEFT, -1.0, 13.0, color)
+        _draw_projectile_preview()
 
     func _shape_color(path: String) -> Color:
         if path.contains("ContactZone"):
@@ -1176,6 +1178,42 @@ class _HitboxOverlay extends Node2D:
         else:
             draw_circle(pos, 6.0, color)
 
+    func _draw_projectile_preview() -> void:
+        if projectile_preview.is_empty() or not bool(projectile_preview.get("visible", false)):
+            return
+        var pos := projectile_preview.get("position", Vector2.ZERO) as Vector2
+        var variant := String(projectile_preview.get("variant", "ice_ball"))
+        var parabolic := bool(projectile_preview.get("parabolic", false))
+        var color := Color(1.0, 0.48, 0.12, 0.95)
+        if parabolic:
+            var points := PackedVector2Array([
+                pos,
+                pos + Vector2(52.0, -60.0),
+                pos + Vector2(112.0, -72.0),
+                pos + Vector2(176.0, 10.0),
+            ])
+            for i in range(points.size() - 1):
+                draw_line(points[i], points[i + 1], Color(1.0, 0.48, 0.12, 0.72), 2.0)
+            draw_circle(pos + Vector2(52.0, -60.0), 4.0, Color(1.0, 0.72, 0.32, 0.75))
+            draw_circle(pos + Vector2(112.0, -72.0), 4.0, Color(1.0, 0.72, 0.32, 0.55))
+        match variant:
+            "ice_arrow":
+                draw_polygon(
+                    PackedVector2Array([pos + Vector2(17, 0), pos + Vector2(3, -6), pos + Vector2(-17, -4), pos + Vector2(-10, 0), pos + Vector2(-17, 4), pos + Vector2(3, 6)]),
+                    PackedColorArray([Color(0.65, 1.0, 1.0), Color(0.35, 0.78, 1.0), Color(0.18, 0.45, 0.9), Color(0.5, 0.9, 1.0), Color(0.18, 0.45, 0.9), Color(0.35, 0.78, 1.0)])
+                )
+                draw_rect(Rect2(pos - Vector2(17.0, 5.0), Vector2(34.0, 10.0)), Color(1.0, 0.48, 0.12, 0.18), true)
+                draw_rect(Rect2(pos - Vector2(17.0, 5.0), Vector2(34.0, 10.0)), color, false, 2.0)
+            "ice_cannonball":
+                draw_circle(pos, 12.0, Color(0.35, 0.82, 1.0, 0.35))
+                draw_arc(pos, 12.0, 0.0, TAU, 32, color, 2.0)
+            "eye_beam":
+                draw_rect(Rect2(pos + Vector2(-4.0, -6.0), Vector2(42.0, 12.0)), Color(0.38, 0.95, 1.0, 0.35), true)
+                draw_rect(Rect2(pos + Vector2(-4.0, -6.0), Vector2(42.0, 12.0)), color, false, 2.0)
+            _:
+                draw_circle(pos, 9.0, Color(0.55, 0.92, 1.0, 0.35))
+                draw_arc(pos, 9.0, 0.0, TAU, 32, color, 2.0)
+
     func _draw_floor() -> void:
         if floor_tex == null:
             draw_rect(Rect2(0.0, ground_y, 900.0, 160.0), Color(0.16, 0.2, 0.24))
@@ -1192,6 +1230,12 @@ class _HitboxOverlay extends Node2D:
 class _HitboxView extends Control:
     const _VIEW_SIZE := Vector2(900.0, 460.0)
     const _ENTITY_POS := Vector2(450.0, 300.0)
+    const _PROJECTILE_DEFS := {
+        "Ice Archer": {"label": "Ice Arrow", "variant": "ice_arrow", "release_frame": 4, "offset": Vector2(36.0, -18.0), "parabolic": false},
+        "Frost Turret": {"label": "Ice Cannonball", "variant": "ice_cannonball", "release_frame": 3, "offset": Vector2(32.0, 0.0), "parabolic": false},
+        "Cryo Bomber": {"label": "Ice Ball", "variant": "ice_ball", "release_frame": 3, "offset": Vector2(16.0, -56.0), "parabolic": true},
+        "Glacier Shield": {"label": "Eye Beam", "variant": "eye_beam", "release_frame": 2, "offset": Vector2(34.0, -18.0), "parabolic": false},
+    }
 
     var _current_index: int = 0
     var _current_instance: Node2D = null
@@ -1215,6 +1259,9 @@ class _HitboxView extends Control:
     var _stage_row: HBoxContainer = null
     var _entity_row: HBoxContainer = null
     var _frame_row: HBoxContainer = null
+    var _projectile_row: HBoxContainer = null
+    var _projectile_label: Label = null
+    var _current_projectile_info: Dictionary = {}
 
     func _ready() -> void:
         _build()
@@ -1244,6 +1291,10 @@ class _HitboxView extends Control:
         _frame_row = HBoxContainer.new()
         _frame_row.add_theme_constant_override("separation", 6)
         root.add_child(_frame_row)
+
+        _projectile_row = HBoxContainer.new()
+        _projectile_row.add_theme_constant_override("separation", 6)
+        root.add_child(_projectile_row)
 
         var toolbar := HBoxContainer.new()
         toolbar.add_theme_constant_override("separation", 6)
@@ -1347,6 +1398,7 @@ class _HitboxView extends Control:
             _shape_overlay.queue_redraw()
         _set_meta(entry, _shape_infos)
         _refresh_frame_row()
+        _refresh_projectile_row()
 
     func _clear_current() -> void:
         _shape_infos.clear()
@@ -1585,6 +1637,7 @@ class _HitboxView extends Control:
             _shape_overlay.queue_redraw()
         if _current_index >= 0 and _current_index < ImgDebug._HITBOX_ENTITIES.size():
             _set_meta(ImgDebug._HITBOX_ENTITIES[_current_index], _shape_infos)
+        _refresh_projectile_row()
 
     func _apply_selected_frame() -> void:
         if _current_instance == null:
@@ -1610,6 +1663,50 @@ class _HitboxView extends Control:
                         barrier.position = Vector2(38.0, -40.0)
                     _:
                         barrier.position = Vector2(38.0, -56.0)
+
+    func _refresh_projectile_row() -> void:
+        _clear_container(_projectile_row)
+        _current_projectile_info = {}
+        if _shape_overlay != null:
+            _shape_overlay.projectile_preview = {}
+            _shape_overlay.queue_redraw()
+        if _current_index < 0 or _current_index >= ImgDebug._HITBOX_ENTITIES.size():
+            return
+        var entry: Dictionary = ImgDebug._HITBOX_ENTITIES[_current_index]
+        var def_value = _PROJECTILE_DEFS.get(String(entry.name))
+        if not (def_value is Dictionary):
+            if _projectile_row != null:
+                _projectile_row.visible = false
+            return
+        var projectile_def := (def_value as Dictionary).duplicate()
+        var release_frame := int(projectile_def.release_frame)
+        var is_release := _selected_frame == release_frame
+        projectile_def["visible"] = is_release
+        projectile_def["position"] = _projectile_spawn_position(projectile_def.get("offset", Vector2.ZERO) as Vector2)
+        _current_projectile_info = projectile_def
+        if _projectile_row != null:
+            _projectile_row.visible = true
+            var title := Label.new()
+            title.text = "Projetil:"
+            title.add_theme_font_size_override("font_size", 18)
+            _projectile_row.add_child(title)
+            _projectile_label = Label.new()
+            _projectile_label.text = "%s no Frame %d%s" % [
+                String(projectile_def.label),
+                release_frame + 1,
+                " (visivel)" if is_release else "",
+            ]
+            _projectile_label.add_theme_font_size_override("font_size", 18)
+            _projectile_label.add_theme_color_override("font_color", Color(1.0, 0.72, 0.32) if is_release else Color(0.82, 0.82, 0.86))
+            _projectile_row.add_child(_projectile_label)
+        if _shape_overlay != null:
+            _shape_overlay.projectile_preview = projectile_def
+            _shape_overlay.queue_redraw()
+
+    func _projectile_spawn_position(offset: Vector2) -> Vector2:
+        if _current_instance == null:
+            return _ENTITY_POS + offset
+        return _current_instance.global_position + offset
 
     func _find_sprite2d(node: Node) -> Sprite2D:
         if node is Sprite2D:
