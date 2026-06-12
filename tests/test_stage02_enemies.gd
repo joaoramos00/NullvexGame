@@ -210,8 +210,8 @@ func _test_stage02_fixed_facing_ranged_enemies_do_not_turn() -> void:
 
 func _test_stage02_ranged_enemy_hitboxes_use_tuned_body_bounds() -> void:
 	_assert(
-		_enemy_capsule_hitbox_matches("res://characters/enemies/stage_02/enemy_ice_archer.tscn", Vector2(0, -68), 18.0, 134.0),
-		"ice archer hitbox tracks body instead of lower sprite frame"
+		_enemy_capsule_hitbox_matches("res://characters/enemies/stage_02/enemy_ice_archer.tscn", Vector2(0, -68), 34.0, 102.0),
+		"ice archer hitbox expands horizontally around the sprite"
 	)
 	_assert(
 		_enemy_rectangle_hitbox_matches("res://characters/enemies/stage_02/enemy_frost_turret.tscn", Vector2(0, -56), Vector2(60, 96)),
