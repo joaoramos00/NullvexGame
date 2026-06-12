@@ -20,3 +20,18 @@ tests/bot/shots/
 tests/bot/results/
 tests/bot/node_modules/
 .worktrees/
+
+# Caches do Godot (regerados na importação)
+.godot/
+
+# Tooling local
+.superpowers/
+
+# Rascunho/debug na raiz (screenshots, temporários)
+/*.png
+/*.png.import
+/*.gif
+/*.gif.import
+
+# Re-ignora .mcp.json (contém Bearer token) — sobrepõe o !.mcp.json do bloco OpenCastle
+.mcp.json
