@@ -70,6 +70,11 @@ func test_classify_area_by_x() -> void:
 	assert(zc.classify_area("PlayerSpawn", Vector2(100, 300), ext) == "Z1", "spawn por X")
 	# Nome ganha do X.
 	assert(zc.classify_area("Boss_Floor", Vector2(0, 0), ext) == "Boss", "nome > X")
+	# Hint (ancestral CorridorSection) entra antes do X para nós auto-nomeados.
+	assert(zc.classify_area("@StaticBody2D@17", Vector2(5800, 900), ext, "Corr1") == "Corr1",
+		"hint Corr1 para corpo auto-nomeado")
+	# Nome ainda ganha do hint.
+	assert(zc.classify_area("Boss_Floor", Vector2(0, 0), ext, "Corr1") == "Boss", "nome > hint")
 	print("PASS: classify_area_by_x")
 
 

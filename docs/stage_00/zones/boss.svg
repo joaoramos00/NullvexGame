@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="16994 -264 1152 704" width="1152" height="704" font-family="monospace">
+<rect x="16994" y="-264" width="1152" height="704" fill="#0a0a12"/>
+<rect x="17370" y="100" width="400" height="240" fill="#e640d9" fill-opacity="0.82" stroke="#ee83e6" stroke-width="2"/>
+<rect x="17372" y="102" width="112.16" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="17376" y="126" font-size="24" fill="#ee83e6">goal001</text>
+<rect x="17122" y="280" width="896" height="64" fill="#8c8c8c" fill-opacity="0.82" stroke="#b4b4b4" stroke-width="2"/>
+<rect x="17124" y="282" width="127.04" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="17128" y="306" font-size="24" fill="#b4b4b4">floor012</text>
+<rect x="17122" y="-168" width="896" height="64" fill="#334db3" fill-opacity="0.82" stroke="#7a8bcd" stroke-width="2"/>
+<rect x="17124" y="-166" width="112.16" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="17128" y="-142" font-size="24" fill="#7a8bcd">ceil003</text>
+<rect x="17090" y="-168" width="64" height="512" fill="#4d80f2" fill-opacity="0.82" stroke="#8bacf7" stroke-width="2"/>
+<rect x="17092" y="-166" width="112.16" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="17096" y="-142" font-size="24" fill="#8bacf7">wall005</text>
+<rect x="17986" y="-168" width="64" height="512" fill="#4d80f2" fill-opacity="0.82" stroke="#8bacf7" stroke-width="2"/>
+<rect x="17988" y="-166" width="112.16" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="17992" y="-142" font-size="24" fill="#8bacf7">wall007</text>
+</svg>
