@@ -12,20 +12,19 @@ func set_hp(current: int, maximum: int) -> void:
 	queue_redraw()
 
 func _draw() -> void:
-	var pct  := float(current_hp) / float(max_hp) if max_hp > 0 else 0.0
-	var bw   := size.x
-	var bh   := size.y
-	# Número de segmentos que cabem na barra com seg_h fixo
-	var segs := max(1, int((bh + _GAP) / (_SEG_H + _GAP)))
-	var filled := roundi(pct * segs)
+	var pct    : float = float(current_hp) / float(max_hp) if max_hp > 0 else 0.0
+	var bw     : float = size.x
+	var bh     : float = size.y
+	var segs   : int   = maxi(1, int((bh + _GAP) / (_SEG_H + _GAP)))
+	var filled : int   = roundi(pct * float(segs))
 
 	draw_rect(Rect2(0, 0, bw, bh), Color(0.07, 0.07, 0.12))
 
-	for i in segs:
-		var y   := bh - (i + 1) * _SEG_H - i * _GAP
-		var lit := i < filled
-		var t1  := segs / 3
-		var t2  := segs * 2 / 3
+	var t1 : int = segs / 3
+	var t2 : int = segs * 2 / 3
+	for i: int in segs:
+		var y   : float = bh - float(i + 1) * _SEG_H - float(i) * _GAP
+		var lit : bool  = i < filled
 		var color: Color
 		if i < t1:
 			color = Color(0.90, 0.10, 0.10) if lit else Color(0.15, 0.03, 0.03)
