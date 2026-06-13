@@ -297,8 +297,10 @@ func _setup_corr2_section() -> void:
 	_corr2.entry_x          = 7326.0
 	_corr2.exit_x           = 8222.0
 	_corr2.entry_manual     = not DebugBoot.no_enemies  # debug: corredor auto-abre (sem miniboss pra derrotar)
-	_corr2.save_checkpoint  = false
-	_corr2.heal_on_entry    = false
+	_corr2.save_checkpoint        = true
+	_corr2.checkpoint_index       = 2
+	_corr2.checkpoint_respawn_x   = 8350.0
+	_corr2.heal_on_entry          = false
 	_corr2.cam_center       = Vector2(7774.0, 1024.0)
 	_corr2.cam_zoom         = 2.0
 	_corr2.glass_fill_x     = 7326.0
