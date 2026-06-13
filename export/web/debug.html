@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NullvexGame — Debug</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #0a0812;
+    color: #ccc;
+    font-family: monospace;
+    padding: 16px;
+    min-height: 100dvh;
+  }
+  h1 { color: #8844ff; font-size: 1.1rem; margin-bottom: 4px; }
+  h2 { color: #554488; font-size: 0.8rem; font-weight: normal; margin-bottom: 20px; }
+  section { margin-bottom: 24px; }
+  section h3 { color: #7755bb; font-size: 0.75rem; text-transform: uppercase;
+               letter-spacing: 2px; margin-bottom: 10px; border-bottom: 1px solid #222; padding-bottom: 4px; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  a.btn {
+    display: block;
+    background: #1a1030;
+    border: 1px solid #443366;
+    color: #bb88ff;
+    text-decoration: none;
+    border-radius: 8px;
+    padding: 14px 10px;
+    text-align: center;
+    font-size: 0.85rem;
+    line-height: 1.4;
+    transition: background 0.15s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  a.btn:active { background: #2a1850; }
+  a.btn span { display: block; color: #665588; font-size: 0.7rem; margin-top: 2px; }
+  a.btn.primary { border-color: #8844ff; color: #cc99ff; }
+  a.btn.wide { grid-column: 1 / -1; }
+</style>
+</head>
+<body>
+<h1>NullvexGame Debug</h1>
+<h2>Toque para entrar direto na zona</h2>
+
+<section>
+  <h3>Stage 00 — Intro</h3>
+  <div class="grid">
+    <a class="btn" href="index.html?stage=0">Início<span>zona 1</span></a>
+    <a class="btn" href="index.html?stage=0&zone=2">Pós-Miniboss<span>zona 2</span></a>
+    <a class="btn" href="index.html?stage=0&zone=3">Gauntlet<span>zona 3</span></a>
+    <a class="btn primary" href="index.html?stage=0&zone=6">Corredor do Boss<span>zona 6</span></a>
+    <a class="btn primary" href="index.html?stage=0&zone=4">Sala do Boss<span>zona 4</span></a>
+    <a class="btn" href="index.html?stage=0&zone=5">Corr1 interior<span>zona 5</span></a>
+  </div>
+</section>
+
+<section>
+  <h3>Stage 00 — Flags</h3>
+  <div class="grid">
+    <a class="btn" href="index.html?stage=0&noenemies=1">Sem inimigos<span>s/ boss</span></a>
+    <a class="btn primary wide" href="index.html?stage=0&zone=6&noenemies=1">Corredor — sem inimigos<span>testa corredor sem boss</span></a>
+    <a class="btn primary wide" href="index.html?stage=0&zone=4&noenemies=1">Sala do Boss — sem boss<span>testa câmera/arena</span></a>
+  </div>
+</section>
+
+<section>
+  <h3>Stages 01–08</h3>
+  <div class="grid">
+    <a class="btn" href="index.html?stage=1">Stage 01<span>Ignarath</span></a>
+    <a class="btn" href="index.html?stage=2">Stage 02<span>Cryovex</span></a>
+    <a class="btn" href="index.html?stage=3">Stage 03<span>Voltrix</span></a>
+    <a class="btn" href="index.html?stage=4">Stage 04<span>Gravitus</span></a>
+    <a class="btn" href="index.html?stage=5">Stage 05<span>Galerix</span></a>
+    <a class="btn" href="index.html?stage=6">Stage 06<span>Umbraex</span></a>
+    <a class="btn" href="index.html?stage=7">Stage 07<span>Luxar</span></a>
+    <a class="btn" href="index.html?stage=8">Stage 08<span>Terragor</span></a>
+  </div>
+</section>
+
+</body>
+</html>
