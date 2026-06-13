@@ -335,6 +335,10 @@ func _setup_miniboss_trigger() -> void:
 func _on_miniboss_room_entered(body: Node2D) -> void:
 	if not body.is_in_group("player"):
 		return
+	# Guard antes da criação: após a morte o GDScript auto-nulifica _miniboss,
+	# fazendo o `== null` retornar true numa re-entrada — o que causaria respawn.
+	if _miniboss_spawned:
+		return
 	if _miniboss == null:
 		_miniboss = _MINIBOSS_SCENE.instantiate()
 		_miniboss.global_position = Vector2(7000.0, 1024.0)
@@ -344,7 +348,7 @@ func _on_miniboss_room_entered(body: Node2D) -> void:
 	while is_instance_valid(body) and body.global_position.x < 6490.0:
 		await get_tree().process_frame
 	if _miniboss_spawned:
-		return  # re-entrada após respawn, já processado
+		return  # coroutine paralela já processou
 	_miniboss_spawned = true
 	var lwall := get_node_or_null("MiniBoss_LWall")
 	if lwall:
