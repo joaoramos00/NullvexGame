@@ -30,6 +30,11 @@ func _ready() -> void:
 		if child is BossBase:
 			child.player = _player
 			$HUD.connect_to_boss(child)
+			child.boss_aggro.connect(func():
+				_player.velocity = Vector2.ZERO
+				_player.process_mode = Node.PROCESS_MODE_DISABLED)
+			child.boss_intro_ended.connect(func():
+				_player.process_mode = Node.PROCESS_MODE_INHERIT)
 	_maybe_spawn_bot()
 	$StageController.setup(_player)
 	$HUD.connect_to_player(_player)

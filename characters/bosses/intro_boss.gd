@@ -87,6 +87,7 @@ func _run_intro() -> void:
 	_is_entering = false
 	if state == State.INTRO:
 		state = State.COMBAT
+		boss_intro_ended.emit()
 
 func _do_combat(delta: float) -> void:
 	# Timers
