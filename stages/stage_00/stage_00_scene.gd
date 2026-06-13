@@ -524,9 +524,11 @@ func _setup_floor_platform() -> void:
 	var right_cols: int = total_cols - _FP_LEFT_COLS - _FP_PLAT_COLS
 
 	# Colisão da plataforma elevada (degrau sólido do topo até a superfície do piso).
-	var plat_left: float = fleft_world + _FP_LEFT_COLS * _TS
+	# Inset de 16px em cada lateral para alinhar a colisão com a face opaca do tile.
+	const _SIDE_INSET := 16.0
+	var plat_left: float = fleft_world + _FP_LEFT_COLS * _TS + _SIDE_INSET
 	var plat_top: float = ftop_world - _FP_ELEV_ROWS * _TS
-	var plat_w: float = _FP_PLAT_COLS * _TS
+	var plat_w: float = _FP_PLAT_COLS * _TS - _SIDE_INSET * 2.0
 	var plat_h: float = _FP_ELEV_ROWS * _TS
 	var pcs := CollisionShape2D.new()
 	var pshape := RectangleShape2D.new()
@@ -906,24 +908,6 @@ func _draw_fp_node(node: Node) -> void:
 			# Gap-fill lateral: tiles de canto (1,3)/(0,0) têm ~metade transparente na face
 			# exposta. Preenche a área transparente com meia-tile de parede ANTES do tile
 			# principal, para eliminar o vão invisível entre colisão e visual.
-			var el_exp := not _fp_solid(c - 1, r, lc, pc, er, total_c, total_r, hole)
-			var er_exp := not _fp_solid(c + 1, r, lc, pc, er, total_c, total_r, hole)
-			# Tiles de canto (1,3)/(0,0) têm 17 src px (34 world px) transparentes na face
-			# lateral exposta. Estratégia: desloca o tile para dentro (−src ou +src) de forma
-			# que a parte opaca chegue perto da borda de colisão (gap residual ~2px).
-			# Um fill strip cobre o espaço deixado pelo deslocamento.
-			if el_exp:
-				var ft := _fp_tile(c + 1, r, lc, pc, er, total_c, total_r, hole)
-				draw_texture_rect_region(tex,
-					Rect2(dx + float(ts) * 0.5, dy, float(ts) * 0.5, float(ts)),
-					Rect2(float(ft.x * src), float(ft.y * src), float(src) * 0.5, float(src)))
-				dx -= src
-			elif er_exp:
-				var ft := _fp_tile(c - 1, r, lc, pc, er, total_c, total_r, hole)
-				draw_texture_rect_region(tex,
-					Rect2(dx, dy, float(ts) * 0.5, float(ts)),
-					Rect2(float(ft.x * src) + float(src) * 0.5, float(ft.y * src), float(src) * 0.5, float(src)))
-				dx += src
 			draw_texture_rect_region(tex,
 				Rect2(dx, dy, dw, float(ts)),
 				Rect2(t.x * src, t.y * src, src * dw / ts, src))
