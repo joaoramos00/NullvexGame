@@ -49,13 +49,15 @@ const _SRC := 32
 # ─── Comportamento da entry door ──────────────────────────────────────────────
 @export var entry_manual:    bool = false  # stage abre entry door via open_entry()
 @export var save_checkpoint: bool = true
-@export var heal_on_entry:   bool = false
+@export var heal_on_entry:      bool = false
+@export var exit_retriggerable: bool = false  # mantém exit door acionável no retry
 
 # ─── Sinais para a stage ──────────────────────────────────────────────────────
 signal camera_lock_requested(center: Vector2, zoom: float)
 signal checkpoint_triggered(respawn: Vector2, index: int)
 signal player_healed
 signal player_traversed   # player saiu pela porta de saída
+signal exit_opening        # exit door começou a abrir (antes do auto-walk)
 
 var _player: CharacterBase  = null
 var _entry_door: Node       = null
@@ -148,7 +150,7 @@ func _setup_doors() -> void:
 	add_child(_entry_door)
 
 	_exit_door  = _make_door(exit_x,  door_v, door_height, open_y)
-	(_exit_door as CheckpointDoor).door_opening.connect(_on_door_opening)
+	(_exit_door as CheckpointDoor).door_opening.connect(_on_exit_door_opening)
 	(_exit_door as CheckpointDoor).door_opened.connect(_on_exit_opened.bind(_exit_door))
 	add_child(_exit_door)
 
@@ -201,6 +203,11 @@ func _on_entry_opened(door: Node2D) -> void:
 			trig.monitoring = false
 	camera_lock_requested.emit(cam_center, cam_zoom)
 
+func _on_exit_door_opening() -> void:
+	if is_instance_valid(_player):
+		_player.door_locked = true
+	exit_opening.emit()
+
 func _on_exit_opened(door: Node2D) -> void:
 	if is_instance_valid(_player):
 		_player.door_locked     = false
@@ -213,7 +220,7 @@ func _on_exit_opened(door: Node2D) -> void:
 	if is_instance_valid(door):
 		door.call("close")
 		var trig := door.get_node_or_null("TriggerArea") as Area2D
-		if trig:
+		if trig and not exit_retriggerable:
 			trig.monitoring = false
 	player_traversed.emit()
 

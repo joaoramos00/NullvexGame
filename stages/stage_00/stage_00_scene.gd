@@ -49,13 +49,6 @@ const BOSS_SPAWN := Vector2(17750, 200)
 const CP2_ENTRY_X := 16524.0  # centro visual Corr2_Wall_L (tile X 16492–16556)
 const CP2_EXIT_X  := 17120.0  # centro visual Corr2_Wall_R (tile X 17088–17152)
 
-const _CORR_CEIL_Y  := 960.0    # face interna Corr_Ceil
-const _CORR_FLOOR_Y := 1088.0   # face interna Corr_Floor
-const _DOOR_H       := 200.0    # altura da porta
-const _DOOR_V       := _DOOR_H / 3.0  # largura da porta (1/3 da altura ≈ 67px)
-const _DOOR_CY      := 1024.0   # centro da porta: 1 tile abaixo do original (960→1024)
-const _DOOR_OPEN_Y  := (_CORR_CEIL_Y - _DOOR_CY) - _DOOR_H - 2.0
-const _CORR3_DOOR_CY := 212.0   # centro do Corr3 elevado: (80+344)/2
 
 const _MINIBOSS_CAM_CENTER := Vector2(6878.0, 896.0)
 const _MINIBOSS_CAM_ZOOM   := 2.0                      # sala 960px total, zoom 2x
@@ -78,7 +71,7 @@ var _boss: Node = null
 var _boss_spawned := false
 var _miniboss: Node = null
 var _miniboss_spawned := false
-var _doors: Array[CheckpointDoor] = []
+var _corr3: CorridorSection = null
 var _camera_locked   := false
 var _camera_target   := Vector2.ZERO
 var _camera_zoom_tgt := 2.2
@@ -101,11 +94,6 @@ func _ready() -> void:
 	if boss_lwall:
 		boss_lwall.get_node("CollisionShape2D").disabled = true
 
-	# Paredes de corredor são visuais — as portas de checkpoint fazem a barreira
-	for _cwall_name in ["Corr2_Wall_L", "Corr2_Wall_R"]:
-		var _cwall := get_node_or_null(_cwall_name)
-		if _cwall:
-			(_cwall as Node).get_node("CollisionShape2D").set("disabled", true)
 
 	# Guard against running without GameManager/StageManager (e.g. test opens scene directly)
 	if StageManager.current_stage_id < 0:
@@ -125,8 +113,8 @@ func _ready() -> void:
 	AudioManager.play_bgm(AudioLibrary.bgm_intro)
 
 	_setup_corr1()
-	_setup_doors()
 	_setup_corr2_section()
+	_setup_corr3()
 	if not DebugBoot.no_enemies:
 		_setup_miniboss_trigger()
 	else:
@@ -176,38 +164,44 @@ func _spawn_player() -> void:
 		_player.global_position = $PlayerSpawn.global_position
 	add_child(_player)
 
-# ─── Checkpoint Doors ────────────────────────────────────────────────────────
+# ─── Corredor 3 (CP Boss) ────────────────────────────────────────────────────
 
-func _make_door(x: float, cy: float = _DOOR_CY) -> CheckpointDoor:
-	var door := _DOOR_SCENE.instantiate() as CheckpointDoor
-	door.position    = Vector2(x, cy)
-	door.open_offset = _DOOR_OPEN_Y
-	# Redimensiona collision body antes de _ready()
-	var col := door.get_node("CollisionShape2D") as CollisionShape2D
-	var body_shape := (col.shape as RectangleShape2D).duplicate() as RectangleShape2D
-	body_shape.size = Vector2(_DOOR_V, _DOOR_H)
-	col.shape = body_shape
-	# Redimensiona trigger
-	var trig := door.get_node("TriggerArea/CollisionShape2D") as CollisionShape2D
-	var trig_shape := (trig.shape as RectangleShape2D).duplicate() as RectangleShape2D
-	trig_shape.size = Vector2(_DOOR_V + 32.0, _DOOR_H + 32.0)
-	trig.shape = trig_shape
-	add_child(door)
-	# Transparente — desenhada em _draw_door_underlays() antes dos tiles
-	var sprite := door.get_node("ColorRect") as ColorRect
-	sprite.color = Color(0, 0, 0, 0)
-	return door
-
-func _setup_doors() -> void:
-	var cp2_entry := _make_door(CP2_ENTRY_X, _CORR3_DOOR_CY)
-	cp2_entry.connect("door_opening", _on_door_opening)
-	cp2_entry.connect("door_opened",  _on_cp2_entry_opened.bind(cp2_entry))
-	_doors.append(cp2_entry)
-
-	var boss_door := _make_door(CP2_EXIT_X, _CORR3_DOOR_CY)
-	boss_door.connect("door_opening", _on_door_opening)
-	boss_door.connect("door_opened",  _on_boss_door_opened.bind(boss_door))
-	_doors.append(boss_door)
+func _setup_corr3() -> void:
+	_corr3 = CorridorSection.new()
+	_corr3.tileset              = _TILESET
+	_corr3.glass_tex            = _GLASS_TEX
+	_corr3.door_tex             = _DOOR_TEX
+	_corr3.floor_center         = Vector2(16822, 312)
+	_corr3.floor_size           = Vector2(660, 64)
+	_corr3.ceil_center          = Vector2(16822, 112)
+	_corr3.ceil_size            = Vector2(660, 64)
+	_corr3.wall_l_center        = Vector2(16492, 212)
+	_corr3.wall_l_size          = Vector2(64, 264)
+	_corr3.wall_r_center        = Vector2(17152, 212)
+	_corr3.wall_r_size          = Vector2(64, 264)
+	_corr3.entry_x              = CP2_ENTRY_X
+	_corr3.exit_x               = CP2_EXIT_X
+	_corr3.save_checkpoint      = true
+	_corr3.checkpoint_index     = 2
+	_corr3.checkpoint_respawn_x = 16700.0
+	_corr3.heal_on_entry        = false
+	_corr3.exit_retriggerable   = true
+	_corr3.cam_center           = Vector2(16822, 212)
+	_corr3.cam_zoom             = 2.0
+	_corr3.glass_lateral_x      = 16428.0
+	_corr3.glass_fill_x         = 16492.0
+	_corr3.glass_fill_cols      = 10
+	_corr3.camera_lock_requested.connect(_on_corr3_cam_lock)
+	_corr3.exit_opening.connect(_on_corr3_exit_opening)
+	_corr3.player_traversed.connect(_on_corr3_traversed)
+	add_child(_corr3)
+	_corr3.setup(_player)
+	_corr3.glass_col_bot  = 128.0   # igual ao glass da zona 3 (col_top = -1152)
+	_corr3.glass_col_rows = 20
+	for cname in ["Corr2_Wall_L", "Corr2_Wall_R", "Corr2_Ceil", "Corr2_Floor"]:
+		var n := get_node_or_null(cname)
+		if n:
+			n.queue_free()
 
 # ─── Corredor 1 (CP1) ────────────────────────────────────────────────────────
 
@@ -235,47 +229,26 @@ func _on_corr1_cam_lock(center: Vector2, zoom: float) -> void:
 	_camera_target   = center
 	_camera_zoom_tgt = zoom
 
-func _on_door_opening() -> void:
-	if is_instance_valid(_player):
-		_player.door_locked = true
+func _on_corr3_cam_lock(center: Vector2, zoom: float) -> void:
+	_camera_locked   = true
+	_camera_target   = center
+	_camera_zoom_tgt = zoom
 
-func _on_cp2_entry_opened(door: Node2D) -> void:
-	StageManager.save_checkpoint(Vector2(16700, 200), 2)
-	if is_instance_valid(_player):
-		_player.door_locked = false
-		_player.door_walk_speed = CharacterBase.SPEED
-	var target_x := door.position.x + 96.0
-	while is_instance_valid(_player) and _player.global_position.x < target_x:
-		await get_tree().process_frame
-	if is_instance_valid(_player):
-		_player.door_walk_speed = 0.0
-	if is_instance_valid(door):
-		door.call("close")
-
-func _on_boss_door_opened(door: Node2D) -> void:
-	# On retry: open LWall so player can enter, then kill old boss and reset flag
+func _on_corr3_exit_opening() -> void:
+	# Desabilita Boss_LWall ANTES do auto-walk para o player conseguir entrar
 	var boss_lwall := get_node_or_null("Boss_LWall")
 	if is_instance_valid(boss_lwall):
 		boss_lwall.get_node("CollisionShape2D").set_deferred("disabled", true)
+
+func _on_corr3_traversed() -> void:
+	_camera_target   = _BOSS_CAM_CENTER
+	_camera_zoom_tgt = _BOSS_CAM_ZOOM
 	if is_instance_valid(_boss):
 		_boss.queue_free()
 		_boss = null
 	_boss_spawned = false
-
-	if is_instance_valid(_player):
-		_player.door_locked = false
-		_player.door_walk_speed = CharacterBase.SPEED
-	_camera_locked   = true
-	_camera_target   = _BOSS_CAM_CENTER
-	_camera_zoom_tgt = _BOSS_CAM_ZOOM
 	_spawn_boss()
-	var target_x := door.position.x + 96.0
-	while is_instance_valid(_player) and _player.global_position.x < target_x:
-		await get_tree().process_frame
-	if is_instance_valid(_player):
-		_player.door_walk_speed = 0.0
-	if is_instance_valid(door):
-		door.call("close")
+	var boss_lwall := get_node_or_null("Boss_LWall")
 	await get_tree().create_timer(1.0).timeout
 	if is_instance_valid(boss_lwall):
 		boss_lwall.get_node("CollisionShape2D").set_deferred("disabled", false)
@@ -696,7 +669,6 @@ func _draw() -> void:
 	_draw_glass_panels()
 	_draw_platforms()
 	_draw_boss_room()
-	_draw_door_underlays()
 
 func _draw_glass_panels() -> void:
 	var ts     := _TS
@@ -719,23 +691,7 @@ func _draw_glass_panels() -> void:
 		for col in z3_fill_cols:
 			draw_texture_rect_region(_GLASS_TEX, Rect2(12922.0 + col * ts, dy, ts, ts), fill_src)
 
-	# ── Corredor 3 → sala do chefe (x 16428–17132) ───────────────────────────
-	var c2_fill_cols := 10  # x=16492→17132, para na porta (sem invadir a sala)
-	for row in col_rows:
-		var dy := col_top + row * ts
-		draw_texture_rect_region(_GLASS_TEX, Rect2(16428.0, dy, ts, ts), lat_src)
-		for col in c2_fill_cols:
-			draw_texture_rect_region(_GLASS_TEX, Rect2(16492.0 + col * ts, dy, ts, ts), fill_src)
-
-func _draw_door_underlays() -> void:
-	for door in _doors:
-		if not is_instance_valid(door):
-			continue
-		var anim_y: float = door.anim_offset
-		var cx: float = door.position.x
-		var cy: float = door.position.y + anim_y
-		var dst := Rect2(cx - _DOOR_V * 0.5, cy - _DOOR_H * 0.5, _DOOR_V, _DOOR_H)
-		draw_texture_rect(_DOOR_TEX, dst, false)
+	# Corredor 3 → glass desenhado pelo CorridorSection (_corr3)
 
 func _draw_background() -> void:
 	# Fundo branco SÓ em debug (?whitebg=1) — para visualizar os tiles isolados.
@@ -803,8 +759,6 @@ func _draw_background() -> void:
 func _draw_platforms() -> void:
 	for child in get_children():
 		if not (child is StaticBody2D or child is AnimatableBody2D):  # AnimatableBody2D = plataforma móvel
-			continue
-		if child is CheckpointDoor:
 			continue
 		if (child as Node).name.begins_with("Glass_"):
 			continue
