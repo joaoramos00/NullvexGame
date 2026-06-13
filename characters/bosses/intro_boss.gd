@@ -67,7 +67,8 @@ func _ready() -> void:
 	scale = Vector2(1.3, 1.3)
 
 func _draw() -> void:
-	pass
+	if _is_shielding:
+		draw_arc(Vector2.ZERO, 52.0, 0.0, TAU, 32, Color(0.4, 0.8, 2.0, 0.7), 4.0)
 
 func _physics_process(delta: float) -> void:
 	super._physics_process(delta)
@@ -93,6 +94,7 @@ func _do_combat(delta: float) -> void:
 		_shield_cooldown = maxf(0.0, _shield_cooldown - delta)
 	if _is_shielding:
 		_check_deflect()
+		queue_redraw()
 		_shield_timer -= delta
 		if _shield_timer <= 0.0:
 			_is_shielding = false
@@ -205,6 +207,11 @@ func _do_burst() -> void:
 		var dir   := base_dir.rotated(angle)
 		_spawn_projectile(global_position, dir * spd, BURST_DAMAGE, "intro_boss", Color(0.5, 0.1, 0.8))
 
+func take_damage(amount: int, source_id: String = "") -> void:
+	if _is_shielding:
+		return
+	super.take_damage(amount, source_id)
+
 func _enter_phase_2() -> void:
 	_phase2_rage    = true
 	_hit_flash_timer = RAGE_FLASH_DURATION
@@ -236,6 +243,8 @@ func _update_animation(delta: float) -> void:
 
 	if _hit_flash_timer > 0.0:
 		_sprite.modulate = Color(2.0, 2.0, 2.0, 1.0)
+	elif _is_shielding:
+		_sprite.modulate = Color(0.4, 0.8, 2.0, 1.0)
 	elif _invincible:
 		var alpha: float = 0.35 if int(Time.get_ticks_msec() / 80) % 2 == 0 else 1.0
 		_sprite.modulate = Color(1.0, 1.0, 1.0, alpha)
