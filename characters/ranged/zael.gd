@@ -434,11 +434,14 @@ func _fire(level: int) -> void:
     _sprite.play("shoot_%d" % level)
     var bullet: ZaelBullet = _BULLET_SCENE.instantiate()
     bullet.damage = BULLET_DAMAGE[level]
-    bullet.direction = 1.0 if facing_right else -1.0
+    # Durante wall grab, facing_right reflete a direção de avanço (em direção à parede),
+    # não a direção visual. Usa _wall_normal para disparar para fora da parede.
+    var fire_right: bool = (_wall_normal.x > 0.0) if _is_wall_sliding else facing_right
+    bullet.direction = 1.0 if fire_right else -1.0
     bullet.scale = BULLET_SCALE[level]
     bullet.source_id = GameManager.zael_selected_shot
     get_parent().add_child(bullet)
-    var offset_x: float = _SPAWN_OFFSET_X[level] if facing_right else -_SPAWN_OFFSET_X[level]
+    var offset_x: float = _SPAWN_OFFSET_X[level] if fire_right else -_SPAWN_OFFSET_X[level]
     bullet.global_position = global_position + Vector2(offset_x, _SPAWN_OFFSET_Y)
 
 func _notification(what: int) -> void:
