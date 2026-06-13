@@ -1,17 +1,17 @@
 extends Node
 
-@export var bgm_intro: AudioStream = null
-@export var bgm_stage_01: AudioStream = null
-@export var bgm_stage_02: AudioStream = null
-@export var bgm_stage_03: AudioStream = null
-@export var bgm_stage_04: AudioStream = null
-@export var bgm_stage_05: AudioStream = null
-@export var bgm_stage_06: AudioStream = null
-@export var bgm_stage_07: AudioStream = null
-@export var bgm_stage_08: AudioStream = null
-@export var bgm_gauntlet: AudioStream = null
-@export var bgm_nullvex: AudioStream = null
-@export var bgm_nullvex_true: AudioStream = null
+var bgm_intro: AudioStream
+var bgm_stage_01: AudioStream
+var bgm_stage_02: AudioStream
+var bgm_stage_03: AudioStream
+var bgm_stage_04: AudioStream
+var bgm_stage_05: AudioStream
+var bgm_stage_06: AudioStream
+var bgm_stage_07: AudioStream
+var bgm_stage_08: AudioStream
+var bgm_gauntlet: AudioStream
+var bgm_nullvex: AudioStream
+var bgm_nullvex_true: AudioStream
 
 var sfx_jump: AudioStream
 var sfx_shoot: AudioStream
@@ -33,6 +33,18 @@ func _ready() -> void:
 	sfx_boss_damage   = load("res://assets/audio/sfx/sfx_boss_damage.mp3")
 	sfx_boss_death    = load("res://assets/audio/sfx/sfx_boss_death.mp3")
 	sfx_collectible   = load("res://assets/audio/sfx/sfx_collectible.mp3")
+	bgm_intro        = load("res://assets/audio/bgm/bgm_intro.mp3")
+	bgm_stage_01     = load("res://assets/audio/bgm/bgm_stage_01.mp3")
+	bgm_stage_02     = load("res://assets/audio/bgm/bgm_stage_02.mp3")
+	bgm_stage_03     = load("res://assets/audio/bgm/bgm_stage_03.mp3")
+	bgm_stage_04     = load("res://assets/audio/bgm/bgm_stage_04.mp3")
+	bgm_stage_05     = load("res://assets/audio/bgm/bgm_stage_05.mp3")
+	bgm_stage_06     = load("res://assets/audio/bgm/bgm_stage_06.mp3")
+	bgm_stage_07     = load("res://assets/audio/bgm/bgm_stage_07.mp3")
+	bgm_stage_08     = load("res://assets/audio/bgm/bgm_stage_08.mp3")
+	bgm_gauntlet     = load("res://assets/audio/bgm/bgm_gauntlet.mp3")
+	bgm_nullvex      = load("res://assets/audio/bgm/bgm_nullvex.mp3")
+	bgm_nullvex_true = load("res://assets/audio/bgm/bgm_nullvex_true.mp3")
 
 func get_stage_bgm(stage_id: int) -> AudioStream:
 	match stage_id:
