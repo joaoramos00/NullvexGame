@@ -213,8 +213,9 @@ func _setup_corr1() -> void:
 	_corr1.door_tex  = _DOOR_TEX
 	# Teto 128px mais curto que o corredor: borda direita em x=6302 (128px antes
 	# da porta em x=6430). Evita que o player bata a cabeça ao entrar na sala.
-	_corr1.ceil_center = Vector2(5918.0, 928.0)
-	_corr1.ceil_size   = Vector2(768.0, 64.0)
+	_corr1.ceil_center     = Vector2(5918.0, 928.0)
+	_corr1.ceil_size       = Vector2(768.0, 64.0)
+	_corr1.save_checkpoint = false
 	_corr1.camera_lock_requested.connect(_on_corr1_cam_lock)
 	add_child(_corr1)
 	_corr1.setup(_player)
