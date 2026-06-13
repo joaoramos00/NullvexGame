@@ -22,6 +22,9 @@ func connect_to_player(player: CharacterBase) -> void:
 	_update_hp(player.current_hp, player.max_hp)
 
 func connect_to_boss(boss: BossBase) -> void:
+	var bar_h := float(boss.max_hp) * _HP_PER_PIXEL
+	_boss_bar.offset_top    = _BAR_BOTTOM - bar_h
+	_boss_bar.offset_bottom = _BAR_BOTTOM
 	_boss_bar.set_hp(boss.current_hp, boss.max_hp)
 	_boss_bar.visible = true
 	_boss_label.visible = true
@@ -53,5 +56,3 @@ func _update_bar_height(max_hp: int) -> void:
 	var bar_h := float(max_hp) * _HP_PER_PIXEL
 	_hp_bar.offset_top    = _BAR_BOTTOM - bar_h
 	_hp_bar.offset_bottom = _BAR_BOTTOM
-	_boss_bar.offset_top    = _BAR_BOTTOM - bar_h
-	_boss_bar.offset_bottom = _BAR_BOTTOM
