@@ -28,7 +28,7 @@ const ZONE2_GRUNTS := [
 	Vector2(11460, 152), Vector2(11760, 152),    # Seção 4 — Patamar
 ]
 const ZONE2_FLYERS := [
-	Vector2(8860, 670), Vector2(9250, 478),      # pico de pulo de Step_Z2_1 e Step_Z2_2
+	Vector2(8860, 608), Vector2(9250, 408),      # acima do topo de Step_Z2_2(y656) e Step_Z2_3(y464)
 	Vector2(9892, 182), Vector2(10400, 118),     # pico de pulo de Float_A e Float_B
 	Vector2(11260, 38),  Vector2(11860, 38),     # pico de pulo de SubPlat_Z2_1 e Z2_2
 ]
