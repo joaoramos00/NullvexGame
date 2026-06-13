@@ -558,15 +558,10 @@ func _setup_floor_platform() -> void:
 # ─── Zona 3 — gauntlet "Exame Final" (dash → wall-jump → plataforma móvel) ──────
 
 func _build_zone3() -> void:
-	# Remove a zona 3 antiga (divisores intransponíveis — vão de 58px < player 80px).
-	for n in ["Div_Z3_1_Top","Div_Z3_1_Bot","Div_Z3_2_Top","Div_Z3_2_Bot","Div_Z3_3_Top","Div_Z3_3_Bot","SubPlat_Z3_A","SubPlat_Z3_B","SubPlat_Z3_C","SubPlat_Z3_D","CorrZ3_Rooms_Floor","CorrZ3_Rooms_Ceil","CorrZ3_Entry_Ceil","CorrZ3_Cont_Ceil"]:
-		var node := get_node_or_null(n)
-		if node:
-			node.queue_free()
-	# 1) DASH: vão de 260px depois do entry floor (12922–13400) → Floor A
-	# 2) WALL-JUMP: parede alta sobre o Floor A
-	_add_z3_static("Z3_FloorA", Vector2(14205, 344), Vector2(1090, 128))  # x 13660–14750, topo y280
-	_add_z3_static("Z3_Wall",   Vector2(14250, 200), Vector2(300, 160))   # x 14100–14400, topo y120
+	# Nós fragmentados removidos do .tscn — não precisam de queue_free.
+	# 1) DASH: vão de 260px depois do entry floor (12922–13400) → Z3_FP (piso+plataforma)
+	# 2) WALL-JUMP: parede embutida no Z3_FP como seção elevada (fp_params)
+	_build_z3_fp_node()
 	# 3) PLATAFORMA MÓVEL sobre o fosso (x 14750–15200) → CorrZ3_Cont_Floor (15200–16492)
 	var mp := AnimatableBody2D.new()
 	mp.name = "Z3MovingPlat"
@@ -585,6 +580,38 @@ func _build_zone3() -> void:
 	# Teto com COLISÃO (player bate a cabeça se chegar) — alinhado ao fundo do glass (y=-192).
 	# Prefixo "Glass_" → não desenha tile por cima (o painel de glass já é o visual).
 	_add_z3_static("Glass_Z3_Ceil", Vector2(14707, -256), Vector2(3570, 128))  # x 12922–16492, face de baixo y=-192
+
+func _build_z3_fp_node() -> void:
+	# Combina Z3_FloorA (piso 1090×128, topo y=280) e Z3_Wall (parede 300×160, topo y=120)
+	# num único StaticBody2D com fp_params — desenhado por _draw_fp_node() como piso+plataforma.
+	var fp := StaticBody2D.new()
+	fp.name = "Z3_FP"
+	fp.collision_layer = 1
+	fp.collision_mask = 0
+	fp.position = Vector2.ZERO  # colisões filhas usam coordenadas de mundo diretamente
+
+	var cs_floor := CollisionShape2D.new()
+	var floor_shape := RectangleShape2D.new()
+	floor_shape.size = Vector2(1090, 128)
+	cs_floor.position = Vector2(14205, 344)  # centro do piso (topo y=280)
+	cs_floor.shape = floor_shape
+	fp.add_child(cs_floor)
+
+	var cs_wall := CollisionShape2D.new()
+	var wall_shape := RectangleShape2D.new()
+	wall_shape.size = Vector2(300, 160)
+	cs_wall.position = Vector2(14250, 200)  # centro da parede (topo y=120, base y=280)
+	cs_wall.shape = wall_shape
+	fp.add_child(cs_wall)
+
+	# left_cols=7 (448px), plat_cols=5 (320px≈parede), right_cols=5 → total 17×64=1088px≈1090px
+	# elev_rows=3 (192px cobre parede de 160px), depth_rows=2 (128px = altura do piso)
+	fp.set_meta("fp_params", {
+		"left_cols": 7, "plat_cols": 5, "right_cols": 5,
+		"elev_rows": 3, "depth_rows": 2,
+		"left_x": 13660.0, "surface_y": 280.0, "surface_w": 1090.0,
+	})
+	add_child(fp)
 
 func _add_z3_static(node_name: String, center: Vector2, size: Vector2) -> void:
 	var body := StaticBody2D.new()
