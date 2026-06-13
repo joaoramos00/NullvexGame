@@ -41,10 +41,12 @@ const PUNCH_ACTIVE_TO   := 7
 const PHASE2_HP_RATIO   := 0.5
 const PHASE2_SPEED_MULT := 1.35
 const PHASE2_CD_MULT    := 0.65
-const BACKJUMP_DIST     := 130.0   # distância mínima — abaixo disso pula para trás
-const BACKJUMP_SPEED    := 200.0   # velocidade horizontal do backjump
-const BACKJUMP_IMPULSE  := -360.0  # impulso vertical
-const BACKJUMP_COOLDOWN := 3.5     # cooldown entre backjumps
+const BACKJUMP_DIST          := 130.0   # distância mínima — abaixo disso pula para trás
+const BACKJUMP_SPEED         := 200.0   # velocidade horizontal do backjump
+const BACKJUMP_IMPULSE       := -360.0  # impulso vertical
+const BACKJUMP_COOLDOWN      := 3.5     # cooldown entre backjumps
+const BACKJUMP_SPEED_LONG    := 340.0   # pulo longo (após dash/acertar ataque)
+const BACKJUMP_IMPULSE_LONG  := -460.0  # arco mais alto no pulo longo
 
 var _state            : State = State.ADVANCE
 var _state_timer      : float = 0.0
@@ -59,6 +61,7 @@ var _stomp_land_active: bool  = false
 var _phase2           : bool  = false
 var _backjump_cd      : float = 0.0
 var _charge_phase     : int   = 0   # 0=windup 1=dash
+var _stomp_landed     : bool  = false
 
 @onready var _punch_zone: Area2D = $PunchZone
 
@@ -193,7 +196,10 @@ func _tick_punch(delta: float) -> void:
 		_punch_hit = false
 	if _state_timer <= 0.0:
 		_punch_zone.monitoring = false
-		_state = State.ADVANCE
+		if _punch_hit:
+			_enter_backjump(true)
+		else:
+			_state = State.ADVANCE
 
 func _on_punch_zone_hit(body: Node2D) -> void:
 	if _punch_hit or not body.is_in_group("player"):
@@ -223,6 +229,7 @@ func _on_stomp_land() -> void:
 	velocity            = Vector2.ZERO
 	_stomp_land_timer   = 3.0 / _STOMP_FPS
 	_stomp_land_active  = true
+	_stomp_landed       = true
 	_punch_timer        = 0.0
 	_state_timer        = _stomp_land_timer + RECOVER_TIME
 	_state              = State.RECOVER
@@ -238,15 +245,20 @@ func _tick_recover(delta: float) -> void:
 	if _stomp_land_timer <= 0.0:
 		_stomp_land_active = false
 	if _state_timer <= 0.0:
-		_state = State.ADVANCE
+		if _stomp_landed:
+			_stomp_landed = false
+			_enter_backjump(true)
+		else:
+			_state = State.ADVANCE
 
 # ─── Backjump ─────────────────────────────────────────────────────────────────
 
-func _enter_backjump() -> void:
+func _enter_backjump(long: bool = false) -> void:
 	_backjump_cd = BACKJUMP_COOLDOWN * (PHASE2_CD_MULT if _phase2 else 1.0)
-	# Salta para trás (direção oposta ao player)
-	velocity.x = -_direction * BACKJUMP_SPEED
-	velocity.y = BACKJUMP_IMPULSE
+	var spd := BACKJUMP_SPEED_LONG   if long else BACKJUMP_SPEED
+	var imp := BACKJUMP_IMPULSE_LONG if long else BACKJUMP_IMPULSE
+	velocity.x = -_direction * spd
+	velocity.y = imp
 	_state = State.BACKJUMP
 
 func _tick_backjump() -> void:
@@ -259,7 +271,7 @@ func _on_backjump_land() -> void:
 
 func _on_charge_wall() -> void:
 	velocity.x = 0.0
-	_state     = State.ADVANCE
+	_enter_backjump(true)
 
 # ─── Detecção de borda (exclui o próprio corpo) ───────────────────────────────
 
