@@ -88,6 +88,18 @@ func _run_intro() -> void:
 		state = State.COMBAT
 
 func _do_combat(delta: float) -> void:
+	# Timers
+	if _shield_cooldown > 0.0:
+		_shield_cooldown = maxf(0.0, _shield_cooldown - delta)
+	if _is_shielding:
+		_check_deflect()
+		_shield_timer -= delta
+		if _shield_timer <= 0.0:
+			_is_shielding = false
+			_is_attacking = false
+			_shield_cooldown = SHIELD_COOLDOWN
+		_clamp_to_arena()
+		return  # boss parado durante shield
 	if _is_shooting:
 		_shoot_anim_timer = maxf(0.0, _shoot_anim_timer - delta)
 		if _shoot_anim_timer <= 0.0:
@@ -108,6 +120,7 @@ func _do_combat(delta: float) -> void:
 				velocity.x = move_toward(velocity.x, 0.0, 200.0 * delta)
 		else:
 			velocity.x = 0.0
+	_scan_for_shield()
 	_clamp_to_arena()
 
 func _do_attack() -> void:
@@ -116,6 +129,42 @@ func _do_attack() -> void:
 		1: _do_shoot()
 		2: _do_burst()
 	_attack_phase = (_attack_phase + 1) % 3
+
+func _scan_for_shield() -> void:
+	if _shield_cooldown > 0.0 or _is_shielding or _is_dashing or _is_shooting:
+		return
+	for node in get_tree().get_nodes_in_group("player_bullet"):
+		if not node is ZaelBullet:
+			continue
+		if node._hit or node._deflected:
+			continue
+		var to_boss: Vector2 = global_position - node.global_position
+		# Bala deve estar a mover-se em direcção ao boss (X)
+		if sign(node.direction) != sign(to_boss.x):
+			continue
+		# Boss deve estar na linha de tiro (tolerância vertical)
+		if absf(to_boss.y) > 64.0:
+			continue
+		var horiz_dist := absf(to_boss.x)
+		var time_to_impact := horiz_dist / ZaelBullet.SPEED
+		if time_to_impact < SHIELD_TIME_WINDOW:
+			_activate_shield()
+			return
+
+func _activate_shield() -> void:
+	_is_shielding = true
+	_is_attacking = true
+	_shield_timer = SHIELD_DURATION
+	velocity.x = 0.0
+
+func _check_deflect() -> void:
+	for node in get_tree().get_nodes_in_group("player_bullet"):
+		if not node is ZaelBullet:
+			continue
+		if node._hit or node._deflected:
+			continue
+		if global_position.distance_to(node.global_position) < SHIELD_CONTACT_DIST:
+			node.deflect_upward()
 
 func _do_dash() -> void:
 	if player == null:
