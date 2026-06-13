@@ -9,7 +9,7 @@ signal game_over
 
 const SAVE_PATH := "user://savegame.json"
 const DEFAULT_LIVES := 3
-const BASE_HP := 100
+const BASE_HP := 50
 const HEART_HP_BONUS := 20
 
 var active_character: String = "zael"
