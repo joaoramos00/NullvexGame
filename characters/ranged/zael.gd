@@ -311,13 +311,19 @@ func _handle_shooting(delta: float) -> void:
     if _is_charging:
         _charge_timer += delta
     if Input.is_action_just_released("attack") and _is_charging:
-        _fire(get_charge_level(_charge_timer))
+        _fire(_charge_level())
         _is_charging = false
         _charge_timer = 0.0
 
+func _charge_level() -> int:
+    var level := get_charge_level(_charge_timer)
+    if not GameManager.zael_armor.get("arms", false):
+        level = mini(level, 2)
+    return level
+
 func _update_charge_effect(delta: float) -> void:
     _draw_orbs.clear()
-    var level := get_charge_level(_charge_timer)
+    var level := _charge_level()
     if not _is_charging or level < 2:
         _orb_canvas.queue_redraw()
         return
