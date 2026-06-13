@@ -53,6 +53,11 @@ func _physics_process(delta: float) -> void:
 
 func _tick_hover(delta: float) -> void:
 	_bob_time += delta
+	# is_on_wall() reflete o move_and_slide() do frame anterior — checar ANTES de
+	# setar velocity para que o flip tome efeito no mesmo frame (senão o flyer empurra
+	# a parede por 1 frame extra e fica oscilando preso).
+	if is_on_wall():
+		_direction = -_direction
 	# Inverte só ao CRUZAR a borda indo pra fora (offset e direção no mesmo sentido).
 	# Sem essa guarda, um flyer deslocado além do range (ex.: após um DIVE, já que
 	# RETREAT não restaura X) flipava _direction todo frame → velocity.x alternava
@@ -63,8 +68,6 @@ func _tick_hover(delta: float) -> void:
 		_direction = -_direction
 	velocity.x = PATROL_SPEED * _direction
 	velocity.y = sin(_bob_time * bob_speed) * bob_amplitude
-	if is_on_wall():
-		_direction = -_direction
 
 	var player := get_tree().get_first_node_in_group("player") as Node2D
 	if player and global_position.distance_to(player.global_position) <= detect_radius:
