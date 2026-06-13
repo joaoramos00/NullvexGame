@@ -94,7 +94,8 @@ func _add_wall_above_door(wall_center: Vector2, wall_size: Vector2) -> void:
 		return  # porta já cobre toda a parede; nada a selar acima
 	var seg_h := door_top - wall_top
 	var seg_center := Vector2(wall_center.x, wall_top + seg_h * 0.5)
-	_add_static(seg_center, Vector2(wall_size.x, seg_h), 1)
+	var body := _add_static(seg_center, Vector2(wall_size.x, seg_h), 1)
+	body.add_to_group("no_wall_grab")
 
 func _add_glass_lateral_collision() -> void:
 	# Bloqueia o player de passar por cima do painel de vidro.
@@ -118,7 +119,7 @@ func _add_glass_lateral_collision() -> void:
 	add_child(body)
 	body.add_to_group("no_wall_grab")
 
-func _add_static(center: Vector2, size: Vector2, layer: int, disabled: bool = false) -> void:
+func _add_static(center: Vector2, size: Vector2, layer: int, disabled: bool = false) -> StaticBody2D:
 	var body := StaticBody2D.new()
 	body.collision_layer = layer
 	body.collision_mask  = 0
@@ -130,6 +131,7 @@ func _add_static(center: Vector2, size: Vector2, layer: int, disabled: bool = fa
 	cs.disabled = disabled
 	body.add_child(cs)
 	add_child(body)
+	return body
 
 func _setup_doors() -> void:
 	var door_v   := door_height / 3.0
@@ -152,6 +154,7 @@ func _setup_doors() -> void:
 func _make_door(x: float, w: float, h: float, open_offset: float) -> CheckpointDoor:
 	var door     := _DOOR_SCENE.instantiate() as CheckpointDoor
 	door.position       = Vector2(x, door_cy)
+	door.add_to_group("no_wall_grab")
 	door.open_offset    = open_offset
 	door.open_from_side = -1   # corredor é left→right: só abre vindo da esquerda
 	var col := door.get_node("CollisionShape2D") as CollisionShape2D
