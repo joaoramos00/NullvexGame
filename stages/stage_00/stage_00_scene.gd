@@ -908,14 +908,22 @@ func _draw_fp_node(node: Node) -> void:
 			# principal, para eliminar o vão invisível entre colisão e visual.
 			var el_exp := not _fp_solid(c - 1, r, lc, pc, er, total_c, total_r, hole)
 			var er_exp := not _fp_solid(c + 1, r, lc, pc, er, total_c, total_r, hole)
-			if el_exp:  # face esquerda exposta — fill com metade esquerda de (1,0)
-				draw_texture_rect_region(tex,
-					Rect2(dx, dy, float(ts) * 0.5, float(ts)),
-					Rect2(float(src), 0.0, float(src) * 0.5, float(src)))
-			if er_exp:  # face direita exposta — fill com metade direita de (3,2)
+			# Tiles de canto (1,3)/(0,0) têm 17 src px (34 world px) transparentes na face
+			# lateral exposta. Estratégia: desloca o tile para dentro (−src ou +src) de forma
+			# que a parte opaca chegue perto da borda de colisão (gap residual ~2px).
+			# Um fill strip cobre o espaço deixado pelo deslocamento.
+			if el_exp:
+				var ft := _fp_tile(c + 1, r, lc, pc, er, total_c, total_r, hole)
 				draw_texture_rect_region(tex,
 					Rect2(dx + float(ts) * 0.5, dy, float(ts) * 0.5, float(ts)),
-					Rect2(float(src) * 3.5, float(src) * 2.0, float(src) * 0.5, float(src)))
+					Rect2(float(ft.x * src), float(ft.y * src), float(src) * 0.5, float(src)))
+				dx -= src
+			elif er_exp:
+				var ft := _fp_tile(c - 1, r, lc, pc, er, total_c, total_r, hole)
+				draw_texture_rect_region(tex,
+					Rect2(dx, dy, float(ts) * 0.5, float(ts)),
+					Rect2(float(ft.x * src) + float(src) * 0.5, float(ft.y * src), float(src) * 0.5, float(src)))
+				dx += src
 			draw_texture_rect_region(tex,
 				Rect2(dx, dy, dw, float(ts)),
 				Rect2(t.x * src, t.y * src, src * dw / ts, src))
