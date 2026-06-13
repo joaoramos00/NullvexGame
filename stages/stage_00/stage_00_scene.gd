@@ -242,7 +242,6 @@ func _on_door_opening() -> void:
 func _on_cp2_entry_opened(door: Node2D) -> void:
 	StageManager.save_checkpoint(Vector2(CP2_EXIT_X + 128, 184), 2)
 	if is_instance_valid(_player):
-		_player.heal(_player.max_hp)
 		_player.door_locked = false
 		_player.door_walk_speed = CharacterBase.SPEED
 	var target_x := door.position.x + 96.0

@@ -49,7 +49,7 @@ const _SRC := 32
 # ─── Comportamento da entry door ──────────────────────────────────────────────
 @export var entry_manual:    bool = false  # stage abre entry door via open_entry()
 @export var save_checkpoint: bool = true
-@export var heal_on_entry:   bool = true
+@export var heal_on_entry:   bool = false
 
 # ─── Sinais para a stage ──────────────────────────────────────────────────────
 signal camera_lock_requested(center: Vector2, zoom: float)
