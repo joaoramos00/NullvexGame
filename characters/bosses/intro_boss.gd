@@ -34,6 +34,11 @@ const BURST_SPREAD_P2     := 50.0
 const SHOOT_DAMAGE        := 8
 const BURST_DAMAGE        := 6
 const RAGE_FLASH_DURATION := 0.5
+const SHIELD_RANGE        := 220.0  # px — raio de detecção de bala
+const SHIELD_TIME_WINDOW  := 0.35   # s  — tempo de impacto para activar
+const SHIELD_DURATION     := 0.6    # s  — duração do shield activo
+const SHIELD_COOLDOWN     := 4.0    # s  — recarga após uso
+const SHIELD_CONTACT_DIST := 52.0   # px — distância de contacto para deflectir
 
 var _attack_phase     : int   = 0
 var _is_dashing       : bool  = false
@@ -45,6 +50,9 @@ var _anim_timer       : float = 0.0
 var _facing           : float = -1.0   # -1=left  1=right; east sprites → flip when facing left
 var _phase2_rage      : bool  = false
 var _is_entering      : bool  = false  # true during entry animation (State.INTRO)
+var _is_shielding    : bool  = false
+var _shield_timer    : float = 0.0
+var _shield_cooldown : float = 0.0
 
 @onready var _sprite: Sprite2D = $Sprite2D
 
