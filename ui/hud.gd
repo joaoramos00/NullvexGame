@@ -4,17 +4,24 @@ extends CanvasLayer
 @onready var _lives_label: Label   = $Control/LivesLabel
 @onready var _ability_label: Label = $Control/AbilityLabel
 
+var _last_hp: int = 0
+
 func _ready() -> void:
 	_update_lives(GameManager.lives)
 	_update_ability(_active_ability())
 	GameManager.lives_changed.connect(_update_lives)
 	GameManager.character_changed.connect(func(_c): _update_ability(_active_ability()))
+	GameManager.max_hp_changed.connect(_on_max_hp_changed)
+
+func _on_max_hp_changed(new_max: int) -> void:
+	_update_hp(_last_hp, new_max)
 
 func connect_to_player(player: CharacterBase) -> void:
 	player.hp_changed.connect(_update_hp)
 	_update_hp(player.current_hp, player.max_hp)
 
 func _update_hp(current: int, maximum: int) -> void:
+	_last_hp = current
 	_hp_bar.set_hp(current, maximum)
 
 func _update_lives(lives: int) -> void:

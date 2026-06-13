@@ -71,6 +71,17 @@ var _zone3_enemies: Array[Node] = []
 var _zone1_entered := false
 var _zone2_entered := false
 var _zone3_entered := false
+var _zone1_respawn_eligible := false
+var _zone2_respawn_eligible := false
+var _zone3_respawn_eligible := false
+
+# Limites das zonas (correspondentes a _setup_zone_triggers) para respawn por distância
+const _ZONE1_RIGHT        := 5800.0
+const _ZONE2_LEFT         := 8222.0
+const _ZONE2_RIGHT        := 12922.0
+const _ZONE3_LEFT         := 12922.0
+const _ZONE3_RIGHT        := 16492.0
+const _ZONE_RESPAWN_DIST  := 1500.0  # px além do limite para marcar elegibilidade
 var _boss: Node = null
 var _boss_spawned := false
 var _miniboss: Node = null
@@ -154,7 +165,21 @@ func _process(_delta: float) -> void:
 				cam.global_position = _player.global_position
 			else:
 				cam.global_position = cam.global_position.lerp(_player.global_position, 0.12)
+		_update_zone_respawn_eligibility(_player.global_position.x)
 	queue_redraw()
+
+func _update_zone_respawn_eligibility(px: float) -> void:
+	if DebugBoot.no_enemies:
+		return
+	if not _zone1_entered and not _zone1_respawn_eligible:
+		if px > _ZONE1_RIGHT + _ZONE_RESPAWN_DIST:
+			_zone1_respawn_eligible = true
+	if not _zone2_entered and not _zone2_respawn_eligible:
+		if px < _ZONE2_LEFT - _ZONE_RESPAWN_DIST or px > _ZONE2_RIGHT + _ZONE_RESPAWN_DIST:
+			_zone2_respawn_eligible = true
+	if not _zone3_entered and not _zone3_respawn_eligible:
+		if px < _ZONE3_LEFT - _ZONE_RESPAWN_DIST or px > _ZONE3_RIGHT + _ZONE_RESPAWN_DIST:
+			_zone3_respawn_eligible = true
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_just_pressed("pause"):
@@ -428,8 +453,9 @@ func _make_zone_trigger(cx: float, cy: float, w: float, h: float) -> Area2D:
 func _on_zone1_entered(body: Node2D) -> void:
 	if not body.is_in_group("player"):
 		return
-	if _zone1_entered:
+	if _zone1_respawn_eligible:
 		_respawn_zone(1)
+		_zone1_respawn_eligible = false
 	_zone1_entered = true
 
 func _on_zone1_exited(body: Node2D) -> void:
@@ -439,8 +465,9 @@ func _on_zone1_exited(body: Node2D) -> void:
 func _on_zone2_entered(body: Node2D) -> void:
 	if not body.is_in_group("player"):
 		return
-	if _zone2_entered:
+	if _zone2_respawn_eligible:
 		_respawn_zone(2)
+		_zone2_respawn_eligible = false
 	_zone2_entered = true
 
 func _on_zone2_exited(body: Node2D) -> void:
@@ -450,8 +477,9 @@ func _on_zone2_exited(body: Node2D) -> void:
 func _on_zone3_entered(body: Node2D) -> void:
 	if not body.is_in_group("player"):
 		return
-	if _zone3_entered:
+	if _zone3_respawn_eligible:
 		_respawn_zone(3)
+		_zone3_respawn_eligible = false
 	_zone3_entered = true
 
 func _on_zone3_exited(body: Node2D) -> void:
