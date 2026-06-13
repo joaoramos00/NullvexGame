@@ -23,8 +23,6 @@ func connect_to_player(player: CharacterBase) -> void:
 
 func connect_to_boss(boss: BossBase) -> void:
 	_boss_bar.set_hp(boss.current_hp, boss.max_hp)
-	_boss_bar.visible = true
-	_boss_label.visible = true
 	boss.hp_changed.connect(_update_boss_hp)
 	boss.boss_defeated.connect(_on_boss_defeated)
 
@@ -32,6 +30,8 @@ func _update_hp(current: int, maximum: int) -> void:
 	_hp_bar.set_hp(current, maximum)
 
 func _update_boss_hp(current: int, maximum: int) -> void:
+	_boss_bar.visible = true
+	_boss_label.visible = true
 	_boss_bar.set_hp(current, maximum)
 
 func _on_boss_defeated(_ability: String) -> void:
