@@ -205,8 +205,8 @@ func _setup_doors() -> void:
 	_doors.append(cp2_entry)
 
 	var boss_door := _make_door(CP2_EXIT_X, _CORR3_DOOR_CY)
-	boss_door.connect("door_opening", _on_door_opening, CONNECT_ONE_SHOT)
-	boss_door.connect("door_opened",  _on_boss_door_opened.bind(boss_door), CONNECT_ONE_SHOT)
+	boss_door.connect("door_opening", _on_door_opening)
+	boss_door.connect("door_opened",  _on_boss_door_opened.bind(boss_door))
 	_doors.append(boss_door)
 
 # ─── Corredor 1 (CP1) ────────────────────────────────────────────────────────
@@ -240,7 +240,7 @@ func _on_door_opening() -> void:
 		_player.door_locked = true
 
 func _on_cp2_entry_opened(door: Node2D) -> void:
-	StageManager.save_checkpoint(Vector2(CP2_EXIT_X + 128, 184), 2)
+	StageManager.save_checkpoint(Vector2(16700, 200), 2)
 	if is_instance_valid(_player):
 		_player.door_locked = false
 		_player.door_walk_speed = CharacterBase.SPEED
@@ -253,6 +253,15 @@ func _on_cp2_entry_opened(door: Node2D) -> void:
 		door.call("close")
 
 func _on_boss_door_opened(door: Node2D) -> void:
+	# On retry: open LWall so player can enter, then kill old boss and reset flag
+	var boss_lwall := get_node_or_null("Boss_LWall")
+	if is_instance_valid(boss_lwall):
+		boss_lwall.get_node("CollisionShape2D").set_deferred("disabled", true)
+	if is_instance_valid(_boss):
+		_boss.queue_free()
+		_boss = null
+	_boss_spawned = false
+
 	if is_instance_valid(_player):
 		_player.door_locked = false
 		_player.door_walk_speed = CharacterBase.SPEED
@@ -260,7 +269,6 @@ func _on_boss_door_opened(door: Node2D) -> void:
 	_camera_target   = _BOSS_CAM_CENTER
 	_camera_zoom_tgt = _BOSS_CAM_ZOOM
 	_spawn_boss()
-	# Walk player past the door, then close it (same pattern as cp2_entry)
 	var target_x := door.position.x + 96.0
 	while is_instance_valid(_player) and _player.global_position.x < target_x:
 		await get_tree().process_frame
@@ -268,9 +276,7 @@ func _on_boss_door_opened(door: Node2D) -> void:
 		_player.door_walk_speed = 0.0
 	if is_instance_valid(door):
 		door.call("close")
-	# Seal the boss room by re-enabling Boss_LWall collision
 	await get_tree().create_timer(1.0).timeout
-	var boss_lwall := get_node_or_null("Boss_LWall")
 	if is_instance_valid(boss_lwall):
 		boss_lwall.get_node("CollisionShape2D").set_deferred("disabled", false)
 
