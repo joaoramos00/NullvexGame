@@ -66,7 +66,7 @@ var _stomp_landed     : bool  = false
 @onready var _punch_zone: Area2D = $PunchZone
 
 func _ready() -> void:
-	max_hp         = 18
+	max_hp         = 36
 	contact_damage = 3
 	super._ready()
 	_punch_zone.body_entered.connect(_on_punch_zone_hit)
