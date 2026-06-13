@@ -2,6 +2,7 @@ extends CharacterBody2D
 class_name BossBase
 
 signal boss_defeated(ability_id: String)
+signal boss_aggro
 signal damaged(amount: int)
 signal died
 signal hp_changed(current: int, maximum: int)
@@ -81,6 +82,7 @@ func _tick_idle() -> void:
 func _start_intro() -> void:
 	state = State.INTRO
 	velocity = Vector2.ZERO
+	boss_aggro.emit()
 	_run_intro()
 
 func _run_intro() -> void:
