@@ -71,6 +71,9 @@ var _zone3_enemies: Array[Node] = []
 var _zone1_entered := false
 var _zone2_entered := false
 var _zone3_entered := false
+var _zone1_left    := false
+var _zone2_left    := false
+var _zone3_left    := false
 var _boss: Node = null
 var _boss_spawned := false
 var _miniboss: Node = null
@@ -138,6 +141,7 @@ func _ready() -> void:
 	# Checkpoint 1 will be saved when player passes through CP1 entry door
 
 	_setup_floor_platform()
+	_build_z2_peak()
 	_build_zone3()
 	queue_redraw()
 
@@ -428,35 +432,41 @@ func _make_zone_trigger(cx: float, cy: float, w: float, h: float) -> Area2D:
 func _on_zone1_entered(body: Node2D) -> void:
 	if not body.is_in_group("player"):
 		return
-	if _zone1_entered:
+	if _zone1_left:
+		_zone1_left = false
 		_respawn_zone(1)
 	_zone1_entered = true
 
 func _on_zone1_exited(body: Node2D) -> void:
 	if body.is_in_group("player"):
 		_zone1_entered = false
+		_zone1_left    = true
 
 func _on_zone2_entered(body: Node2D) -> void:
 	if not body.is_in_group("player"):
 		return
-	if _zone2_entered:
+	if _zone2_left:
+		_zone2_left = false
 		_respawn_zone(2)
 	_zone2_entered = true
 
 func _on_zone2_exited(body: Node2D) -> void:
 	if body.is_in_group("player"):
 		_zone2_entered = false
+		_zone2_left    = true
 
 func _on_zone3_entered(body: Node2D) -> void:
 	if not body.is_in_group("player"):
 		return
-	if _zone3_entered:
+	if _zone3_left:
+		_zone3_left = false
 		_respawn_zone(3)
 	_zone3_entered = true
 
 func _on_zone3_exited(body: Node2D) -> void:
 	if body.is_in_group("player"):
 		_zone3_entered = false
+		_zone3_left    = true
 
 # ─── Enemy Spawning ──────────────────────────────────────────────────────────
 
@@ -554,6 +564,58 @@ func _setup_floor_platform() -> void:
 		"elev_rows": _FP_ELEV_ROWS, "depth_rows": _FP_DEPTH_ROWS,
 		"left_x": fleft_world, "surface_y": ftop_world, "surface_w": fsize.x,
 	})
+
+# ─── Pico Z2 + entrada Z3 — consolida floor006-008, sub001-002, cover001 ─────────
+# Remove 6 nós fragmentados (Floor_Z2_Peak, SubPlat_Z2_1/2, Cover_Z2,
+# Floor_Z2_Trans, CorrZ3_Entry_Floor) e cria um único piso+plataforma+piso
+# com fp_params, mantendo a mesma geometria de colisão e visual coeso.
+func _build_z2_peak() -> void:
+	for n in ["Floor_Z2_Peak", "SubPlat_Z2_1", "Cover_Z2", "SubPlat_Z2_2",
+			"Floor_Z2_Trans", "CorrZ3_Entry_Floor"]:
+		var nd := get_node_or_null(n)
+		if nd:
+			nd.queue_free()
+
+	var body := StaticBody2D.new()
+	body.name = "Z2_PeakFP"
+	body.collision_layer = 1
+	body.collision_mask = 0
+	body.position = Vector2.ZERO  # colisões filhas em coordenadas de mundo
+
+	# Piso completo: x=10900–13400 (2500 px), superfície y=280, profundidade 2 tiles
+	const _Z2_LEFT_X  := 10900.0
+	const _Z2_SURF_Y  := 280.0
+	const _Z2_FLOOR_W := 2500.0
+	const _Z2_DEPTH   := 128.0      # 2 tiles
+
+	var fcs := CollisionShape2D.new()
+	var fshape := RectangleShape2D.new()
+	fshape.size = Vector2(_Z2_FLOOR_W, _Z2_DEPTH)
+	fcs.shape   = fshape
+	fcs.position = Vector2(_Z2_LEFT_X + _Z2_FLOOR_W * 0.5, _Z2_SURF_Y + _Z2_DEPTH * 0.5)
+	body.add_child(fcs)
+
+	# Plataforma elevada (≈ onde estavam sub001+cover001+sub002): 3 tiles à esquerda,
+	# 14 tiles de plataforma, 22 tiles à direita — total 39 tiles ≈ 2496 px.
+	const _Z2_L_COLS   := 3
+	const _Z2_P_COLS   := 14
+	const _Z2_SIDE_IN  := 34.0   # inset lateral p/ alinhar colisão com face opaca do tile
+	var plat_left := _Z2_LEFT_X + _Z2_L_COLS * float(_TS) + _Z2_SIDE_IN
+	var plat_w    := _Z2_P_COLS  * float(_TS) - _Z2_SIDE_IN * 2.0
+	var pcs := CollisionShape2D.new()
+	var pshape := RectangleShape2D.new()
+	pshape.size = Vector2(plat_w, float(_TS))  # 1 tile de elevação (64 px)
+	pcs.shape   = pshape
+	pcs.position = Vector2(plat_left + plat_w * 0.5, _Z2_SURF_Y - float(_TS) * 0.5)
+	body.add_child(pcs)
+
+	var right_cols := ceili(_Z2_FLOOR_W / float(_TS)) - _Z2_L_COLS - _Z2_P_COLS
+	body.set_meta("fp_params", {
+		"left_cols": _Z2_L_COLS, "plat_cols": _Z2_P_COLS, "right_cols": right_cols,
+		"elev_rows": 1, "depth_rows": 2,
+		"left_x": _Z2_LEFT_X, "surface_y": _Z2_SURF_Y, "surface_w": _Z2_FLOOR_W,
+	})
+	add_child(body)
 
 # ─── Zona 3 — gauntlet "Exame Final" (dash → wall-jump → plataforma móvel) ──────
 
