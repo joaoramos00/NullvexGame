@@ -37,7 +37,7 @@ const RAGE_FLASH_DURATION := 0.5
 const SHIELD_RANGE        := 220.0  # px — raio de detecção de bala
 const SHIELD_TIME_WINDOW  := 0.35   # s  — tempo de impacto para activar
 const SHIELD_DURATION     := 0.6    # s  — duração do shield activo
-const SHIELD_COOLDOWN     := 4.0    # s  — recarga após uso
+const SHIELD_COOLDOWN     := 2.0    # s  — recarga após uso
 const SHIELD_CONTACT_DIST := 52.0   # px — distância de contacto para deflectir
 
 var _attack_phase     : int   = 0
@@ -59,7 +59,7 @@ var _shield_cooldown : float = 0.0
 func _ready() -> void:
 	stage_id           = 0
 	ability_id         = ""
-	max_hp             = 80
+	max_hp             = 120
 	boss_color         = Color(0.5, 0.0, 0.1, 1)
 	attack_interval_p1 = 2.2
 	attack_interval_p2 = 1.0
