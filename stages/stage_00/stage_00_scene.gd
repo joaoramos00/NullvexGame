@@ -274,6 +274,11 @@ func _spawn_boss() -> void:
 	add_child(_boss)
 	_boss.boss_defeated.connect(_on_boss_defeated)
 	$HUD.connect_to_boss(_boss)
+	_boss.boss_aggro.connect(func():
+		_player.velocity = Vector2.ZERO
+		_player.process_mode = Node.PROCESS_MODE_DISABLED)
+	_boss.boss_intro_ended.connect(func():
+		_player.process_mode = Node.PROCESS_MODE_INHERIT)
 
 func _on_boss_defeated(_ability_id: String) -> void:
 	_camera_locked = false

@@ -3,6 +3,7 @@ class_name BossBase
 
 signal boss_defeated(ability_id: String)
 signal boss_aggro
+signal boss_intro_ended
 signal damaged(amount: int)
 signal died
 signal hp_changed(current: int, maximum: int)
@@ -89,6 +90,7 @@ func _run_intro() -> void:
 	await get_tree().create_timer(intro_duration).timeout
 	if state == State.INTRO:
 		state = State.COMBAT
+		boss_intro_ended.emit()
 
 func _tick_combat(delta: float) -> void:
 	if _invincibility_timer > 0.0:
