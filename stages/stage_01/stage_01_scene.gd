@@ -450,19 +450,6 @@ func _build_zone4() -> void:
 	cp.position = Vector2(22250, 264)
 	cp.set("checkpoint_index", 2)
 	add_child(cp)
-	# Cura ao chegar no topo (o nó Checkpoint só salva; a cura era do corredor).
-	var heal := Area2D.new()
-	heal.name = "Z4TopHeal"
-	heal.collision_layer = 0
-	heal.collision_mask = 2
-	heal.position = Vector2(22250, 264)
-	heal.add_child(_z2_shape(Vector2(900, 160)))
-	add_child(heal)
-	var healed := [false]   # Array p/ a lambda capturar por referência (não por valor)
-	heal.body_entered.connect(func(b: Node) -> void:
-		if not healed[0] and b is CharacterBase:
-			healed[0] = true
-			(b as CharacterBase).heal((b as CharacterBase).max_hp))
 
 	# Cratera: a borda direita do Z4Top (x21000) sobre o vão do BossCeil → queda na arena.
 	# (Sem lip visual flutuante; a boca da cratera é o vão no teto da sala do boss.)

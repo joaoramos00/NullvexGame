@@ -125,8 +125,8 @@ func _spawn_player() -> void:
 
 func _setup_corridors() -> void:
 	_corr1 = _make_corridor("CP1", _CP1_ENTRY_X, _CP1_EXIT_X, 1, false, false)
-	_corr2 = _make_corridor("CP2", _CP2_ENTRY_X, _CP2_EXIT_X, 2, true, true)
-	_corr3 = _make_corridor("CP3", _CP3_ENTRY_X, _CP3_EXIT_X, 3, false, true)
+	_corr2 = _make_corridor("CP2", _CP2_ENTRY_X, _CP2_EXIT_X, 2, true, false)
+	_corr3 = _make_corridor("CP3", _CP3_ENTRY_X, _CP3_EXIT_X, 3, false, false)
 
 func _make_corridor(name_prefix: String, entry_x: float, exit_x: float, checkpoint_index: int, manual: bool, heal: bool) -> CorridorSection:
 	var width := exit_x - entry_x
