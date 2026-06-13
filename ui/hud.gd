@@ -53,3 +53,5 @@ func _update_bar_height(max_hp: int) -> void:
 	var bar_h := float(max_hp) * _HP_PER_PIXEL
 	_hp_bar.offset_top    = _BAR_BOTTOM - bar_h
 	_hp_bar.offset_bottom = _BAR_BOTTOM
+	_boss_bar.offset_top    = _BAR_BOTTOM - bar_h
+	_boss_bar.offset_bottom = _BAR_BOTTOM
