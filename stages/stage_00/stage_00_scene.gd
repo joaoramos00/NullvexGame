@@ -525,7 +525,7 @@ func _setup_floor_platform() -> void:
 
 	# Colisão da plataforma elevada (degrau sólido do topo até a superfície do piso).
 	# Inset de 16px em cada lateral para alinhar a colisão com a face opaca do tile.
-	const _SIDE_INSET := 16.0
+	const _SIDE_INSET := 34.0
 	var plat_left: float = fleft_world + _FP_LEFT_COLS * _TS + _SIDE_INSET
 	var plat_top: float = ftop_world - _FP_ELEV_ROWS * _TS
 	var plat_w: float = _FP_PLAT_COLS * _TS - _SIDE_INSET * 2.0
