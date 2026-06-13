@@ -55,6 +55,9 @@ const _MINIBOSS_CAM_ZOOM   := 2.0                      # sala 960px total, zoom 
 const _BOSS_CAM_CENTER     := Vector2(17570.0, 88.0)   # centro da sala (igual miniboss)
 const _BOSS_CAM_ZOOM       := 2.0                       # mesma da miniboss
 
+const _DOOR_CY := 1024.0  # Y do centro da porta do MiniBoss (= Corr2.door_cy)
+const _DOOR_H  := 200.0   # Altura da porta (padrão do CorridorSection)
+
 var _player: CharacterBase = null
 var _corr1: CorridorSection = null
 var _corr2: CorridorSection = null
