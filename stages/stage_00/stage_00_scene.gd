@@ -205,6 +205,7 @@ func _setup_doors() -> void:
 	_doors.append(cp2_entry)
 
 	var boss_door := _make_door(CP2_EXIT_X, _CORR3_DOOR_CY)
+	boss_door.connect("door_opening", _on_door_opening)
 	boss_door.connect("door_opened",  _on_boss_door_opened.bind(boss_door))
 	_doors.append(boss_door)
 
@@ -252,14 +253,23 @@ func _on_cp2_entry_opened(door: Node2D) -> void:
 	if is_instance_valid(door):
 		door.call("close")
 
-func _on_boss_door_opened(_door: Node2D) -> void:
+func _on_boss_door_opened(door: Node2D) -> void:
 	if is_instance_valid(_player):
 		_player.door_locked = false
+		_player.door_walk_speed = CharacterBase.SPEED
 	_camera_locked   = true
 	_camera_target   = _BOSS_CAM_CENTER
 	_camera_zoom_tgt = _BOSS_CAM_ZOOM
 	_spawn_boss()
-	# After a short delay, seal the boss room by re-enabling Boss_LWall collision
+	# Walk player past the door, then close it (same pattern as cp2_entry)
+	var target_x := door.position.x + 96.0
+	while is_instance_valid(_player) and _player.global_position.x < target_x:
+		await get_tree().process_frame
+	if is_instance_valid(_player):
+		_player.door_walk_speed = 0.0
+	if is_instance_valid(door):
+		door.call("close")
+	# Seal the boss room by re-enabling Boss_LWall collision
 	await get_tree().create_timer(1.0).timeout
 	var boss_lwall := get_node_or_null("Boss_LWall")
 	if is_instance_valid(boss_lwall):
