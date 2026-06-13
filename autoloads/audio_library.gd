@@ -13,15 +13,26 @@ extends Node
 @export var bgm_nullvex: AudioStream = null
 @export var bgm_nullvex_true: AudioStream = null
 
-@export var sfx_jump: AudioStream = null
-@export var sfx_shoot: AudioStream = null
-@export var sfx_attack: AudioStream = null
-@export var sfx_player_damage: AudioStream = null
-@export var sfx_player_death: AudioStream = null
-@export var sfx_enemy_death: AudioStream = null
-@export var sfx_boss_damage: AudioStream = null
-@export var sfx_boss_death: AudioStream = null
-@export var sfx_collectible: AudioStream = null
+var sfx_jump: AudioStream
+var sfx_shoot: AudioStream
+var sfx_attack: AudioStream
+var sfx_player_damage: AudioStream
+var sfx_player_death: AudioStream
+var sfx_enemy_death: AudioStream
+var sfx_boss_damage: AudioStream
+var sfx_boss_death: AudioStream
+var sfx_collectible: AudioStream
+
+func _ready() -> void:
+	sfx_jump          = load("res://assets/audio/sfx/sfx_jump.mp3")
+	sfx_shoot         = load("res://assets/audio/sfx/sfx_shoot.mp3")
+	sfx_attack        = load("res://assets/audio/sfx/sfx_attack.mp3")
+	sfx_player_damage = load("res://assets/audio/sfx/sfx_player_damage.mp3")
+	sfx_player_death  = load("res://assets/audio/sfx/sfx_player_death.mp3")
+	sfx_enemy_death   = load("res://assets/audio/sfx/sfx_enemy_death.mp3")
+	sfx_boss_damage   = load("res://assets/audio/sfx/sfx_boss_damage.mp3")
+	sfx_boss_death    = load("res://assets/audio/sfx/sfx_boss_death.mp3")
+	sfx_collectible   = load("res://assets/audio/sfx/sfx_collectible.mp3")
 
 func get_stage_bgm(stage_id: int) -> AudioStream:
 	match stage_id:
