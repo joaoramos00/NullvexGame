@@ -51,11 +51,12 @@ var _is_entering      : bool  = false  # true during entry animation (State.INTR
 func _ready() -> void:
 	stage_id           = 0
 	ability_id         = ""
-	max_hp             = 28
+	max_hp             = 80
 	boss_color         = Color(0.5, 0.0, 0.1, 1)
 	attack_interval_p1 = 2.2
 	attack_interval_p2 = 1.0
 	super()
+	scale = Vector2(1.3, 1.3)
 
 func _draw() -> void:
 	pass
