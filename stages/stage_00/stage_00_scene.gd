@@ -903,6 +903,19 @@ func _draw_fp_node(node: Node) -> void:
 			var dw: float = minf(float(ts), surface_right - dx)   # clamp à largura real do piso
 			if dw <= 0.0:
 				continue
+			# Gap-fill lateral: tiles de canto (1,3)/(0,0) têm ~metade transparente na face
+			# exposta. Preenche a área transparente com meia-tile de parede ANTES do tile
+			# principal, para eliminar o vão invisível entre colisão e visual.
+			var el_exp := not _fp_solid(c - 1, r, lc, pc, er, total_c, total_r, hole)
+			var er_exp := not _fp_solid(c + 1, r, lc, pc, er, total_c, total_r, hole)
+			if el_exp:  # face esquerda exposta — fill com metade esquerda de (1,0)
+				draw_texture_rect_region(tex,
+					Rect2(dx, dy, float(ts) * 0.5, float(ts)),
+					Rect2(float(src), 0.0, float(src) * 0.5, float(src)))
+			if er_exp:  # face direita exposta — fill com metade direita de (3,2)
+				draw_texture_rect_region(tex,
+					Rect2(dx + float(ts) * 0.5, dy, float(ts) * 0.5, float(ts)),
+					Rect2(float(src) * 3.5, float(src) * 2.0, float(src) * 0.5, float(src)))
 			draw_texture_rect_region(tex,
 				Rect2(dx, dy, dw, float(ts)),
 				Rect2(t.x * src, t.y * src, src * dw / ts, src))
