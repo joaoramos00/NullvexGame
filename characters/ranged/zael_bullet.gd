@@ -43,6 +43,8 @@ func _draw() -> void:
 	draw_circle(Vector2.ZERO, 6.0, Color.YELLOW)
 
 func deflect_upward() -> void:
+	if _deflected:
+		return
 	_deflected = true
 	source_id = "deflected"
 	_deflect_velocity = Vector2(direction * SPEED, -SPEED)
