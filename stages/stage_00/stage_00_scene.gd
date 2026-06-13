@@ -206,7 +206,7 @@ func _setup_doors() -> void:
 
 	var boss_door := _make_door(CP2_EXIT_X, _CORR3_DOOR_CY)
 	boss_door.connect("door_opening", _on_door_opening)
-	boss_door.connect("door_opened",  _on_boss_door_opened.bind(boss_door))
+	boss_door.connect("door_opened",  _on_boss_door_opened.bind(boss_door), CONNECT_ONE_SHOT)
 	_doors.append(boss_door)
 
 # ─── Corredor 1 (CP1) ────────────────────────────────────────────────────────
