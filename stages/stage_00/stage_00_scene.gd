@@ -293,7 +293,7 @@ func _setup_corr2_section() -> void:
 	_corr2.glass_mirror     = true
 	_corr2.floor_center     = Vector2(7774.0, 1120.0)
 	_corr2.floor_size       = Vector2(896.0, 64.0)
-	_corr2.ceil_size        = Vector2.ZERO
+	_corr2.ceil_center      = Vector2(7774.0, 928.0)
 	_corr2.entry_x          = 7326.0
 	_corr2.exit_x           = 8222.0
 	_corr2.entry_manual     = not DebugBoot.no_enemies  # debug: corredor auto-abre (sem miniboss pra derrotar)

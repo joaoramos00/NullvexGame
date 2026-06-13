@@ -17,7 +17,7 @@ const _SRC := 32
 @export var floor_center:  Vector2 = Vector2(5982, 1120)
 @export var floor_size:    Vector2 = Vector2(896, 64)
 @export var ceil_center:   Vector2 = Vector2(5982, 928)
-@export var ceil_size:     Vector2 = Vector2.ZERO   # ZERO = sem teto
+@export var ceil_size:     Vector2 = Vector2(896, 64)
 @export var wall_l_center: Vector2 = Vector2(5534, 1024)
 @export var wall_l_size:   Vector2 = Vector2(64, 256)
 @export var wall_r_center: Vector2 = Vector2(6462, 1024)
@@ -77,8 +77,7 @@ func setup(player: CharacterBase) -> void:
 
 func _build_collision() -> void:
 	_add_static(floor_center,  floor_size,  1)
-	if ceil_size != Vector2.ZERO:
-		_add_static(ceil_center, ceil_size, 1)
+	_add_static(ceil_center, ceil_size, 1)
 	# Paredes SÓLIDAS acima da abertura da porta — a porta faz o vão no nível do chão.
 	# Antes ficavam desabilitadas (só a porta de 200px barrava), deixando um vão acima:
 	# o player pulava por cima / atravessava a "parede" pelo lado da zona seguinte.
@@ -227,8 +226,7 @@ func _draw() -> void:
 	if tileset == null:
 		return
 	_draw_floor_tiles()
-	if ceil_size != Vector2.ZERO:
-		_draw_ceil_tiles()
+	_draw_ceil_tiles()
 	if glass_tex != null:
 		_draw_glass()
 	if door_tex != null:
