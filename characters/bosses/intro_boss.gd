@@ -1,18 +1,21 @@
 extends BossBase
 class_name IntroBoss
 
+const _TEX_ENTRY := preload("res://characters/bosses/intro_boss/intro_boss_entry.png")
 const _TEX_IDLE  := preload("res://characters/bosses/intro_boss/intro_boss_idle.png")
 const _TEX_WALK  := preload("res://characters/bosses/intro_boss/intro_boss_walk.png")
 const _TEX_DASH  := preload("res://characters/bosses/intro_boss/intro_boss_dash.png")
 const _TEX_SHOOT := preload("res://characters/bosses/intro_boss/intro_boss_shoot.png")
 
-const _IDLE_FRAMES  := 4
-const _IDLE_FPS     := 6.0
+const _ENTRY_FRAMES := 9
+const _ENTRY_FPS    := 8.0
+const _IDLE_FRAMES  := 8
+const _IDLE_FPS     := 8.0
 const _WALK_FRAMES  := 6
 const _WALK_FPS     := 8.0
-const _DASH_FRAMES  := 6
+const _DASH_FRAMES  := 7
 const _DASH_FPS     := 12.0
-const _SHOOT_FRAMES := 6
+const _SHOOT_FRAMES := 7
 const _SHOOT_FPS    := 12.0
 
 const DASH_SPEED_P1       := 320.0
@@ -26,21 +29,22 @@ const BURST_SPEED_P1      := 240.0
 const BURST_SPEED_P2      := 320.0
 const BURST_COUNT_P1      := 3
 const BURST_COUNT_P2      := 5
-const BURST_SPREAD_P1     := 30.0   # degrees total
-const BURST_SPREAD_P2     := 50.0   # degrees total
+const BURST_SPREAD_P1     := 30.0
+const BURST_SPREAD_P2     := 50.0
 const SHOOT_DAMAGE        := 8
 const BURST_DAMAGE        := 6
 const RAGE_FLASH_DURATION := 0.5
 
-var _attack_phase     : int   = 0      # 0=dash  1=shoot  2=burst
+var _attack_phase     : int   = 0
 var _is_dashing       : bool  = false
 var _dash_timer       : float = 0.0
-var _is_shooting      : bool  = false  # true for both shoot and burst animations
+var _is_shooting      : bool  = false
 var _shoot_anim_timer : float = 0.0
 var _anim_frame       : int   = 0
 var _anim_timer       : float = 0.0
-var _facing           : float = -1.0   # -1=left(west/default)  1=right(flip_h)
+var _facing           : float = -1.0   # -1=left  1=right; east sprites → flip when facing left
 var _phase2_rage      : bool  = false
+var _is_entering      : bool  = false  # true during entry animation (State.INTRO)
 
 @onready var _sprite: Sprite2D = $Sprite2D
 
@@ -53,7 +57,6 @@ func _ready() -> void:
 	attack_interval_p2 = 1.0
 	super()
 
-# Suppress BossBase color-rectangle placeholder.
 func _draw() -> void:
 	pass
 
@@ -61,6 +64,19 @@ func _physics_process(delta: float) -> void:
 	super._physics_process(delta)
 	if not is_dead:
 		_update_animation(delta)
+
+func _run_intro() -> void:
+	_is_entering = true
+	_sprite.texture = _TEX_ENTRY
+	_sprite.hframes = _ENTRY_FRAMES
+	_sprite.flip_h  = false  # south = facing screen, no flip
+	_anim_frame = 0
+	_anim_timer = 0.0
+	var duration := float(_ENTRY_FRAMES) / _ENTRY_FPS
+	await get_tree().create_timer(duration).timeout
+	_is_entering = false
+	if state == State.INTRO:
+		state = State.COMBAT
 
 func _do_combat(delta: float) -> void:
 	if _is_shooting:
@@ -134,7 +150,7 @@ func _do_burst() -> void:
 func _enter_phase_2() -> void:
 	_phase2_rage    = true
 	_hit_flash_timer = RAGE_FLASH_DURATION
-	_is_attacking   = true   # pauses attack timer during rage flash
+	_is_attacking   = true
 	_resume_after_rage()
 
 func _resume_after_rage() -> void:
@@ -143,13 +159,23 @@ func _resume_after_rage() -> void:
 		_is_attacking = false
 
 func _update_animation(delta: float) -> void:
+	# Entry animation: south frames, no flip, advance manually
+	if _is_entering:
+		_sprite.modulate = Color.WHITE
+		_anim_timer += delta
+		if _anim_timer >= 1.0 / _ENTRY_FPS:
+			_anim_timer -= 1.0 / _ENTRY_FPS
+			_anim_frame = mini(_anim_frame + 1, _ENTRY_FRAMES - 1)
+		_sprite.frame = _anim_frame
+		return
+
+	# East sprites: flip_h when facing LEFT (east = facing right is natural)
 	if velocity.x > 0.0:
 		_facing = 1.0
 	elif velocity.x < 0.0:
 		_facing = -1.0
-	_sprite.flip_h = _facing > 0.0
+	_sprite.flip_h = _facing < 0.0
 
-	# Priority: hit flash > invincibility flicker > phase 2 rage tint > normal
 	if _hit_flash_timer > 0.0:
 		_sprite.modulate = Color(2.0, 2.0, 2.0, 1.0)
 	elif _invincible:
@@ -178,7 +204,6 @@ func _update_animation(delta: float) -> void:
 		_anim_frame     = 0
 		_anim_timer     = 0.0
 
-	# Dash: freeze on last frame during the lunge
 	if _is_dashing:
 		_sprite.frame = _DASH_FRAMES - 1
 		return

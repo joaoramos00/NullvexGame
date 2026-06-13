@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" path="res://ui/hud.gd" id="1_script"]
 [ext_resource type="Script" path="res://ui/hp_bar.gd" id="2_hpbar"]
+[ext_resource type="Script" path="res://ui/boss_hp_bar.gd" id="3_bossbar"]
 
 [node name="HUD" type="CanvasLayer"]
 layer = 5
@@ -44,3 +45,24 @@ offset_right = -10.0
 offset_bottom = 34.0
 text = "SINGLE"
 horizontal_alignment = 2
+
+[node name="BossLabel" type="Label" parent="Control"]
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -66.0
+offset_top = 30.0
+offset_right = -10.0
+offset_bottom = 58.0
+text = "BOSS"
+horizontal_alignment = 1
+visible = false
+
+[node name="BossHPBar" type="Control" parent="Control"]
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -58.0
+offset_top = -378.0
+offset_right = -18.0
+offset_bottom = 462.0
+script = ExtResource("3_bossbar")
+visible = false

@@ -4,6 +4,7 @@ class_name BossBase
 signal boss_defeated(ability_id: String)
 signal damaged(amount: int)
 signal died
+signal hp_changed(current: int, maximum: int)
 
 enum State { IDLE, INTRO, COMBAT, DYING, DEAD }
 
@@ -120,6 +121,7 @@ func take_damage(amount: int, source_id: String = "") -> void:
 	if source_id != "" and source_id == weakness_id:
 		amount = int(amount * WEAKNESS_MULTIPLIER)
 	current_hp = max(0, current_hp - amount)
+	hp_changed.emit(current_hp, max_hp)
 	_invincible = true
 	_invincibility_timer = INVINCIBILITY_DURATION
 	_hit_flash_timer = HIT_FLASH_DURATION

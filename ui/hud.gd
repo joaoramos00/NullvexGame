@@ -1,11 +1,13 @@
 extends CanvasLayer
 
-@onready var _hp_bar: Control      = $Control/HPBar
-@onready var _lives_label: Label   = $Control/LivesLabel
+@onready var _hp_bar:     Control = $Control/HPBar
+@onready var _lives_label: Label  = $Control/LivesLabel
 @onready var _ability_label: Label = $Control/AbilityLabel
+@onready var _boss_bar:   Control = $Control/BossHPBar
+@onready var _boss_label: Label   = $Control/BossLabel
 
-const _HP_PER_PIXEL := 4.0   # 1 HP = 4px of bar height
-const _BAR_BOTTOM   := 462.0  # bottom edge of bar (fixed, from hud.tscn)
+const _HP_PER_PIXEL := 4.0
+const _BAR_BOTTOM   := 462.0
 
 func _ready() -> void:
 	_update_lives(GameManager.lives)
@@ -19,8 +21,22 @@ func connect_to_player(player: CharacterBase) -> void:
 	player.hp_changed.connect(_update_hp)
 	_update_hp(player.current_hp, player.max_hp)
 
+func connect_to_boss(boss: BossBase) -> void:
+	_boss_bar.set_hp(boss.current_hp, boss.max_hp)
+	_boss_bar.visible = true
+	_boss_label.visible = true
+	boss.hp_changed.connect(_update_boss_hp)
+	boss.boss_defeated.connect(_on_boss_defeated)
+
 func _update_hp(current: int, maximum: int) -> void:
 	_hp_bar.set_hp(current, maximum)
+
+func _update_boss_hp(current: int, maximum: int) -> void:
+	_boss_bar.set_hp(current, maximum)
+
+func _on_boss_defeated(_ability: String) -> void:
+	_boss_bar.visible = false
+	_boss_label.visible = false
 
 func _update_lives(lives: int) -> void:
 	_lives_label.text = "x %d" % lives

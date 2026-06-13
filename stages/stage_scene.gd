@@ -29,6 +29,7 @@ func _ready() -> void:
 			continue
 		if child is BossBase:
 			child.player = _player
+			$HUD.connect_to_boss(child)
 	_maybe_spawn_bot()
 	$StageController.setup(_player)
 	$HUD.connect_to_player(_player)

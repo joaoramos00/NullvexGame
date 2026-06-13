@@ -291,6 +291,7 @@ func _spawn_boss() -> void:
 	_boss.arena_floor = 280.0
 	add_child(_boss)
 	_boss.boss_defeated.connect(_on_boss_defeated)
+	$HUD.connect_to_boss(_boss)
 
 func _on_boss_defeated(_ability_id: String) -> void:
 	_camera_locked = false
