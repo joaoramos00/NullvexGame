@@ -362,6 +362,7 @@ func _apply_debug_zone_spawn() -> void:
 		2: pos = Vector2(8400, 1000)    # entrada da zona 2 (pós-miniboss)
 		3: pos = Vector2(13100, 220)    # zona 3 (gauntlet)
 		4: pos = Vector2(17570, 200)    # sala do boss (debug)
+		5: pos = Vector2(5800, 1040)    # interior do Corr1 (debug teto/porta)
 		_: return                        # zona 1 = início normal
 	_player.global_position = pos
 	StageManager.spawn_position = pos
