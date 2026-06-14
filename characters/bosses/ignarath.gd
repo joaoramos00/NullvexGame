@@ -18,12 +18,14 @@ const _TAKINGHIT_FRAMES  := 9;  const _TAKINGHIT_FPS  := 12.0
 const WALK_SPEED_P1        := 80.0
 const WALK_SPEED_P2        := 130.0
 const FIRE_DAMAGE          := 12
-# Rajada de fogo (onda que viaja em linha reta). Alta demais pra pular do chão
-# (pulo ~118px) → força o player a wall-jump na parede.
-const WAVE_HEIGHT          := 150.0
-const WAVE_WIDTH           := 90.0
-const WAVE_SPEED_P1        := 300.0
-const WAVE_SPEED_P2        := 430.0
+# Firebreath = beam que sai da boca e varre da vertical pra fora (estilo Godzilla).
+const BEAM_SWEEP_TIME_P1   := 1.0
+const BEAM_SWEEP_TIME_P2   := 0.7
+const BEAM_MAX_ANGLE       := 70.0   # graus a partir da vertical
+const BEAM_HALF_WIDTH      := 20.0
+const MOUTH_DX             := 24.0   # offset da boca (a partir da origem do boss)
+const MOUTH_DY             := -40.0
+const FIREBREATH_STATIC_FRAME := 4   # frame "cuspindo" travado durante a varredura
 const FIRE_WINDUP_P1       := 0.5    # telegraph antes de cuspir (tempo de ir pra parede)
 const FIRE_WINDUP_P2       := 0.35
 const CLAW_DAMAGE          := 18
@@ -37,7 +39,8 @@ const CLAW_FIRE_H          := 44.0
 const CLAW_FIRE_LIFE_P1    := 1.1
 const CLAW_FIRE_LIFE_P2    := 1.5
 const RAGE_FLASH_DURATION  := 0.6
-const _FIRE_WAVE := preload("res://characters/bosses/ignarath/fire_wave.gd")
+const _FIRE_WAVE  := preload("res://characters/bosses/ignarath/fire_wave.gd")
+const _FIRE_BEAM  := preload("res://characters/bosses/ignarath/fire_beam.gd")
 const _FIRE_PATCH := preload("res://characters/bosses/ignarath/fire_patch.gd")
 
 # ── State ─────────────────────────────────────────────────────────────────────
@@ -54,6 +57,8 @@ var _telegraph_timer    : float = 0.0   # brilho de aviso (windup) antes de cusp
 var _invuln         : bool  = false # INVULNERÁVEL nas janelas (firebreath inteiro / golpe da garra)
 var _block_flash_timer  : float = 0.0   # flash cinza ao bloquear dano (invulnerável)
 var _attack_gen     : int   = 0     # token p/ cancelar a coroutine de ataque ao ser interrompido
+var _static_anim    : bool  = false # trava o frame do sprite (varredura do firebreath)
+var _active_beam    : Node  = null  # beam do firebreath em andamento (liberado ao interromper)
 
 @onready var _sprite: Sprite2D = $Sprite2D
 
@@ -126,7 +131,7 @@ func _do_firebreath() -> void:
 	_facing = -1.0 if player.global_position.x < global_position.x else 1.0
 	_start_attack_anim(_TEX_FIREBREATH, _FIREBREATH_FRAMES, _FIREBREATH_FPS)
 
-	# Telegraph: brilho de "inspirar" antes de cuspir — dá tempo de correr pra parede.
+	# Telegraph: brilho de "inspirar" antes de varrer.
 	var windup := FIRE_WINDUP_P2 if phase >= 2 else FIRE_WINDUP_P1
 	_telegraph_timer = windup
 	await get_tree().create_timer(windup).timeout
@@ -138,25 +143,31 @@ func _do_firebreath() -> void:
 		return
 	_telegraph_timer = 0.0
 
-	# Cospe a onda de fogo: viaja reto da boca até a parede oposta.
-	_spawn_fire_wave()
+	# Sprite estático no frame de "cuspindo" + beam que varre.
+	_static_anim = true
+	_anim_frame = FIREBREATH_STATIC_FRAME
+	var sweep := BEAM_SWEEP_TIME_P2 if phase >= 2 else BEAM_SWEEP_TIME_P1
+	_spawn_fire_beam(sweep)
 
-	await get_tree().create_timer(0.4).timeout
+	await get_tree().create_timer(sweep).timeout
 	if gen != _attack_gen:
 		return
+	_static_anim = false
 	_end_attack_anim()
 
-func _spawn_fire_wave() -> void:
-	var wave: Area2D = _FIRE_WAVE.new()
-	wave.set("dir", _facing)
-	wave.set("speed", WAVE_SPEED_P2 if phase >= 2 else WAVE_SPEED_P1)
-	wave.set("damage", FIRE_DAMAGE)
-	wave.set("source_id", "ignarath")
-	wave.set("wave_w", WAVE_WIDTH)
-	wave.set("wave_h", WAVE_HEIGHT)
-	wave.set("despawn_x", (arena_right + 120.0) if _facing > 0.0 else (arena_left - 120.0))
-	wave.global_position = Vector2(global_position.x + _facing * 50.0, arena_floor - WAVE_HEIGHT * 0.5)
-	get_parent().add_child(wave)
+func _spawn_fire_beam(sweep_time: float) -> void:
+	var beam: Node2D = _FIRE_BEAM.new()
+	beam.set("player", player)
+	beam.set("origin", global_position + Vector2(_facing * MOUTH_DX, MOUTH_DY))
+	beam.set("facing", _facing)
+	beam.set("floor_y", arena_floor)
+	beam.set("sweep_time", sweep_time)
+	beam.set("max_angle_deg", BEAM_MAX_ANGLE)
+	beam.set("half_width", BEAM_HALF_WIDTH)
+	beam.set("damage", FIRE_DAMAGE)
+	beam.set("source_id", "ignarath")
+	get_parent().add_child(beam)
+	_active_beam = beam
 
 func _do_claw() -> void:
 	if player == null:
@@ -256,6 +267,10 @@ func _break_action() -> void:
 	_is_attacking_anim = false
 	_attack_anim_tex = null
 	_telegraph_timer = 0.0
+	_static_anim = false
+	if is_instance_valid(_active_beam):
+		_active_beam.queue_free()
+	_active_beam = null
 	velocity.x = 0.0
 	_attack_timer = 1.0        # recuo: janela de punição antes do próximo ataque
 
@@ -319,10 +334,11 @@ func _update_animation(delta: float) -> void:
 		_anim_frame     = 0
 		_anim_timer     = 0.0
 
-	_anim_timer += delta
-	if _anim_timer >= 1.0 / fps:
-		_anim_timer -= 1.0 / fps
-		_anim_frame  = (_anim_frame + 1) % frames
+	if not _static_anim:
+		_anim_timer += delta
+		if _anim_timer >= 1.0 / fps:
+			_anim_timer -= 1.0 / fps
+			_anim_frame  = (_anim_frame + 1) % frames
 	_sprite.frame = _anim_frame
 
 # ── Hit reaction (visual only) ────────────────────────────────────────────────
