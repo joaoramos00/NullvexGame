@@ -74,6 +74,7 @@ func _ready() -> void:
 		GameManager.set_active_character("zael")
 	StageManager.spawn_position = $PlayerSpawn.global_position
 	_spawn_player()
+	_player.kill_y = FLOOR_Y + 700.0   # ~1500: abaixo de todo piso; mata na queda dos abismos Z4
 	$StageController.setup(_player)
 	$HUD.connect_to_player(_player)
 	$Camera2D.zoom = Vector2(2.2, 2.2)
@@ -431,5 +432,13 @@ func _build_zone3() -> void:
 	_recoverable_pit("Z3", 16100.0, 17300.0, 16550.0, 16800.0)
 	_floor_seg("Z3", 17300.0, 18000.0, FLOOR_Y)
 
+# Z4 — abismos MORTAIS (sem fundo → kill plane) com vidro nas laterais.
+# Travessia por pulos precisos entre seções de piso (vãos ≤ 196px de alcance).
 func _build_zone4() -> void:
-	pass
+	_floor_seg("Z4", 18000.0, 19000.0, FLOOR_Y)
+	_deadly_pit(19000.0, 20200.0, 19180.0, 19360.0)
+	_floor_seg("Z4", 20200.0, 20900.0, FLOOR_Y)
+	_deadly_pit(20900.0, 22200.0, 21080.0, 21260.0)
+	_floor_seg("Z4", 22200.0, 22900.0, FLOOR_Y)
+	_deadly_pit(22900.0, 23600.0, 23080.0, 23260.0)
+	_floor_seg("Z4", 23600.0, 24400.0, FLOOR_Y)
