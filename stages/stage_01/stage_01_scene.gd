@@ -52,7 +52,13 @@ const _BOSS_SHIFT := 2600.0
 const _CRATER_CX := 22700.0
 func _relocate_and_gap_boss() -> void:
 	var gap_w := 256.0
-	for bn in ["BossFloor", "BossWallL", "BossWallR", "BossLava", "BossPlat1", "BossPlat2", "Ignarath"]:
+	# Plataformas de combate (BossPlat1/2) eram um bug — removidas. Arena limpa força o
+	# wall-jump na rajada de fogo (não dá pra escapar subindo em plataforma).
+	for bn in ["BossPlat1", "BossPlat2"]:
+		var node := get_node_or_null(bn)
+		if node:
+			node.queue_free()
+	for bn in ["BossFloor", "BossWallL", "BossWallR", "BossLava", "Ignarath"]:
 		var node := get_node_or_null(bn)
 		if node:
 			(node as Node2D).position.x += _BOSS_SHIFT
@@ -63,11 +69,6 @@ func _relocate_and_gap_boss() -> void:
 		var node := get_node_or_null(bn)
 		if node:
 			node.set_meta("skip_base_draw", true)
-	# As plataformas de combate ficam por conta do render base (rocha z1).
-	for bn in ["BossPlat1", "BossPlat2"]:
-		var node := get_node_or_null(bn)
-		if node:
-			node.set_meta("platform_override", _ROOM_TILE.resource_path)
 	var ign := get_node_or_null("Ignarath")
 	if ign:
 		ign.set("arena_left", float(ign.get("arena_left")) + _BOSS_SHIFT)
