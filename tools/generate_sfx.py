@@ -38,6 +38,13 @@ SOUNDS = [
     ("sfx_boss_damage",  "heavy boss hit impact, deep thud, retro action boss fight", 0.5),
     ("sfx_boss_death",   "boss defeat large explosion, dramatic retro game, long rumble", 2.0),
     ("sfx_collectible",  "item pickup sparkle chime, bright pleasant retro game sound", 0.6),
+    # Disparos do Zael por nível de carga
+    ("sfx_shot_l1",      "retro laser blaster small shot, very short snappy 16-bit pew, light", 0.5),
+    ("sfx_shot_l2",      "retro charged laser shot medium power, 16-bit energy blast, fuller punchy", 0.5),
+    ("sfx_shot_l3",      "retro fully charged plasma cannon mega blast, powerful deep 16-bit, big boom", 0.7),
+    # Ataques do Ignarath
+    ("sfx_ignarath_fire","dragon fire breath roar, whooshing flames blast, retro 16-bit boss attack", 1.0),
+    ("sfx_ignarath_clawwave","fire wave whoosh sweeping across ground, flame burst, retro 16-bit", 0.5),
 ]
 
 def generate(name: str, prompt: str, duration: float) -> bool:
