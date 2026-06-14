@@ -64,5 +64,7 @@ func _on_body_entered(body: Node) -> void:
 	_hit = true
 	if body.has_method("take_damage"):
 		body.take_damage(damage, source_id)
+	else:
+		AudioManager.play_sfx(AudioLibrary.sfx_shot_wall)   # bateu na parede/chão
 	$Timer.stop()
 	queue_free()

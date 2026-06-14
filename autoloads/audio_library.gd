@@ -36,6 +36,8 @@ var sfx_enemy_shoot: AudioStream
 var sfx_checkpoint: AudioStream
 var sfx_stage_complete: AudioStream
 var sfx_game_over: AudioStream
+var sfx_enemy_hit: AudioStream
+var sfx_shot_wall: AudioStream
 
 func _ready() -> void:
 	sfx_jump          = load("res://assets/audio/sfx/sfx_jump.mp3")
@@ -61,6 +63,8 @@ func _ready() -> void:
 	sfx_checkpoint    = load("res://assets/audio/sfx/sfx_checkpoint.mp3")
 	sfx_stage_complete = load("res://assets/audio/sfx/sfx_stage_complete.mp3")
 	sfx_game_over     = load("res://assets/audio/sfx/sfx_game_over.mp3")
+	sfx_enemy_hit     = load("res://assets/audio/sfx/sfx_enemy_hit.mp3")
+	sfx_shot_wall     = load("res://assets/audio/sfx/sfx_shot_wall.mp3")
 	bgm_intro        = load("res://assets/audio/bgm/bgm_intro.mp3")
 	bgm_stage_01     = load("res://assets/audio/bgm/bgm_stage_01.mp3")
 	bgm_stage_02     = load("res://assets/audio/bgm/bgm_stage_02.mp3")
