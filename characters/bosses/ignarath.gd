@@ -166,6 +166,7 @@ func _spawn_fire_beam(sweep_time: float) -> void:
 	beam.set("source_id", "ignarath")
 	get_parent().add_child(beam)
 	_active_beam = beam
+	AudioManager.play_sfx(AudioLibrary.sfx_ignarath_fire)
 
 func _do_claw() -> void:
 	if player == null:
@@ -216,6 +217,7 @@ func _spawn_claw_wave() -> void:
 	wave.set("despawn_x", (arena_right + 120.0) if _facing > 0.0 else (arena_left - 120.0))
 	wave.global_position = Vector2(global_position.x + _facing * 50.0, arena_floor - CLAW_WAVE_H * 0.5)
 	get_parent().add_child(wave)
+	AudioManager.play_sfx(AudioLibrary.sfx_ignarath_clawwave)
 
 func _start_attack_anim(tex: Texture2D, frames: int, fps: float) -> void:
 	_attack_anim_tex    = tex

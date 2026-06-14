@@ -434,7 +434,10 @@ static func get_charge_level(timer: float) -> int:
 
 func _fire(level: int) -> void:
     assert(level >= 1 and level <= 3, "charge level deve ser 1, 2 ou 3")
-    AudioManager.play_sfx(AudioLibrary.sfx_shoot)
+    match level:
+        1: AudioManager.play_sfx(AudioLibrary.sfx_shot_l1)
+        2: AudioManager.play_sfx(AudioLibrary.sfx_shot_l2)
+        3: AudioManager.play_sfx(AudioLibrary.sfx_shot_l3)
     _is_shooting = true
     _shoot_timer = _SHOOT_DURATIONS[level - 1]
     _sprite.play("shoot_%d" % level)
