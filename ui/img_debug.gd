@@ -3356,7 +3356,7 @@ class _BossBattleWorld extends Node2D:
         _spawn_player()
         var cam := Camera2D.new()
         cam.global_position = Vector2(480.0, 256.0)  # centro da sala
-        cam.zoom = Vector2(1.0, 1.0)                 # sala 960px preenche o SubViewport
+        cam.zoom = Vector2(2.0, 2.0)                 # zoom 2.0 (igual ao jogo); SubViewport 1920×1080 → mostra 960×540 = sala inteira
         add_child(cam)
 
     func _build_room() -> void:
@@ -3506,7 +3506,7 @@ class _BossBattleView extends Control:
         _svc.stretch = true
         add_child(_svc)
         var svp := SubViewport.new()
-        svp.size = Vector2i(960, 540)
+        svp.size = Vector2i(1920, 1080)  # com zoom 2.0 da câmera, mostra 960×540 = sala inteira
         svp.handle_input_locally = false
         _svc.add_child(svp)
         var w := ImgDebug._BossBattleWorld.new()
