@@ -25,8 +25,7 @@ const FIRE_SPREAD_P1       := 25.0   # degrees half-arc
 const FIRE_SPREAD_P2       := 40.0
 const CLAW_DAMAGE          := 18
 const CLAW_RANGE           := 130.0
-const CLAW_DASH_SPEED      := 300.0
-const CLAW_DASH_DURATION   := 0.22
+const CLAW_MIN_RANGE       := 130.0  # só ataca se player estiver perto
 const RAGE_FLASH_DURATION  := 0.6
 
 # ── State ─────────────────────────────────────────────────────────────────────
@@ -39,8 +38,6 @@ var _is_attacking_anim : bool = false
 var _attack_anim_tex : Texture2D = null
 var _attack_anim_frames : int = 0
 var _attack_anim_fps    : float = 0.0
-var _is_claw_dashing : bool = false
-var _claw_dash_timer : float = 0.0
 
 @onready var _sprite: Sprite2D = $Sprite2D
 
@@ -76,13 +73,6 @@ func _run_intro() -> void:
 
 # ── Combat movement ───────────────────────────────────────────────────────────
 func _do_combat(delta: float) -> void:
-	if _is_claw_dashing:
-		_claw_dash_timer -= delta
-		if _claw_dash_timer <= 0.0:
-			_is_claw_dashing = false
-			velocity.x = 0.0
-		_clamp_to_arena()
-		return
 	if _is_attacking_anim or _is_attacking:
 		velocity.x = move_toward(velocity.x, 0.0, 300.0 * delta)
 		_clamp_to_arena()
@@ -133,32 +123,23 @@ func _do_firebreath() -> void:
 func _do_claw() -> void:
 	if player == null:
 		return
+	# Só executa garra se o player estiver perto
+	if global_position.distance_to(player.global_position) > CLAW_MIN_RANGE:
+		_is_attacking = false
+		return
 	_is_attacking = true
 	_is_attacking_anim = true
 	velocity.x = 0.0
 	_start_attack_anim(_TEX_CLAW, _CLAW_FRAMES, _CLAW_FPS)
 
-	# Dash toward player midway
-	var dash_delay := float(_CLAW_FRAMES) / _CLAW_FPS * 0.35
-	await get_tree().create_timer(dash_delay).timeout
-	if is_dead or player == null:
-		_end_attack_anim()
-		return
-
-	var dir := sign(player.global_position.x - global_position.x)
-	if dir == 0.0:
-		dir = _facing
-	velocity.x = dir * CLAW_DASH_SPEED
-	_is_claw_dashing = true
-	_claw_dash_timer = CLAW_DASH_DURATION
-
-	# Deal damage if player in range at impact
-	await get_tree().create_timer(CLAW_DASH_DURATION).timeout
+	# Dano no meio da animação
+	var hit_delay := float(_CLAW_FRAMES) / _CLAW_FPS * 0.5
+	await get_tree().create_timer(hit_delay).timeout
 	if not is_dead and player != null:
 		if global_position.distance_to(player.global_position) < CLAW_RANGE:
 			player.take_damage(CLAW_DAMAGE)
 
-	await get_tree().create_timer(float(_CLAW_FRAMES) / _CLAW_FPS * 0.35).timeout
+	await get_tree().create_timer(float(_CLAW_FRAMES) / _CLAW_FPS * 0.5).timeout
 	_end_attack_anim()
 
 func _start_attack_anim(tex: Texture2D, frames: int, fps: float) -> void:
@@ -183,8 +164,6 @@ func _enter_phase_2() -> void:
 
 # ── Take damage override ──────────────────────────────────────────────────────
 func take_damage(amount: int, source_id: String = "") -> void:
-	if _is_attacking_anim and _attack_anim_tex == _TEX_CLAW:
-		return  # invulnerable mid-claw-dash
 	super.take_damage(amount, source_id)
 
 # ── Animation ─────────────────────────────────────────────────────────────────
@@ -224,7 +203,7 @@ func _update_animation(delta: float) -> void:
 	elif _is_attacking_anim and _attack_anim_tex == null and _anim_frame > 0:
 		# takinghit
 		tex = _TEX_TAKINGHIT; frames = _TAKINGHIT_FRAMES; fps = _TAKINGHIT_FPS
-	elif absf(velocity.x) > 10.0 or _is_claw_dashing:
+	elif absf(velocity.x) > 10.0:
 		tex = _TEX_WALKING; frames = _WALKING_FRAMES; fps = _WALKING_FPS
 	else:
 		tex = _TEX_WALKING; frames = _WALKING_FRAMES; fps = 4.0  # slow idle
