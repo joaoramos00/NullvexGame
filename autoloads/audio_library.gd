@@ -69,4 +69,4 @@ func get_stage_bgm(stage_id: int) -> AudioStream:
 	var bgm_name: String = _BGM_BY_STAGE.get(stage_id, "")
 	if bgm_name == "":
 		return null
-	return load("res://assets/audio/bgm/%s.mp3" % bgm_name)
+	return load("res://assets/audio/bgm/%s.ogg" % bgm_name)
