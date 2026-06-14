@@ -22,6 +22,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          lfs: true   # puxa o index.pck real (Git LFS), não o ponteiro
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
