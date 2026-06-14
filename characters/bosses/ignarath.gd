@@ -65,7 +65,12 @@ func _ready() -> void:
 	attack_interval_p1 = 2.5
 	attack_interval_p2 = 1.6
 	super()
-	scale = Vector2(1.0, 1.0)
+	scale = Vector2(0.8, 0.8)   # 80% do tamanho (sprite + colisão)
+
+# Remove o placeholder vermelho + barra de HP do BossBase._draw (o boss usa o
+# Sprite2D; o HP é mostrado pelo HUD via connect_to_boss).
+func _draw() -> void:
+	pass
 
 func _physics_process(delta: float) -> void:
 	super._physics_process(delta)
