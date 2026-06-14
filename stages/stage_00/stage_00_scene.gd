@@ -1,4 +1,3 @@
-# stages/stage_00/stage_00_scene.gd
 extends Node2D
 
 const ZAEL_SCENE   := preload("res://characters/ranged/zael.tscn")
@@ -562,7 +561,9 @@ func _build_zone3() -> void:
 	# 1) DASH: vão de 260px depois do entry floor (12922–13400) → Z3_FP (piso+plataforma)
 	# 2) WALL-JUMP: parede embutida no Z3_FP como seção elevada (fp_params)
 	_build_z3_fp_node()
-	# 3) PLATAFORMA MÓVEL sobre o fosso (x 14750–15200) → CorrZ3_Cont_Floor (15200–16492)
+	# Chão de continuação (x 15200–16492) — antes no .tscn, agora gerado por código.
+	_add_z3_static("CorrZ3_Cont_Floor", Vector2(15846, 312), Vector2(1292, 64))
+	# 3) PLATAFORMA MÓVEL sobre o fosso (x 14750–15200)
 	var mp := AnimatableBody2D.new()
 	mp.name = "Z3MovingPlat"
 	mp.sync_to_physics = true
