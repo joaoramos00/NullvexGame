@@ -72,6 +72,7 @@ var _zone2_left    := false
 var _zone3_left    := false
 var _boss: Node = null
 var _boss_spawned := false
+var _boss_trigger_added := false
 var _miniboss: Node = null
 var _miniboss_spawned := false
 var _corr3: CorridorSection = null
@@ -271,7 +272,9 @@ func _spawn_boss() -> void:
 	_boss.arena_left  = 17200.0
 	_boss.arena_right = 17940.0
 	_boss.arena_floor = 280.0
+	_boss.auto_aggro  = false  # luta começa pelo gatilho de entrada na sala, não por distância
 	add_child(_boss)
+	_setup_boss_aggro_trigger()
 	_boss.boss_defeated.connect(_on_boss_defeated)
 	$HUD.connect_to_boss(_boss)
 	_boss.boss_aggro.connect(func():
@@ -279,6 +282,18 @@ func _spawn_boss() -> void:
 		_player.process_mode = Node.PROCESS_MODE_DISABLED)
 	_boss.boss_intro_ended.connect(func():
 		_player.process_mode = Node.PROCESS_MODE_INHERIT)
+
+# A luta do IntroBoss só começa quando o player ENTRA na sala (não por distância).
+# auto_aggro=false no spawn + Area2D cobrindo o interior da arena → aggro() na entrada.
+func _setup_boss_aggro_trigger() -> void:
+	if _boss_trigger_added:
+		return
+	_boss_trigger_added = true
+	var trig := _make_zone_trigger(17570.0, 140.0, 620.0, 300.0)
+	trig.body_entered.connect(func(body: Node2D) -> void:
+		if body.is_in_group("player") and is_instance_valid(_boss):
+			_boss.call("aggro"))
+	add_child(trig)
 
 func _on_boss_defeated(_ability_id: String) -> void:
 	_camera_locked = false
