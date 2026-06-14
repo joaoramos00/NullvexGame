@@ -3,9 +3,9 @@
 [ext_resource type="Script" path="res://characters/enemies/enemy_miniboss.gd" id="1_script"]
 [ext_resource type="Script" path="res://characters/enemies/enemy_miniboss_head.gd" id="5_head"]
 [ext_resource type="Script" path="res://characters/enemies/enemy_miniboss_body.gd" id="6_body"]
-[ext_resource type="Texture2D" path="res://characters/enemies/miniboss/miniboss_walk.png" id="2_walk"]
-[ext_resource type="Texture2D" path="res://characters/enemies/miniboss/miniboss_idle.png" id="3_idle"]
-[ext_resource type="Texture2D" path="res://characters/enemies/miniboss/miniboss_punch.png" id="4_punch"]
+[ext_resource type="Texture2D" path="res://characters/enemies/miniboss/stage_00/miniboss_walk.png" id="2_walk"]
+[ext_resource type="Texture2D" path="res://characters/enemies/miniboss/stage_00/miniboss_idle.png" id="3_idle"]
+[ext_resource type="Texture2D" path="res://characters/enemies/miniboss/stage_00/miniboss_punch.png" id="4_punch"]
 
 [sub_resource type="CapsuleShape2D" id="shape_body"]
 radius = 28.0
