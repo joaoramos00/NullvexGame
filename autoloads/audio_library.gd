@@ -1,17 +1,8 @@
 extends Node
-
-var bgm_intro: AudioStream
-var bgm_stage_01: AudioStream
-var bgm_stage_02: AudioStream
-var bgm_stage_03: AudioStream
-var bgm_stage_04: AudioStream
-var bgm_stage_05: AudioStream
-var bgm_stage_06: AudioStream
-var bgm_stage_07: AudioStream
-var bgm_stage_08: AudioStream
-var bgm_gauntlet: AudioStream
-var bgm_nullvex: AudioStream
-var bgm_nullvex_true: AudioStream
+# SFX são pequenos (~400 KB no total) → carregados no boot e mantidos em RAM.
+# BGM é grande (~54 MB nas 12 faixas) → carregado SOB DEMANDA via get_stage_bgm()
+# e NÃO cacheado, pra não segurar todas as faixas na RAM ao mesmo tempo. Segurar
+# as 12 estourava a memória do Edge no Xbox (SBOX_FATAL_MEMORY_EXCEEDED).
 
 var sfx_jump: AudioStream
 var sfx_shoot: AudioStream
@@ -39,6 +30,12 @@ var sfx_game_over: AudioStream
 var sfx_enemy_hit: AudioStream
 var sfx_shot_wall: AudioStream
 
+const _BGM_BY_STAGE := {
+	0: "bgm_intro", 1: "bgm_stage_01", 2: "bgm_stage_02", 3: "bgm_stage_03",
+	4: "bgm_stage_04", 5: "bgm_stage_05", 6: "bgm_stage_06", 7: "bgm_stage_07",
+	8: "bgm_stage_08", 9: "bgm_gauntlet", 10: "bgm_nullvex", 11: "bgm_nullvex_true",
+}
+
 func _ready() -> void:
 	sfx_jump          = load("res://assets/audio/sfx/sfx_jump.mp3")
 	sfx_shoot         = load("res://assets/audio/sfx/sfx_shoot.mp3")
@@ -65,31 +62,11 @@ func _ready() -> void:
 	sfx_game_over     = load("res://assets/audio/sfx/sfx_game_over.mp3")
 	sfx_enemy_hit     = load("res://assets/audio/sfx/sfx_enemy_hit.mp3")
 	sfx_shot_wall     = load("res://assets/audio/sfx/sfx_shot_wall.mp3")
-	bgm_intro        = load("res://assets/audio/bgm/bgm_intro.mp3")
-	bgm_stage_01     = load("res://assets/audio/bgm/bgm_stage_01.mp3")
-	bgm_stage_02     = load("res://assets/audio/bgm/bgm_stage_02.mp3")
-	bgm_stage_03     = load("res://assets/audio/bgm/bgm_stage_03.mp3")
-	bgm_stage_04     = load("res://assets/audio/bgm/bgm_stage_04.mp3")
-	bgm_stage_05     = load("res://assets/audio/bgm/bgm_stage_05.mp3")
-	bgm_stage_06     = load("res://assets/audio/bgm/bgm_stage_06.mp3")
-	bgm_stage_07     = load("res://assets/audio/bgm/bgm_stage_07.mp3")
-	bgm_stage_08     = load("res://assets/audio/bgm/bgm_stage_08.mp3")
-	bgm_gauntlet     = load("res://assets/audio/bgm/bgm_gauntlet.mp3")
-	bgm_nullvex      = load("res://assets/audio/bgm/bgm_nullvex.mp3")
-	bgm_nullvex_true = load("res://assets/audio/bgm/bgm_nullvex_true.mp3")
 
+# Carrega o BGM da fase SOB DEMANDA (não cacheia). O AudioManager troca o stream
+# do player; a faixa anterior fica sem referência e é liberada da memória.
 func get_stage_bgm(stage_id: int) -> AudioStream:
-	match stage_id:
-		0: return bgm_intro
-		1: return bgm_stage_01
-		2: return bgm_stage_02
-		3: return bgm_stage_03
-		4: return bgm_stage_04
-		5: return bgm_stage_05
-		6: return bgm_stage_06
-		7: return bgm_stage_07
-		8: return bgm_stage_08
-		9: return bgm_gauntlet
-		10: return bgm_nullvex
-		11: return bgm_nullvex_true
-	return null
+	var bgm_name: String = _BGM_BY_STAGE.get(stage_id, "")
+	if bgm_name == "":
+		return null
+	return load("res://assets/audio/bgm/%s.mp3" % bgm_name)
