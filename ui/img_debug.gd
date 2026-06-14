@@ -15,11 +15,11 @@ const _SPRITES: Array = [
     {"char": "KAWAGAEL", "anim": "Run",   "path": "res://characters/ranged/kawagael/KawagaelRun.png", "frames": 4, "fps": 10.0},
     {"char": "ZARA", "anim": "Walk",      "path": "res://characters/melee/ZaraAndando.png",    "frames": 5, "fps": 8.0},
     {"char": "ZARA", "anim": "Run",       "path": "res://characters/melee/ZaraCorrendo.png",   "frames": 3, "fps": 10.0},
-    {"char": "MINIBOSS", "anim": "Walk",  "path": "res://characters/enemies/miniboss/miniboss_walk.png",  "frames": 6, "fps": 8.0,  "frame_w": 240},
-    {"char": "MINIBOSS", "anim": "Idle",  "path": "res://characters/enemies/miniboss/miniboss_idle.png",  "frames": 4, "fps": 6.0,  "frame_w": 240},
-    {"char": "MINIBOSS", "anim": "Punch", "path": "res://characters/enemies/miniboss/miniboss_punch.png", "frames": 9, "fps": 12.0, "frame_w": 240, "label": "Punch (novo gif)"},
-    {"char": "MINIBOSS", "anim": "Stomp",  "path": "res://characters/enemies/miniboss/miniboss_stomp.png",  "frames": 9, "fps": 12.0, "frame_w": 240},
-    {"char": "MINIBOSS", "anim": "Charge", "path": "res://characters/enemies/miniboss/miniboss_charge.png", "frames": 8, "fps": 10.0, "frame_w": 240},
+    {"char": "MINIBOSS", "anim": "Walk",  "path": "res://characters/enemies/miniboss/stage_00/miniboss_walk.png",  "frames": 6, "fps": 8.0,  "frame_w": 240},
+    {"char": "MINIBOSS", "anim": "Idle",  "path": "res://characters/enemies/miniboss/stage_00/miniboss_idle.png",  "frames": 4, "fps": 6.0,  "frame_w": 240},
+    {"char": "MINIBOSS", "anim": "Punch", "path": "res://characters/enemies/miniboss/stage_00/miniboss_punch.png", "frames": 9, "fps": 12.0, "frame_w": 240, "label": "Punch (novo gif)"},
+    {"char": "MINIBOSS", "anim": "Stomp",  "path": "res://characters/enemies/miniboss/stage_00/miniboss_stomp.png",  "frames": 9, "fps": 12.0, "frame_w": 240},
+    {"char": "MINIBOSS", "anim": "Charge", "path": "res://characters/enemies/miniboss/stage_00/miniboss_charge.png", "frames": 8, "fps": 10.0, "frame_w": 240},
 ]
 
 const _HITBOX_ENTITIES: Array = [
