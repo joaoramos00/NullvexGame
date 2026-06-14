@@ -8,13 +8,18 @@ var _tween: Tween
 
 func _ready() -> void:
     _music_player = AudioStreamPlayer.new()
-    _music_player.bus = "Music"
+    _music_player.bus = _safe_bus("Music")
     add_child(_music_player)
     for i in SFX_POOL_SIZE:
         var p := AudioStreamPlayer.new()
-        p.bus = "SFX"
+        p.bus = _safe_bus("SFX")
         add_child(p)
         _sfx_pool.append(p)
+
+# Usa o bus nomeado só se ele existir; senão cai no "Master". Sem isso, um bus
+# faltando dá "invalid bus index -1" — FATAL no export web (aborta o WASM).
+func _safe_bus(bus_name: String) -> String:
+    return bus_name if AudioServer.get_bus_index(bus_name) != -1 else "Master"
 
 func play_bgm(stream: AudioStream, fade_in: float = 0.5) -> void:
     if stream == null:
