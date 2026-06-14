@@ -29,8 +29,15 @@ const FIRE_WINDUP_P2       := 0.35
 const CLAW_DAMAGE          := 18
 const CLAW_RANGE           := 130.0
 const CLAW_MIN_RANGE       := 130.0  # só ataca se player estiver perto
+# Rastro de fogo da garra: arco no chão à frente (negação de área curta).
+const CLAW_FIRE_DAMAGE     := 10
+const CLAW_FIRE_W          := 180.0
+const CLAW_FIRE_H          := 44.0
+const CLAW_FIRE_LIFE_P1    := 1.1
+const CLAW_FIRE_LIFE_P2    := 1.5
 const RAGE_FLASH_DURATION  := 0.6
 const _FIRE_WAVE := preload("res://characters/bosses/ignarath/fire_wave.gd")
+const _FIRE_PATCH := preload("res://characters/bosses/ignarath/fire_patch.gd")
 
 # ── State ─────────────────────────────────────────────────────────────────────
 var _attack_phase   : int   = 0   # 0=firebreath 1=claw
@@ -148,15 +155,32 @@ func _do_claw() -> void:
 	_facing = -1.0 if player.global_position.x < global_position.x else 1.0
 	_start_attack_anim(_TEX_CLAW, _CLAW_FRAMES, _CLAW_FPS)
 
-	# Dano no meio da animação
+	# Telegraph: ergue a garra brilhando durante o windup (até o golpe).
 	var hit_delay := float(_CLAW_FRAMES) / _CLAW_FPS * 0.5
+	_telegraph_timer = hit_delay
 	await get_tree().create_timer(hit_delay).timeout
+	_telegraph_timer = 0.0
 	if not is_dead and player != null:
+		# Golpe corpo-a-corpo
 		if global_position.distance_to(player.global_position) < CLAW_RANGE:
 			player.take_damage(CLAW_DAMAGE)
+		# Deixa um arco de fogo no chão à frente (negação de área curta).
+		_spawn_fire_patch()
 
 	await get_tree().create_timer(float(_CLAW_FRAMES) / _CLAW_FPS * 0.5).timeout
 	_end_attack_anim()
+
+func _spawn_fire_patch() -> void:
+	var patch: Area2D = _FIRE_PATCH.new()
+	patch.set("damage", CLAW_FIRE_DAMAGE)
+	patch.set("source_id", "ignarath")
+	patch.set("patch_w", CLAW_FIRE_W)
+	patch.set("patch_h", CLAW_FIRE_H)
+	patch.set("lifetime", CLAW_FIRE_LIFE_P2 if phase >= 2 else CLAW_FIRE_LIFE_P1)
+	patch.global_position = Vector2(
+		global_position.x + _facing * (CLAW_FIRE_W * 0.5 + 20.0),
+		arena_floor - CLAW_FIRE_H * 0.5)
+	get_parent().add_child(patch)
 
 func _start_attack_anim(tex: Texture2D, frames: int, fps: float) -> void:
 	_attack_anim_tex    = tex
