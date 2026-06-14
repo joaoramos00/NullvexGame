@@ -305,6 +305,8 @@ func _texture_for_node(node: Node) -> Texture2D:
 		return _tileset_z2
 	if node.name.begins_with("Z3"):
 		return _tileset_z3
+	if node.name.begins_with("Z4_Glass"):
+		return _glass_tex
 	if node.name.begins_with("Z4"):
 		return _tileset_z4
 	return _tileset_z1
@@ -346,3 +348,56 @@ func _tile_at(col: int, cols: int, row: int, rows: int) -> Vector2i:
 	if is_right:
 		return Vector2i(1, 0)
 	return Vector2i(2, 1)
+
+# ── Helpers de terreno procedural (piso baseado no chão; sem flutuantes) ──────
+# Segmento de piso sólido: topo em surface_y, profundidade dr tiles. zone = "Z1".."Z4".
+func _floor_seg(zone: String, x0: float, x1: float, surface_y: float, dr: int = 3) -> StaticBody2D:
+	var b := StaticBody2D.new()
+	b.name = "%s_Floor_%d" % [zone, int(x0)]
+	b.collision_layer = 1
+	b.collision_mask = 0
+	var w := x1 - x0
+	var h := dr * float(_TS)
+	var cs := CollisionShape2D.new()
+	var shape := RectangleShape2D.new()
+	shape.size = Vector2(w, h)
+	cs.shape = shape
+	cs.position = Vector2(x0 + w * 0.5, surface_y + h * 0.5)
+	b.add_child(cs)
+	add_child(b)
+	return b
+
+# Parede de vidro lisa (no_wall_grab) — face vertical de um abismo mortal (Z4).
+func _glass_wall(x_center: float, top_y: float, height: float) -> StaticBody2D:
+	var b := StaticBody2D.new()
+	b.name = "Z4_Glass_%d" % int(x_center)
+	b.collision_layer = 1
+	b.collision_mask = 0
+	b.add_to_group("no_wall_grab")
+	var cs := CollisionShape2D.new()
+	var shape := RectangleShape2D.new()
+	shape.size = Vector2(64.0, height)
+	cs.shape = shape
+	cs.position = Vector2(x_center, top_y + height * 0.5)
+	b.add_child(cs)
+	add_child(b)
+	return b
+
+# POÇO RECUPERÁVEL (Z1–Z3): piso à esquerda, vão, piso à direita, e um piso de
+# fundo (catch) ~`depth` abaixo cobrindo o vão → cai e volta pulando (depth ≤ ~96).
+func _recoverable_pit(zone: String, left_x: float, right_x: float, gap_x0: float, gap_x1: float, depth: float = 96.0) -> void:
+	_floor_seg(zone, left_x, gap_x0, FLOOR_Y)
+	_floor_seg(zone, gap_x1, right_x, FLOOR_Y)
+	_floor_seg(zone, gap_x0, gap_x1, FLOOR_Y + depth)   # fundo do poço (catch)
+
+# ABISMO MORTAL (Z4): piso à esquerda, vão ABERTO (sem fundo → morte), piso à
+# direita, com VIDRO nas faces internas. O kill plane (abaixo) mata na queda.
+func _deadly_pit(left_x: float, right_x: float, gap_x0: float, gap_x1: float) -> void:
+	_floor_seg("Z4", left_x, gap_x0, FLOOR_Y)
+	_floor_seg("Z4", gap_x1, right_x, FLOOR_Y)
+	_glass_wall(gap_x0 + 32.0, FLOOR_Y, 320.0)   # face de vidro à esquerda do vão
+	_glass_wall(gap_x1 - 32.0, FLOOR_Y, 320.0)   # face de vidro à direita do vão
+
+# Degrau elevado saltável (≤64px) sobre o piso base — seção de chão mais alta.
+func _step_up(zone: String, x0: float, x1: float, rise: float = 64.0) -> void:
+	_floor_seg(zone, x0, x1, FLOOR_Y - rise)
