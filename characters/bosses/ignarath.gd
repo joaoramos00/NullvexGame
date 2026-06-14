@@ -150,7 +150,7 @@ func _do_firebreath() -> void:
 	_spawn_fire_beam(sweep)
 
 	await get_tree().create_timer(sweep).timeout
-	if gen != _attack_gen:
+	if gen != _attack_gen or is_dead:
 		return
 	_static_anim = false
 	_end_attack_anim()
@@ -158,7 +158,7 @@ func _do_firebreath() -> void:
 func _spawn_fire_beam(sweep_time: float) -> void:
 	var beam: Node2D = _FIRE_BEAM.new()
 	beam.set("player", player)
-	beam.set("origin", global_position + Vector2(_facing * MOUTH_DX, MOUTH_DY))
+	beam.set("origin", global_position + Vector2(_facing * MOUTH_DX, MOUTH_DY) * scale.x)
 	beam.set("facing", _facing)
 	beam.set("floor_y", arena_floor)
 	beam.set("sweep_time", sweep_time)
@@ -273,6 +273,13 @@ func _break_action() -> void:
 	_active_beam = null
 	velocity.x = 0.0
 	_attack_timer = 1.0        # recuo: janela de punição antes do próximo ataque
+
+func _die() -> void:
+	if is_instance_valid(_active_beam):
+		_active_beam.queue_free()
+	_active_beam = null
+	_static_anim = false
+	super._die()
 
 # ── Animation ─────────────────────────────────────────────────────────────────
 func _update_animation(delta: float) -> void:
