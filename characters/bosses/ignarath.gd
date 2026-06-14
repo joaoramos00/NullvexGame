@@ -29,19 +29,16 @@ const FIREBREATH_STATIC_FRAME := 4   # frame "cuspindo" travado durante a varred
 const FIRE_WINDUP_P1       := 0.5    # telegraph antes de cuspir (tempo de ir pra parede)
 const FIRE_WINDUP_P2       := 0.35
 const CLAW_DAMAGE          := 18
-const CLAW_RANGE           := 130.0
-const CLAW_MIN_RANGE       := 130.0  # só ataca se player estiver perto
-const CLAW_INVULN_WINDOW     := 0.25   # janela de INVULNERABILIDADE no instante do golpe
-# Rastro de fogo da garra: arco no chão à frente (negação de área curta).
-const CLAW_FIRE_DAMAGE     := 10
-const CLAW_FIRE_W          := 180.0
-const CLAW_FIRE_H          := 44.0
-const CLAW_FIRE_LIFE_P1    := 1.1
-const CLAW_FIRE_LIFE_P2    := 1.5
+const CLAW_RANGE           := 130.0    # alcance do corpo-a-corpo (se o player estiver colado)
+const CLAW_INVULN_WINDOW   := 0.25     # janela de INVULNERABILIDADE no instante do golpe
+# Fogo rasteiro da garra: onda BAIXA que viaja até a parede (dá pra pular por cima).
+const CLAW_WAVE_H          := 56.0
+const CLAW_WAVE_W          := 90.0
+const CLAW_WAVE_SPEED_P1   := 300.0
+const CLAW_WAVE_SPEED_P2   := 400.0
 const RAGE_FLASH_DURATION  := 0.6
 const _FIRE_WAVE  := preload("res://characters/bosses/ignarath/fire_wave.gd")
 const _FIRE_BEAM  := preload("res://characters/bosses/ignarath/fire_beam.gd")
-const _FIRE_PATCH := preload("res://characters/bosses/ignarath/fire_patch.gd")
 
 # ── State ─────────────────────────────────────────────────────────────────────
 var _attack_phase   : int   = 0   # 0=firebreath 1=claw
@@ -172,10 +169,7 @@ func _spawn_fire_beam(sweep_time: float) -> void:
 func _do_claw() -> void:
 	if player == null:
 		return
-	# Só executa garra se o player estiver perto
-	if global_position.distance_to(player.global_position) > CLAW_MIN_RANGE:
-		_is_attacking = false
-		return
+	# Garra é ataque à distância: sempre executa (sem exigir proximidade).
 	_attack_gen += 1
 	var gen := _attack_gen
 	_is_attacking = true
@@ -193,11 +187,11 @@ func _do_claw() -> void:
 	_telegraph_timer = 0.0
 	if not is_dead and player != null:
 		_invuln = true   # INVULNERÁVEL no instante do golpe (exceto fraqueza)
-		# Golpe corpo-a-corpo
+		# Corpo-a-corpo só se o player estiver colado
 		if global_position.distance_to(player.global_position) < CLAW_RANGE:
 			player.take_damage(CLAW_DAMAGE)
-		# Deixa um arco de fogo no chão à frente (negação de área curta).
-		_spawn_fire_patch()
+		# Lança a onda de fogo rasteira: viaja pelo chão até bater na parede.
+		_spawn_claw_wave()
 
 	await get_tree().create_timer(CLAW_INVULN_WINDOW).timeout
 	if gen != _attack_gen:
@@ -210,17 +204,17 @@ func _do_claw() -> void:
 			return
 	_end_attack_anim()
 
-func _spawn_fire_patch() -> void:
-	var patch: Area2D = _FIRE_PATCH.new()
-	patch.set("damage", CLAW_FIRE_DAMAGE)
-	patch.set("source_id", "ignarath")
-	patch.set("patch_w", CLAW_FIRE_W)
-	patch.set("patch_h", CLAW_FIRE_H)
-	patch.set("lifetime", CLAW_FIRE_LIFE_P2 if phase >= 2 else CLAW_FIRE_LIFE_P1)
-	patch.global_position = Vector2(
-		global_position.x + _facing * (CLAW_FIRE_W * 0.5 + 20.0),
-		arena_floor - CLAW_FIRE_H * 0.5)
-	get_parent().add_child(patch)
+func _spawn_claw_wave() -> void:
+	var wave: Area2D = _FIRE_WAVE.new()
+	wave.set("dir", _facing)
+	wave.set("speed", CLAW_WAVE_SPEED_P2 if phase >= 2 else CLAW_WAVE_SPEED_P1)
+	wave.set("damage", FIRE_DAMAGE)
+	wave.set("source_id", "ignarath")
+	wave.set("wave_w", CLAW_WAVE_W)
+	wave.set("wave_h", CLAW_WAVE_H)
+	wave.set("despawn_x", (arena_right + 120.0) if _facing > 0.0 else (arena_left - 120.0))
+	wave.global_position = Vector2(global_position.x + _facing * 50.0, arena_floor - CLAW_WAVE_H * 0.5)
+	get_parent().add_child(wave)
 
 func _start_attack_anim(tex: Texture2D, frames: int, fps: float) -> void:
 	_attack_anim_tex    = tex
