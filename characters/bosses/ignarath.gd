@@ -1,62 +1,210 @@
 extends BossBase
+class_name Ignarath
 
-const _TEX_IDLE_W := preload("res://characters/bosses/ignarath/ignarath_west.png")
-const _TEX_IDLE_E := preload("res://characters/bosses/ignarath/ignarath_east.png")
-const _TEX_WALK_W := preload("res://characters/bosses/ignarath/ignarath_walk_west.png")
-const _TEX_WALK_E := preload("res://characters/bosses/ignarath/ignarath_walk_east.png")
-const _TEX_ENTRY  := preload("res://characters/bosses/ignarath/ignarath_entry.png")
+# ── Textures ─────────────────────────────────────────────────────────────────
+const _TEX_ENTER     := preload("res://characters/bosses/ignarath/ignarath_enter.png")
+const _TEX_WALKING   := preload("res://characters/bosses/ignarath/ignarath_walking.png")
+const _TEX_FIREBREATH := preload("res://characters/bosses/ignarath/ignarath_firebreath.png")
+const _TEX_CLAW      := preload("res://characters/bosses/ignarath/ignarath_claw.png")
+const _TEX_TAKINGHIT := preload("res://characters/bosses/ignarath/ignarath_takinghit.png")
 
-const _WALK_FRAMES  := 9
-const _WALK_FPS     := 8.0
-const _ENTRY_FRAMES := 7
-const _ENTRY_FPS    := 8.0
+const _ENTER_FRAMES      := 9;  const _ENTER_FPS      := 8.0
+const _WALKING_FRAMES    := 9;  const _WALKING_FPS    := 10.0
+const _FIREBREATH_FRAMES := 9;  const _FIREBREATH_FPS := 10.0
+const _CLAW_FRAMES       := 9;  const _CLAW_FPS       := 12.0
+const _TAKINGHIT_FRAMES  := 9;  const _TAKINGHIT_FPS  := 12.0
 
-var _anim_timer : float = 0.0
-var _anim_frame : int   = 0
-var _facing     : float = -1.0
+# ── Combat constants ──────────────────────────────────────────────────────────
+const WALK_SPEED_P1        := 80.0
+const WALK_SPEED_P2        := 130.0
+const FIRE_DAMAGE          := 12
+const FIRE_SPEED           := 280.0
+const FIRE_COUNT_P1        := 2
+const FIRE_COUNT_P2        := 4
+const FIRE_SPREAD_P1       := 25.0   # degrees half-arc
+const FIRE_SPREAD_P2       := 40.0
+const CLAW_DAMAGE          := 18
+const CLAW_RANGE           := 130.0
+const CLAW_DASH_SPEED      := 300.0
+const CLAW_DASH_DURATION   := 0.22
+const RAGE_FLASH_DURATION  := 0.6
+
+# ── State ─────────────────────────────────────────────────────────────────────
+var _attack_phase   : int   = 0   # 0=firebreath 1=claw
+var _anim_frame     : int   = 0
+var _anim_timer     : float = 0.0
+var _facing         : float = -1.0  # -1=left  1=right; west sprites → flip when right
+var _is_entering    : bool  = false
+var _is_attacking_anim : bool = false
+var _attack_anim_tex : Texture2D = null
+var _attack_anim_frames : int = 0
+var _attack_anim_fps    : float = 0.0
+var _is_claw_dashing : bool = false
+var _claw_dash_timer : float = 0.0
 
 @onready var _sprite: Sprite2D = $Sprite2D
 
-func _draw() -> void:
-	var pct := float(current_hp) / float(max_hp) if max_hp > 0 else 0.0
-	draw_rect(Rect2(-24, -52, 48, 6), Color.BLACK)
-	draw_rect(Rect2(-24, -52, 48.0 * pct, 6), Color.GREEN)
-
-func _face_player() -> void:
-	pass
+func _ready() -> void:
+	stage_id           = 1
+	ability_id         = "ignarath"
+	max_hp             = 180
+	boss_color         = Color(0.8, 0.2, 0.0, 1)
+	attack_interval_p1 = 2.5
+	attack_interval_p2 = 1.6
+	super()
+	scale = Vector2(1.0, 1.0)
 
 func _physics_process(delta: float) -> void:
-	super(delta)
-	_update_animation(delta)
+	super._physics_process(delta)
+	if not is_dead:
+		_update_animation(delta)
 
-func _update_animation(delta: float) -> void:
+# ── Intro ─────────────────────────────────────────────────────────────────────
+func _run_intro() -> void:
+	_is_entering = true
+	_sprite.texture = _TEX_ENTER
+	_sprite.hframes = _ENTER_FRAMES
+	_sprite.flip_h  = false
+	_anim_frame = 0
+	_anim_timer = 0.0
+	var duration := float(_ENTER_FRAMES) / _ENTER_FPS
+	await get_tree().create_timer(duration).timeout
+	_is_entering = false
 	if state == State.INTRO:
-		_sprite.texture = _TEX_ENTRY
-		_sprite.hframes = _ENTRY_FRAMES
-		_anim_timer += delta
-		if _anim_timer >= 1.0 / _ENTRY_FPS:
-			_anim_timer -= 1.0 / _ENTRY_FPS
-			_anim_frame = mini(_anim_frame + 1, _ENTRY_FRAMES - 1)
-		_sprite.frame    = _anim_frame
+		state = State.COMBAT
+		boss_intro_ended.emit()
+
+# ── Combat movement ───────────────────────────────────────────────────────────
+func _do_combat(delta: float) -> void:
+	if _is_claw_dashing:
+		_claw_dash_timer -= delta
+		if _claw_dash_timer <= 0.0:
+			_is_claw_dashing = false
+			velocity.x = 0.0
+		_clamp_to_arena()
+		return
+	if _is_attacking_anim or _is_attacking:
+		velocity.x = move_toward(velocity.x, 0.0, 300.0 * delta)
+		_clamp_to_arena()
+		return
+	if player != null:
+		var dx := player.global_position.x - global_position.x
+		var spd := WALK_SPEED_P2 if phase >= 2 else WALK_SPEED_P1
+		if absf(dx) > 120.0:
+			velocity.x = sign(dx) * spd
+		else:
+			velocity.x = move_toward(velocity.x, 0.0, 300.0 * delta)
+	_clamp_to_arena()
+
+# ── Attacks ───────────────────────────────────────────────────────────────────
+func _do_attack() -> void:
+	match _attack_phase:
+		0: _do_firebreath()
+		1: _do_claw()
+	_attack_phase = (_attack_phase + 1) % 2
+
+func _do_firebreath() -> void:
+	if player == null:
+		return
+	_is_attacking = true
+	_is_attacking_anim = true
+	velocity.x = 0.0
+	_start_attack_anim(_TEX_FIREBREATH, _FIREBREATH_FRAMES, _FIREBREATH_FPS)
+
+	# Shoot fire midway through animation
+	var shoot_delay := float(_FIREBREATH_FRAMES) / _FIREBREATH_FPS * 0.5
+	await get_tree().create_timer(shoot_delay).timeout
+	if is_dead or player == null:
+		_end_attack_anim()
+		return
+
+	var count  : int   = FIRE_COUNT_P2  if phase >= 2 else FIRE_COUNT_P1
+	var spread : float = deg_to_rad(FIRE_SPREAD_P2 if phase >= 2 else FIRE_SPREAD_P1)
+	var base_dir := (player.global_position - global_position).normalized()
+	var step := spread * 2.0 / float(count - 1) if count > 1 else 0.0
+	for i in count:
+		var angle := -spread + step * float(i)
+		var vel   := base_dir.rotated(angle) * FIRE_SPEED
+		_spawn_projectile(global_position, vel, FIRE_DAMAGE, "ignarath", Color(0.95, 0.35, 0.0))
+
+	await get_tree().create_timer(float(_FIREBREATH_FRAMES) / _FIREBREATH_FPS * 0.5).timeout
+	_end_attack_anim()
+
+func _do_claw() -> void:
+	if player == null:
+		return
+	_is_attacking = true
+	_is_attacking_anim = true
+	velocity.x = 0.0
+	_start_attack_anim(_TEX_CLAW, _CLAW_FRAMES, _CLAW_FPS)
+
+	# Dash toward player midway
+	var dash_delay := float(_CLAW_FRAMES) / _CLAW_FPS * 0.35
+	await get_tree().create_timer(dash_delay).timeout
+	if is_dead or player == null:
+		_end_attack_anim()
+		return
+
+	var dir := sign(player.global_position.x - global_position.x)
+	if dir == 0.0:
+		dir = _facing
+	velocity.x = dir * CLAW_DASH_SPEED
+	_is_claw_dashing = true
+	_claw_dash_timer = CLAW_DASH_DURATION
+
+	# Deal damage if player in range at impact
+	await get_tree().create_timer(CLAW_DASH_DURATION).timeout
+	if not is_dead and player != null:
+		if global_position.distance_to(player.global_position) < CLAW_RANGE:
+			player.take_damage(CLAW_DAMAGE)
+
+	await get_tree().create_timer(float(_CLAW_FRAMES) / _CLAW_FPS * 0.35).timeout
+	_end_attack_anim()
+
+func _start_attack_anim(tex: Texture2D, frames: int, fps: float) -> void:
+	_attack_anim_tex    = tex
+	_attack_anim_frames = frames
+	_attack_anim_fps    = fps
+	_anim_frame = 0
+	_anim_timer = 0.0
+
+func _end_attack_anim() -> void:
+	_is_attacking_anim = false
+	_is_attacking      = false
+	_attack_anim_tex   = null
+
+# ── Phase 2 ───────────────────────────────────────────────────────────────────
+func _enter_phase_2() -> void:
+	_hit_flash_timer = RAGE_FLASH_DURATION
+	_is_attacking    = true
+	await get_tree().create_timer(RAGE_FLASH_DURATION).timeout
+	if not is_dead:
+		_is_attacking = false
+
+# ── Take damage override ──────────────────────────────────────────────────────
+func take_damage(amount: int, source_id: String = "") -> void:
+	if _is_attacking_anim and _attack_anim_tex == _TEX_CLAW:
+		return  # invulnerable mid-claw-dash
+	super.take_damage(amount, source_id)
+
+# ── Animation ─────────────────────────────────────────────────────────────────
+func _update_animation(delta: float) -> void:
+	if _is_entering:
 		_sprite.modulate = Color.WHITE
+		_anim_timer += delta
+		if _anim_timer >= 1.0 / _ENTER_FPS:
+			_anim_timer -= 1.0 / _ENTER_FPS
+			_anim_frame = mini(_anim_frame + 1, _ENTER_FRAMES - 1)
+		_sprite.frame = _anim_frame
 		return
-	if state in [State.DYING, State.DEAD]:
-		return
-	if   velocity.x >  10.0: _facing =  1.0
-	elif velocity.x < -10.0: _facing = -1.0
-	var tex   : Texture2D
-	var frames: int
-	var fps   : float
-	if absf(velocity.x) > 10.0:
-		tex = _TEX_WALK_E if _facing > 0.0 else _TEX_WALK_W
-		frames = _WALK_FRAMES; fps = _WALK_FPS
-	else:
-		tex = _TEX_IDLE_E if _facing > 0.0 else _TEX_IDLE_W
-		frames = 1; fps = 4.0
-	if _sprite.texture != tex:
-		_sprite.texture = tex
-		_sprite.hframes = frames
-		_anim_frame = 0; _anim_timer = 0.0
+
+	# Facing: west sprites = natural left; flip_h when facing right
+	if velocity.x > 10.0:
+		_facing = 1.0
+	elif velocity.x < -10.0:
+		_facing = -1.0
+
+	# Modulate
 	if _hit_flash_timer > 0.0:
 		_sprite.modulate = Color(2.0, 2.0, 2.0, 1.0)
 	elif _invincible:
@@ -64,41 +212,39 @@ func _update_animation(delta: float) -> void:
 		_sprite.modulate = Color(1.0, 1.0, 1.0, a)
 	else:
 		_sprite.modulate = Color.WHITE
+
+	var tex    : Texture2D
+	var frames : int
+	var fps    : float
+
+	if _is_attacking_anim and _attack_anim_tex != null:
+		tex    = _attack_anim_tex
+		frames = _attack_anim_frames
+		fps    = _attack_anim_fps
+	elif _is_attacking_anim and _attack_anim_tex == null and _anim_frame > 0:
+		# takinghit
+		tex = _TEX_TAKINGHIT; frames = _TAKINGHIT_FRAMES; fps = _TAKINGHIT_FPS
+	elif absf(velocity.x) > 10.0 or _is_claw_dashing:
+		tex = _TEX_WALKING; frames = _WALKING_FRAMES; fps = _WALKING_FPS
+	else:
+		tex = _TEX_WALKING; frames = _WALKING_FRAMES; fps = 4.0  # slow idle
+
+	_sprite.flip_h = _facing > 0.0
+	if _sprite.texture != tex:
+		_sprite.texture = tex
+		_sprite.hframes = frames
+		_anim_frame     = 0
+		_anim_timer     = 0.0
+
 	_anim_timer += delta
-	if frames > 1 and _anim_timer >= 1.0 / fps:
+	if _anim_timer >= 1.0 / fps:
 		_anim_timer -= 1.0 / fps
-		_anim_frame = (_anim_frame + 1) % frames
+		_anim_frame  = (_anim_frame + 1) % frames
 	_sprite.frame = _anim_frame
 
-func _do_combat(delta: float) -> void:
-	if player == null:
-		return
-	var dx := player.global_position.x - global_position.x
-	if abs(dx) > 150.0:
-		velocity.x = sign(dx) * 80.0
-	else:
-		velocity.x = move_toward(velocity.x, 0.0, 200.0 * delta)
-	_clamp_to_arena()
-
-func _do_attack() -> void:
-	_is_attacking = true
-	velocity.x = 0.0
-	await get_tree().create_timer(0.3).timeout
-	if is_dead:
-		_is_attacking = false
-		return
-	if player == null:
-		_is_attacking = false
-		return
-	var dir: float = sign(player.global_position.x - global_position.x)
-	if dir == 0.0:
-		dir = 1.0
-	var shots := 3 if phase == 2 else 1
-	var fan_angles: Array[float] = [0.0, -0.26, 0.26]
-	for i in shots:
-		var vel := Vector2(dir * 300.0, 0.0).rotated(fan_angles[i] * dir)
-		_spawn_projectile(global_position, vel, 15, "ignarath", Color(0.9, 0.3, 0.0))
-	_is_attacking = false
-
-func _enter_phase_2() -> void:
-	attack_interval_p2 = 1.3
+# ── Hit reaction (visual only) ────────────────────────────────────────────────
+func _play_takinghit() -> void:
+	_sprite.texture = _TEX_TAKINGHIT
+	_sprite.hframes = _TAKINGHIT_FRAMES
+	_anim_frame = 0
+	_anim_timer = 0.0
