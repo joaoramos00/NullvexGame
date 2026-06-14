@@ -53,6 +53,7 @@ var _attack_anim_fps    : float = 0.0
 var _telegraph_timer    : float = 0.0   # brilho de aviso (windup) antes de cuspir
 var _invuln         : bool  = false # INVULNERÁVEL nas janelas (firebreath inteiro / golpe da garra)
 var _block_flash_timer  : float = 0.0   # flash cinza ao bloquear dano (invulnerável)
+var _attack_gen     : int   = 0     # token p/ cancelar a coroutine de ataque ao ser interrompido
 
 @onready var _sprite: Sprite2D = $Sprite2D
 
@@ -111,9 +112,11 @@ func _do_attack() -> void:
 func _do_firebreath() -> void:
 	if player == null:
 		return
+	_attack_gen += 1
+	var gen := _attack_gen
 	_is_attacking = true
 	_is_attacking_anim = true
-	_invuln = true   # INVULNERÁVEL durante TODO o firebreath
+	_invuln = true   # INVULNERÁVEL durante TODO o firebreath (exceto fraqueza)
 	velocity.x = 0.0
 	_facing = -1.0 if player.global_position.x < global_position.x else 1.0
 	_start_attack_anim(_TEX_FIREBREATH, _FIREBREATH_FRAMES, _FIREBREATH_FPS)
@@ -122,6 +125,8 @@ func _do_firebreath() -> void:
 	var windup := FIRE_WINDUP_P2 if phase >= 2 else FIRE_WINDUP_P1
 	_telegraph_timer = windup
 	await get_tree().create_timer(windup).timeout
+	if gen != _attack_gen:
+		return   # interrompido pela fraqueza (já limpo por _break_action)
 	if is_dead or player == null:
 		_telegraph_timer = 0.0
 		_end_attack_anim()
@@ -132,6 +137,8 @@ func _do_firebreath() -> void:
 	_spawn_fire_wave()
 
 	await get_tree().create_timer(0.4).timeout
+	if gen != _attack_gen:
+		return
 	_end_attack_anim()
 
 func _spawn_fire_wave() -> void:
@@ -153,6 +160,8 @@ func _do_claw() -> void:
 	if global_position.distance_to(player.global_position) > CLAW_MIN_RANGE:
 		_is_attacking = false
 		return
+	_attack_gen += 1
+	var gen := _attack_gen
 	_is_attacking = true
 	_is_attacking_anim = true
 	velocity.x = 0.0
@@ -163,9 +172,11 @@ func _do_claw() -> void:
 	var hit_delay := float(_CLAW_FRAMES) / _CLAW_FPS * 0.5
 	_telegraph_timer = hit_delay
 	await get_tree().create_timer(hit_delay).timeout
+	if gen != _attack_gen:
+		return   # interrompido pela fraqueza
 	_telegraph_timer = 0.0
 	if not is_dead and player != null:
-		_invuln = true   # INVULNERÁVEL no instante do golpe
+		_invuln = true   # INVULNERÁVEL no instante do golpe (exceto fraqueza)
 		# Golpe corpo-a-corpo
 		if global_position.distance_to(player.global_position) < CLAW_RANGE:
 			player.take_damage(CLAW_DAMAGE)
@@ -173,10 +184,14 @@ func _do_claw() -> void:
 		_spawn_fire_patch()
 
 	await get_tree().create_timer(CLAW_INVULN_WINDOW).timeout
+	if gen != _attack_gen:
+		return
 	_invuln = false
 	var rest := float(_CLAW_FRAMES) / _CLAW_FPS * 0.5 - CLAW_INVULN_WINDOW
 	if rest > 0.0:
 		await get_tree().create_timer(rest).timeout
+		if gen != _attack_gen:
+			return
 	_end_attack_anim()
 
 func _spawn_fire_patch() -> void:
@@ -214,12 +229,30 @@ func _enter_phase_2() -> void:
 
 # ── Take damage override ──────────────────────────────────────────────────────
 func take_damage(amount: int, source_id: String = "") -> void:
-	# O Ignarath fica INVULNERÁVEL durante o firebreath inteiro e no instante do golpe
-	# da garra: aí bloqueia (flash cinza, sem dano). No resto do tempo recebe normal.
+	# Durante o firebreath e o golpe da garra o Ignarath fica blindado: imune a dano
+	# normal (flash cinza). MAS a fraqueza dele (galerix) fura o escudo, causa dano
+	# (2× via BossBase) e INTERROMPE a ação que ele estiver executando.
 	if _invuln:
+		if source_id != "" and source_id == weakness_id:
+			super.take_damage(amount, source_id)
+			_break_action()
+			return
 		_block_flash_timer = 0.12
 		return
 	super.take_damage(amount, source_id)
+
+# Interrompe o ataque em andamento (chamado quando a fraqueza fura o escudo).
+func _break_action() -> void:
+	if is_dead:
+		return
+	_attack_gen += 1            # invalida a coroutine de ataque em andamento
+	_invuln = false
+	_is_attacking = false
+	_is_attacking_anim = false
+	_attack_anim_tex = null
+	_telegraph_timer = 0.0
+	velocity.x = 0.0
+	_attack_timer = 1.0        # recuo: janela de punição antes do próximo ataque
 
 # ── Animation ─────────────────────────────────────────────────────────────────
 func _update_animation(delta: float) -> void:
@@ -252,10 +285,6 @@ func _update_animation(delta: float) -> void:
 		# Brilho laranja pulsante de aviso (windup da rajada de fogo)
 		var p: float = 0.5 + 0.5 * sin(Time.get_ticks_msec() / 30.0)
 		_sprite.modulate = Color(1.0 + 0.8 * p, 0.5 + 0.2 * p, 0.15, 1.0)
-	elif _invuln:
-		# Invulnerável (atacando): tom azulado "blindado" — não adianta bater agora
-		var v: float = 0.5 + 0.5 * sin(Time.get_ticks_msec() / 60.0)
-		_sprite.modulate = Color(0.55, 0.65 + 0.15 * v, 1.0, 1.0)
 	elif _invincible:
 		var a := 0.35 if int(Time.get_ticks_msec() / 80) % 2 == 0 else 1.0
 		_sprite.modulate = Color(1.0, 1.0, 1.0, a)
