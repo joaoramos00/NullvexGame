@@ -29,7 +29,7 @@ const FIRE_WINDUP_P2       := 0.35
 const CLAW_DAMAGE          := 18
 const CLAW_RANGE           := 130.0
 const CLAW_MIN_RANGE       := 130.0  # só ataca se player estiver perto
-const CLAW_VULN_WINDOW     := 0.25   # janela de vulnerabilidade no instante do golpe
+const CLAW_INVULN_WINDOW     := 0.25   # janela de INVULNERABILIDADE no instante do golpe
 # Rastro de fogo da garra: arco no chão à frente (negação de área curta).
 const CLAW_FIRE_DAMAGE     := 10
 const CLAW_FIRE_W          := 180.0
@@ -51,8 +51,8 @@ var _attack_anim_tex : Texture2D = null
 var _attack_anim_frames : int = 0
 var _attack_anim_fps    : float = 0.0
 var _telegraph_timer    : float = 0.0   # brilho de aviso (windup) antes de cuspir
-var _vulnerable         : bool  = false # só recebe dano nas janelas (firebreath / golpe da garra)
-var _block_flash_timer  : float = 0.0   # flash cinza ao bloquear dano fora da janela
+var _invuln         : bool  = false # INVULNERÁVEL nas janelas (firebreath inteiro / golpe da garra)
+var _block_flash_timer  : float = 0.0   # flash cinza ao bloquear dano (invulnerável)
 
 @onready var _sprite: Sprite2D = $Sprite2D
 
@@ -113,7 +113,7 @@ func _do_firebreath() -> void:
 		return
 	_is_attacking = true
 	_is_attacking_anim = true
-	_vulnerable = true   # vulnerável durante TODO o firebreath
+	_invuln = true   # INVULNERÁVEL durante TODO o firebreath
 	velocity.x = 0.0
 	_facing = -1.0 if player.global_position.x < global_position.x else 1.0
 	_start_attack_anim(_TEX_FIREBREATH, _FIREBREATH_FRAMES, _FIREBREATH_FPS)
@@ -165,16 +165,16 @@ func _do_claw() -> void:
 	await get_tree().create_timer(hit_delay).timeout
 	_telegraph_timer = 0.0
 	if not is_dead and player != null:
-		_vulnerable = true   # janela de vulnerabilidade no instante do golpe
+		_invuln = true   # INVULNERÁVEL no instante do golpe
 		# Golpe corpo-a-corpo
 		if global_position.distance_to(player.global_position) < CLAW_RANGE:
 			player.take_damage(CLAW_DAMAGE)
 		# Deixa um arco de fogo no chão à frente (negação de área curta).
 		_spawn_fire_patch()
 
-	await get_tree().create_timer(CLAW_VULN_WINDOW).timeout
-	_vulnerable = false
-	var rest := float(_CLAW_FRAMES) / _CLAW_FPS * 0.5 - CLAW_VULN_WINDOW
+	await get_tree().create_timer(CLAW_INVULN_WINDOW).timeout
+	_invuln = false
+	var rest := float(_CLAW_FRAMES) / _CLAW_FPS * 0.5 - CLAW_INVULN_WINDOW
 	if rest > 0.0:
 		await get_tree().create_timer(rest).timeout
 	_end_attack_anim()
@@ -202,7 +202,7 @@ func _end_attack_anim() -> void:
 	_is_attacking_anim = false
 	_is_attacking      = false
 	_attack_anim_tex   = null
-	_vulnerable        = false
+	_invuln        = false
 
 # ── Phase 2 ───────────────────────────────────────────────────────────────────
 func _enter_phase_2() -> void:
@@ -214,9 +214,9 @@ func _enter_phase_2() -> void:
 
 # ── Take damage override ──────────────────────────────────────────────────────
 func take_damage(amount: int, source_id: String = "") -> void:
-	# O Ignarath só recebe dano nas janelas de vulnerabilidade: firebreath inteiro
-	# e o instante do golpe da garra. Fora disso, bloqueia (flash cinza, sem dano).
-	if not _vulnerable:
+	# O Ignarath fica INVULNERÁVEL durante o firebreath inteiro e no instante do golpe
+	# da garra: aí bloqueia (flash cinza, sem dano). No resto do tempo recebe normal.
+	if _invuln:
 		_block_flash_timer = 0.12
 		return
 	super.take_damage(amount, source_id)
@@ -245,17 +245,17 @@ func _update_animation(delta: float) -> void:
 
 	# Modulate
 	if _block_flash_timer > 0.0:
-		_sprite.modulate = Color(0.5, 0.5, 0.6, 1.0)   # bloqueado (fora da janela de dano)
+		_sprite.modulate = Color(0.5, 0.5, 0.6, 1.0)   # bloqueado (invulnerável agora)
 	elif _hit_flash_timer > 0.0:
 		_sprite.modulate = Color(2.0, 2.0, 2.0, 1.0)
 	elif _telegraph_timer > 0.0:
 		# Brilho laranja pulsante de aviso (windup da rajada de fogo)
 		var p: float = 0.5 + 0.5 * sin(Time.get_ticks_msec() / 30.0)
 		_sprite.modulate = Color(1.0 + 0.8 * p, 0.5 + 0.2 * p, 0.15, 1.0)
-	elif _vulnerable:
-		# Vulnerável: brilho claro pulsante (sinaliza "ataque agora")
-		var v: float = 0.5 + 0.5 * sin(Time.get_ticks_msec() / 50.0)
-		_sprite.modulate = Color(1.3 + 0.3 * v, 1.3 + 0.3 * v, 1.6 + 0.3 * v, 1.0)
+	elif _invuln:
+		# Invulnerável (atacando): tom azulado "blindado" — não adianta bater agora
+		var v: float = 0.5 + 0.5 * sin(Time.get_ticks_msec() / 60.0)
+		_sprite.modulate = Color(0.55, 0.65 + 0.15 * v, 1.0, 1.0)
 	elif _invincible:
 		var a := 0.35 if int(Time.get_ticks_msec() / 80) % 2 == 0 else 1.0
 		_sprite.modulate = Color(1.0, 1.0, 1.0, a)
