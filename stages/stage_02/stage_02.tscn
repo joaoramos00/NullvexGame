@@ -77,65 +77,12 @@ position = Vector2(20000, 760)
 position = Vector2(24550, 760)
 
 
-[node name="Z2_BlockA" type="StaticBody2D" parent="."]
-position = Vector2(3200, 980)
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Z2_BlockA"]
-shape = SubResource("BlockWide")
-
-[node name="Z2_BlockB" type="StaticBody2D" parent="."]
-position = Vector2(4200, 1044)
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Z2_BlockB"]
-shape = SubResource("BlockMedium")
-
-[node name="Z2_BlockC" type="StaticBody2D" parent="."]
-position = Vector2(5000, 980)
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Z2_BlockC"]
-shape = SubResource("BlockWide")
-
 [node name="MB02_Floor" type="StaticBody2D" parent="."]
 position = Vector2(11900, 980)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="MB02_Floor"]
 shape = SubResource("BlockWide")
 
-[node name="Z3_BlockA" type="StaticBody2D" parent="."]
-position = Vector2(8300, 1044)
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Z3_BlockA"]
-shape = SubResource("BlockMedium")
-
-[node name="Z3_BlockB" type="StaticBody2D" parent="."]
-position = Vector2(9200, 940)
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Z3_BlockB"]
-shape = SubResource("BlockTall")
-
-[node name="Z3_BlockC" type="StaticBody2D" parent="."]
-position = Vector2(10000, 980)
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Z3_BlockC"]
-shape = SubResource("BlockWide")
-
-[node name="Z4_BlockA" type="StaticBody2D" parent="."]
-position = Vector2(11000, 980)
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Z4_BlockA"]
-shape = SubResource("BlockWide")
-
-[node name="Z4_BlockB" type="StaticBody2D" parent="."]
-position = Vector2(12000, 940)
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Z4_BlockB"]
-shape = SubResource("BlockTall")
-
-[node name="Z4_BlockC" type="StaticBody2D" parent="."]
-position = Vector2(12800, 980)
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Z4_BlockC"]
-shape = SubResource("BlockWide")
 
 [node name="StageIceFloor" type="Area2D" parent="."]
 position = Vector2(12500, 760)
@@ -201,15 +148,15 @@ collectible_type = 1
 subtank_index = 0
 
 [node name="ArmorZaraHelmet" parent="." instance=ExtResource("3_col")]
-position = Vector2(8600, 650)
+position = Vector2(8600, 700)
 collectible_type = 3
 armor_piece = "helmet"
 
 [node name="Heart" parent="." instance=ExtResource("3_col")]
-position = Vector2(16000, 560)
+position = Vector2(16000, 680)
 stage_id = 2
 
 [node name="SpreadZael" parent="." instance=ExtResource("3_col")]
-position = Vector2(21500, 560)
+position = Vector2(21500, 700)
 collectible_type = 4
 ability_id = "spread"
