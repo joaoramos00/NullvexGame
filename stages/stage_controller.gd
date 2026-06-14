@@ -20,11 +20,12 @@ func _ready() -> void:
 	_fade_canvas.layer = 100
 	add_child(_fade_canvas)
 	_fade_rect = ColorRect.new()
-	_fade_rect.color = Color(0.0, 0.0, 0.0, 0.0)
+	_fade_rect.color = Color(0.0, 0.0, 0.0, 1.0)
 	_fade_rect.anchor_right = 1.0
 	_fade_rect.anchor_bottom = 1.0
 	_fade_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_fade_canvas.add_child(_fade_rect)
+	_fade_to(0.0)
 
 func setup(p: CharacterBase) -> void:
 	player = p
