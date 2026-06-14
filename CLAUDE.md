@@ -32,7 +32,7 @@ Endpoint imagem genérica: `POST https://api.pixellab.ai/v1/generate-image`
 ## Como Rodar Testes
 
 ```bash
-# A partir de C:\Users\Usuário\SnesGame
+# A partir de D:\SnesGame
 "D:/Godot_v4.6.2-stable_win64/Godot_v4.6.2-stable_win64.exe" --headless --path . res://tests/test_game_manager.tscn
 "D:/Godot_v4.6.2-stable_win64/Godot_v4.6.2-stable_win64.exe" --headless --path . res://tests/test_stage_manager.tscn
 "D:/Godot_v4.6.2-stable_win64/Godot_v4.6.2-stable_win64.exe" --headless --path . res://tests/test_character_base.tscn
