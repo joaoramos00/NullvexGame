@@ -415,8 +415,13 @@ func _build_zone1() -> void:
 	_step_up("Z1", 4200.0, 4700.0)
 	_floor_seg("Z1", 4700.0, 5600.0, FLOOR_Y)
 
+# Z2 — espinhos de gelo. Piso com campos de espinhos e poços recuperáveis.
 func _build_zone2() -> void:
-	pass
+	_floor_seg("Z2", 5600.0, 6600.0, FLOOR_Y)
+	_recoverable_pit("Z2", 6600.0, 7800.0, 7050.0, 7300.0)
+	_step_up("Z2", 7800.0, 8300.0)
+	_floor_seg("Z2", 8300.0, 9400.0, FLOOR_Y)
+	_recoverable_pit("Z2", 9400.0, 10600.0, 9850.0, 10100.0)
 
 func _build_zone3() -> void:
 	pass

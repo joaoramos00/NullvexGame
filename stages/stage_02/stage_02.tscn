@@ -147,7 +147,7 @@ script = ExtResource("8_icefloor")
 shape = SubResource("StageIceShape")
 
 [node name="Z2_Spikes" type="Area2D" parent="."]
-position = Vector2(4100, 760)
+position = Vector2(8850, 768)
 collision_layer = 0
 collision_mask = 2
 script = ExtResource("9_spikes")
