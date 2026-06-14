@@ -1,8 +1,8 @@
 extends Area2D
-# Onda de fogo do Ignarath: viaja em LINHA RETA pela arena na altura do chão,
-# da boca até a parede oposta. É alta demais pra ser pulada do chão (pulo ~118px)
-# → o player precisa correr pra parede e WALL-JUMP pra ficar acima dela.
-# Só some ao chegar na parede oposta (despawn_x) ou no fim do lifetime.
+# Onda de fogo rasteira do Ignarath (lançada pela garra): viaja em LINHA RETA pelo
+# chão até a parede oposta. A altura (wave_h) é parametrizada pelo chamador; no uso
+# atual é baixa (~56px) → dá pra PULAR por cima. Some ao chegar na parede
+# (despawn_x) ou no fim do lifetime.
 
 const _FILL_TEX_PATH := "res://stages/stage_01/lava_fill.png"
 
