@@ -2191,6 +2191,8 @@ var _sprites_box: VBoxContainer
 var _tiles_box: VBoxContainer
 var _moves_box: VBoxContainer
 var _hitboxes_box: VBoxContainer
+var _battle_box: VBoxContainer
+var _battle_view: _BossBattleView
 var _hitbox_view: _HitboxView
 var _anim_tabs_box: HBoxContainer
 var _preview_rect: TextureRect
@@ -2234,6 +2236,9 @@ func _show_section(section: String) -> void:
     _tiles_box.visible   = (section == "TILES")
     _moves_box.visible   = (section == "MOVIMENTOS")
     _hitboxes_box.visible = (section == "HITBOXES")
+    _battle_box.visible  = (section == "BATALHA")
+    if section == "BATALHA" and _battle_view != null:
+        _battle_view.show_selection()  # sempre entra pelo hub de seleção
     for s in _section_btns:
         _section_btns[s].modulate = Color(1, 1, 0) if s == section else Color(0.6, 0.6, 0.6)
 
@@ -2409,6 +2414,13 @@ func _build_ui() -> void:
     section_row.add_child(hitbox_btn)
     _section_btns["HITBOXES"] = hitbox_btn
 
+    var battle_btn := Button.new()
+    battle_btn.text = "BATALHA"
+    battle_btn.add_theme_font_size_override("font_size", 28)
+    battle_btn.pressed.connect(_show_section.bind("BATALHA"))
+    section_row.add_child(battle_btn)
+    _section_btns["BATALHA"] = battle_btn
+
     # SPRITES BOX
     _sprites_box = VBoxContainer.new()
     _sprites_box.add_theme_constant_override("separation", 8)
@@ -2480,6 +2492,18 @@ func _build_ui() -> void:
     _hitbox_view.size_flags_horizontal = Control.SIZE_EXPAND_FILL
     _hitbox_view.size_flags_vertical = Control.SIZE_EXPAND_FILL
     _hitboxes_box.add_child(_hitbox_view)
+
+    # BATALHA BOX
+    _battle_box = VBoxContainer.new()
+    _battle_box.add_theme_constant_override("separation", 8)
+    _battle_box.size_flags_vertical = Control.SIZE_EXPAND_FILL
+    main.add_child(_battle_box)
+    _battle_view = _BossBattleView.new()
+    _battle_view.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+    _battle_view.size_flags_vertical = Control.SIZE_EXPAND_FILL
+    _battle_view.custom_minimum_size = Vector2(0.0, 560.0)
+    _battle_view.exit_requested.connect(func(): _show_section("SPRITES"))
+    _battle_box.add_child(_battle_view)
 
 func _build_moves_box() -> void:
     # ── Tab row ──────────────────────────────────────────────────────────────
