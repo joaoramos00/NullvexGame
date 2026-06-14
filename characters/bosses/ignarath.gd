@@ -36,6 +36,7 @@ const CLAW_WAVE_H          := 56.0
 const CLAW_WAVE_W          := 90.0
 const CLAW_WAVE_SPEED_P1   := 300.0
 const CLAW_WAVE_SPEED_P2   := 400.0
+const CLAW_WAVE_DAMAGE     := 12
 const RAGE_FLASH_DURATION  := 0.6
 const _FIRE_WAVE  := preload("res://characters/bosses/ignarath/fire_wave.gd")
 const _FIRE_BEAM  := preload("res://characters/bosses/ignarath/fire_beam.gd")
@@ -208,7 +209,7 @@ func _spawn_claw_wave() -> void:
 	var wave: Area2D = _FIRE_WAVE.new()
 	wave.set("dir", _facing)
 	wave.set("speed", CLAW_WAVE_SPEED_P2 if phase >= 2 else CLAW_WAVE_SPEED_P1)
-	wave.set("damage", FIRE_DAMAGE)
+	wave.set("damage", CLAW_WAVE_DAMAGE)
 	wave.set("source_id", "ignarath")
 	wave.set("wave_w", CLAW_WAVE_W)
 	wave.set("wave_h", CLAW_WAVE_H)
