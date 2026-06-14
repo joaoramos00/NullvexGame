@@ -12,3 +12,4 @@ func _on_body_entered(body: Node) -> void:
     if StageManager.checkpoint_index >= checkpoint_index:
         return
     StageManager.save_checkpoint(global_position, checkpoint_index)
+    AudioManager.play_sfx(AudioLibrary.sfx_checkpoint)

@@ -198,6 +198,7 @@ func _apply_wall_jump() -> void:
 	# diagonal acontecer — sem ele, o air-control zerava o empurrão e subia reto.
 	velocity.x = _wall_normal.x * WALL_JUMP_H
 	velocity.y = WALL_JUMP_V
+	AudioManager.play_sfx(AudioLibrary.sfx_wall_jump)
 	_wall_jump_lock_timer = WALL_JUMP_LOCK
 	_is_wall_sliding = false
 	_wall_cling_timer = 0.0
@@ -251,6 +252,7 @@ func _handle_dash(delta: float) -> void:
 
 func _start_dash(dir: float = 0.0) -> void:
 	_is_dashing = true
+	AudioManager.play_sfx(AudioLibrary.sfx_dash)
 	_dash_timer = DASH_DURATION
 	_dash_cooldown_timer = DASH_COOLDOWN
 	_dash_direction = dir if dir != 0.0 else (1.0 if facing_right else -1.0)

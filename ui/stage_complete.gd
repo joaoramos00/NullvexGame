@@ -16,6 +16,7 @@ func _ready() -> void:
 func _on_stage_completed(stage_id: int) -> void:
     _completed_stage_id = stage_id
     GameManager.save_game()
+    AudioManager.play_sfx(AudioLibrary.sfx_stage_complete)
     var boss_ability := _boss_ability_for(stage_id)
     _stage_label.text = "STAGE %d COMPLETE!" % stage_id
     _ability_label.text = "Ability unlocked: %s" % boss_ability if boss_ability != "" else ""

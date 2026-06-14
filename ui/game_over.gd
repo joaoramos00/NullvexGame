@@ -10,6 +10,7 @@ func _ready() -> void:
     $Panel/VBox/QuitButton.pressed.connect(_on_quit_pressed)
 
 func _on_game_over() -> void:
+    AudioManager.play_sfx(AudioLibrary.sfx_game_over)
     await get_tree().create_timer(SHOW_DELAY).timeout
     visible = true
     get_tree().paused = true

@@ -93,6 +93,7 @@ func _start_intro() -> void:
 	state = State.INTRO
 	velocity = Vector2.ZERO
 	boss_aggro.emit()
+	AudioManager.play_sfx(AudioLibrary.sfx_boss_aggro)
 	_run_intro()
 
 func _run_intro() -> void:

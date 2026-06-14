@@ -45,6 +45,18 @@ SOUNDS = [
     # Ataques do Ignarath
     ("sfx_ignarath_fire","dragon fire breath roar, whooshing flames blast, retro 16-bit boss attack", 1.0),
     ("sfx_ignarath_clawwave","fire wave whoosh sweeping across ground, flame burst, retro 16-bit", 0.5),
+    # Movimento do player
+    ("sfx_dash",         "quick dash whoosh, short sharp air swipe, retro 16-bit action game", 0.5),
+    ("sfx_wall_jump",    "wall kick jump, short springy thud, retro 16-bit platformer", 0.5),
+    ("sfx_charge_ready", "energy charge ready ping, bright rising chime, retro 16-bit", 0.5),
+    # Bosses / inimigos
+    ("sfx_boss_aggro",   "monster boss roar, menacing deep growl, retro 16-bit boss intro", 1.2),
+    ("sfx_boss_shoot",   "boss energy projectile fire, deep powerful retro 16-bit shot", 0.5),
+    ("sfx_enemy_shoot",  "small enemy projectile shot, retro 8-bit blip fire, short", 0.5),
+    # Fluxo / UI
+    ("sfx_checkpoint",   "checkpoint reached, pleasant short confirm jingle, retro 16-bit", 0.8),
+    ("sfx_stage_complete","stage clear victory fanfare, triumphant retro 16-bit jingle", 2.5),
+    ("sfx_game_over",    "game over sad descending jingle, retro 16-bit", 2.0),
 ]
 
 def generate(name: str, prompt: str, duration: float) -> bool:

@@ -9,6 +9,7 @@ var _lifetime: float = 4.0
 
 func _ready() -> void:
 	body_entered.connect(_on_body_entered)
+	AudioManager.play_sfx(AudioLibrary.sfx_boss_shoot)
 	queue_redraw()
 
 func _physics_process(delta: float) -> void:
