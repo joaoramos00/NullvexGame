@@ -3424,3 +3424,89 @@ class _BossBattleWorld extends Node2D:
                 draw_texture_rect_region(tile_tex,
                     Rect2(dx, dy, ts, ts),
                     Rect2(tile.x * src, tile.y * src, src, src))
+
+
+# ── View da seção BATALHA: tela de seleção (hub) + SubViewport da sala ────────
+class _BossBattleView extends Control:
+    signal exit_requested
+
+    var _grid_box: VBoxContainer = null
+    var _svc: SubViewportContainer = null
+    var _world: ImgDebug._BossBattleWorld = null
+    var _in_battle := false
+
+    func _ready() -> void:
+        set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+        _build_selection()
+        show_selection()
+
+    func _build_selection() -> void:
+        var box := VBoxContainer.new()
+        box.add_theme_constant_override("separation", 12)
+        add_child(box)
+        _grid_box = box
+
+        var title := Label.new()
+        title.text = "Escolha o boss  (ESC/Enter na sala = voltar aqui)"
+        title.add_theme_font_size_override("font_size", 26)
+        title.add_theme_color_override("font_color", Color(0.85, 0.8, 1.0))
+        box.add_child(title)
+
+        var grid := GridContainer.new()
+        grid.columns = 4
+        grid.add_theme_constant_override("h_separation", 8)
+        grid.add_theme_constant_override("v_separation", 8)
+        box.add_child(grid)
+        for i in ImgDebug._BOSS_BATTLE.size():
+            var btn := Button.new()
+            btn.text = ImgDebug._BOSS_BATTLE[i].name
+            btn.add_theme_font_size_override("font_size", 24)
+            btn.custom_minimum_size = Vector2(240.0, 56.0)
+            btn.pressed.connect(_enter_battle.bind(i))
+            grid.add_child(btn)
+
+        var exit_btn := Button.new()
+        exit_btn.text = "Sair"
+        exit_btn.add_theme_font_size_override("font_size", 24)
+        exit_btn.custom_minimum_size = Vector2(160.0, 48.0)
+        exit_btn.pressed.connect(func(): exit_requested.emit())
+        box.add_child(exit_btn)
+
+    func _ensure_world() -> void:
+        if _svc != null:
+            return
+        _svc = SubViewportContainer.new()
+        _svc.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+        _svc.stretch = true
+        add_child(_svc)
+        var svp := SubViewport.new()
+        svp.size = Vector2i(960, 540)
+        svp.handle_input_locally = false
+        _svc.add_child(svp)
+        var w := ImgDebug._BossBattleWorld.new()
+        w.tile_tex = load("res://stages/stage_00/Stage_00T.png") as Texture2D
+        svp.add_child(w)
+        _world = w
+
+    func _enter_battle(idx: int) -> void:
+        _ensure_world()
+        _world.load_boss(idx)
+        _grid_box.visible = false
+        _svc.visible = true
+        _in_battle = true
+
+    func show_selection() -> void:
+        _in_battle = false
+        if _svc != null:
+            _svc.visible = false
+        if _grid_box != null:
+            _grid_box.visible = true
+
+    func _unhandled_key_input(event: InputEvent) -> void:
+        if not _in_battle:
+            return
+        if event is InputEventKey and event.pressed and not event.echo:
+            var kc: int = (event as InputEventKey).keycode
+            if kc == KEY_ESCAPE or kc == KEY_ENTER or kc == KEY_KP_ENTER:
+                show_selection()
+                get_viewport().set_input_as_handled()
