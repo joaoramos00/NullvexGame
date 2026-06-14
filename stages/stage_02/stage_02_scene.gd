@@ -38,14 +38,19 @@ const Z4_BOMBERS := [Vector2(11600, 760), Vector2(12880, 856)]
 const Z4_SHIELDS := [Vector2(12050, 760)]
 const Z4_WISPS := [Vector2(11050, 500), Vector2(12350, 500)]
 
-const _CP1_ENTRY_X := 5400.0
-const _CP1_EXIT_X := 6200.0
-const _MB_LEFT := 6300.0
-const _MB_RIGHT := 7100.0
-const _CP2_ENTRY_X := 7200.0
-const _CP2_EXIT_X := 8000.0
-const _CP3_ENTRY_X := 13200.0
-const _CP3_EXIT_X := 14000.0
+# Superfície de piso única (zonas E corredores) — corrige o desalinhamento de 88px.
+const FLOOR_Y := 800.0          # topo do piso (player origin fica ~40px acima)
+const _CORR_INTERIOR := 192.0   # vão interno do corredor (piso↔teto)
+
+const _CP1_ENTRY_X := 10600.0
+const _CP1_EXIT_X := 11400.0
+const _MB_LEFT := 11500.0
+const _MB_RIGHT := 12300.0
+const _CP2_ENTRY_X := 12400.0
+const _CP2_EXIT_X := 13200.0
+const _CP3_ENTRY_X := 23600.0
+const _CP3_EXIT_X := 24400.0
+const _BOSS_ENTRY_X := 24550.0
 
 var _player: CharacterBase = null
 var _camera_locked := false
@@ -135,14 +140,17 @@ func _make_corridor(name_prefix: String, entry_x: float, exit_x: float, checkpoi
 	corr.tileset = _tileset_z2 if checkpoint_index == 1 else (_tileset_z3 if checkpoint_index == 2 else _tileset_z4)
 	corr.glass_tex = _glass_tex
 	corr.door_tex = _door_tex
-	corr.floor_center = Vector2(entry_x + width * 0.5, 920.0)
+	var floor_cy := FLOOR_Y + 32.0                      # topo do piso = FLOOR_Y (800) → centro 832
+	var ceil_cy := FLOOR_Y - _CORR_INTERIOR - 32.0      # fundo do teto = FLOOR_Y - 192 → centro
+	var mid_y := (floor_cy + ceil_cy) * 0.5
+	corr.floor_center = Vector2(entry_x + width * 0.5, floor_cy)
 	corr.floor_size = Vector2(width, 64.0)
-	corr.ceil_center = Vector2(entry_x + width * 0.5, 728.0)
+	corr.ceil_center = Vector2(entry_x + width * 0.5, ceil_cy)
 	corr.ceil_size = Vector2(width, 64.0)
-	corr.wall_l_center = Vector2(entry_x, 824.0)
-	corr.wall_l_size = Vector2(64.0, 256.0)
-	corr.wall_r_center = Vector2(exit_x, 824.0)
-	corr.wall_r_size = Vector2(64.0, 256.0)
+	corr.wall_l_center = Vector2(entry_x, mid_y)
+	corr.wall_l_size = Vector2(64.0, _CORR_INTERIOR + 64.0)
+	corr.wall_r_center = Vector2(exit_x, mid_y)
+	corr.wall_r_size = Vector2(64.0, _CORR_INTERIOR + 64.0)
 	corr.entry_x = entry_x
 	corr.exit_x = exit_x
 	corr.entry_manual = manual
@@ -150,7 +158,7 @@ func _make_corridor(name_prefix: String, entry_x: float, exit_x: float, checkpoi
 	corr.heal_on_entry = heal
 	corr.checkpoint_index = checkpoint_index
 	corr.checkpoint_respawn_x = exit_x + 128.0
-	corr.cam_center = Vector2(entry_x + width * 0.5, 824.0)
+	corr.cam_center = Vector2(entry_x + width * 0.5, mid_y)
 	corr.cam_zoom = 2.0
 	corr.glass_lateral_x = entry_x - 64.0
 	corr.glass_fill_x = entry_x
