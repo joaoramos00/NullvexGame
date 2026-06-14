@@ -2237,8 +2237,8 @@ func _show_section(section: String) -> void:
     _moves_box.visible   = (section == "MOVIMENTOS")
     _hitboxes_box.visible = (section == "HITBOXES")
     _battle_box.visible  = (section == "BATALHA")
-    if section == "BATALHA" and _battle_view != null:
-        _battle_view.show_selection()  # sempre entra pelo hub de seleção
+    if _battle_view != null:
+        _battle_view.show_selection()  # reseta p/ o hub e libera ESC/Enter fora da BATALHA
     for s in _section_btns:
         _section_btns[s].modulate = Color(1, 1, 0) if s == section else Color(0.6, 0.6, 0.6)
 
