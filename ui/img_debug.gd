@@ -3326,6 +3326,7 @@ class _BossBattleWorld extends Node2D:
 
     func _ready() -> void:
         texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+        GameManager.active_character = "zael"
         GameManager.zael_selected_shot = "single"
         _build_room()
         _spawn_player()
@@ -3444,6 +3445,7 @@ class _BossBattleView extends Control:
         var box := VBoxContainer.new()
         box.add_theme_constant_override("separation", 12)
         add_child(box)
+        box.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
         _grid_box = box
 
         var title := Label.new()
@@ -3494,6 +3496,7 @@ class _BossBattleView extends Control:
         _grid_box.visible = false
         _svc.visible = true
         _in_battle = true
+        get_viewport().gui_release_focus()
 
     func show_selection() -> void:
         _in_battle = false
