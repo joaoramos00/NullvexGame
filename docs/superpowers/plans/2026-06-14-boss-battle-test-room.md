@@ -18,12 +18,14 @@
 | `tests/test_boss_battle.gd` | Teste headless: instancia `_BossBattleWorld`, itera `load_boss` sobre os 11 bosses, valida instância/estado | Criar |
 | `tests/test_boss_battle.tscn` | Cena associada ao teste (`extends Node`) | Criar |
 
-**Comando de parse-check** (usado em quase toda task):
+**Comando de verificação de compilação** (usado em quase toda task):
 
 ```bash
-"D:/Godot_v4.6.2-stable_win64/Godot_v4.6.2-stable_win64.exe" --headless --path . --check-only --script ui/img_debug.gd
+"D:/Godot_v4.6.2-stable_win64/Godot_v4.6.2-stable_win64.exe" --headless --path . --quit-after 5 res://ui/img_debug.tscn
 ```
-Saída esperada em sucesso: **nenhum erro de parse, exit code 0**. Em erro, imprime a linha do erro e retorna != 0.
+Carrega o projeto (com autoloads), instancia o ImgDebug e roda `_build_ui` por 5 frames. Sucesso = **nenhuma linha `SCRIPT ERROR`/`Parse Error`/`Compile Error` referente a `img_debug.gd`** (avisos de áudio faltando e leaks no shutdown são pré-existentes e podem ser ignorados).
+
+> NÃO usar `--check-only --script ui/img_debug.gd`: esse modo não carrega autoloads e reporta falso-positivo `Identifier not found: GameManager`. Use o load headless da cena acima.
 
 ---
 
