@@ -152,9 +152,6 @@ size = Vector2(320, 48)
 [sub_resource type="RectangleShape2D" id="shape_SubPlatZ3D"]
 size = Vector2(120, 48)
 
-[sub_resource type="RectangleShape2D" id="shape_CorrZ3ContFloor"]
-size = Vector2(1292, 64)
-
 [sub_resource type="RectangleShape2D" id="shape_CorrZ3ContCeil"]
 size = Vector2(1292, 64)
 
@@ -478,12 +475,6 @@ position = Vector2(15124, 204)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="SubPlat_Z3_D"]
 shape = SubResource("shape_SubPlatZ3D")
-
-[node name="CorrZ3_Cont_Floor" type="StaticBody2D" parent="."]
-position = Vector2(15846, 312)
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="CorrZ3_Cont_Floor"]
-shape = SubResource("shape_CorrZ3ContFloor")
 
 [node name="CorrZ3_Cont_Ceil" type="StaticBody2D" parent="."]
 position = Vector2(15846, 112)

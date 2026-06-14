@@ -595,7 +595,9 @@ func _build_zone3() -> void:
 	# 2) WALL-JUMP: parede alta sobre o Floor A
 	_add_z3_static("Z3_FloorA", Vector2(14205, 344), Vector2(1090, 128))  # x 13660–14750, topo y280
 	_add_z3_static("Z3_Wall",   Vector2(14250, 200), Vector2(300, 160))   # x 14100–14400, topo y120
-	# 3) PLATAFORMA MÓVEL sobre o fosso (x 14750–15200) → CorrZ3_Cont_Floor (15200–16492)
+	# Chão de continuação (x 15200–16492) — antes no .tscn, agora gerado por código.
+	_add_z3_static("CorrZ3_Cont_Floor", Vector2(15846, 312), Vector2(1292, 64))
+	# 3) PLATAFORMA MÓVEL sobre o fosso (x 14750–15200)
 	var mp := AnimatableBody2D.new()
 	mp.name = "Z3MovingPlat"
 	mp.sync_to_physics = true
