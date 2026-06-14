@@ -3378,6 +3378,9 @@ class _BossBattleWorld extends Node2D:
         if scene == null:
             return
         var boss := scene.instantiate() as BossBase
+        if boss == null:
+            push_error("_BossBattleWorld: cena no índice %d não é BossBase" % idx)
+            return
         add_child(boss)
         boss.global_position = Vector2(680.0, _FLOOR_Y - 120.0)
         boss.player      = _player
@@ -3390,10 +3393,10 @@ class _BossBattleWorld extends Node2D:
         _boss = boss
 
     func _draw() -> void:
+        # Fundo escuro (igual ao boss room background do stage) — sempre desenhado
+        draw_rect(Rect2(0.0, 0.0, _COLS * _TS, _ROWS * _TS), Color(0.05, 0.05, 0.12))
         if tile_tex == null:
             return
-        # Fundo escuro (igual ao boss room background do stage)
-        draw_rect(Rect2(0.0, 0.0, _COLS * _TS, _ROWS * _TS), Color(0.05, 0.05, 0.12))
         # Caixa fechada — mapeamento canônico de _draw_boss_room (sem abertura de porta)
         var ts := _TS
         var src := _SRC
