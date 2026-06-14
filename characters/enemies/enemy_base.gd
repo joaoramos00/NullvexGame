@@ -129,6 +129,8 @@ func take_damage(amount: int, _source: String = "") -> void:
 	damaged.emit(amount)
 	if current_hp == 0:
 		_die()
+	else:
+		AudioManager.play_sfx(AudioLibrary.sfx_enemy_hit)
 
 func _draw() -> void:
 	if not show_hitbox:

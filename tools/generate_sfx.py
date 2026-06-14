@@ -57,6 +57,9 @@ SOUNDS = [
     ("sfx_checkpoint",   "checkpoint reached, pleasant short confirm jingle, retro 16-bit", 0.8),
     ("sfx_stage_complete","stage clear victory fanfare, triumphant retro 16-bit jingle", 2.5),
     ("sfx_game_over",    "game over sad descending jingle, retro 16-bit", 2.0),
+    # Impacto do tiro
+    ("sfx_enemy_hit",    "projectile hit impact on enemy, short punchy thunk, retro 16-bit", 0.5),
+    ("sfx_shot_wall",    "laser shot ricochet off wall, short metallic ping deflect, retro 16-bit", 0.5),
 ]
 
 def generate(name: str, prompt: str, duration: float) -> bool:
