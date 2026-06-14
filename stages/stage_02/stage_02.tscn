@@ -25,7 +25,7 @@ size = Vector2(220, 520)
 size = Vector2(760, 96)
 
 [sub_resource type="RectangleShape2D" id="StageIceShape"]
-size = Vector2(14500, 640)
+size = Vector2(25000, 640)
 
 [sub_resource type="RectangleShape2D" id="HazardMedium"]
 size = Vector2(480, 96)
@@ -76,23 +76,6 @@ position = Vector2(11600, 760)
 [node name="BossEntryMarker" type="Node2D" parent="."]
 position = Vector2(14150, 820)
 
-[node name="Z1_BlockA" type="StaticBody2D" parent="."]
-position = Vector2(450, 980)
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Z1_BlockA"]
-shape = SubResource("BlockWide")
-
-[node name="Z1_BlockB" type="StaticBody2D" parent="."]
-position = Vector2(1300, 1044)
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Z1_BlockB"]
-shape = SubResource("BlockMedium")
-
-[node name="Z1_BlockC" type="StaticBody2D" parent="."]
-position = Vector2(2200, 980)
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Z1_BlockC"]
-shape = SubResource("BlockWide")
 
 [node name="Z2_BlockA" type="StaticBody2D" parent="."]
 position = Vector2(3200, 980)
@@ -155,7 +138,7 @@ position = Vector2(12800, 980)
 shape = SubResource("BlockWide")
 
 [node name="StageIceFloor" type="Area2D" parent="."]
-position = Vector2(7250, 760)
+position = Vector2(12500, 760)
 collision_layer = 0
 collision_mask = 2
 script = ExtResource("8_icefloor")

@@ -79,6 +79,10 @@ func _ready() -> void:
 	$Camera2D.zoom = Vector2(2.2, 2.2)
 	AudioManager.play_bgm(AudioLibrary.get_stage_bgm(2))
 	_setup_corridors()
+	_build_zone1()
+	_build_zone2()
+	_build_zone3()
+	_build_zone4()
 	_setup_zone_triggers()
 	_spawn_zone_enemies(1)
 	queue_redraw()
@@ -401,3 +405,21 @@ func _deadly_pit(left_x: float, right_x: float, gap_x0: float, gap_x1: float) ->
 # Degrau elevado saltável (≤64px) sobre o piso base — seção de chão mais alta.
 func _step_up(zone: String, x0: float, x1: float, rise: float = 64.0) -> void:
 	_floor_seg(zone, x0, x1, FLOOR_Y - rise)
+
+# Z1 — gelo escorregadio. Piso base contínuo com poços recuperáveis e degraus.
+func _build_zone1() -> void:
+	_floor_seg("Z1", 0.0, 1400.0, FLOOR_Y)
+	_step_up("Z1", 1400.0, 1900.0)
+	_recoverable_pit("Z1", 1900.0, 3000.0, 2300.0, 2560.0)
+	_recoverable_pit("Z1", 3000.0, 4200.0, 3450.0, 3650.0)
+	_step_up("Z1", 4200.0, 4700.0)
+	_floor_seg("Z1", 4700.0, 5600.0, FLOOR_Y)
+
+func _build_zone2() -> void:
+	pass
+
+func _build_zone3() -> void:
+	pass
+
+func _build_zone4() -> void:
+	pass
