@@ -53,28 +53,28 @@ position = Vector2(180, 760)
 position = Vector2(180, 690)
 limit_left = 0
 limit_top = -400
-limit_right = 14500
+limit_right = 25000
 limit_bottom = 1400
 position_smoothing_enabled = true
 position_smoothing_speed = 8.0
 
 [node name="Z1Marker" type="Node2D" parent="."]
-position = Vector2(800, 820)
+position = Vector2(800, 760)
 
 [node name="Z2Marker" type="Node2D" parent="."]
-position = Vector2(3500, 820)
+position = Vector2(7000, 760)
 
 [node name="MB02Marker" type="Node2D" parent="."]
-position = Vector2(6700, 820)
+position = Vector2(11900, 760)
 
 [node name="Z3Marker" type="Node2D" parent="."]
-position = Vector2(8700, 760)
+position = Vector2(15000, 760)
 
 [node name="Z4Marker" type="Node2D" parent="."]
-position = Vector2(11600, 760)
+position = Vector2(20000, 760)
 
 [node name="BossEntryMarker" type="Node2D" parent="."]
-position = Vector2(14150, 820)
+position = Vector2(24550, 760)
 
 
 [node name="Z2_BlockA" type="StaticBody2D" parent="."]
@@ -96,7 +96,7 @@ position = Vector2(5000, 980)
 shape = SubResource("BlockWide")
 
 [node name="MB02_Floor" type="StaticBody2D" parent="."]
-position = Vector2(6700, 980)
+position = Vector2(11900, 980)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="MB02_Floor"]
 shape = SubResource("BlockWide")
@@ -166,7 +166,7 @@ force = Vector2(180, 0)
 shape = SubResource("HazardWide")
 
 [node name="Z2_IgnarathGate" type="StaticBody2D" parent="."]
-position = Vector2(3900, 720)
+position = Vector2(7400, 700)
 script = ExtResource("11_gate")
 required_ability = "ignarath"
 
@@ -181,7 +181,7 @@ collision_mask = 8
 shape = SubResource("GateShape")
 
 [node name="Z4_LuxarGate" type="StaticBody2D" parent="."]
-position = Vector2(12100, 720)
+position = Vector2(21000, 700)
 script = ExtResource("11_gate")
 required_ability = "luxar"
 
@@ -196,20 +196,20 @@ collision_mask = 8
 shape = SubResource("GateShape")
 
 [node name="SubTank" parent="." instance=ExtResource("3_col")]
-position = Vector2(980, 720)
+position = Vector2(1500, 700)
 collectible_type = 1
 subtank_index = 0
 
 [node name="ArmorZaraHelmet" parent="." instance=ExtResource("3_col")]
-position = Vector2(4100, 650)
+position = Vector2(8600, 650)
 collectible_type = 3
 armor_piece = "helmet"
 
 [node name="Heart" parent="." instance=ExtResource("3_col")]
-position = Vector2(9650, 560)
+position = Vector2(16000, 560)
 stage_id = 2
 
 [node name="SpreadZael" parent="." instance=ExtResource("3_col")]
-position = Vector2(12350, 620)
+position = Vector2(21500, 560)
 collectible_type = 4
 ability_id = "spread"
