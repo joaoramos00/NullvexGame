@@ -39,6 +39,7 @@ func _ready() -> void:
 	_build_zone2()
 	_build_zone3()
 	_build_zone4()
+	_setup_boss_room_trigger()
 	for corr in get_children():
 		if corr is CorridorSection and not corr.is_queued_for_deletion():
 			corr.setup(_player)
@@ -87,6 +88,31 @@ func _relocate_and_gap_boss() -> void:
 	if rw > 0.0:
 		var rb := _z2_static("BossCeilR", Vector2((_CRATER_CX + gap_w * 0.5) + rw * 0.5, top + h * 0.5), Vector2(rw, h))
 		rb.set_meta("skip_base_draw", true)
+
+# A luta do Ignarath só começa quando o player ENTRA na sala (cai pela cratera),
+# não por proximidade — senão o boss ataca enquanto o player ainda está caindo.
+# Desliga o auto-aggro por distância e cria um Area2D cobrindo o interior da arena.
+func _setup_boss_room_trigger() -> void:
+	var ign := get_node_or_null("Ignarath")
+	if ign == null:
+		return
+	ign.set("auto_aggro", false)
+	var a_left  := float(ign.get("arena_left"))
+	var a_right := float(ign.get("arena_right"))
+	var a_floor := float(ign.get("arena_floor"))
+	const _ROOM_TOP := 500.0   # logo abaixo do teto → dispara ao cair na sala
+	var left  := a_left + 64.0
+	var right := a_right - 64.0
+	var trig := Area2D.new()
+	trig.name = "BossRoomTrigger"
+	trig.collision_layer = 0
+	trig.collision_mask = 2   # camada do player
+	trig.position = Vector2((left + right) * 0.5, (_ROOM_TOP + a_floor) * 0.5)
+	trig.add_child(_z2_shape(Vector2(right - left, a_floor - _ROOM_TOP)))
+	add_child(trig)
+	trig.body_entered.connect(func(b: Node) -> void:
+		if b is CharacterBase:
+			ign.call("aggro"))
 
 func _on_camera_lock(center: Vector2, zoom: float) -> void:
 	$Camera2D.zoom = Vector2(zoom, zoom)
