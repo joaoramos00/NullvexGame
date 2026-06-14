@@ -20,23 +20,23 @@ var _wisp_scene: PackedScene = null
 const _TS := 64
 const _SRC_TS := 32
 
-const Z1_GRUNTS := [Vector2(700, 856), Vector2(1280, 792), Vector2(1840, 728), Vector2(2380, 856)]
-const Z1_FLYERS := [Vector2(1050, 650), Vector2(2100, 610)]
-const Z1_ARCHERS := [Vector2(1600, 856), Vector2(2520, 856)]
-const Z2_GRUNTS := [Vector2(3180, 856), Vector2(3650, 792), Vector2(4200, 720), Vector2(4720, 856)]
-const Z2_FLYERS := [Vector2(3450, 610), Vector2(4550, 560)]
-const Z2_ARCHERS := [Vector2(2920, 856), Vector2(5050, 856)]
-const Z2_SHIELDS := [Vector2(3980, 792)]
-const Z3_GRUNTS := [Vector2(7300, 856), Vector2(7900, 760), Vector2(8500, 650), Vector2(9100, 760), Vector2(9700, 856)]
-const Z3_FLYERS := [Vector2(8100, 560), Vector2(9000, 500), Vector2(10050, 610)]
-const Z3_TURRETS := [Vector2(7720, 700), Vector2(9480, 820)]
-const Z3_WISPS := [Vector2(8500, 500), Vector2(10000, 540)]
-const Z4_GRUNTS := [Vector2(10800, 856), Vector2(11350, 760), Vector2(11900, 650), Vector2(12600, 760)]
-const Z4_FLYERS := [Vector2(11100, 540), Vector2(12150, 500), Vector2(12900, 580)]
-const Z4_TURRETS := [Vector2(11280, 820), Vector2(12520, 820)]
-const Z4_BOMBERS := [Vector2(11600, 760), Vector2(12880, 856)]
-const Z4_SHIELDS := [Vector2(12050, 760)]
-const Z4_WISPS := [Vector2(11050, 500), Vector2(12350, 500)]
+const Z1_GRUNTS := [Vector2(700, 760), Vector2(1500, 700), Vector2(2700, 760), Vector2(3700, 760), Vector2(4800, 760)]
+const Z1_FLYERS := [Vector2(1100, 600), Vector2(2900, 560), Vector2(4400, 600)]
+const Z1_ARCHERS := [Vector2(1700, 760), Vector2(5100, 760)]
+const Z2_GRUNTS := [Vector2(5900, 760), Vector2(6900, 760), Vector2(8000, 700), Vector2(9000, 760), Vector2(10200, 760)]
+const Z2_FLYERS := [Vector2(6300, 560), Vector2(8600, 540), Vector2(10000, 580)]
+const Z2_ARCHERS := [Vector2(6100, 760), Vector2(10300, 760)]
+const Z2_SHIELDS := [Vector2(8500, 760)]
+const Z3_GRUNTS := [Vector2(13500, 760), Vector2(14600, 760), Vector2(15800, 700), Vector2(16900, 760), Vector2(17700, 760)]
+const Z3_FLYERS := [Vector2(14000, 560), Vector2(16000, 520), Vector2(17400, 580)]
+const Z3_TURRETS := [Vector2(13700, 740), Vector2(17200, 740)]
+const Z3_WISPS := [Vector2(15200, 520), Vector2(16600, 540)]
+const Z4_GRUNTS := [Vector2(18400, 760), Vector2(20500, 760), Vector2(22500, 760)]
+const Z4_FLYERS := [Vector2(19600, 560), Vector2(21500, 520), Vector2(23200, 580)]
+const Z4_TURRETS := [Vector2(18600, 740), Vector2(22600, 740)]
+const Z4_BOMBERS := [Vector2(20400, 700), Vector2(23300, 760)]
+const Z4_SHIELDS := [Vector2(20600, 760)]
+const Z4_WISPS := [Vector2(19500, 520), Vector2(21400, 520)]
 
 # Superfície de piso única (zonas E corredores) — corrige o desalinhamento de 88px.
 const FLOOR_Y := 800.0          # topo do piso (player origin fica ~40px acima)
@@ -183,10 +183,10 @@ func _on_corridor_traversed() -> void:
 	_camera_locked = false
 
 func _setup_zone_triggers() -> void:
-	_make_zone_trigger("Z2Trigger", Rect2(2800, 400, 2400, 800), 2)
-	_make_zone_trigger("MB02Trigger", Rect2(_CP1_EXIT_X, 400, 900, 800), 5)
-	_make_zone_trigger("Z3Trigger", Rect2(_CP2_EXIT_X, 300, 2600, 900), 3)
-	_make_zone_trigger("Z4Trigger", Rect2(10400, 300, 2600, 900), 4)
+	_make_zone_trigger("Z2Trigger", Rect2(5600, 300, 4000, 900), 2)
+	_make_zone_trigger("MB02Trigger", Rect2(_CP1_EXIT_X, 300, 900, 900), 5)
+	_make_zone_trigger("Z3Trigger", Rect2(_CP2_EXIT_X, 300, 4000, 900), 3)
+	_make_zone_trigger("Z4Trigger", Rect2(18000, 300, 4000, 900), 4)
 
 func _make_zone_trigger(node_name: String, rect: Rect2, zone: int) -> void:
 	var area := Area2D.new()
