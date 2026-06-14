@@ -56,6 +56,20 @@ const _HITBOX_ENTITIES: Array = [
     {"name": "Zara Hitbox", "path": "res://characters/melee/zara_hitbox.tscn", "group": "Projeteis", "kind": "Projeteis", "stage": ""},
 ]
 
+const _BOSS_BATTLE: Array = [
+    {"name": "Ignarath",    "path": "res://characters/bosses/ignarath.tscn"},
+    {"name": "Cryovex",     "path": "res://characters/bosses/cryovex.tscn"},
+    {"name": "Voltrix",     "path": "res://characters/bosses/voltrix.tscn"},
+    {"name": "Gravitus",    "path": "res://characters/bosses/gravitus.tscn"},
+    {"name": "Galerix",     "path": "res://characters/bosses/galerix.tscn"},
+    {"name": "Umbraex",     "path": "res://characters/bosses/umbraex.tscn"},
+    {"name": "Luxar",       "path": "res://characters/bosses/luxar.tscn"},
+    {"name": "Terragor",    "path": "res://characters/bosses/terragor.tscn"},
+    {"name": "IntroBoss",   "path": "res://characters/bosses/intro_boss.tscn"},
+    {"name": "Nullvex",     "path": "res://characters/bosses/nullvex.tscn"},
+    {"name": "Nullvex True","path": "res://characters/bosses/nullvex_true.tscn"},
+]
+
 const _TILESETS: Array = [
     # Stage 00 — intro
     {"name": "Stage_00T",       "path": "res://stages/stage_00/Stage_00T.png",       "cols": 4, "rows": 4, "tile_size": 32},
@@ -3290,3 +3304,120 @@ func _on_tile_input(event: InputEvent, col: int, row: int, ts_name: String) -> v
         d.preview.texture = at
     if is_instance_valid(d.desc):
         d.desc.text = _desc
+
+
+# ── Sala de teste de batalha (seção BATALHA) ─────────────────────────────────
+# Caixa fechada nas dimensões reais da sala do boss do Stage 00 (15×8 tiles de
+# 64px; interior 832×384). Espelha o padrão de _MovWorld. Treino: player e boss
+# com HP 99999. tile_tex deve ser setado ANTES do add_child (usado em _draw).
+class _BossBattleWorld extends Node2D:
+    const _TS      := 64.0
+    const _SRC     := 32.0
+    const _COLS    := 15
+    const _ROWS    := 8
+    const _FLOOR_Y := 448.0   # superfície do chão (topo) — coords locais
+    const _WALL_L  := 64.0     # face interna parede esquerda
+    const _WALL_R  := 896.0    # face interna parede direita
+    const _MARGIN  := 80.0     # margem lateral da arena do boss
+
+    var tile_tex: Texture2D = null
+    var _player: CharacterBase = null
+    var _boss: Node2D = null
+
+    func _ready() -> void:
+        texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+        GameManager.zael_selected_shot = "single"
+        _build_room()
+        _spawn_player()
+        var cam := Camera2D.new()
+        cam.global_position = Vector2(480.0, 256.0)  # centro da sala
+        cam.zoom = Vector2(1.0, 1.0)                 # sala 960px preenche o SubViewport
+        add_child(cam)
+
+    func _build_room() -> void:
+        _add_wall(Vector2(480.0, 480.0), Vector2(960.0, 64.0))  # chão
+        _add_wall(Vector2(480.0, 32.0),  Vector2(960.0, 64.0))  # teto
+        _add_wall(Vector2(32.0, 256.0),  Vector2(64.0, 512.0))  # parede esq
+        _add_wall(Vector2(928.0, 256.0), Vector2(64.0, 512.0))  # parede dir
+
+    func _add_wall(center: Vector2, size: Vector2) -> void:
+        var body := StaticBody2D.new()
+        body.collision_layer = 1
+        body.collision_mask = 0
+        var cs := CollisionShape2D.new()
+        var shape := RectangleShape2D.new()
+        shape.size = size
+        cs.shape = shape
+        cs.position = center
+        body.add_child(cs)
+        add_child(body)
+
+    func _spawn_player() -> void:
+        if is_instance_valid(_player):
+            _player.queue_free()
+        var scene := load("res://characters/ranged/zael.tscn") as PackedScene
+        if scene == null:
+            return
+        _player = scene.instantiate() as CharacterBase
+        _player.add_to_group("player")
+        add_child(_player)
+        _player.global_position = Vector2(220.0, _FLOOR_Y - 90.0)
+        _player.max_hp = 99999
+        _player.current_hp = 99999
+        _player.died.connect(func(): call_deferred("_spawn_player"))
+        if is_instance_valid(_boss):
+            (_boss as BossBase).player = _player
+
+    func load_boss(idx: int) -> void:
+        if is_instance_valid(_boss):
+            _boss.queue_free()
+            _boss = null
+        if idx < 0 or idx >= ImgDebug._BOSS_BATTLE.size():
+            return
+        var scene := load(ImgDebug._BOSS_BATTLE[idx].path) as PackedScene
+        if scene == null:
+            return
+        var boss := scene.instantiate() as BossBase
+        add_child(boss)
+        boss.global_position = Vector2(680.0, _FLOOR_Y - 120.0)
+        boss.player      = _player
+        boss.arena_left  = _WALL_L + _MARGIN
+        boss.arena_right = _WALL_R - _MARGIN
+        boss.arena_floor = _FLOOR_Y
+        boss.max_hp      = 99999
+        boss.current_hp  = 99999
+        boss.state       = BossBase.State.COMBAT
+        _boss = boss
+
+    func _draw() -> void:
+        if tile_tex == null:
+            return
+        # Fundo escuro (igual ao boss room background do stage)
+        draw_rect(Rect2(0.0, 0.0, _COLS * _TS, _ROWS * _TS), Color(0.05, 0.05, 0.12))
+        # Caixa fechada — mapeamento canônico de _draw_boss_room (sem abertura de porta)
+        var ts := _TS
+        var src := _SRC
+        for row in _ROWS:
+            for col in _COLS:
+                var is_l := col == 0
+                var is_r := col == _COLS - 1
+                var is_t := row == 0
+                var is_b := row == _ROWS - 1
+                if not (is_l or is_r or is_t or is_b):
+                    continue
+                var tile: Vector2i
+                var tx := 0.0
+                var ty := 0.0
+                if   is_t and is_l: tile = Vector2i(3, 1); tx =  src; ty =  src
+                elif is_t and is_r: tile = Vector2i(2, 2); tx = -src; ty =  src
+                elif is_b and is_l: tile = Vector2i(2, 0); tx =  src; ty = -src
+                elif is_b and is_r: tile = Vector2i(1, 1); tx = -src; ty = -src
+                elif is_t:          tile = Vector2i(1, 2);            ty =  src
+                elif is_b:          tile = Vector2i(3, 0);            ty = -src
+                elif is_l:          tile = Vector2i(3, 2); tx =  src
+                else:               tile = Vector2i(1, 0); tx = -src
+                var dx := col * ts + tx
+                var dy := row * ts + ty
+                draw_texture_rect_region(tile_tex,
+                    Rect2(dx, dy, ts, ts),
+                    Rect2(tile.x * src, tile.y * src, src, src))
