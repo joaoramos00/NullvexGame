@@ -12,6 +12,7 @@ var _hit := false
 
 func _ready() -> void:
 	body_entered.connect(_on_body_entered)
+	AudioManager.play_sfx(AudioLibrary.sfx_enemy_shoot)
 	queue_redraw()
 
 func setup(

@@ -51,6 +51,7 @@ const _JUMP_BUFFER_TIME   := 0.25  # buffer de input: pulo pressionado antes do 
 
 var _charge_timer: float = 0.0
 var _is_charging: bool = false
+var _last_charge_level: int = 1   # p/ tocar o "ping" ao subir de nível de carga
 var _is_shooting: bool = false
 var _jump_squat_timer: float = -1.0
 var _dash_jump: bool = false
@@ -308,8 +309,13 @@ func _handle_shooting(delta: float) -> void:
         return
     if Input.is_action_just_pressed("attack"):
         _is_charging = true
+        _last_charge_level = 1
     if _is_charging:
         _charge_timer += delta
+        var lvl := _charge_level()
+        if lvl > _last_charge_level:
+            _last_charge_level = lvl
+            AudioManager.play_sfx(AudioLibrary.sfx_charge_ready)
     if Input.is_action_just_released("attack") and _is_charging:
         _fire(_charge_level())
         _is_charging = false

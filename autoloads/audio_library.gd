@@ -27,6 +27,15 @@ var sfx_shot_l2: AudioStream
 var sfx_shot_l3: AudioStream
 var sfx_ignarath_fire: AudioStream
 var sfx_ignarath_clawwave: AudioStream
+var sfx_dash: AudioStream
+var sfx_wall_jump: AudioStream
+var sfx_charge_ready: AudioStream
+var sfx_boss_aggro: AudioStream
+var sfx_boss_shoot: AudioStream
+var sfx_enemy_shoot: AudioStream
+var sfx_checkpoint: AudioStream
+var sfx_stage_complete: AudioStream
+var sfx_game_over: AudioStream
 
 func _ready() -> void:
 	sfx_jump          = load("res://assets/audio/sfx/sfx_jump.mp3")
@@ -43,6 +52,15 @@ func _ready() -> void:
 	sfx_shot_l3       = load("res://assets/audio/sfx/sfx_shot_l3.mp3")
 	sfx_ignarath_fire = load("res://assets/audio/sfx/sfx_ignarath_fire.mp3")
 	sfx_ignarath_clawwave = load("res://assets/audio/sfx/sfx_ignarath_clawwave.mp3")
+	sfx_dash          = load("res://assets/audio/sfx/sfx_dash.mp3")
+	sfx_wall_jump     = load("res://assets/audio/sfx/sfx_wall_jump.mp3")
+	sfx_charge_ready  = load("res://assets/audio/sfx/sfx_charge_ready.mp3")
+	sfx_boss_aggro    = load("res://assets/audio/sfx/sfx_boss_aggro.mp3")
+	sfx_boss_shoot    = load("res://assets/audio/sfx/sfx_boss_shoot.mp3")
+	sfx_enemy_shoot   = load("res://assets/audio/sfx/sfx_enemy_shoot.mp3")
+	sfx_checkpoint    = load("res://assets/audio/sfx/sfx_checkpoint.mp3")
+	sfx_stage_complete = load("res://assets/audio/sfx/sfx_stage_complete.mp3")
+	sfx_game_over     = load("res://assets/audio/sfx/sfx_game_over.mp3")
 	bgm_intro        = load("res://assets/audio/bgm/bgm_intro.mp3")
 	bgm_stage_01     = load("res://assets/audio/bgm/bgm_stage_01.mp3")
 	bgm_stage_02     = load("res://assets/audio/bgm/bgm_stage_02.mp3")
