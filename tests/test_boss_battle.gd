@@ -11,6 +11,7 @@ func _ready() -> void:
     add_child(world)
     await get_tree().process_frame
     ok = _check(is_instance_valid(world._player), "player Zael spawnado") and ok
+    ok = _check(world._player.current_hp == 99999, "player invencível (HP 99999)") and ok
 
     for i in ImgDebug._BOSS_BATTLE.size():
         var boss_name: String = ImgDebug._BOSS_BATTLE[i].name
@@ -22,6 +23,7 @@ func _ready() -> void:
             ok = _check(b is BossBase, "boss %d é BossBase (%s)" % [i, boss_name]) and ok
             ok = _check(b.state == BossBase.State.COMBAT, "boss %d em COMBAT (%s)" % [i, boss_name]) and ok
             ok = _check(b.player == world._player, "boss %d tem player (%s)" % [i, boss_name]) and ok
+            ok = _check(b.current_hp == 99999, "boss %d dummy invencível (HP 99999)" % i) and ok
 
     if ok:
         print("ALL BATTLE TESTS PASSED")
