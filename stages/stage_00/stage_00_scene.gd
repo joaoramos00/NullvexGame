@@ -114,7 +114,7 @@ func _ready() -> void:
 	# (BossBase calls GameManager.complete_stage(stage_id) automatically)
 
 	$Camera2D.zoom = Vector2(2.2, 2.2)
-	AudioManager.play_bgm(AudioLibrary.bgm_intro)
+	AudioManager.play_bgm(AudioLibrary.get_stage_bgm(0))
 
 	_setup_corr1()
 	_setup_corr2_section()

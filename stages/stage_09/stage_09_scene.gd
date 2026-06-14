@@ -22,7 +22,7 @@ func _ready() -> void:
 	_collect_nodes()
 	_setup_bosses()
 	_load_room_tilesets()
-	AudioManager.play_bgm(AudioLibrary.bgm_gauntlet)
+	AudioManager.play_bgm(AudioLibrary.get_stage_bgm(9))
 	queue_redraw()
 
 func _collect_nodes() -> void:
