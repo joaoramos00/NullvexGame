@@ -18,15 +18,19 @@ const _TAKINGHIT_FRAMES  := 9;  const _TAKINGHIT_FPS  := 12.0
 const WALK_SPEED_P1        := 80.0
 const WALK_SPEED_P2        := 130.0
 const FIRE_DAMAGE          := 12
-const FIRE_SPEED           := 280.0
-const FIRE_COUNT_P1        := 2
-const FIRE_COUNT_P2        := 4
-const FIRE_SPREAD_P1       := 25.0   # degrees half-arc
-const FIRE_SPREAD_P2       := 40.0
+# Rajada de fogo (onda que viaja em linha reta). Alta demais pra pular do chão
+# (pulo ~118px) → força o player a wall-jump na parede.
+const WAVE_HEIGHT          := 150.0
+const WAVE_WIDTH           := 90.0
+const WAVE_SPEED_P1        := 300.0
+const WAVE_SPEED_P2        := 430.0
+const FIRE_WINDUP_P1       := 0.5    # telegraph antes de cuspir (tempo de ir pra parede)
+const FIRE_WINDUP_P2       := 0.35
 const CLAW_DAMAGE          := 18
 const CLAW_RANGE           := 130.0
 const CLAW_MIN_RANGE       := 130.0  # só ataca se player estiver perto
 const RAGE_FLASH_DURATION  := 0.6
+const _FIRE_WAVE := preload("res://characters/bosses/ignarath/fire_wave.gd")
 
 # ── State ─────────────────────────────────────────────────────────────────────
 var _attack_phase   : int   = 0   # 0=firebreath 1=claw
@@ -38,6 +42,7 @@ var _is_attacking_anim : bool = false
 var _attack_anim_tex : Texture2D = null
 var _attack_anim_frames : int = 0
 var _attack_anim_fps    : float = 0.0
+var _telegraph_timer    : float = 0.0   # brilho de aviso (windup) antes de cuspir
 
 @onready var _sprite: Sprite2D = $Sprite2D
 
@@ -99,26 +104,36 @@ func _do_firebreath() -> void:
 	_is_attacking = true
 	_is_attacking_anim = true
 	velocity.x = 0.0
+	_facing = -1.0 if player.global_position.x < global_position.x else 1.0
 	_start_attack_anim(_TEX_FIREBREATH, _FIREBREATH_FRAMES, _FIREBREATH_FPS)
 
-	# Shoot fire midway through animation
-	var shoot_delay := float(_FIREBREATH_FRAMES) / _FIREBREATH_FPS * 0.5
-	await get_tree().create_timer(shoot_delay).timeout
+	# Telegraph: brilho de "inspirar" antes de cuspir — dá tempo de correr pra parede.
+	var windup := FIRE_WINDUP_P2 if phase >= 2 else FIRE_WINDUP_P1
+	_telegraph_timer = windup
+	await get_tree().create_timer(windup).timeout
 	if is_dead or player == null:
+		_telegraph_timer = 0.0
 		_end_attack_anim()
 		return
+	_telegraph_timer = 0.0
 
-	var count  : int   = FIRE_COUNT_P2  if phase >= 2 else FIRE_COUNT_P1
-	var spread : float = deg_to_rad(FIRE_SPREAD_P2 if phase >= 2 else FIRE_SPREAD_P1)
-	var base_dir := (player.global_position - global_position).normalized()
-	var step := spread * 2.0 / float(count - 1) if count > 1 else 0.0
-	for i in count:
-		var angle := -spread + step * float(i)
-		var vel   := base_dir.rotated(angle) * FIRE_SPEED
-		_spawn_projectile(global_position, vel, FIRE_DAMAGE, "ignarath", Color(0.95, 0.35, 0.0))
+	# Cospe a onda de fogo: viaja reto da boca até a parede oposta.
+	_spawn_fire_wave()
 
-	await get_tree().create_timer(float(_FIREBREATH_FRAMES) / _FIREBREATH_FPS * 0.5).timeout
+	await get_tree().create_timer(0.4).timeout
 	_end_attack_anim()
+
+func _spawn_fire_wave() -> void:
+	var wave: Area2D = _FIRE_WAVE.new()
+	wave.set("dir", _facing)
+	wave.set("speed", WAVE_SPEED_P2 if phase >= 2 else WAVE_SPEED_P1)
+	wave.set("damage", FIRE_DAMAGE)
+	wave.set("source_id", "ignarath")
+	wave.set("wave_w", WAVE_WIDTH)
+	wave.set("wave_h", WAVE_HEIGHT)
+	wave.set("despawn_x", (arena_right + 120.0) if _facing > 0.0 else (arena_left - 120.0))
+	wave.global_position = Vector2(global_position.x + _facing * 50.0, arena_floor - WAVE_HEIGHT * 0.5)
+	get_parent().add_child(wave)
 
 func _do_claw() -> void:
 	if player == null:
@@ -130,6 +145,7 @@ func _do_claw() -> void:
 	_is_attacking = true
 	_is_attacking_anim = true
 	velocity.x = 0.0
+	_facing = -1.0 if player.global_position.x < global_position.x else 1.0
 	_start_attack_anim(_TEX_CLAW, _CLAW_FRAMES, _CLAW_FPS)
 
 	# Dano no meio da animação
@@ -183,9 +199,16 @@ func _update_animation(delta: float) -> void:
 	elif velocity.x < -10.0:
 		_facing = -1.0
 
+	if _telegraph_timer > 0.0:
+		_telegraph_timer = maxf(0.0, _telegraph_timer - delta)
+
 	# Modulate
 	if _hit_flash_timer > 0.0:
 		_sprite.modulate = Color(2.0, 2.0, 2.0, 1.0)
+	elif _telegraph_timer > 0.0:
+		# Brilho laranja pulsante de aviso (windup da rajada de fogo)
+		var p: float = 0.5 + 0.5 * sin(Time.get_ticks_msec() / 30.0)
+		_sprite.modulate = Color(1.0 + 0.8 * p, 0.5 + 0.2 * p, 0.15, 1.0)
 	elif _invincible:
 		var a := 0.35 if int(Time.get_ticks_msec() / 80) % 2 == 0 else 1.0
 		_sprite.modulate = Color(1.0, 1.0, 1.0, a)
