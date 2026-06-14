@@ -2,12 +2,13 @@
 
 importer="mp3"
 type="AudioStreamMP3"
-uid="uid://bjqhmmk67s8ru"
-valid=false
+uid="uid://wmwa1aismpy3"
+path="res://.godot/imported/bgm_stage_03.mp3-4d59e2868f76c8246064ce7e74add34d.mp3str"
 
 [deps]
 
 source_file="res://assets/audio/bgm/bgm_stage_03.mp3"
+dest_files=["res://.godot/imported/bgm_stage_03.mp3-4d59e2868f76c8246064ce7e74add34d.mp3str"]
 
 [params]
 
