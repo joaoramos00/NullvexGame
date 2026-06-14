@@ -423,8 +423,13 @@ func _build_zone2() -> void:
 	_floor_seg("Z2", 8300.0, 9400.0, FLOOR_Y)
 	_recoverable_pit("Z2", 9400.0, 10600.0, 9850.0, 10100.0)
 
+# Z3 — nevasca que empurra. Piso com poços recuperáveis sob vento lateral.
 func _build_zone3() -> void:
-	pass
+	_floor_seg("Z3", 13200.0, 14400.0, FLOOR_Y)
+	_recoverable_pit("Z3", 14400.0, 15600.0, 14900.0, 15150.0)
+	_step_up("Z3", 15600.0, 16100.0)
+	_recoverable_pit("Z3", 16100.0, 17300.0, 16550.0, 16800.0)
+	_floor_seg("Z3", 17300.0, 18000.0, FLOOR_Y)
 
 func _build_zone4() -> void:
 	pass
