@@ -75,6 +75,7 @@ func _ready() -> void:
 	StageManager.spawn_position = $PlayerSpawn.global_position
 	_spawn_player()
 	_player.kill_y = FLOOR_Y + 700.0   # ~1500: abaixo de todo piso; mata na queda dos abismos Z4
+	_apply_debug_zone_spawn()
 	$StageController.setup(_player)
 	$HUD.connect_to_player(_player)
 	$Camera2D.zoom = Vector2(2.2, 2.2)
@@ -87,6 +88,7 @@ func _ready() -> void:
 	_setup_zone_triggers()
 	_spawn_zone_enemies(1)
 	queue_redraw()
+	_maybe_spawn_bot()
 
 func _load_resources() -> void:
 	_door_tex = load("res://stages/door_pixellab.png") as Texture2D
@@ -135,7 +137,7 @@ func _spawn_player() -> void:
 
 func _setup_corridors() -> void:
 	_corr1 = _make_corridor("CP1", _CP1_ENTRY_X, _CP1_EXIT_X, 1, false, false)
-	_corr2 = _make_corridor("CP2", _CP2_ENTRY_X, _CP2_EXIT_X, 2, true, false)
+	_corr2 = _make_corridor("CP2", _CP2_ENTRY_X, _CP2_EXIT_X, 2, not (DebugBoot.bot_enabled or DebugBoot.no_enemies), false)
 	_corr3 = _make_corridor("CP3", _CP3_ENTRY_X, _CP3_EXIT_X, 3, false, false)
 
 func _make_corridor(name_prefix: String, entry_x: float, exit_x: float, checkpoint_index: int, manual: bool, heal: bool) -> CorridorSection:
@@ -209,6 +211,8 @@ func _make_zone_trigger(node_name: String, rect: Rect2, zone: int) -> void:
 	add_child(area)
 
 func _spawn_zone_enemies(zone: int) -> void:
+	if DebugBoot.no_enemies:
+		return
 	var target: Array[Node]
 	var grunts: Array
 	var flyers: Array
@@ -265,6 +269,8 @@ func _spawn_enemy_list(scene: PackedScene, positions: Array, target: Array[Node]
 		target.append(enemy)
 
 func _spawn_mb02() -> void:
+	if DebugBoot.no_enemies:
+		return
 	if _mb02_spawned:
 		return
 	_mb02_spawned = true
@@ -442,3 +448,30 @@ func _build_zone4() -> void:
 	_floor_seg("Z4", 22200.0, 22900.0, FLOOR_Y)
 	_deadly_pit(22900.0, 23600.0, 23080.0, 23260.0)
 	_floor_seg("Z4", 23600.0, 24400.0, FLOOR_Y)
+
+# Spawna o autopilot (validação da fase) quando ?bot=1.
+func _maybe_spawn_bot() -> void:
+	if not DebugBoot.bot_enabled:
+		return
+	var bot := preload("res://tests/bot/stage_bot.gd").new()
+	bot.name = "StageBot"
+	add_child(bot)
+
+# Debug ?zone=N: spawna o player no início de uma zona (calibrar trechos isolados).
+func _apply_debug_zone_spawn() -> void:
+	if DebugBoot.zone <= 0 or not is_instance_valid(_player):
+		return
+	var pos := _zone_spawn(DebugBoot.zone)
+	if pos == Vector2.ZERO:
+		return
+	_player.global_position = pos
+	StageManager.spawn_position = pos
+
+func _zone_spawn(zone: int) -> Vector2:
+	match zone:
+		1: return Vector2(200.0, 720.0)
+		2: return Vector2(5700.0, 720.0)
+		3: return Vector2(13300.0, 720.0)
+		4: return Vector2(18100.0, 720.0)
+		5: return Vector2(12500.0, 720.0)
+		_: return Vector2.ZERO
