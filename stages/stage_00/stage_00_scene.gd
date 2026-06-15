@@ -89,6 +89,7 @@ const _Z3_MOVPLAT_SPEED := 90.0
 const _MOVPLAT_TINT     := Color(0.45, 0.75, 1.0)  # azul-tech: distingue a plataforma do piso
 var _z3_movplat: AnimatableBody2D = null
 var _z3_movplat_start_x: float = 0.0
+var _z3_movplat_x: float = 0.0   # acumulador — NUNCA ler position de volta (sync_to_physics sobrescreve)
 var _z3_movplat_dir: float = 1.0
 
 
@@ -661,6 +662,7 @@ func _build_zone3() -> void:
 	add_child(mp)
 	_z3_movplat = mp
 	_z3_movplat_start_x = mp.position.x
+	_z3_movplat_x = mp.position.x
 	# Teto com COLISÃO (player bate a cabeça se chegar) — alinhado ao fundo do glass (y=-192).
 	# Prefixo "Glass_" → não desenha tile por cima (o painel de glass já é o visual).
 	_add_z3_static("Glass_Z3_Ceil", Vector2(14707, -256), Vector2(3570, 128))  # x 12922–16492, face de baixo y=-192
@@ -680,14 +682,18 @@ func _add_z3_static(node_name: String, center: Vector2, size: Vector2) -> void:
 
 func _physics_process(delta: float) -> void:
 	if _z3_movplat and is_instance_valid(_z3_movplat):
+		# Acumulador próprio: com sync_to_physics, ler _z3_movplat.position.x de volta é
+		# instável (a sincronização física sobrescreve o valor → o += se perde e a
+		# plataforma fica parada no runtime real). Só ESCREVEMOS em position.
 		var half := _Z3_MOVPLAT_DIST * 0.5
-		_z3_movplat.position.x += _z3_movplat_dir * _Z3_MOVPLAT_SPEED * delta
-		if _z3_movplat.position.x >= _z3_movplat_start_x + half:
-			_z3_movplat.position.x = _z3_movplat_start_x + half
+		_z3_movplat_x += _z3_movplat_dir * _Z3_MOVPLAT_SPEED * delta
+		if _z3_movplat_x >= _z3_movplat_start_x + half:
+			_z3_movplat_x = _z3_movplat_start_x + half
 			_z3_movplat_dir = -1.0
-		elif _z3_movplat.position.x <= _z3_movplat_start_x - half:
-			_z3_movplat.position.x = _z3_movplat_start_x - half
+		elif _z3_movplat_x <= _z3_movplat_start_x - half:
+			_z3_movplat_x = _z3_movplat_start_x - half
 			_z3_movplat_dir = 1.0
+		_z3_movplat.position.x = _z3_movplat_x
 
 # ─── Drawing ─────────────────────────────────────────────────────────────────
 
