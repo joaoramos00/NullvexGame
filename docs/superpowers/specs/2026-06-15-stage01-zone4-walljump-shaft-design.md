@@ -18,7 +18,7 @@ De `_build_zone4` / cena:
 - `Z4CoupStep0`–`Z4CoupStep12` (escada-coupled).
 - `Z4CoupLava` (lava-coupled).
 - `Z4Top` e a **cratera** (vão no teto do boss).
-- A abertura no teto da sala do boss em `_relocate_and_gap_boss`/`_draw_boss_room`.
+- **A arena do boss inteira** (`BossFloor`, `BossWallL/R`, `BossCeil*`, `BossLava`, `BossRoomTrigger`) e a lógica de `_relocate_and_gap_boss`/cratera — será **recriada do zero** (ver "Topo: câmara → corredor → boss").
 
 ## O que é mantido
 
@@ -57,7 +57,7 @@ Substitui `Z4ChaseLava` + `Z4CoupLava` por **uma** lava (modo `chase`, `rising_l
 
 - **Câmara pré-chefe** (seca, respiro) recebe a saída do shaft pela direita (~y360).
 - **Corredor do boss:** `CorridorSection` (padrão stage 00) com **porta do boss + checkpoint + trava de câmera**.
-- **Arena do Ignarath repositionada** pro topo, com **entrada na parede esquerda** (porta), no lugar da cratera no teto. `_relocate_and_gap_boss` passa a posicionar a arena alinhada ao corredor e `_draw_boss_room` abre a porta na parede esquerda (igual stage 00) em vez do teto.
+- **Arena do boss reconstruída do zero:** a arena atual do stage 01 é **deletada** (nós `BossFloor`, `BossWallL/R`, `BossCeil*`, `BossLava`, `BossRoomTrigger`, e a lógica de `_relocate_and_gap_boss`/cratera) e **recriada no molde da sala do boss do stage 00** — câmara de rocha com **porta na parede esquerda**, desenhada pelo mesmo padrão de `_draw_boss_room` (grid unificado, cantos côncavos, abertura da porta na parede), **mudando apenas o tileset** (usar o tileset de rocha/vulcão do stage 01 em vez do `_ROOM_TILE` do stage 00). Ignarath é re-spawnado dentro dela. Sem cratera no teto.
 
 ### Rota secreta (atalho + sub-tank)
 
@@ -70,14 +70,13 @@ Sequência:
 4. **Parede #2** — `cracked_wall` que separa a câmara do coletável da câmara pré-chefe; quebra **só pelo lado de dentro** (do coletável). Não é quebrável pelo lado da câmara pré-chefe (impede acesso reverso/cheese).
 5. Sai na **câmara pré-chefe** → corredor → boss.
 
-Efeito: quem descobre pega o sub-tank **e** pula o shaft + lava (atalho total, conforme escolhido).
+**Requisito pra quebrar (paredes #1 e #2): habilidade `galerix`** (comportamento atual do `cracked_wall.gd`, sem mudança). Como o player não tem galerix na 1ª vez no stage 01, o segredo é um **atalho de revisita/backtracking** — só acessível depois de derrotar o boss que dá galerix. Quem volta pega o sub-tank **e** pula o shaft + lava.
 
 ## Mecânicas novas (precisam de código)
 
 1. **Saliência que desmorona** (timed platform): `StaticBody2D` que desativa a colisão ~0.5s após o player pousar e some (respawn ao sair da tela / reentrar na zona). Novo script pequeno (ex.: `crumbling_ledge.gd`).
-2. **Parede quebrável por um lado só:** flag em `cracked_wall.gd` (ex.: `break_side`) — o `HitDetector` (Area2D) cobre só o lado permitido, então projétil do lado proibido não registra.
-3. **Requisito pra quebrar (parede #1 e #2):** o `cracked_wall.gd` atual exige a habilidade `galerix`. Nesta fase (1ª, sem galerix ainda) isso travaria o segredo no 1º acesso. **Decisão:** tornar essas duas paredes quebráveis pelo **ataque/tiro básico** (sem exigir galerix) — adicionar um modo/flag no `cracked_wall.gd` (ex.: `requires_ability := ""`). A confirmar no plano.
-4. **Aceleração da lava no terço final:** no modo `chase` do `rising_lava.gd`, aumentar `rise_speed` quando `position.y < accel_y` (novo `@export accel_y`, `accel_speed`). Mantém compatibilidade (default = sem aceleração).
+2. **Parede quebrável por um lado só:** flag em `cracked_wall.gd` (ex.: `break_side`) — o `HitDetector` (Area2D) cobre só o lado permitido, então projétil do lado proibido não registra. Mantém o requisito de `galerix` existente.
+3. **Aceleração da lava no terço final:** no modo `chase` do `rising_lava.gd`, aumentar `rise_speed` quando `position.y < accel_y` (novo `@export accel_y`, `accel_speed`). Mantém compatibilidade (default = sem aceleração).
 
 ## Reaproveitamento
 
@@ -96,7 +95,7 @@ O shaft é alto e estreito → a câmera precisa acompanhar a subida sem cortar 
 
 ## Riscos / pontos de atenção
 
-- **Reposicionar a arena do boss** mexe em `_relocate_and_gap_boss`, `_draw_boss_room`, `_setup_boss_room_trigger`, `BossRoomTrigger`, e câmera. É a parte de maior risco.
+- **Reconstruir a arena do boss do zero** (molde stage 00, tileset do stage 01) toca `_relocate_and_gap_boss`, `_draw_boss_room`, `_setup_boss_room_trigger`, `BossRoomTrigger`, re-spawn do Ignarath e câmera. É a parte de maior risco — mas reusa o padrão já validado do stage 00.
 - **Largura do wall-jump** é estimada (alcance ~256). Calibrar no playtest; o bot valida só o caminho (lavas paradas), não a dificuldade.
-- **Sem checkpoint no meio do shaft** (não escolhido). Com lava + espinhos + saliência que cai, morrer volta pro `step0`. O corredor tem checkpoint, mas é no topo. Reavaliar após playtest.
-- Escopo grande → o plano de implementação deve **fasear** (1: shaft + lava única; 2: topo/corredor/boss reposicionado; 3: rota secreta; 4: mecânicas novas e polimento).
+- **Sem checkpoint no meio do shaft** — decisão fechada (não reavaliar). Morrer no shaft volta pro `step0`; o checkpoint fica no corredor (topo).
+- Escopo grande → o plano de implementação deve **fasear** (1: shaft + lava única; 2: arena do boss reconstruída + corredor; 3: rota secreta; 4: mecânicas novas e polimento).
