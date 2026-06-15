@@ -48,7 +48,12 @@ func _ready() -> void:
 			corr.setup(_player)
 			corr.camera_lock_requested.connect(_on_camera_lock)
 
-const _CRATER_CX := 22700.0
+const _BOSS_L          := 18900.0
+const _BOSS_R          := 21716.0
+const _BOSS_FLOOR_TOP  :=   440.0
+const _BOSS_CEIL_TOP   :=  -160.0
+const _BOSS_DOOR_LO    :=   240.0
+const _BOSS_DOOR_HI    :=   440.0
 
 const _SHAFT_SEGS := [
 	# y_top, y_bot, x_l, x_r
@@ -60,27 +65,28 @@ const _SHAFT_SEGS := [
 	[ 360.0,  620.0, 17456.0, 17584.0],
 ]
 
-# A luta do Ignarath só começa quando o player ENTRA na sala (cai pela cratera),
-# não por proximidade — senão o boss ataca enquanto o player ainda está caindo.
+# A luta do Ignarath só começa quando o player ENTRA na sala pela porta lateral,
+# não por proximidade — senão o boss ataca enquanto o player ainda está no corredor.
 # Desliga o auto-aggro por distância e cria um Area2D cobrindo o interior da arena.
+# Chamado por _build_z4_boss() após a arena ser construída.
 func _setup_boss_room_trigger() -> void:
-	# TODO(Task 8): chamado por _build_z4_boss() ao reconstruir a arena (Ignarath é re-spawnado lá).
 	var ign := get_node_or_null("Ignarath")
 	if ign == null:
 		return
+	# auto_aggro já foi desligado em _build_z4_boss(); reforça para segurança.
 	ign.set("auto_aggro", false)
-	var a_left  := float(ign.get("arena_left"))
-	var a_right := float(ign.get("arena_right"))
-	var a_floor := float(ign.get("arena_floor"))
-	const _ROOM_TOP := 500.0   # logo abaixo do teto → dispara ao cair na sala
-	var left  := a_left + 64.0
-	var right := a_right - 64.0
+	# Trigger cobre o interior da nova arena (porta lateral, esquerda).
+	# Usa _BOSS_DOOR_LO como topo do gatilho — dispara logo ao entrar pela porta.
+	var left  := _BOSS_L + 64.0
+	var right := _BOSS_R - 64.0
+	var trig_top := _BOSS_DOOR_LO
+	var trig_bot := _BOSS_FLOOR_TOP
 	var trig := Area2D.new()
 	trig.name = "BossRoomTrigger"
 	trig.collision_layer = 0
 	trig.collision_mask = 2   # camada do player
-	trig.position = Vector2((left + right) * 0.5, (_ROOM_TOP + a_floor) * 0.5)
-	trig.add_child(_z2_shape(Vector2(right - left, a_floor - _ROOM_TOP)))
+	trig.position = Vector2((left + right) * 0.5, (trig_top + trig_bot) * 0.5)
+	trig.add_child(_z2_shape(Vector2(right - left, trig_bot - trig_top)))
 	add_child(trig)
 	trig.body_entered.connect(func(b: Node) -> void:
 		if b is CharacterBase:
@@ -95,26 +101,28 @@ func _draw() -> void:
 	_draw_boss_room()
 
 # Câmara do boss desenhada como grid unificado (molde do stage_00 _draw_boss_room): perímetro
-# de rocha (z1) com cantos côncavos corretos em uma passada. A abertura fica no TETO — a boca
-# da cratera por onde o player cai. Mapeamento (screen-space): TL=(3,1) TR=(2,2) BL=(2,0)
-# BR=(1,1), teto=(1,2) chão=(3,0) parede_esq=(3,2) parede_dir=(1,0).
+# de rocha (z1) com cantos côncavos corretos em uma passada. A abertura fica na PAREDE ESQUERDA
+# — a porta lateral por onde o player entra vindo do corredor pré-boss.
+# Mapeamento (screen-space): TL=(3,1) TR=(2,2) BL=(2,0) BR=(1,1),
+# teto=(1,2) chão=(3,0) parede_esq=(3,2) parede_dir=(1,0).
 func _draw_boss_room() -> void:
-	var lwall := get_node_or_null("BossWallL") as Node2D
-	var rwall := get_node_or_null("BossWallR") as Node2D
-	var floor_n := get_node_or_null("BossFloor") as Node2D
-	if not (lwall and rwall and floor_n):
+	var lwall   := get_node_or_null("BossWallL")  as Node2D
+	var rwall   := get_node_or_null("BossWallR")  as Node2D
+	var ceil_n  := get_node_or_null("BossCeil")   as Node2D
+	var floor_n := get_node_or_null("BossFloor")  as Node2D
+	if not (lwall and rwall and ceil_n and floor_n):
 		return
-	var ts := _TS
+	var ts     := _TS
 	var src_ts := _SRC_TS
-	var left := lwall.position.x - ts * 0.5
-	var right := rwall.position.x + ts * 0.5
+	var left   := lwall.position.x  - ts * 0.5
+	var right  := rwall.position.x  + ts * 0.5
+	var top    := ceil_n.position.y  - ts * 0.5
 	var bottom := floor_n.position.y + ts * 0.5
-	var top := lwall.position.y - 288.0      # topo da parede (altura 576 / 2)
-	var cols := int(round((right - left) / ts))
-	var rows := int(round((bottom - top) / ts))
-	# Abertura da cratera no teto: colunas que cobrem o vão do BossCeil (gap 256 em _CRATER_CX).
-	var gap_lo := int(floor((_CRATER_CX - 128.0 - left) / ts))
-	var gap_hi := int(ceil((_CRATER_CX + 128.0 - left) / ts)) - 1
+	var cols := int(round((right - left)   / ts))
+	var rows := int(round((bottom - top)   / ts))
+	# Abertura da porta na parede esquerda: linhas cobrindo _BOSS_DOOR_LO.._BOSS_DOOR_HI.
+	var door_lo := int(ceil((_BOSS_DOOR_LO - top) / ts))
+	var door_hi := int(floor((_BOSS_DOOR_HI - top) / ts)) - 1
 	for row in rows:
 		for col in cols:
 			var is_l := col == 0
@@ -123,20 +131,24 @@ func _draw_boss_room() -> void:
 			var is_b := row == rows - 1
 			if not (is_l or is_r or is_t or is_b):
 				continue   # interior vazio
-			if is_t and not is_l and not is_r and col >= gap_lo and col <= gap_hi:
-				continue   # abertura da cratera no teto
+			if is_l and not is_t and not is_b and row >= door_lo and row <= door_hi:
+				continue   # abertura da porta lateral
+			# Porta encosta no chão? O piso atravessa reto (rente ao corredor), sem canto.
+			var door_to_floor := door_hi >= rows - 2
+			var bl_is_floor   := is_b and is_l and door_to_floor
 			var tile: Vector2i
 			# Shifts de meia-célula p/ a face sólida coincidir com a colisão (igual stage_00).
 			var tx := 0
 			var ty := 0
-			if   is_t and is_l: tile = Vector2i(3, 1); tx =  src_ts; ty =  src_ts
-			elif is_t and is_r: tile = Vector2i(2, 2); tx = -src_ts; ty =  src_ts
-			elif is_b and is_l: tile = Vector2i(2, 0); tx =  src_ts; ty = -src_ts
-			elif is_b and is_r: tile = Vector2i(1, 1); tx = -src_ts; ty = -src_ts
-			elif is_t:          tile = Vector2i(1, 2);              ty =  src_ts
-			elif is_b:          tile = Vector2i(3, 0);              ty = -src_ts
-			elif is_l:          tile = Vector2i(3, 2); tx =  src_ts
-			else:               tile = Vector2i(1, 0); tx = -src_ts
+			if   is_t and is_l:   tile = Vector2i(3, 1); tx =  src_ts; ty =  src_ts
+			elif is_t and is_r:   tile = Vector2i(2, 2); tx = -src_ts; ty =  src_ts
+			elif bl_is_floor:     tile = Vector2i(3, 0);               ty = -src_ts
+			elif is_b and is_l:   tile = Vector2i(2, 0); tx =  src_ts; ty = -src_ts
+			elif is_b and is_r:   tile = Vector2i(1, 1); tx = -src_ts; ty = -src_ts
+			elif is_t:            tile = Vector2i(1, 2);               ty =  src_ts
+			elif is_b:            tile = Vector2i(3, 0);               ty = -src_ts
+			elif is_l:            tile = Vector2i(3, 2); tx =  src_ts
+			else:                 tile = Vector2i(1, 0); tx = -src_ts
 			var dx := left + col * ts + tx
 			var dy := top + row * ts + ty
 			draw_texture_rect_region(_ROOM_TILE,
@@ -527,7 +539,38 @@ func _build_z4_top() -> void:
 	add_child(_corr_boss)
 
 func _build_z4_boss() -> void:
-	pass
+	# Os nós de boss do .tscn foram queue_free()'d em _ready() mas ainda não foram
+	# removidos (queue_free é deferido). Libera-os imediatamente antes de criar os novos,
+	# senão o Godot renomeia silenciosamente os novos nós ao adicionar com o mesmo nome.
+	for bn in ["BossWallL", "BossWallR", "BossFloor", "BossCeil", "BossLava", "Ignarath"]:
+		var old := get_node_or_null(bn)
+		if old:
+			old.free()
+	# Paredes, piso e teto da arena — marcados skip_base_draw p/ não serem desenhados
+	# pelo loop padrão de plataformas; o visual é gerenciado em _draw_boss_room().
+	var h := _BOSS_FLOOR_TOP - _BOSS_CEIL_TOP + 64.0
+	var cy := (_BOSS_CEIL_TOP + _BOSS_FLOOR_TOP) * 0.5
+	_z2_static("BossWallL", Vector2(_BOSS_L, cy), Vector2(64.0, h)).set_meta("skip_base_draw", true)
+	_z2_static("BossWallR", Vector2(_BOSS_R, cy), Vector2(64.0, h)).set_meta("skip_base_draw", true)
+	_z2_static("BossFloor", Vector2((_BOSS_L + _BOSS_R) * 0.5, _BOSS_FLOOR_TOP + 32.0),
+		Vector2(_BOSS_R - _BOSS_L, 64.0)).set_meta("skip_base_draw", true)
+	_z2_static("BossCeil", Vector2((_BOSS_L + _BOSS_R) * 0.5, _BOSS_CEIL_TOP - 32.0),
+		Vector2(_BOSS_R - _BOSS_L, 64.0)).set_meta("skip_base_draw", true)
+	# Soleira de transição corredor→arena: o corredor (Task 7) termina em floor top≈y376 e
+	# a arena começa em _BOSS_FLOOR_TOP=440 (64px mais baixo). Este bloco cobre o vão
+	# horizontal entre o corredor e a parede esquerda da arena (x18800→18964) e serve como
+	# degrau sólido nivelado com o piso da arena — o player desce o degrau ao entrar.
+	_z2_static("BossThreshold", Vector2(18882.0, 472.0), Vector2(164.0, 64.0)).set_meta("skip_base_draw", true)
+	# Ignarath
+	var ign := preload("res://characters/bosses/ignarath.tscn").instantiate()
+	ign.name = "Ignarath"
+	ign.position = Vector2((_BOSS_L + _BOSS_R) * 0.5, _BOSS_FLOOR_TOP - 80.0)
+	ign.set("arena_left",  _BOSS_L + 64.0)
+	ign.set("arena_right", _BOSS_R - 64.0)
+	ign.set("arena_floor", _BOSS_FLOOR_TOP)
+	ign.set("auto_aggro",  false)
+	add_child(ign)
+	_setup_boss_room_trigger()
 
 func _build_z4_secret() -> void:
 	pass
