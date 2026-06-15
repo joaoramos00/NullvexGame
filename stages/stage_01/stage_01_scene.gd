@@ -52,7 +52,7 @@ const _BOSS_L          := 18900.0
 const _BOSS_R          := 21716.0
 const _BOSS_FLOOR_TOP  :=   440.0
 const _BOSS_CEIL_TOP   :=  -160.0
-const _BOSS_DOOR_LO    :=   240.0
+const _BOSS_DOOR_LO    :=   224.0
 const _BOSS_DOOR_HI    :=   440.0
 
 const _SHAFT_SEGS := [
@@ -550,7 +550,15 @@ func _build_z4_boss() -> void:
 	# pelo loop padrão de plataformas; o visual é gerenciado em _draw_boss_room().
 	var h := _BOSS_FLOOR_TOP - _BOSS_CEIL_TOP + 64.0
 	var cy := (_BOSS_CEIL_TOP + _BOSS_FLOOR_TOP) * 0.5
-	_z2_static("BossWallL", Vector2(_BOSS_L, cy), Vector2(64.0, h)).set_meta("skip_base_draw", true)
+	# Parede ESQUERDA com PORTA: a colisão cobre só a seção ACIMA da porta (do teto até
+	# _BOSS_DOOR_LO). De _BOSS_DOOR_LO (224) até _BOSS_FLOOR_TOP (440) fica VAZIO — é a
+	# abertura por onde o player entra na arena vindo do corredor. A face inferior da
+	# parede senta exatamente em y=_BOSS_DOOR_LO. (Antes era parede sólida full-height
+	# que bloqueava fisicamente a entrada.)
+	var lwall_top := _BOSS_CEIL_TOP - 64.0           # = -224 (encosta na borda externa do teto)
+	var lwall_h := _BOSS_DOOR_LO - lwall_top         # = 224 - (-224) = 448
+	_z2_static("BossWallL", Vector2(_BOSS_L, lwall_top + lwall_h * 0.5),
+		Vector2(64.0, lwall_h)).set_meta("skip_base_draw", true)
 	_z2_static("BossWallR", Vector2(_BOSS_R, cy), Vector2(64.0, h)).set_meta("skip_base_draw", true)
 	_z2_static("BossFloor", Vector2((_BOSS_L + _BOSS_R) * 0.5, _BOSS_FLOOR_TOP + 32.0),
 		Vector2(_BOSS_R - _BOSS_L, 64.0)).set_meta("skip_base_draw", true)
