@@ -17,5 +17,13 @@ func _ready() -> void:
 	var lava = s.get_node_or_null("Z4ShaftLava")
 	if lava == null or float(lava.get("cap_y")) > 520.0:
 		print("FAIL: lava cap_y nao protege o topo"); fail = true
+	# Task 6: hazards e elementos do shaft
+	for expected in ["Z4SpikeR3", "Z4SpikeL5", "Z4Ledge2", "Z4Ledge5", "Z4Crumble4", "Z4Flyer1"]:
+		if s.get_node_or_null(expected) == null:
+			print("FAIL: no existe %s" % expected); fail = true
+	# Espinhos devem ser Area2D com lava_floor + instant_kill
+	var spike := s.get_node_or_null("Z4SpikeR3Hurt")
+	if spike == null or not bool(spike.get("instant_kill")):
+		print("FAIL: Z4SpikeR3Hurt ausente ou instant_kill=false"); fail = true
 	if fail: get_tree().quit(1)
 	else: print("PASS: shaft geometry"); get_tree().quit(0)
