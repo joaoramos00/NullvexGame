@@ -27,7 +27,7 @@
 size = Vector2(2752, 128)
 
 [sub_resource type="RectangleShape2D" id="ShapeZ1Lava"]
-size = Vector2(2432, 64)
+size = Vector2(2432, 448)
 
 [sub_resource type="RectangleShape2D" id="ShapeZ1LavaFloor"]
 size = Vector2(2432, 448)
@@ -146,7 +146,7 @@ metadata/platform_override = "res://stages/stage_01/Stage_01_lava.png"
 shape = SubResource("ShapeZ1LavaFloor")
 
 [node name="Z1Lava" type="Area2D" parent="."]
-position = Vector2(1728, 1056)
+position = Vector2(1728, 1200)
 collision_layer = 0
 collision_mask = 2
 script = ExtResource("12_lava")
