@@ -8,6 +8,7 @@ const _LAVA    := preload("res://stages/stage_01/lava_floor.gd")
 const _RISING_LAVA := preload("res://stages/stage_01/rising_lava.gd")
 const _LAVA_SHADER := preload("res://stages/stage_01/lava_flow.gdshader")
 const _SPIKES_TEX := preload("res://stages/stage_01/spikes.png")
+const _FLYER_SCENE := preload("res://characters/enemies/enemy_flyer.tscn")
 const _LAVA_TILE := "res://stages/stage_01/Stage_01_lava_v2.png"  # toda lava da fase usa v2 (case-sensitive no PCK web!)
 const _Z2_FLOOR_TILE := "res://stages/stage_01/Stage_01T_z2.png"  # mesmo tile do floor
 const _ROOM_TILE := preload("res://stages/stage_01/Stage_01T_z1.png")  # rocha escura: câmara do boss
@@ -429,6 +430,66 @@ func _build_z4_shaft() -> void:
 	trig.add_child(_z2_shape(Vector2(64, 256)))
 	add_child(trig)
 	trig.body_entered.connect(func(b): if b is CharacterBase: lava.call("activate"))
+	# Espinhos instant-kill (no_wall_grab + lava_floor) — seg3 face direita, seg5 face esquerda
+	_z4_spike_face("Z4SpikeR3", _SHAFT_SEGS[2][3] + 32.0, 1420.0, 64.0, 200.0)
+	_z4_spike_face("Z4SpikeL5", _SHAFT_SEGS[4][2] - 32.0, 780.0, 64.0, 200.0)
+	# Saliências de respiro
+	_z3_static_floor("Z4Ledge2", Vector2(_SHAFT_SEGS[1][3] - 64.0, 1640.0), Vector2(128.0, 32.0))
+	_z3_static_floor("Z4Ledge5", Vector2(_SHAFT_SEGS[4][2] + 64.0, 700.0),  Vector2(128.0, 32.0))
+	# Saliência que desmorona — seg4 (centro)
+	_z4_crumble("Z4Crumble4", Vector2(17520.0, 1100.0), Vector2(160.0, 32.0))
+	# Flyer no seg5
+	_z4_spawn_flyer("Z4Flyer1", Vector2(17520.0, 760.0))
+
+# Espinho no_wall_grab: parede de colisão (no_grab) + Area2D de kill (lava_floor, instant_kill)
+# sobrepostos. O player não pode agarrar a parede e tomar dano ao encostar.
+func _z4_spike_face(n: String, cx: float, cy: float, w: float, h: float) -> void:
+	_z4_wall(n, cx, cy, w, h, true)   # parede no_grab
+	var hurt := Area2D.new()
+	hurt.name = n + "Hurt"
+	hurt.set_script(_LAVA)
+	hurt.collision_layer = 0
+	hurt.collision_mask = 2
+	hurt.set("instant_kill", true)
+	hurt.position = Vector2(cx, cy)
+	hurt.add_child(_z2_shape(Vector2(w, h)))
+	add_child(hurt)
+
+# Saliência que desmorona: StaticBody2D com crumbling_ledge.gd + LandDetector no topo.
+func _z4_crumble(n: String, center: Vector2, size: Vector2) -> void:
+	var body := StaticBody2D.new()
+	body.name = n
+	body.set_script(preload("res://stages/stage_01/crumbling_ledge.gd"))
+	body.collision_layer = 1
+	body.collision_mask = 0
+	body.position = center
+	body.add_child(_z2_shape(size))
+	var det := Area2D.new()
+	det.name = "LandDetector"
+	det.collision_layer = 0
+	det.collision_mask = 2
+	var ds := _z2_shape(Vector2(size.x, 16.0))
+	ds.position = Vector2(0.0, -size.y * 0.5 - 8.0)
+	det.add_child(ds)
+	det.body_entered.connect(func(b: Node) -> void:
+		if b is CharacterBase:
+			body.call("touched"))
+	body.add_child(det)
+	add_child(body)
+
+# Spawna um EnemyFlyer pelo padrão canônico do projeto (preload .tscn + instantiate).
+# Remove imediatamente qualquer nó com o mesmo nome antes de adicionar o novo —
+# necessário porque queue_free() é deferido e causaria renaming silencioso pelo Godot.
+func _z4_spawn_flyer(n: String, pos: Vector2) -> void:
+	if _FLYER_SCENE == null:
+		return
+	var old := get_node_or_null(n)
+	if old:
+		old.free()
+	var e: Node2D = _FLYER_SCENE.instantiate()
+	e.name = n
+	e.global_position = pos
+	add_child(e)
 
 func _build_z4_top() -> void:
 	pass
