@@ -41,6 +41,23 @@ func _ready() -> void:
 		if DOOR_HI > wall_bottom + 1.0:   # margem de 1px para float
 			print("FAIL: DOOR_HI (%.0f) abaixo da base da parede (%.0f)" % [DOOR_HI, wall_bottom])
 			fail = true
+		# ── Colisão da BossWallL NÃO invade o vão da porta ───────────────────────────
+		# A colisão da parede esquerda deve terminar em/acima de _BOSS_DOOR_LO (224),
+		# deixando 224..440 como abertura livre — senão o player fica fisicamente bloqueado
+		# de entrar na arena (bug crítico: parede sólida full-height).
+		var lcs: CollisionShape2D = null
+		for c in lwall.get_children():
+			if c is CollisionShape2D:
+				lcs = c
+				break
+		if lcs == null or not (lcs.shape is RectangleShape2D):
+			print("FAIL: BossWallL sem CollisionShape2D retangular")
+			fail = true
+		else:
+			var lwall_coll_bottom: float = lwall.position.y + lcs.position.y + (lcs.shape as RectangleShape2D).size.y * 0.5
+			if lwall_coll_bottom > DOOR_LO + 0.5:
+				print("FAIL: colisão da BossWallL (base y=%.1f) invade o vão da porta (>%.0f)" % [lwall_coll_bottom, DOOR_LO])
+				fail = true
 
 	# ── Ignarath auto_aggro desligado ────────────────────────────────────────────
 	var ign := s.get_node_or_null("Ignarath")
