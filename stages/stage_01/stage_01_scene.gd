@@ -50,6 +50,7 @@ const _CRATER_CX := 22700.0
 # não por proximidade — senão o boss ataca enquanto o player ainda está caindo.
 # Desliga o auto-aggro por distância e cria um Area2D cobrindo o interior da arena.
 func _setup_boss_room_trigger() -> void:
+	# TODO(Task 8): chamado por _build_z4_boss() ao reconstruir a arena (Ignarath é re-spawnado lá).
 	var ign := get_node_or_null("Ignarath")
 	if ign == null:
 		return
