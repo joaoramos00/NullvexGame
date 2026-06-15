@@ -31,64 +31,20 @@ func _ready() -> void:
 	for n in ["ShaftUpWallL", "ShaftUpWallR", "ShaftUpP1", "ShaftUpP2", "ShaftUpP3",
 			"ShaftUpP4", "ShaftUpP5", "Corridor2",
 			"Z4Floor", "Z4Ceil", "Z4Lava", "Z4Plat1", "Z4Plat2", "Z4Plat3",
-			"Z4MovingPlat", "Z4Grunt1", "Z4Grunt2", "Z4Flyer1"]:
+			"Z4MovingPlat", "Z4Grunt1", "Z4Grunt2", "Z4Flyer1",
+			"BossFloor", "BossWallL", "BossWallR", "BossCeil", "BossLava", "Ignarath"]:
 		var node := get_node_or_null(n)
 		if node:
 			node.queue_free()
-	_relocate_and_gap_boss()
 	_build_zone2()
 	_build_zone3()
 	_build_zone4()
-	_setup_boss_room_trigger()
 	for corr in get_children():
 		if corr is CorridorSection and not corr.is_queued_for_deletion():
 			corr.setup(_player)
 			corr.camera_lock_requested.connect(_on_camera_lock)
 
-# Reposiciona a arena do boss +SHIFT à direita (livre da subida da z4) e recria o teto
-# com um vão na coluna da cratera, p/ a queda da cratera entrar. A subida coupled fica
-# à esquerda da arena (degraus de baixo) e ACIMA das paredes dela (degraus de cima).
-const _BOSS_SHIFT := 2600.0
 const _CRATER_CX := 22700.0
-func _relocate_and_gap_boss() -> void:
-	var gap_w := 256.0
-	# Plataformas de combate (BossPlat1/2) eram um bug — removidas. Arena limpa força o
-	# wall-jump na rajada de fogo (não dá pra escapar subindo em plataforma).
-	for bn in ["BossPlat1", "BossPlat2"]:
-		var node := get_node_or_null(bn)
-		if node:
-			node.queue_free()
-	for bn in ["BossFloor", "BossWallL", "BossWallR", "BossLava", "Ignarath"]:
-		var node := get_node_or_null(bn)
-		if node:
-			(node as Node2D).position.x += _BOSS_SHIFT
-	# Sala do boss = câmara de rocha unificada (molde do stage_00 _draw_boss_room): o perímetro
-	# (chão/paredes/teto) é desenhado por _draw_boss_room() como um grid só, com cantos côncavos.
-	# Marca os corpos do perímetro p/ o _draw base os pular (senão renderizam como caixas de lava).
-	for bn in ["BossFloor", "BossWallL", "BossWallR"]:
-		var node := get_node_or_null(bn)
-		if node:
-			node.set_meta("skip_base_draw", true)
-	var ign := get_node_or_null("Ignarath")
-	if ign:
-		ign.set("arena_left", float(ign.get("arena_left")) + _BOSS_SHIFT)
-		ign.set("arena_right", float(ign.get("arena_right")) + _BOSS_SHIFT)
-	# Recria o teto deslocado com um vão na coluna da cratera.
-	var ceil_node := get_node_or_null("BossCeil")
-	if ceil_node:
-		ceil_node.queue_free()
-	var left_x := 19776.0 + _BOSS_SHIFT    # 21776
-	var right_x := 22592.0 + _BOSS_SHIFT   # 24592
-	var top := 416.0
-	var h := 64.0
-	var lw := (_CRATER_CX - gap_w * 0.5) - left_x
-	if lw > 0.0:
-		var lb := _z2_static("BossCeilL", Vector2(left_x + lw * 0.5, top + h * 0.5), Vector2(lw, h))
-		lb.set_meta("skip_base_draw", true)   # teto desenhado por _draw_boss_room()
-	var rw := right_x - (_CRATER_CX + gap_w * 0.5)
-	if rw > 0.0:
-		var rb := _z2_static("BossCeilR", Vector2((_CRATER_CX + gap_w * 0.5) + rw * 0.5, top + h * 0.5), Vector2(rw, h))
-		rb.set_meta("skip_base_draw", true)
 
 # A luta do Ignarath só começa quando o player ENTRA na sala (cai pela cratera),
 # não por proximidade — senão o boss ataca enquanto o player ainda está caindo.
@@ -423,63 +379,27 @@ func _z3_rising_lava(n: String, center_x: float, width: float, low_y: float, hig
 		a.add_child(top)
 
 # ─── Zona 4: Ascensão do Vulcão ──────────────────────────────────────────────
-# Base → escada-chase (lava perseguindo) → patamar → escada-coupled (lava acoplada)
-# → topo+checkpoint → cratera (borda) → cai na arena do boss. Lavas congelam no bot.
+# Base → escada-chase (lava perseguindo) → shaft → topo → arena do boss → segredo.
+# Lavas congelam no bot.
 func _build_zone4() -> void:
-	# Base: piso de transição após a Z3Exit (topo 2624).
-	_z3_static_floor("Z4Base", Vector2(16320, 2688), Vector2(320, 128))   # x16160–16480
+	_z3_static_floor("Z4Base", Vector2(16320, 2688), Vector2(320, 128))
+	_z4_stair("Z4ChaseStep", 16480.0, 2520.0, 192.0, 104.0, 4, 128.0)   # step0..3
+	_build_z4_shaft()
+	_build_z4_top()
+	_build_z4_boss()
+	_build_z4_secret()
 
-	# Escada-chase: 10 degraus (dy104, dx192) de topo 2520 → 1584. Degraus estreitos (128)
-	# → buracos de lava de ~64px entre eles (pulos discretos, não escada contínua).
-	_z4_stair("Z4ChaseStep", 16480.0, 2520.0, 192.0, 104.0, 10, 128.0)
-	# Lava-chase: sobe contínua da base até o cap (logo abaixo do patamar).
-	var chase := _z4_lava("Z4ChaseLava", "chase", 17400.0, 2820.0, 3600.0, 1200.0)
-	chase.set("rise_speed", 80.0)
-	chase.set("cap_y", 1640.0)
-	# Gatilho: ativa a lava-chase quando o player entra na base.
-	var trig := Area2D.new()
-	trig.name = "Z4ChaseTrigger"
-	trig.collision_layer = 0
-	trig.collision_mask = 2
-	trig.position = Vector2(16480, 2560)
-	trig.add_child(_z2_shape(Vector2(64, 256)))
-	add_child(trig)
-	trig.body_entered.connect(func(b: Node) -> void:
-		if b is CharacterBase:
-			chase.call("activate"))
+func _build_z4_shaft() -> void:
+	pass
 
-	# Patamar do meio (respiro, topo 1584, acima do cap 1640 da lava-chase).
-	_z3_static_floor("Z4MidA", Vector2(18560, 1648), Vector2(640, 128))   # x18240–18880
-	_z3_static_floor("Z4MidB", Vector2(19200, 1648), Vector2(640, 128))   # x18880–19520
+func _build_z4_top() -> void:
+	pass
 
-	# Escada-coupled: 12 degraus largos (256), dx190/dy104, de topo 1448 → 304. Sobe ACIMA
-	# do teto da arena do boss (topo do muro 448): degraus de baixo (y>448) ficam à esq.
-	# da arena; degraus de cima (y<448) passam acima dela sem conflito. Último ~x21738.
-	_z4_stair("Z4CoupStep", 19520.0, 1480.0, 180.0, 96.0, 13, 128.0)
-	# Lava-coupled: segue a altura do player; só sobe; X limitada (x19300–22100, à esq.
-	# da cratera em 22700, senão o player bate nela ao cair).
-	var coup := _z4_lava("Z4CoupLava", "coupled", 20700.0, 1820.0, 2800.0, 1600.0)
-	coup.set("coupled_offset", 240.0)
-	if is_instance_valid(_player):
-		coup.call("set_player", _player)
+func _build_z4_boss() -> void:
+	pass
 
-	# Topo: patamar acima da arena (topo 250 < teto-do-muro 448, sem conflito) até a borda
-	# da cratera (22100, sobre o vão do teto da arena). Checkpoint + cura.
-	# Coplanar com o último degrau (topo 328), abutando sem sobreposição → o player anda
-	# direto do degrau 12 pro Z4Top, até a borda da cratera (22700).
-	# Termina na BORDA ESQUERDA do vão da cratera (22572 = _CRATER_CX-128), não no centro.
-	# Assim os 256px do vão (22572–22828) ficam todos como queda aberta à direita do Z4Top →
-	# o player anda pra fora da beira e cai limpo na arena (antes a beira ficava no meio do vão
-	# e o player re-agarrava em vez de cair). x21800–22572, topo 328 (abuta o último degrau).
-	_z3_static_floor("Z4Top", Vector2(22186, 392), Vector2(772, 128))
-	var cp := preload("res://stages/checkpoint.tscn").instantiate()
-	cp.name = "Z4Checkpoint"
-	cp.position = Vector2(22250, 264)
-	cp.set("checkpoint_index", 2)
-	add_child(cp)
-
-	# Cratera: a borda direita do Z4Top (x21000) sobre o vão do BossCeil → queda na arena.
-	# (Sem lip visual flutuante; a boca da cratera é o vão no teto da sala do boss.)
+func _build_z4_secret() -> void:
+	pass
 
 # Lava de modo (chase/coupled). low_y = superfície inicial/congelada (bot).
 func _z4_lava(n: String, mode: String, center_x: float, low_y: float, width: float,
