@@ -46,6 +46,16 @@ func _ready() -> void:
 
 const _CRATER_CX := 22700.0
 
+const _SHAFT_SEGS := [
+	# y_top, y_bot, x_l, x_r
+	[1900.0, 2208.0, 17424.0, 17616.0],
+	[1580.0, 1900.0, 17440.0, 17600.0],
+	[1260.0, 1580.0, 17424.0, 17616.0],
+	[ 940.0, 1260.0, 17408.0, 17632.0],
+	[ 620.0,  940.0, 17424.0, 17616.0],
+	[ 360.0,  620.0, 17456.0, 17584.0],
+]
+
 # A luta do Ignarath só começa quando o player ENTRA na sala (cai pela cratera),
 # não por proximidade — senão o boss ataca enquanto o player ainda está caindo.
 # Desliga o auto-aggro por distância e cria um Area2D cobrindo o interior da arena.
@@ -390,8 +400,35 @@ func _build_zone4() -> void:
 	_build_z4_boss()
 	_build_z4_secret()
 
+func _z4_wall(n: String, cx: float, cy: float, w: float, h: float, no_grab := false) -> StaticBody2D:
+	var b := _z2_static(n, Vector2(cx, cy), Vector2(w, h))
+	if no_grab:
+		b.add_to_group("no_wall_grab")
+	return b
+
 func _build_z4_shaft() -> void:
-	pass
+	for i in _SHAFT_SEGS.size():
+		var s = _SHAFT_SEGS[i]
+		var yt: float = s[0]; var yb: float = s[1]; var xl: float = s[2]; var xr: float = s[3]
+		var h: float = yb - yt
+		var cy: float = (yt + yb) * 0.5
+		_z4_wall("Z4ShaftWL%d" % i, xl - 32.0, cy, 64.0, h)   # parede esquerda (grabbable)
+		_z4_wall("Z4ShaftWR%d" % i, xr + 32.0, cy, 64.0, h)   # parede direita (grabbable)
+	# lava única (chase) cobrindo o shaft
+	var lava := _z4_lava("Z4ShaftLava", "chase", 17520.0, 2360.0, 240.0, 1700.0)
+	lava.set("rise_speed", 80.0)
+	lava.set("cap_y", 480.0)
+	lava.set("accel_y", 975.0)
+	lava.set("accel_speed", 150.0)
+	# gatilho na base do shaft → ativa a lava
+	var trig := Area2D.new()
+	trig.name = "Z4ChaseTrigger"
+	trig.collision_layer = 0
+	trig.collision_mask = 2
+	trig.position = Vector2(16480, 2560)
+	trig.add_child(_z2_shape(Vector2(64, 256)))
+	add_child(trig)
+	trig.body_entered.connect(func(b): if b is CharacterBase: lava.call("activate"))
 
 func _build_z4_top() -> void:
 	pass
