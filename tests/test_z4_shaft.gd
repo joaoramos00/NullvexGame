@@ -1,7 +1,7 @@
 extends Node
 const WALLJUMP_MAX := 256.0
 func _ready() -> void:
-	var s = load("res://stages/stage_01/stage_01.tscn").instantiate()
+	var s: Node = load("res://stages/stage_01/stage_01.tscn").instantiate()
 	add_child(s)
 	for i in 4: await get_tree().physics_frame
 	var fail := false
@@ -10,6 +10,7 @@ func _ready() -> void:
 		var wr = s.get_node_or_null("Z4ShaftWR%d" % i)
 		if wl == null or wr == null:
 			print("FAIL: faltou parede do seg %d" % i); fail = true; continue
+		# vão livre entre as faces internas das paredes (paredes 64px; centro-a-centro - 64 = vão)
 		var inner: float = wr.position.x - wl.position.x - 64.0
 		if inner > WALLJUMP_MAX + 0.5:
 			print("FAIL: seg %d largura %.0f > %.0f" % [i, inner, WALLJUMP_MAX]); fail = true

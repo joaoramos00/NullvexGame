@@ -420,7 +420,7 @@ func _build_z4_shaft() -> void:
 	lava.set("cap_y", 480.0)
 	lava.set("accel_y", 975.0)
 	lava.set("accel_speed", 150.0)
-	# gatilho na base do shaft → ativa a lava
+	# gatilho na base do shaft (na borda da escada-chase, à esquerda das paredes) → ativa a lava
 	var trig := Area2D.new()
 	trig.name = "Z4ChaseTrigger"
 	trig.collision_layer = 0
