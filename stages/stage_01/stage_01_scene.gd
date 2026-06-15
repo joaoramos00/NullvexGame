@@ -12,7 +12,6 @@ const _FLYER_SCENE := preload("res://characters/enemies/enemy_flyer.tscn")
 const _LAVA_TILE := "res://stages/stage_01/Stage_01_lava_v2.png"  # toda lava da fase usa v2 (case-sensitive no PCK web!)
 const _Z2_FLOOR_TILE := "res://stages/stage_01/Stage_01T_z2.png"  # mesmo tile do floor
 const _ROOM_TILE := preload("res://stages/stage_01/Stage_01T_z1.png")  # rocha escura: câmara do boss
-const _GLASS_TEX := preload("res://stages/stage_01/stage_01_glass.png")
 const _DOOR_TEX  := preload("res://stages/door_pixellab.png")
 
 var _corr_boss: CorridorSection = null
@@ -497,6 +496,8 @@ func _z4_spawn_flyer(n: String, pos: Vector2) -> void:
 func _build_z4_top() -> void:
 	# Câmara pré-chefe: piso seco com vão (saída do seg6) em x17456–17584.
 	# Trecho esquerdo: fecha a parede esquerda do shaft (seg6 topo x17456).
+	# Z4PreL/Z4PreR reusam o helper _z3_static_floor de propósito: piso seco com o
+	# mesmo tile/desenho de chão do corredor (não é plataforma elevada, só piso reto).
 	_z3_static_floor("Z4PreL", Vector2(17420.0, 392.0), Vector2(40.0, 128.0))
 	# Trecho direito: corredor até a entrada do boss corridor (x17584–18200).
 	_z3_static_floor("Z4PreR", Vector2(17892.0, 392.0), Vector2(616.0, 128.0))
@@ -516,7 +517,7 @@ func _build_z4_top() -> void:
 	_corr_boss.entry_x              = 18260.0
 	_corr_boss.exit_x               = 18800.0
 	_corr_boss.save_checkpoint      = true
-	_corr_boss.checkpoint_index     = 2
+	_corr_boss.checkpoint_index     = 2          # terceiro checkpoint (antes do boss)
 	_corr_boss.checkpoint_respawn_x = 18300.0
 	_corr_boss.heal_on_entry        = false
 	_corr_boss.exit_retriggerable   = true
