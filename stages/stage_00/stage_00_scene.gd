@@ -81,8 +81,12 @@ var _camera_target   := Vector2.ZERO
 var _camera_zoom_tgt := 2.2
 
 # Zona 3 — plataforma móvel do gauntlet "Exame Final"
-const _Z3_MOVPLAT_DIST  := 360.0
+# DIST 258: half-curso 129px. Com início no centro do fosso (x=14975), os extremos
+# encostam EXATAMENTE nas bordas dos pisos (floor009 dir=14750, floor010 esq=15200)
+# sem nunca sobrepor o piso — antes (360) a plataforma entrava por baixo dos pisos.
+const _Z3_MOVPLAT_DIST  := 258.0
 const _Z3_MOVPLAT_SPEED := 90.0
+const _MOVPLAT_TINT     := Color(0.45, 0.75, 1.0)  # azul-tech: distingue a plataforma do piso
 var _z3_movplat: AnimatableBody2D = null
 var _z3_movplat_start_x: float = 0.0
 var _z3_movplat_dir: float = 1.0
@@ -692,6 +696,31 @@ func _draw() -> void:
 	_draw_glass_panels()
 	_draw_platforms()
 	_draw_boss_room()
+	if DebugBoot.z3debug:
+		_draw_z3_debug()
+
+# Marcadores de debug da zona 3 (?z3debug=1): linha no FIM do floor009 (borda real da
+# colisão) e nos limites do fosso, pra conferir alinhamento visual×colisão e o curso da
+# plataforma móvel.
+func _draw_z3_debug() -> void:
+	var floor_a := get_node_or_null("Z3_FloorA") as StaticBody2D
+	if floor_a == null:
+		return
+	var cs := floor_a.get_node_or_null("CollisionShape2D") as CollisionShape2D
+	if cs == null or not (cs.shape is RectangleShape2D):
+		return
+	var w: float = (cs.shape as RectangleShape2D).size.x
+	var right_edge: float = floor_a.position.x + cs.position.x + w * 0.5  # FIM do floor009
+	var top := -260.0
+	var bot := 560.0
+	# Linha vertical magenta no fim exato do floor009 (= borda da colisão)
+	draw_line(Vector2(right_edge, top), Vector2(right_edge, bot), Color(1.0, 0.0, 1.0, 0.9), 4.0)
+	# Tick horizontal na superfície (y=280) pra marcar onde o chão acaba
+	draw_line(Vector2(right_edge - 40.0, 280.0), Vector2(right_edge + 40.0, 280.0), Color(1.0, 1.0, 0.0, 0.9), 4.0)
+	# Limite direito do fosso (início do floor010), em ciano
+	var floor_b := get_node_or_null("CorrZ3_Cont_Floor") as Node2D
+	if floor_b:
+		draw_line(Vector2(floor_b.position.x - 646.0, top), Vector2(floor_b.position.x - 646.0, bot), Color(0.0, 1.0, 1.0, 0.7), 3.0)
 
 func _draw_glass_panels() -> void:
 	var ts     := _TS
@@ -812,6 +841,10 @@ func _draw_platforms() -> void:
 				_draw_room_tiles(top_rect, n, true)
 			elif n.begins_with("Corr") or n.begins_with("MiniBoss_"):
 				_draw_room_tiles(rect, n)
+			elif child is AnimatableBody2D:
+				# Plataforma móvel: tinge de azul-tech para ficar nítida e nunca se
+				# confundir com o piso (mesmo tileset, cor distinta).
+				_draw_platform_tiles(rect, _TILESET, _MOVPLAT_TINT)
 			else:
 				_draw_platform_tiles(rect, _TILESET)
 
@@ -876,7 +909,7 @@ func _draw_boss_room() -> void:
 				Rect2(dx, dy, ts, ts),
 				Rect2(tile.x * src_ts, tile.y * src_ts, src_ts, src_ts))
 
-func _draw_platform_tiles(rect: Rect2, tex: Texture2D) -> void:
+func _draw_platform_tiles(rect: Rect2, tex: Texture2D, modulate: Color = Color.WHITE) -> void:
 	var ts     := _TS
 	var src_ts := _SRC_TS
 	var cols := ceili(rect.size.x / ts)
@@ -897,15 +930,24 @@ func _draw_platform_tiles(rect: Rect2, tex: Texture2D) -> void:
 					dx -= src_ts
 					draw_texture_rect_region(tex,
 						Rect2(rect.position.x + ts / 2.0, dy, ts / 2.0, dh),
-						Rect2(fill.x * src_ts, fill.y * src_ts, src_ts / 2, src_ts))
+						Rect2(fill.x * src_ts, fill.y * src_ts, src_ts / 2, src_ts), modulate)
 				elif col == cols - 1:
 					dx += src_ts
-					draw_texture_rect_region(tex,
-						Rect2(rect.position.x + (cols - 1) * ts, dy, ts / 2.0, dh),
-						Rect2(fill.x * src_ts + src_ts / 2, fill.y * src_ts, src_ts / 2, src_ts))
+					# Clampa o gap-fill à borda real da colisão. Para pisos cuja largura
+					# NÃO é múltiplo de 64 com sobra pequena (<32px), a meia-tile de
+					# preenchimento ultrapassava a colisão e criava um trecho visível sem
+					# chão ("tile aparece mas passa direto" — Z3_FloorA, sobra de 2px).
+					var gx := rect.position.x + (cols - 1) * ts
+					var gw := minf(ts / 2.0, rect.position.x + rect.size.x - gx)
+					if gw > 0.0:
+						draw_texture_rect_region(tex,
+							Rect2(gx, dy, gw, dh),
+							Rect2(fill.x * src_ts + src_ts / 2, fill.y * src_ts, src_ts * gw / ts, src_ts), modulate)
 			var dw := minf(ts, rect.position.x + rect.size.x - dx)
+			if dw <= 0.0:
+				continue  # tile principal ultrapassaria a colisão (sobra pequena) — não desenha
 			var src := Rect2(tile.x * src_ts, tile.y * src_ts, src_ts * dw / ts, src_ts * dh / ts)
-			draw_texture_rect_region(tex, Rect2(dx, dy, dw, dh), src)
+			draw_texture_rect_region(tex, Rect2(dx, dy, dw, dh), src, modulate)
 
 func _gap_fill_tile(row: int, rows: int) -> Vector2i:
 	if row == 0:        return Vector2i(3, 0)  # TOP — linha visual superior
