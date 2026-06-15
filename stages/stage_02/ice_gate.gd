@@ -6,6 +6,9 @@ signal gate_destroyed
 
 func _ready() -> void:
 	add_to_group("ice_gate")
+	if DebugBoot.bot_enabled:
+		call_deferred("queue_free")   # bot não tem as habilidades; abre os gates pra validar a travessia
+		return
 	var detector := get_node_or_null("HitDetector") as Area2D
 	if detector != null:
 		detector.area_entered.connect(_on_hit)
