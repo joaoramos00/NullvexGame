@@ -25,5 +25,8 @@ func _ready() -> void:
 	var spike := s.get_node_or_null("Z4SpikeR3Hurt")
 	if spike == null or not bool(spike.get("instant_kill")):
 		print("FAIL: Z4SpikeR3Hurt ausente ou instant_kill=false"); fail = true
+	var spike_l := s.get_node_or_null("Z4SpikeL5Hurt")
+	if spike_l == null or not bool(spike_l.get("instant_kill")):
+		print("FAIL: Z4SpikeL5Hurt ausente ou instant_kill=false"); fail = true
 	if fail: get_tree().quit(1)
 	else: print("PASS: shaft geometry"); get_tree().quit(0)

@@ -481,14 +481,13 @@ func _z4_crumble(n: String, center: Vector2, size: Vector2) -> void:
 # Remove imediatamente qualquer nó com o mesmo nome antes de adicionar o novo —
 # necessário porque queue_free() é deferido e causaria renaming silencioso pelo Godot.
 func _z4_spawn_flyer(n: String, pos: Vector2) -> void:
-	if _FLYER_SCENE == null:
-		return
+	assert(_FLYER_SCENE != null, "enemy_flyer.tscn não carregou")
 	var old := get_node_or_null(n)
 	if old:
 		old.free()
 	var e: Node2D = _FLYER_SCENE.instantiate()
 	e.name = n
-	e.global_position = pos
+	e.position = pos
 	add_child(e)
 
 func _build_z4_top() -> void:
