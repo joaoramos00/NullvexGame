@@ -211,6 +211,8 @@ func _make_zone_trigger(node_name: String, rect: Rect2, zone: int) -> void:
 	add_child(area)
 
 func _spawn_zone_enemies(zone: int) -> void:
+	if DebugBoot.no_enemies:
+		return
 	var target: Array[Node]
 	var grunts: Array
 	var flyers: Array
@@ -267,6 +269,8 @@ func _spawn_enemy_list(scene: PackedScene, positions: Array, target: Array[Node]
 		target.append(enemy)
 
 func _spawn_mb02() -> void:
+	if DebugBoot.no_enemies:
+		return
 	if _mb02_spawned:
 		return
 	_mb02_spawned = true

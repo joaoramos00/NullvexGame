@@ -13,7 +13,7 @@
 [ext_resource type="Script" path="res://stages/stage_02/ice_gate.gd" id="11_gate"]
 
 [sub_resource type="RectangleShape2D" id="BlockWide"]
-size = Vector2(900, 360)
+size = Vector2(1000, 360)
 
 [sub_resource type="RectangleShape2D" id="BlockMedium"]
 size = Vector2(520, 300)
