@@ -44,6 +44,9 @@ size = Vector2(64, 2048)
 [sub_resource type="RectangleShape2D" id="ShapeShaftWallSide"]
 size = Vector2(64, 1568)
 
+[sub_resource type="RectangleShape2D" id="ShapeShaftWallR"]
+size = Vector2(64, 1728)
+
 [sub_resource type="RectangleShape2D" id="ShapeShaftPlat"]
 size = Vector2(128, 32)
 
@@ -240,12 +243,12 @@ collision_mask = 0
 shape = SubResource("ShapeShaftWallSide")
 
 [node name="ShaftWallR" type="StaticBody2D" parent="."]
-position = Vector2(3296, 1424)
+position = Vector2(3296, 1344)
 collision_layer = 1
 collision_mask = 0
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="ShaftWallR"]
-shape = SubResource("ShapeShaftWallSide")
+shape = SubResource("ShapeShaftWallR")
 
 [node name="ShaftP1" type="AnimatableBody2D" parent="."]
 position = Vector2(3072, 950)
