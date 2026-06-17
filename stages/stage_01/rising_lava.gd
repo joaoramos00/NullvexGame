@@ -13,6 +13,8 @@ extends Area2D
 @export var pause_time: float = 1.2       # tide: pausa nos extremos
 @export var rise_speed: float = 80.0      # chase: px/s subindo
 @export var cap_y: float = 1500.0         # chase: teto (para de subir)
+@export var accel_y: float = -100000.0    # chase: abaixo deste y (mais alto) usa accel_speed; default = nunca
+@export var accel_speed: float = 0.0      # chase: velocidade acelerada quando y < accel_y (px/s)
 @export var coupled_offset: float = 220.0 # coupled: distância abaixo do player
 
 var _going_up: bool = true
@@ -64,7 +66,8 @@ func _tick_tide(delta: float) -> void:
 func _tick_chase(delta: float) -> void:
 	if not _active:
 		return
-	position.y = move_toward(position.y, cap_y, rise_speed * delta)
+	var spd: float = accel_speed if (accel_speed > 0.0 and position.y < accel_y) else rise_speed
+	position.y = move_toward(position.y, cap_y, spd * delta)
 
 func _set_coupled_target(player_y: float) -> void:
 	_coupled_target = player_y + coupled_offset

@@ -8,9 +8,13 @@ const _LAVA    := preload("res://stages/stage_01/lava_floor.gd")
 const _RISING_LAVA := preload("res://stages/stage_01/rising_lava.gd")
 const _LAVA_SHADER := preload("res://stages/stage_01/lava_flow.gdshader")
 const _SPIKES_TEX := preload("res://stages/stage_01/spikes.png")
+const _FLYER_SCENE := preload("res://characters/enemies/enemy_flyer.tscn")
 const _LAVA_TILE := "res://stages/stage_01/Stage_01_lava_v2.png"  # toda lava da fase usa v2 (case-sensitive no PCK web!)
 const _Z2_FLOOR_TILE := "res://stages/stage_01/Stage_01T_z2.png"  # mesmo tile do floor
 const _ROOM_TILE := preload("res://stages/stage_01/Stage_01T_z1.png")  # rocha escura: câmara do boss
+const _DOOR_TEX  := preload("res://stages/door_pixellab.png")
+
+var _corr_boss: CorridorSection = null
 
 func _ready() -> void:
 	if StageManager.current_stage_id < 0:
@@ -31,85 +35,58 @@ func _ready() -> void:
 	for n in ["ShaftUpWallL", "ShaftUpWallR", "ShaftUpP1", "ShaftUpP2", "ShaftUpP3",
 			"ShaftUpP4", "ShaftUpP5", "Corridor2",
 			"Z4Floor", "Z4Ceil", "Z4Lava", "Z4Plat1", "Z4Plat2", "Z4Plat3",
-			"Z4MovingPlat", "Z4Grunt1", "Z4Grunt2", "Z4Flyer1"]:
+			"Z4MovingPlat", "Z4Grunt1", "Z4Grunt2", "Z4Flyer1",
+			"BossFloor", "BossWallL", "BossWallR", "BossCeil", "BossLava", "Ignarath"]:
 		var node := get_node_or_null(n)
 		if node:
 			node.queue_free()
-	_relocate_and_gap_boss()
 	_build_zone2()
 	_build_zone3()
 	_build_zone4()
-	_setup_boss_room_trigger()
 	for corr in get_children():
 		if corr is CorridorSection and not corr.is_queued_for_deletion():
 			corr.setup(_player)
 			corr.camera_lock_requested.connect(_on_camera_lock)
 
-# Reposiciona a arena do boss +SHIFT à direita (livre da subida da z4) e recria o teto
-# com um vão na coluna da cratera, p/ a queda da cratera entrar. A subida coupled fica
-# à esquerda da arena (degraus de baixo) e ACIMA das paredes dela (degraus de cima).
-const _BOSS_SHIFT := 2600.0
-const _CRATER_CX := 22700.0
-func _relocate_and_gap_boss() -> void:
-	var gap_w := 256.0
-	# Plataformas de combate (BossPlat1/2) eram um bug — removidas. Arena limpa força o
-	# wall-jump na rajada de fogo (não dá pra escapar subindo em plataforma).
-	for bn in ["BossPlat1", "BossPlat2"]:
-		var node := get_node_or_null(bn)
-		if node:
-			node.queue_free()
-	for bn in ["BossFloor", "BossWallL", "BossWallR", "BossLava", "Ignarath"]:
-		var node := get_node_or_null(bn)
-		if node:
-			(node as Node2D).position.x += _BOSS_SHIFT
-	# Sala do boss = câmara de rocha unificada (molde do stage_00 _draw_boss_room): o perímetro
-	# (chão/paredes/teto) é desenhado por _draw_boss_room() como um grid só, com cantos côncavos.
-	# Marca os corpos do perímetro p/ o _draw base os pular (senão renderizam como caixas de lava).
-	for bn in ["BossFloor", "BossWallL", "BossWallR"]:
-		var node := get_node_or_null(bn)
-		if node:
-			node.set_meta("skip_base_draw", true)
-	var ign := get_node_or_null("Ignarath")
-	if ign:
-		ign.set("arena_left", float(ign.get("arena_left")) + _BOSS_SHIFT)
-		ign.set("arena_right", float(ign.get("arena_right")) + _BOSS_SHIFT)
-	# Recria o teto deslocado com um vão na coluna da cratera.
-	var ceil_node := get_node_or_null("BossCeil")
-	if ceil_node:
-		ceil_node.queue_free()
-	var left_x := 19776.0 + _BOSS_SHIFT    # 21776
-	var right_x := 22592.0 + _BOSS_SHIFT   # 24592
-	var top := 416.0
-	var h := 64.0
-	var lw := (_CRATER_CX - gap_w * 0.5) - left_x
-	if lw > 0.0:
-		var lb := _z2_static("BossCeilL", Vector2(left_x + lw * 0.5, top + h * 0.5), Vector2(lw, h))
-		lb.set_meta("skip_base_draw", true)   # teto desenhado por _draw_boss_room()
-	var rw := right_x - (_CRATER_CX + gap_w * 0.5)
-	if rw > 0.0:
-		var rb := _z2_static("BossCeilR", Vector2((_CRATER_CX + gap_w * 0.5) + rw * 0.5, top + h * 0.5), Vector2(rw, h))
-		rb.set_meta("skip_base_draw", true)
+const _BOSS_L          := 18900.0
+const _BOSS_R          := 21716.0
+const _BOSS_FLOOR_TOP  :=   440.0
+const _BOSS_CEIL_TOP   :=  -160.0
+const _BOSS_DOOR_LO    :=   224.0
+const _BOSS_DOOR_HI    :=   440.0
 
-# A luta do Ignarath só começa quando o player ENTRA na sala (cai pela cratera),
-# não por proximidade — senão o boss ataca enquanto o player ainda está caindo.
+const _SHAFT_SEGS := [
+	# y_top, y_bot, x_l, x_r
+	[1900.0, 2208.0, 17424.0, 17616.0],
+	[1580.0, 1900.0, 17440.0, 17600.0],
+	[1260.0, 1580.0, 17424.0, 17616.0],
+	[ 940.0, 1260.0, 17408.0, 17632.0],
+	[ 620.0,  940.0, 17424.0, 17616.0],
+	[ 360.0,  620.0, 17456.0, 17584.0],
+]
+
+# A luta do Ignarath só começa quando o player ENTRA na sala pela porta lateral,
+# não por proximidade — senão o boss ataca enquanto o player ainda está no corredor.
 # Desliga o auto-aggro por distância e cria um Area2D cobrindo o interior da arena.
+# Chamado por _build_z4_boss() após a arena ser construída.
 func _setup_boss_room_trigger() -> void:
 	var ign := get_node_or_null("Ignarath")
 	if ign == null:
 		return
+	# auto_aggro já foi desligado em _build_z4_boss(); reforça para segurança.
 	ign.set("auto_aggro", false)
-	var a_left  := float(ign.get("arena_left"))
-	var a_right := float(ign.get("arena_right"))
-	var a_floor := float(ign.get("arena_floor"))
-	const _ROOM_TOP := 500.0   # logo abaixo do teto → dispara ao cair na sala
-	var left  := a_left + 64.0
-	var right := a_right - 64.0
+	# Trigger cobre o interior da nova arena (porta lateral, esquerda).
+	# Usa _BOSS_DOOR_LO como topo do gatilho — dispara logo ao entrar pela porta.
+	var left  := _BOSS_L + 64.0
+	var right := _BOSS_R - 64.0
+	var trig_top := _BOSS_DOOR_LO
+	var trig_bot := _BOSS_FLOOR_TOP
 	var trig := Area2D.new()
 	trig.name = "BossRoomTrigger"
 	trig.collision_layer = 0
 	trig.collision_mask = 2   # camada do player
-	trig.position = Vector2((left + right) * 0.5, (_ROOM_TOP + a_floor) * 0.5)
-	trig.add_child(_z2_shape(Vector2(right - left, a_floor - _ROOM_TOP)))
+	trig.position = Vector2((left + right) * 0.5, (trig_top + trig_bot) * 0.5)
+	trig.add_child(_z2_shape(Vector2(right - left, trig_bot - trig_top)))
 	add_child(trig)
 	trig.body_entered.connect(func(b: Node) -> void:
 		if b is CharacterBase:
@@ -124,26 +101,28 @@ func _draw() -> void:
 	_draw_boss_room()
 
 # Câmara do boss desenhada como grid unificado (molde do stage_00 _draw_boss_room): perímetro
-# de rocha (z1) com cantos côncavos corretos em uma passada. A abertura fica no TETO — a boca
-# da cratera por onde o player cai. Mapeamento (screen-space): TL=(3,1) TR=(2,2) BL=(2,0)
-# BR=(1,1), teto=(1,2) chão=(3,0) parede_esq=(3,2) parede_dir=(1,0).
+# de rocha (z1) com cantos côncavos corretos em uma passada. A abertura fica na PAREDE ESQUERDA
+# — a porta lateral por onde o player entra vindo do corredor pré-boss.
+# Mapeamento (screen-space): TL=(3,1) TR=(2,2) BL=(2,0) BR=(1,1),
+# teto=(1,2) chão=(3,0) parede_esq=(3,2) parede_dir=(1,0).
 func _draw_boss_room() -> void:
-	var lwall := get_node_or_null("BossWallL") as Node2D
-	var rwall := get_node_or_null("BossWallR") as Node2D
-	var floor_n := get_node_or_null("BossFloor") as Node2D
-	if not (lwall and rwall and floor_n):
+	var lwall   := get_node_or_null("BossWallL")  as Node2D
+	var rwall   := get_node_or_null("BossWallR")  as Node2D
+	var ceil_n  := get_node_or_null("BossCeil")   as Node2D
+	var floor_n := get_node_or_null("BossFloor")  as Node2D
+	if not (lwall and rwall and ceil_n and floor_n):
 		return
-	var ts := _TS
+	var ts     := _TS
 	var src_ts := _SRC_TS
-	var left := lwall.position.x - ts * 0.5
-	var right := rwall.position.x + ts * 0.5
+	var left   := lwall.position.x  - ts * 0.5
+	var right  := rwall.position.x  + ts * 0.5
+	var top    := ceil_n.position.y  - ts * 0.5
 	var bottom := floor_n.position.y + ts * 0.5
-	var top := lwall.position.y - 288.0      # topo da parede (altura 576 / 2)
-	var cols := int(round((right - left) / ts))
-	var rows := int(round((bottom - top) / ts))
-	# Abertura da cratera no teto: colunas que cobrem o vão do BossCeil (gap 256 em _CRATER_CX).
-	var gap_lo := int(floor((_CRATER_CX - 128.0 - left) / ts))
-	var gap_hi := int(ceil((_CRATER_CX + 128.0 - left) / ts)) - 1
+	var cols := int(round((right - left)   / ts))
+	var rows := int(round((bottom - top)   / ts))
+	# Abertura da porta na parede esquerda: linhas cobrindo _BOSS_DOOR_LO.._BOSS_DOOR_HI.
+	var door_lo := int(ceil((_BOSS_DOOR_LO - top) / ts))
+	var door_hi := int(floor((_BOSS_DOOR_HI - top) / ts)) - 1
 	for row in rows:
 		for col in cols:
 			var is_l := col == 0
@@ -152,20 +131,24 @@ func _draw_boss_room() -> void:
 			var is_b := row == rows - 1
 			if not (is_l or is_r or is_t or is_b):
 				continue   # interior vazio
-			if is_t and not is_l and not is_r and col >= gap_lo and col <= gap_hi:
-				continue   # abertura da cratera no teto
+			if is_l and not is_t and not is_b and row >= door_lo and row <= door_hi:
+				continue   # abertura da porta lateral
+			# Porta encosta no chão? O piso atravessa reto (rente ao corredor), sem canto.
+			var door_to_floor := door_hi >= rows - 2
+			var bl_is_floor   := is_b and is_l and door_to_floor
 			var tile: Vector2i
 			# Shifts de meia-célula p/ a face sólida coincidir com a colisão (igual stage_00).
 			var tx := 0
 			var ty := 0
-			if   is_t and is_l: tile = Vector2i(3, 1); tx =  src_ts; ty =  src_ts
-			elif is_t and is_r: tile = Vector2i(2, 2); tx = -src_ts; ty =  src_ts
-			elif is_b and is_l: tile = Vector2i(2, 0); tx =  src_ts; ty = -src_ts
-			elif is_b and is_r: tile = Vector2i(1, 1); tx = -src_ts; ty = -src_ts
-			elif is_t:          tile = Vector2i(1, 2);              ty =  src_ts
-			elif is_b:          tile = Vector2i(3, 0);              ty = -src_ts
-			elif is_l:          tile = Vector2i(3, 2); tx =  src_ts
-			else:               tile = Vector2i(1, 0); tx = -src_ts
+			if   is_t and is_l:   tile = Vector2i(3, 1); tx =  src_ts; ty =  src_ts
+			elif is_t and is_r:   tile = Vector2i(2, 2); tx = -src_ts; ty =  src_ts
+			elif bl_is_floor:     tile = Vector2i(3, 0);               ty = -src_ts
+			elif is_b and is_l:   tile = Vector2i(2, 0); tx =  src_ts; ty = -src_ts
+			elif is_b and is_r:   tile = Vector2i(1, 1); tx = -src_ts; ty = -src_ts
+			elif is_t:            tile = Vector2i(1, 2);               ty =  src_ts
+			elif is_b:            tile = Vector2i(3, 0);               ty = -src_ts
+			elif is_l:            tile = Vector2i(3, 2); tx =  src_ts
+			else:                 tile = Vector2i(1, 0); tx = -src_ts
 			var dx := left + col * ts + tx
 			var dy := top + row * ts + ty
 			draw_texture_rect_region(_ROOM_TILE,
@@ -423,20 +406,37 @@ func _z3_rising_lava(n: String, center_x: float, width: float, low_y: float, hig
 		a.add_child(top)
 
 # ─── Zona 4: Ascensão do Vulcão ──────────────────────────────────────────────
-# Base → escada-chase (lava perseguindo) → patamar → escada-coupled (lava acoplada)
-# → topo+checkpoint → cratera (borda) → cai na arena do boss. Lavas congelam no bot.
+# Base → escada-chase (lava perseguindo) → shaft → topo → arena do boss → segredo.
+# Lavas congelam no bot.
 func _build_zone4() -> void:
-	# Base: piso de transição após a Z3Exit (topo 2624).
-	_z3_static_floor("Z4Base", Vector2(16320, 2688), Vector2(320, 128))   # x16160–16480
+	_z3_static_floor("Z4Base", Vector2(16320, 2688), Vector2(320, 128))
+	_z4_stair("Z4ChaseStep", 16480.0, 2520.0, 192.0, 104.0, 4, 128.0)   # step0..3
+	_build_z4_shaft()
+	_build_z4_top()
+	_build_z4_boss()
+	_build_z4_secret()
 
-	# Escada-chase: 10 degraus (dy104, dx192) de topo 2520 → 1584. Degraus estreitos (128)
-	# → buracos de lava de ~64px entre eles (pulos discretos, não escada contínua).
-	_z4_stair("Z4ChaseStep", 16480.0, 2520.0, 192.0, 104.0, 10, 128.0)
-	# Lava-chase: sobe contínua da base até o cap (logo abaixo do patamar).
-	var chase := _z4_lava("Z4ChaseLava", "chase", 17400.0, 2820.0, 3600.0, 1200.0)
-	chase.set("rise_speed", 80.0)
-	chase.set("cap_y", 1640.0)
-	# Gatilho: ativa a lava-chase quando o player entra na base.
+func _z4_wall(n: String, cx: float, cy: float, w: float, h: float, no_grab := false) -> StaticBody2D:
+	var b := _z2_static(n, Vector2(cx, cy), Vector2(w, h))
+	if no_grab:
+		b.add_to_group("no_wall_grab")
+	return b
+
+func _build_z4_shaft() -> void:
+	for i in _SHAFT_SEGS.size():
+		var s = _SHAFT_SEGS[i]
+		var yt: float = s[0]; var yb: float = s[1]; var xl: float = s[2]; var xr: float = s[3]
+		var h: float = yb - yt
+		var cy: float = (yt + yb) * 0.5
+		_z4_wall("Z4ShaftWL%d" % i, xl - 32.0, cy, 64.0, h)   # parede esquerda (grabbable)
+		_z4_wall("Z4ShaftWR%d" % i, xr + 32.0, cy, 64.0, h)   # parede direita (grabbable)
+	# lava única (chase) cobrindo o shaft
+	var lava := _z4_lava("Z4ShaftLava", "chase", 17520.0, 2360.0, 240.0, 1700.0)
+	lava.set("rise_speed", 80.0)
+	lava.set("cap_y", 480.0)
+	lava.set("accel_y", 975.0)
+	lava.set("accel_speed", 150.0)
+	# gatilho na base do shaft (na borda da escada-chase, à esquerda das paredes) → ativa a lava
 	var trig := Area2D.new()
 	trig.name = "Z4ChaseTrigger"
 	trig.collision_layer = 0
@@ -444,42 +444,144 @@ func _build_zone4() -> void:
 	trig.position = Vector2(16480, 2560)
 	trig.add_child(_z2_shape(Vector2(64, 256)))
 	add_child(trig)
-	trig.body_entered.connect(func(b: Node) -> void:
+	trig.body_entered.connect(func(b): if b is CharacterBase: lava.call("activate"))
+	# Espinhos instant-kill (no_wall_grab + lava_floor) — seg3 face direita, seg5 face esquerda
+	_z4_spike_face("Z4SpikeR3", _SHAFT_SEGS[2][3] + 32.0, 1420.0, 64.0, 200.0)
+	_z4_spike_face("Z4SpikeL5", _SHAFT_SEGS[4][2] - 32.0, 780.0, 64.0, 200.0)
+	# Saliências de respiro
+	_z3_static_floor("Z4Ledge2", Vector2(_SHAFT_SEGS[1][3] - 64.0, 1640.0), Vector2(128.0, 32.0))
+	_z3_static_floor("Z4Ledge5", Vector2(_SHAFT_SEGS[4][2] + 64.0, 700.0),  Vector2(128.0, 32.0))
+	# Saliência que desmorona — seg4 (centro)
+	_z4_crumble("Z4Crumble4", Vector2(17520.0, 1100.0), Vector2(160.0, 32.0))
+	# Flyer no seg5
+	_z4_spawn_flyer("Z4Flyer1", Vector2(17520.0, 760.0))
+
+# Espinho no_wall_grab: parede de colisão (no_grab) + Area2D de kill (lava_floor, instant_kill)
+# sobrepostos. O player não pode agarrar a parede e tomar dano ao encostar.
+func _z4_spike_face(n: String, cx: float, cy: float, w: float, h: float) -> void:
+	_z4_wall(n, cx, cy, w, h, true)   # parede no_grab
+	var hurt := Area2D.new()
+	hurt.name = n + "Hurt"
+	hurt.set_script(_LAVA)
+	hurt.collision_layer = 0
+	hurt.collision_mask = 2
+	hurt.set("instant_kill", true)
+	hurt.position = Vector2(cx, cy)
+	hurt.add_child(_z2_shape(Vector2(w, h)))
+	add_child(hurt)
+
+# Saliência que desmorona: StaticBody2D com crumbling_ledge.gd + LandDetector no topo.
+func _z4_crumble(n: String, center: Vector2, size: Vector2) -> void:
+	var body := StaticBody2D.new()
+	body.name = n
+	body.set_script(preload("res://stages/stage_01/crumbling_ledge.gd"))
+	body.collision_layer = 1
+	body.collision_mask = 0
+	body.position = center
+	body.add_child(_z2_shape(size))
+	var det := Area2D.new()
+	det.name = "LandDetector"
+	det.collision_layer = 0
+	det.collision_mask = 2
+	var ds := _z2_shape(Vector2(size.x, 16.0))
+	ds.position = Vector2(0.0, -size.y * 0.5 - 8.0)
+	det.add_child(ds)
+	det.body_entered.connect(func(b: Node) -> void:
 		if b is CharacterBase:
-			chase.call("activate"))
+			body.call("touched"))
+	body.add_child(det)
+	add_child(body)
 
-	# Patamar do meio (respiro, topo 1584, acima do cap 1640 da lava-chase).
-	_z3_static_floor("Z4MidA", Vector2(18560, 1648), Vector2(640, 128))   # x18240–18880
-	_z3_static_floor("Z4MidB", Vector2(19200, 1648), Vector2(640, 128))   # x18880–19520
+# Spawna um EnemyFlyer pelo padrão canônico do projeto (preload .tscn + instantiate).
+# Remove imediatamente qualquer nó com o mesmo nome antes de adicionar o novo —
+# necessário porque queue_free() é deferido e causaria renaming silencioso pelo Godot.
+func _z4_spawn_flyer(n: String, pos: Vector2) -> void:
+	assert(_FLYER_SCENE != null, "enemy_flyer.tscn não carregou")
+	var old := get_node_or_null(n)
+	if old:
+		old.free()
+	var e: Node2D = _FLYER_SCENE.instantiate()
+	e.name = n
+	e.position = pos
+	add_child(e)
 
-	# Escada-coupled: 12 degraus largos (256), dx190/dy104, de topo 1448 → 304. Sobe ACIMA
-	# do teto da arena do boss (topo do muro 448): degraus de baixo (y>448) ficam à esq.
-	# da arena; degraus de cima (y<448) passam acima dela sem conflito. Último ~x21738.
-	_z4_stair("Z4CoupStep", 19520.0, 1480.0, 180.0, 96.0, 13, 128.0)
-	# Lava-coupled: segue a altura do player; só sobe; X limitada (x19300–22100, à esq.
-	# da cratera em 22700, senão o player bate nela ao cair).
-	var coup := _z4_lava("Z4CoupLava", "coupled", 20700.0, 1820.0, 2800.0, 1600.0)
-	coup.set("coupled_offset", 240.0)
-	if is_instance_valid(_player):
-		coup.call("set_player", _player)
+func _build_z4_top() -> void:
+	# Câmara pré-chefe: piso seco com vão (saída do seg6) em x17456–17584.
+	# Trecho esquerdo: fecha a parede esquerda do shaft (seg6 topo x17456).
+	# Z4PreL/Z4PreR reusam o helper _z3_static_floor de propósito: piso seco com o
+	# mesmo tile/desenho de chão do corredor (não é plataforma elevada, só piso reto).
+	_z3_static_floor("Z4PreL", Vector2(17420.0, 392.0), Vector2(40.0, 128.0))
+	# Trecho direito: corredor até a entrada do boss corridor (x17584–18200).
+	_z3_static_floor("Z4PreR", Vector2(17892.0, 392.0), Vector2(616.0, 128.0))
+	# Corredor pré-boss com checkpoint 2 e câmera bloqueada.
+	_corr_boss = CorridorSection.new()
+	_corr_boss.tileset              = _ROOM_TILE
+	_corr_boss.glass_tex            = null       # sem painel de vidro neste corredor
+	_corr_boss.door_tex             = _DOOR_TEX
+	_corr_boss.floor_center         = Vector2(18530.0, 408.0)
+	_corr_boss.floor_size           = Vector2(660.0, 64.0)
+	_corr_boss.ceil_center          = Vector2(18530.0, 208.0)
+	_corr_boss.ceil_size            = Vector2(660.0, 64.0)
+	_corr_boss.wall_l_center        = Vector2(18200.0, 308.0)
+	_corr_boss.wall_l_size          = Vector2(64.0, 264.0)
+	_corr_boss.wall_r_center        = Vector2(18860.0, 308.0)
+	_corr_boss.wall_r_size          = Vector2(64.0, 264.0)
+	_corr_boss.entry_x              = 18260.0
+	_corr_boss.exit_x               = 18800.0
+	_corr_boss.save_checkpoint      = true
+	_corr_boss.checkpoint_index     = 2          # terceiro checkpoint (antes do boss)
+	_corr_boss.checkpoint_respawn_x = 18300.0
+	_corr_boss.heal_on_entry        = false
+	_corr_boss.exit_retriggerable   = true
+	_corr_boss.cam_center           = Vector2(18530.0, 308.0)
+	_corr_boss.cam_zoom             = 2.0
+	# setup() e conexão do sinal são feitos pelo loop em _ready() (evita double-connect).
+	add_child(_corr_boss)
 
-	# Topo: patamar acima da arena (topo 250 < teto-do-muro 448, sem conflito) até a borda
-	# da cratera (22100, sobre o vão do teto da arena). Checkpoint + cura.
-	# Coplanar com o último degrau (topo 328), abutando sem sobreposição → o player anda
-	# direto do degrau 12 pro Z4Top, até a borda da cratera (22700).
-	# Termina na BORDA ESQUERDA do vão da cratera (22572 = _CRATER_CX-128), não no centro.
-	# Assim os 256px do vão (22572–22828) ficam todos como queda aberta à direita do Z4Top →
-	# o player anda pra fora da beira e cai limpo na arena (antes a beira ficava no meio do vão
-	# e o player re-agarrava em vez de cair). x21800–22572, topo 328 (abuta o último degrau).
-	_z3_static_floor("Z4Top", Vector2(22186, 392), Vector2(772, 128))
-	var cp := preload("res://stages/checkpoint.tscn").instantiate()
-	cp.name = "Z4Checkpoint"
-	cp.position = Vector2(22250, 264)
-	cp.set("checkpoint_index", 2)
-	add_child(cp)
+func _build_z4_boss() -> void:
+	# Os nós de boss do .tscn foram queue_free()'d em _ready() mas ainda não foram
+	# removidos (queue_free é deferido). Libera-os imediatamente antes de criar os novos,
+	# senão o Godot renomeia silenciosamente os novos nós ao adicionar com o mesmo nome.
+	for bn in ["BossWallL", "BossWallR", "BossFloor", "BossCeil", "BossLava", "Ignarath"]:
+		var old := get_node_or_null(bn)
+		if old:
+			old.free()
+	# Paredes, piso e teto da arena — marcados skip_base_draw p/ não serem desenhados
+	# pelo loop padrão de plataformas; o visual é gerenciado em _draw_boss_room().
+	var h := _BOSS_FLOOR_TOP - _BOSS_CEIL_TOP + 64.0
+	var cy := (_BOSS_CEIL_TOP + _BOSS_FLOOR_TOP) * 0.5
+	# Parede ESQUERDA com PORTA: a colisão cobre só a seção ACIMA da porta (do teto até
+	# _BOSS_DOOR_LO). De _BOSS_DOOR_LO (224) até _BOSS_FLOOR_TOP (440) fica VAZIO — é a
+	# abertura por onde o player entra na arena vindo do corredor. A face inferior da
+	# parede senta exatamente em y=_BOSS_DOOR_LO. (Antes era parede sólida full-height
+	# que bloqueava fisicamente a entrada.)
+	var lwall_top := _BOSS_CEIL_TOP - 64.0           # = -224 (encosta na borda externa do teto)
+	var lwall_h := _BOSS_DOOR_LO - lwall_top         # = 224 - (-224) = 448
+	_z2_static("BossWallL", Vector2(_BOSS_L, lwall_top + lwall_h * 0.5),
+		Vector2(64.0, lwall_h)).set_meta("skip_base_draw", true)
+	_z2_static("BossWallR", Vector2(_BOSS_R, cy), Vector2(64.0, h)).set_meta("skip_base_draw", true)
+	_z2_static("BossFloor", Vector2((_BOSS_L + _BOSS_R) * 0.5, _BOSS_FLOOR_TOP + 32.0),
+		Vector2(_BOSS_R - _BOSS_L, 64.0)).set_meta("skip_base_draw", true)
+	_z2_static("BossCeil", Vector2((_BOSS_L + _BOSS_R) * 0.5, _BOSS_CEIL_TOP - 32.0),
+		Vector2(_BOSS_R - _BOSS_L, 64.0)).set_meta("skip_base_draw", true)
+	# Soleira de transição corredor→arena: o corredor (Task 7) termina em floor top≈y376 e
+	# a arena começa em _BOSS_FLOOR_TOP=440 (64px mais baixo). Este bloco cobre o vão
+	# horizontal entre o corredor e a parede esquerda da arena (x18800→18964) e serve como
+	# degrau sólido nivelado com o piso da arena — o player desce o degrau ao entrar.
+	_z2_static("BossThreshold", Vector2(18882.0, 472.0), Vector2(164.0, 64.0)).set_meta("skip_base_draw", true)
+	# Ignarath
+	var ign := preload("res://characters/bosses/ignarath.tscn").instantiate()
+	ign.name = "Ignarath"
+	ign.position = Vector2((_BOSS_L + _BOSS_R) * 0.5, _BOSS_FLOOR_TOP - 80.0)
+	ign.set("arena_left",  _BOSS_L + 64.0)
+	ign.set("arena_right", _BOSS_R - 64.0)
+	ign.set("arena_floor", _BOSS_FLOOR_TOP)
+	ign.set("auto_aggro",  false)
+	add_child(ign)
+	_setup_boss_room_trigger()
 
-	# Cratera: a borda direita do Z4Top (x21000) sobre o vão do BossCeil → queda na arena.
-	# (Sem lip visual flutuante; a boca da cratera é o vão no teto da sala do boss.)
+func _build_z4_secret() -> void:
+	pass
 
 # Lava de modo (chase/coupled). low_y = superfície inicial/congelada (bot).
 func _z4_lava(n: String, mode: String, center_x: float, low_y: float, width: float,
