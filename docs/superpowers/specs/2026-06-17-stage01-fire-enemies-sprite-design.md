@@ -2,11 +2,14 @@
 
 **Data:** 2026-06-17  
 **Escopo:** 9 sprites de inimigos comuns para `stage_01`  
-**Base visual:** inimigos de Mega Man X como referência de linguagem, com identidade própria do projeto
+**Base visual:** inimigos de Mega Man X como referência de linguagem, com identidade própria do projeto  
+**Tema de domínio:** fundição vulcânica comandada por um boss reploid leão
 
 ## Objetivo
 
 Definir a linguagem visual dos 9 sprites novos do roster de fogo da `stage_01` antes de gerar a arte. A meta é criar inimigos com leitura imediata em gameplay, aparência de reploid/robô animal, e consistência suficiente para uso direto em Godot com `Sprite2D`.
+
+O boss da fase é um reploid leão, então os inimigos comuns devem parecer parte do domínio dele: uma mistura de guarda real vulcânica, fauna mecânica adaptada à lava e máquinas de fundição/arena. A conexão deve aparecer em detalhes como placas em forma de garra, cristas que lembram juba, brasões térmicos, núcleos de brasa e silhuetas predatórias. Evitar transformar todos os inimigos em leões menores; o objetivo é coesão temática, não repetição do boss.
 
 Os 9 sprites se dividem em:
 
@@ -41,6 +44,12 @@ O roster deve usar três famílias visuais para evitar que os 9 inimigos pareça
 - **A — Tropas reploids blindadas:** inimigos compactos, militares, com placas de armadura, visores e núcleos de calor.
 - **B — Criaturas robóticas de fogo:** silhuetas mais animais ou elementais, mas sempre com carcaça mecânica, juntas e segmentos artificiais.
 - **C — Máquinas industriais de lava:** corpos mais funcionais e pesados, com pistões, vents, fornalhas, turbinas ou bocas de canhão.
+
+As três famílias compartilham a linguagem do boss leão:
+
+- A deve parecer a guarda militar do domínio: placas com recortes de garra, visor agressivo e pequenos brasões térmicos.
+- B deve parecer fauna mecânica vulcânica do território: criaturas de lava/brasa com detalhes predatórios, sem copiar a forma do leão.
+- C deve parecer maquinário da arena/fundição do boss: peças industriais com formato de garra, aríete, mandíbula ou juba metálica quando fizer sentido.
 
 Cada grupo de função deve conter exatamente um inimigo de cada família A/B/C.
 
@@ -88,8 +97,9 @@ Os 3 melee devem transmitir pressão corporal, avanço e contato físico.
 
 1. `enemy_magma_grunt`
    - família visual A: tropa reploid blindada
-   - soldado de magma compacto
+   - soldado de magma compacto da guarda do boss leão
    - armadura pesada, pernas curtas, punhos fortes
+   - placas com recortes de garra ou pequeno brasão térmico no peito
    - leitura de tropa de linha de frente
    - postura agressiva, simples e clara
 
@@ -97,6 +107,7 @@ Os 3 melee devem transmitir pressão corporal, avanço e contato físico.
    - família visual C: máquina industrial de lava
    - unidade de investida com peito ou cabeça reforçada como aríete
    - corpo baixo ou médio, pesado, com placas de fundição, pistões e núcleo quente
+   - frente pode sugerir mandíbula, juba metálica curta ou garra industrial sem virar criatura leonina
    - sensação de impacto frontal, aceleração curta e colisão forte
    - deve parecer uma máquina industrial adaptada para combate, não um soldado maior
 
@@ -104,6 +115,7 @@ Os 3 melee devem transmitir pressão corporal, avanço e contato físico.
    - família visual B: criatura robótica de fogo
    - coelho robô de cinzas/brasa, pequeno e ágil
    - orelhas mecânicas curtas ou antenas em formato de orelha
+   - pequena criatura de território vulcânico, contrastando com o predador-leão por ser rápida e evasiva
    - foco em salto e mobilidade
    - pernas traseiras elásticas ou segmentadas, com molas/pistões e pés largos
    - núcleo quente visível no torso
@@ -117,6 +129,7 @@ Os 3 fly devem parecer unidades aéreas ou levitantes de fogo, sempre com leitur
    - família visual B: criatura robótica de fogo
    - pequeno drone orbital com núcleo de brasa
    - anel mecânico ou segmentos orbitando ao redor do núcleo
+   - anel pode lembrar uma juba circular abstrata, sem virar cabeça de leão
    - movimento de hover simples com leitura circular
    - também solta tiro de fogo próprio, separado do corpo como projectile
 
@@ -125,12 +138,14 @@ Os 3 fly devem parecer unidades aéreas ou levitantes de fogo, sempre com leitur
    - flyer mais veloz e agressivo
    - corpo alongado, carenagem ou asas mecânicas
    - pode usar turbina, vent ou carenagem de máquina térmica
+   - silhueta de rasante predatória, como maquinário de caça do domínio
    - sensação de rasante e ataque de passagem
 
 6. `enemy_cinder_flyer`
    - família visual A: tropa reploid blindada
    - drone ou criatura alada de metal
    - corpo mais utilitário e tático
+   - unidade de patrulha da guarda do boss, com visor agressivo e placas tipo garra
    - leitura clara de inimigo de suporte aéreo
 
 ### Ranged
@@ -142,6 +157,7 @@ Os 3 ranged devem comunicar ataque à distância com foco em timing visual.
    - reploid compacto com morteiro ou canhão de ombro/costas
    - postura de preparar tiro em arco, diferente de um atirador horizontal
    - disparo parabólico para diferenciar do `enemy_ice_archer` da `stage_02`
+   - suporte pesado da guarda do boss leão, com brasão/placa térmica militar
    - leitura de unidade militar de apoio indireto
 
 8. `enemy_magma_turret`
@@ -150,6 +166,7 @@ Os 3 ranged devem comunicar ataque à distância com foco em timing visual.
    - corpo mais quadrado e defensivo
    - foco em canhão, boca de disparo ou núcleo frontal
    - pode parecer uma fornalha/turreta de fundição
+   - boca de canhão pode sugerir mandíbula de metal ou garra de fundição
    - pouco ou nenhum deslocamento corporal
 
 9. `enemy_lava_serpent`
@@ -181,6 +198,7 @@ Uma geração passa quando:
 - a estética fica próxima de Mega Man X, mas sem copiar personagens existentes
 - a linguagem é mais mecânica do que orgânica
 - a serpente de lava comunica emergência do poço e ataque de fogo
+- os inimigos parecem pertencer ao domínio do boss reploid leão sem copiar sua silhueta diretamente
 - `enemy_heat_mortar` não repete o arquétipo visual nem mecânico do `enemy_ice_archer` da `stage_02`
 - `enemy_ember_orbiter` comunica drone orbital e tem projectile próprio
 - `enemy_ash_hopper` lê como coelho robô saltador, não como soldado genérico
