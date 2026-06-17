@@ -1,6 +1,6 @@
 {
-  "target": "asset",
-  "mode": "charge",
+  "target": "creature",
+  "mode": "attack",
   "prompt": "",
   "role": "",
   "input": "assets\\generated\\stage03_enemy_volt_guard\\shock\\raw-sheet.png",
@@ -14,7 +14,7 @@
   "trim_border": 4,
   "edge_clean_depth": 3,
   "align": "feet",
-  "shared_scale": false,
+  "shared_scale": true,
   "component_mode": "largest",
   "component_padding": 0,
   "min_component_area": 1,
@@ -56,12 +56,12 @@
       ],
       "edge_touch": false,
       "output_size": [
-        86,
-        112
+        80,
+        105
       ],
       "paste_position": [
-        21,
-        9
+        24,
+        16
       ]
     },
     {
@@ -92,12 +92,12 @@
       ],
       "edge_touch": false,
       "output_size": [
-        87,
-        112
+        79,
+        102
       ],
       "paste_position": [
-        20,
-        9
+        24,
+        19
       ]
     },
     {
@@ -128,12 +128,12 @@
       ],
       "edge_touch": false,
       "output_size": [
-        106,
-        112
+        91,
+        96
       ],
       "paste_position": [
-        11,
-        9
+        18,
+        25
       ]
     },
     {
@@ -200,12 +200,12 @@
       ],
       "edge_touch": false,
       "output_size": [
-        94,
-        112
+        86,
+        103
       ],
       "paste_position": [
-        17,
-        9
+        21,
+        18
       ]
     },
     {
@@ -236,12 +236,12 @@
       ],
       "edge_touch": false,
       "output_size": [
-        83,
-        112
+        76,
+        103
       ],
       "paste_position": [
-        22,
-        9
+        26,
+        18
       ]
     }
   ],
