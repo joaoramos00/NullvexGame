@@ -76,7 +76,7 @@ Gerar e validar os sprites por trio de função:
 1. Melee
 2. Fly
 3. Ranged
-4. Projectiles separados: `fire_bolt`, `fire_glob`, `fire_spit`
+4. Projectiles separados: `fire_bolt`, `fire_glob`, `fire_spit`, `heat_mortar_shell`
 
 Cada sheet processada deve manter os artefatos em `assets/generated/stage01_<enemy>/<action>/` e a textura final de uso em jogo deve ser copiada para `characters/enemies/stage_01/<enemy>.png` ou `characters/ranged/stage_01/<projectile>.png`.
 
@@ -93,30 +93,32 @@ Os 3 melee devem transmitir pressão corporal, avanço e contato físico.
    - leitura de tropa de linha de frente
    - postura agressiva, simples e clara
 
-2. `enemy_cinder_brute`
+2. `enemy_molten_ram`
    - família visual C: máquina industrial de lava
-   - variante mais pesada e robusta
-   - ombros maiores, braços grossos, peito blindado
-   - pode usar pistões, prensa, fornalha ou placas de fundição no corpo
-   - sensação de força bruta e impacto
-   - pode ser mais alto que o grunt, mas ainda deve ler como inimigo comum
+   - unidade de investida com peito ou cabeça reforçada como aríete
+   - corpo baixo ou médio, pesado, com placas de fundição, pistões e núcleo quente
+   - sensação de impacto frontal, aceleração curta e colisão forte
+   - deve parecer uma máquina industrial adaptada para combate, não um soldado maior
 
 3. `enemy_ash_hopper`
    - família visual B: criatura robótica de fogo
-   - robô animal ou reploid ágil
+   - coelho robô de cinzas/brasa, pequeno e ágil
+   - orelhas mecânicas curtas ou antenas em formato de orelha
    - foco em salto e mobilidade
-   - pernas elásticas ou segmentadas
+   - pernas traseiras elásticas ou segmentadas, com molas/pistões e pés largos
+   - núcleo quente visível no torso
    - silhueta menor, mais nervosa, mais dinâmica
 
 ### Fly
 
 Os 3 fly devem parecer unidades aéreas ou levitantes de fogo, sempre com leitura mecânica.
 
-4. `enemy_ember_wisp`
+4. `enemy_ember_orbiter`
    - família visual B: criatura robótica de fogo
-   - pequeno reploid flutuante ou drone espiritualizado, mas mecânico
-   - núcleo brilhante, carcaça leve
-   - movimento de hover simples
+   - pequeno drone orbital com núcleo de brasa
+   - anel mecânico ou segmentos orbitando ao redor do núcleo
+   - movimento de hover simples com leitura circular
+   - também solta tiro de fogo próprio, separado do corpo como projectile
 
 5. `enemy_flame_skimmer`
    - família visual C: máquina industrial de lava
@@ -135,12 +137,12 @@ Os 3 fly devem parecer unidades aéreas ou levitantes de fogo, sempre com leitur
 
 Os 3 ranged devem comunicar ataque à distância com foco em timing visual.
 
-7. `enemy_fire_archer`
+7. `enemy_heat_mortar`
    - família visual A: tropa reploid blindada
-   - reploid arqueiro, mecânico e enxuto
-   - postura de tiro clara
-   - arco ou mecanismo de disparo visível
-   - leitura de atirador de linha de trás
+   - reploid compacto com morteiro ou canhão de ombro/costas
+   - postura de preparar tiro em arco, diferente de um atirador horizontal
+   - disparo parabólico para diferenciar do `enemy_ice_archer` da `stage_02`
+   - leitura de unidade militar de apoio indireto
 
 8. `enemy_magma_turret`
    - família visual C: máquina industrial de lava
@@ -179,6 +181,9 @@ Uma geração passa quando:
 - a estética fica próxima de Mega Man X, mas sem copiar personagens existentes
 - a linguagem é mais mecânica do que orgânica
 - a serpente de lava comunica emergência do poço e ataque de fogo
+- `enemy_heat_mortar` não repete o arquétipo visual nem mecânico do `enemy_ice_archer` da `stage_02`
+- `enemy_ember_orbiter` comunica drone orbital e tem projectile próprio
+- `enemy_ash_hopper` lê como coelho robô saltador, não como soldado genérico
 - o primeiro frame inicial está correto para cada inimigo, exceto a serpente, que pode começar em estado de submersão ou emergência
 - nenhuma sheet exige improviso posterior para entender o tipo do inimigo
 
