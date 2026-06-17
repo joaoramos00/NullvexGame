@@ -1,5 +1,5 @@
 {
-  "target": "asset",
+  "target": "creature",
   "mode": "charge",
   "prompt": "",
   "role": "",
@@ -14,7 +14,7 @@
   "trim_border": 4,
   "edge_clean_depth": 3,
   "align": "bottom",
-  "shared_scale": false,
+  "shared_scale": true,
   "component_mode": "largest",
   "component_padding": 0,
   "min_component_area": 1,
@@ -59,12 +59,12 @@
       ],
       "edge_touch": false,
       "output_size": [
-        112,
-        49
+        98,
+        43
       ],
       "paste_position": [
-        8,
-        72
+        15,
+        78
       ]
     },
     {
@@ -95,12 +95,12 @@
       ],
       "edge_touch": false,
       "output_size": [
-        112,
-        49
+        98,
+        43
       ],
       "paste_position": [
-        8,
-        72
+        15,
+        78
       ]
     },
     {
@@ -131,12 +131,12 @@
       ],
       "edge_touch": false,
       "output_size": [
-        112,
-        49
+        99,
+        43
       ],
       "paste_position": [
-        8,
-        72
+        14,
+        78
       ]
     },
     {
@@ -167,12 +167,12 @@
       ],
       "edge_touch": false,
       "output_size": [
-        112,
-        61
+        95,
+        52
       ],
       "paste_position": [
-        8,
-        60
+        16,
+        69
       ]
     },
     {
@@ -239,12 +239,12 @@
       ],
       "edge_touch": false,
       "output_size": [
-        112,
-        69
+        97,
+        60
       ],
       "paste_position": [
-        8,
-        52
+        15,
+        61
       ]
     },
     {
@@ -275,12 +275,12 @@
       ],
       "edge_touch": false,
       "output_size": [
-        112,
-        60
+        92,
+        49
       ],
       "paste_position": [
-        8,
-        61
+        18,
+        72
       ]
     },
     {
@@ -311,12 +311,12 @@
       ],
       "edge_touch": false,
       "output_size": [
-        112,
-        56
+        89,
+        45
       ],
       "paste_position": [
-        8,
-        65
+        19,
+        76
       ]
     },
     {
@@ -347,12 +347,12 @@
       ],
       "edge_touch": false,
       "output_size": [
-        112,
-        49
+        96,
+        42
       ],
       "paste_position": [
-        8,
-        72
+        16,
+        79
       ]
     }
   ],
