@@ -1,0 +1,175 @@
+{
+  "target": "asset",
+  "mode": "shoot",
+  "prompt": "",
+  "role": "",
+  "input": "assets\\generated\\stage04_enemy_singularity_turret\\shoot\\raw-sheet.png",
+  "threshold": 100,
+  "edge_threshold": 150,
+  "duration": 200,
+  "rows": 2,
+  "cols": 2,
+  "cell_size": 128,
+  "fit_scale": 0.9,
+  "trim_border": 4,
+  "edge_clean_depth": 3,
+  "align": "bottom",
+  "shared_scale": true,
+  "component_mode": "largest",
+  "component_padding": 0,
+  "min_component_area": 1,
+  "edge_touch_margin": 0,
+  "frame_labels": [
+    "shoot-1",
+    "shoot-2",
+    "shoot-3",
+    "shoot-4"
+  ],
+  "frames": [
+    {
+      "grid": [
+        0,
+        0
+      ],
+      "source_box": [
+        0,
+        0,
+        512,
+        512
+      ],
+      "component_mode": "largest",
+      "component_count": 1,
+      "selected_component_area": 67630,
+      "selected_component_bbox": [
+        81,
+        159,
+        434,
+        417
+      ],
+      "crop_bbox": [
+        81,
+        159,
+        434,
+        417
+      ],
+      "edge_touch": false,
+      "output_size": [
+        115,
+        84
+      ],
+      "paste_position": [
+        6,
+        38
+      ]
+    },
+    {
+      "grid": [
+        0,
+        1
+      ],
+      "source_box": [
+        512,
+        0,
+        1024,
+        512
+      ],
+      "component_mode": "largest",
+      "component_count": 49,
+      "selected_component_area": 65540,
+      "selected_component_bbox": [
+        32,
+        133,
+        385,
+        417
+      ],
+      "crop_bbox": [
+        32,
+        133,
+        385,
+        417
+      ],
+      "edge_touch": false,
+      "output_size": [
+        115,
+        92
+      ],
+      "paste_position": [
+        6,
+        30
+      ]
+    },
+    {
+      "grid": [
+        1,
+        0
+      ],
+      "source_box": [
+        0,
+        512,
+        512,
+        1024
+      ],
+      "component_mode": "largest",
+      "component_count": 9,
+      "selected_component_area": 68616,
+      "selected_component_bbox": [
+        81,
+        112,
+        434,
+        370
+      ],
+      "crop_bbox": [
+        81,
+        112,
+        434,
+        370
+      ],
+      "edge_touch": false,
+      "output_size": [
+        115,
+        84
+      ],
+      "paste_position": [
+        6,
+        38
+      ]
+    },
+    {
+      "grid": [
+        1,
+        1
+      ],
+      "source_box": [
+        512,
+        512,
+        1024,
+        1024
+      ],
+      "component_mode": "largest",
+      "component_count": 9,
+      "selected_component_area": 67767,
+      "selected_component_bbox": [
+        32,
+        112,
+        385,
+        370
+      ],
+      "crop_bbox": [
+        32,
+        112,
+        385,
+        370
+      ],
+      "edge_touch": false,
+      "output_size": [
+        115,
+        84
+      ],
+      "paste_position": [
+        6,
+        38
+      ]
+    }
+  ],
+  "edge_touch_frames": []
+}
