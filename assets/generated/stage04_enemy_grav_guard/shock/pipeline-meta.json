@@ -1,0 +1,249 @@
+{
+  "target": "creature",
+  "mode": "attack",
+  "prompt": "",
+  "role": "",
+  "input": "assets\\generated\\stage04_enemy_grav_guard\\shock\\raw-sheet.png",
+  "threshold": 100,
+  "edge_threshold": 150,
+  "duration": 200,
+  "rows": 2,
+  "cols": 3,
+  "cell_size": 128,
+  "fit_scale": 0.8,
+  "trim_border": 4,
+  "edge_clean_depth": 3,
+  "align": "bottom",
+  "shared_scale": true,
+  "component_mode": "largest",
+  "component_padding": 0,
+  "min_component_area": 1,
+  "edge_touch_margin": 0,
+  "frame_labels": [
+    "shock-1",
+    "shock-2",
+    "shock-3",
+    "shock-4",
+    "shock-5",
+    "shock-6"
+  ],
+  "frames": [
+    {
+      "grid": [
+        0,
+        0
+      ],
+      "source_box": [
+        0,
+        0,
+        512,
+        512
+      ],
+      "component_mode": "largest",
+      "component_count": 1,
+      "selected_component_area": 51493,
+      "selected_component_bbox": [
+        165,
+        118,
+        405,
+        420
+      ],
+      "crop_bbox": [
+        165,
+        118,
+        405,
+        420
+      ],
+      "edge_touch": false,
+      "output_size": [
+        81,
+        102
+      ],
+      "paste_position": [
+        23,
+        14
+      ]
+    },
+    {
+      "grid": [
+        0,
+        1
+      ],
+      "source_box": [
+        512,
+        0,
+        1024,
+        512
+      ],
+      "component_mode": "largest",
+      "component_count": 2,
+      "selected_component_area": 48936,
+      "selected_component_bbox": [
+        123,
+        132,
+        364,
+        420
+      ],
+      "crop_bbox": [
+        123,
+        132,
+        364,
+        420
+      ],
+      "edge_touch": false,
+      "output_size": [
+        81,
+        97
+      ],
+      "paste_position": [
+        23,
+        19
+      ]
+    },
+    {
+      "grid": [
+        0,
+        2
+      ],
+      "source_box": [
+        1024,
+        0,
+        1536,
+        512
+      ],
+      "component_mode": "largest",
+      "component_count": 20,
+      "selected_component_area": 50177,
+      "selected_component_bbox": [
+        65,
+        120,
+        317,
+        420
+      ],
+      "crop_bbox": [
+        65,
+        120,
+        317,
+        420
+      ],
+      "edge_touch": false,
+      "output_size": [
+        85,
+        101
+      ],
+      "paste_position": [
+        21,
+        15
+      ]
+    },
+    {
+      "grid": [
+        1,
+        0
+      ],
+      "source_box": [
+        0,
+        512,
+        512,
+        1024
+      ],
+      "component_mode": "largest",
+      "component_count": 10,
+      "selected_component_area": 45995,
+      "selected_component_bbox": [
+        148,
+        75,
+        417,
+        369
+      ],
+      "crop_bbox": [
+        148,
+        75,
+        417,
+        369
+      ],
+      "edge_touch": false,
+      "output_size": [
+        91,
+        99
+      ],
+      "paste_position": [
+        18,
+        17
+      ]
+    },
+    {
+      "grid": [
+        1,
+        1
+      ],
+      "source_box": [
+        512,
+        512,
+        1024,
+        1024
+      ],
+      "component_mode": "largest",
+      "component_count": 2,
+      "selected_component_area": 45504,
+      "selected_component_bbox": [
+        120,
+        75,
+        373,
+        369
+      ],
+      "crop_bbox": [
+        120,
+        75,
+        373,
+        369
+      ],
+      "edge_touch": false,
+      "output_size": [
+        85,
+        99
+      ],
+      "paste_position": [
+        21,
+        17
+      ]
+    },
+    {
+      "grid": [
+        1,
+        2
+      ],
+      "source_box": [
+        1024,
+        512,
+        1536,
+        1024
+      ],
+      "component_mode": "largest",
+      "component_count": 1,
+      "selected_component_area": 49430,
+      "selected_component_bbox": [
+        81,
+        75,
+        316,
+        369
+      ],
+      "crop_bbox": [
+        81,
+        75,
+        316,
+        369
+      ],
+      "edge_touch": false,
+      "output_size": [
+        79,
+        99
+      ],
+      "paste_position": [
+        24,
+        17
+      ]
+    }
+  ],
+  "edge_touch_frames": []
+}
