@@ -10,7 +10,7 @@
   "rows": 2,
   "cols": 3,
   "cell_size": 128,
-  "fit_scale": 0.88,
+  "fit_scale": 0.8,
   "trim_border": 4,
   "edge_clean_depth": 3,
   "align": "bottom",
@@ -41,27 +41,27 @@
       ],
       "component_mode": "largest",
       "component_count": 1,
-      "selected_component_area": 68948,
+      "selected_component_area": 51493,
       "selected_component_bbox": [
-        127,
-        102,
-        443,
-        423
+        165,
+        118,
+        405,
+        420
       ],
       "crop_bbox": [
-        127,
-        102,
-        443,
-        423
+        165,
+        118,
+        405,
+        420
       ],
       "edge_touch": false,
       "output_size": [
-        109,
-        110
+        81,
+        102
       ],
       "paste_position": [
-        9,
-        11
+        23,
+        14
       ]
     },
     {
@@ -76,28 +76,28 @@
         512
       ],
       "component_mode": "largest",
-      "component_count": 1,
-      "selected_component_area": 68045,
+      "component_count": 2,
+      "selected_component_area": 48936,
       "selected_component_bbox": [
-        90,
-        102,
-        396,
-        423
+        123,
+        132,
+        364,
+        420
       ],
       "crop_bbox": [
-        90,
-        102,
-        396,
-        423
+        123,
+        132,
+        364,
+        420
       ],
       "edge_touch": false,
       "output_size": [
-        105,
-        110
+        81,
+        97
       ],
       "paste_position": [
-        11,
-        11
+        23,
+        19
       ]
     },
     {
@@ -112,28 +112,28 @@
         512
       ],
       "component_mode": "largest",
-      "component_count": 1,
-      "selected_component_area": 68040,
+      "component_count": 20,
+      "selected_component_area": 50177,
       "selected_component_bbox": [
-        28,
-        102,
-        354,
-        423
+        65,
+        120,
+        317,
+        420
       ],
       "crop_bbox": [
-        28,
-        102,
-        354,
-        423
+        65,
+        120,
+        317,
+        420
       ],
       "edge_touch": false,
       "output_size": [
-        112,
-        110
+        85,
+        101
       ],
       "paste_position": [
-        8,
-        11
+        21,
+        15
       ]
     },
     {
@@ -148,28 +148,28 @@
         1024
       ],
       "component_mode": "largest",
-      "component_count": 8,
-      "selected_component_area": 65917,
+      "component_count": 10,
+      "selected_component_area": 45995,
       "selected_component_bbox": [
-        121,
-        68,
-        447,
-        390
+        148,
+        75,
+        417,
+        369
       ],
       "crop_bbox": [
-        121,
-        68,
-        447,
-        390
+        148,
+        75,
+        417,
+        369
       ],
       "edge_touch": false,
       "output_size": [
-        112,
-        111
+        91,
+        99
       ],
       "paste_position": [
-        8,
-        10
+        18,
+        17
       ]
     },
     {
@@ -184,28 +184,28 @@
         1024
       ],
       "component_mode": "largest",
-      "component_count": 3,
-      "selected_component_area": 62999,
+      "component_count": 2,
+      "selected_component_area": 45504,
       "selected_component_bbox": [
-        112,
-        71,
-        383,
-        390
+        120,
+        75,
+        373,
+        369
       ],
       "crop_bbox": [
-        112,
-        71,
-        383,
-        390
+        120,
+        75,
+        373,
+        369
       ],
       "edge_touch": false,
       "output_size": [
-        93,
-        110
+        85,
+        99
       ],
       "paste_position": [
-        17,
-        11
+        21,
+        17
       ]
     },
     {
@@ -221,27 +221,27 @@
       ],
       "component_mode": "largest",
       "component_count": 1,
-      "selected_component_area": 68938,
+      "selected_component_area": 49430,
       "selected_component_bbox": [
-        29,
-        69,
-        345,
-        390
+        81,
+        75,
+        316,
+        369
       ],
       "crop_bbox": [
-        29,
-        69,
-        345,
-        390
+        81,
+        75,
+        316,
+        369
       ],
       "edge_touch": false,
       "output_size": [
-        109,
-        110
+        79,
+        99
       ],
       "paste_position": [
-        9,
-        11
+        24,
+        17
       ]
     }
   ],
