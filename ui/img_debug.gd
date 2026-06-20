@@ -1293,10 +1293,10 @@ class _HitboxOverlay extends Node2D:
             x += _TILE_DRAW
 
 class _HitboxView extends Control:
-    const _VIEW_SIZE := Vector2(900.0, 460.0)
+    const _VIEW_SIZE := Vector2(1100.0, 640.0)
     const _ENTITY_POS := Vector2(450.0, 300.0)
     const _CAMERA_ZOOM := Vector2(2.0, 2.0)
-    const _CAMERA_OFFSET_Y := 24.0
+    const _CAMERA_OFFSET_Y := -76.0   # 24 - 100: câmera sobe 100px (mais espaço acima da entidade)
     const _PROJECTILE_DEFS := {
         "Ice Archer": {"label": "Ice Arrow", "variant": "ice_arrow", "release_frame": 4, "offset": Vector2(52.0, -82.0), "parabolic": false},
         "Frost Turret": {"label": "Ice Cannonball", "variant": "ice_cannonball", "release_frame": 3, "offset": Vector2(32.0, 0.0), "parabolic": false},
@@ -1382,6 +1382,14 @@ class _HitboxView extends Control:
         toolbar.add_child(_labels_btn)
         _ruler_btn = _make_button("Regua OFF", _toggle_ruler)
         toolbar.add_child(_ruler_btn)
+        # Nome da entidade compacto na toolbar (o painel de descrição foi removido p/
+        # dar toda a largura ao viewport de hitbox).
+        _name_label = Label.new()
+        _name_label.add_theme_font_size_override("font_size", 18)
+        _name_label.add_theme_color_override("font_color", Color(0.9, 0.9, 0.3))
+        _name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+        _name_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+        toolbar.add_child(_name_label)
 
         var row := HBoxContainer.new()
         row.add_theme_constant_override("separation", 16)
@@ -1432,22 +1440,8 @@ class _HitboxView extends Control:
         _scene_root.add_child(_shape_overlay)
         _overlay = _floor_overlay
 
-        var info_col := VBoxContainer.new()
-        info_col.custom_minimum_size.x = 360.0
-        info_col.size_flags_vertical = Control.SIZE_EXPAND_FILL
-        info_col.add_theme_constant_override("separation", 8)
-        row.add_child(info_col)
-
-        _name_label = Label.new()
-        _name_label.add_theme_font_size_override("font_size", 24)
-        _name_label.add_theme_color_override("font_color", Color(0.9, 0.9, 0.3))
-        info_col.add_child(_name_label)
-
-        _meta_label = Label.new()
-        _meta_label.add_theme_font_size_override("font_size", 16)
-        _meta_label.add_theme_color_override("font_color", Color(0.82, 0.82, 0.86))
-        _meta_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-        info_col.add_child(_meta_label)
+        # Painel de descrição removido: o viewport de hitbox usa a linha inteira.
+        # _meta_label fica null (os usos em _set_meta já têm null-guard).
         _refresh_hierarchy_rows()
 
     func _find_first_group(group_name: String) -> int:
@@ -2563,7 +2557,7 @@ func _build_ui() -> void:
     _hitboxes_box.add_theme_constant_override("separation", 8)
     main.add_child(_hitboxes_box)
     _hitbox_view = _HitboxView.new()
-    _hitbox_view.custom_minimum_size = Vector2(0.0, 520.0)
+    _hitbox_view.custom_minimum_size = Vector2(0.0, 720.0)
     _hitbox_view.size_flags_horizontal = Control.SIZE_EXPAND_FILL
     _hitbox_view.size_flags_vertical = Control.SIZE_EXPAND_FILL
     _hitboxes_box.add_child(_hitbox_view)
