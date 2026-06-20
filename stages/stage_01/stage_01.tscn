@@ -304,15 +304,6 @@ arena_left = 19776.0
 arena_right = 22592.0
 arena_floor = 960.0
 
-[node name="Grunt2" parent="." instance=ExtResource("10_grunt")]
-position = Vector2(1664, 768)
-
-[node name="Grunt3" parent="." instance=ExtResource("10_grunt")]
-position = Vector2(2560, 608)
-
-[node name="Flyer1" parent="." instance=ExtResource("11_flyer")]
-position = Vector2(1600, 512)
-
 [node name="HUD" parent="." instance=ExtResource("5_hud")]
 [node name="PauseMenu" parent="." instance=ExtResource("6_pause")]
 [node name="GameOver" parent="." instance=ExtResource("7_gameover")]
