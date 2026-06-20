@@ -39,6 +39,15 @@ const _HITBOX_ENTITIES: Array = [
     {"name": "Ice Wisp", "path": "res://characters/enemies/stage_02/enemy_ice_wisp.tscn", "group": "Inimigos", "kind": "Inimigos", "stage": "Stage 02"},
     {"name": "Ice Miniboss", "path": "res://characters/enemies/stage_02/enemy_ice_miniboss.tscn", "group": "Bosses", "kind": "Inimigos", "stage": "Stage 02"},
     {"name": "Cryovex", "path": "res://characters/bosses/cryovex.tscn", "group": "Bosses", "kind": "Inimigos", "stage": "Stage 02"},
+    {"name": "Magma Grunt", "path": "res://characters/enemies/stage_01/enemy_magma_grunt.tscn", "group": "Inimigos", "kind": "Inimigos", "stage": "Stage 01"},
+    {"name": "Molten Ram", "path": "res://characters/enemies/stage_01/enemy_molten_ram.tscn", "group": "Inimigos", "kind": "Inimigos", "stage": "Stage 01"},
+    {"name": "Ash Hopper", "path": "res://characters/enemies/stage_01/enemy_ash_hopper.tscn", "group": "Inimigos", "kind": "Inimigos", "stage": "Stage 01"},
+    {"name": "Ember Orbiter", "path": "res://characters/enemies/stage_01/enemy_ember_orbiter.tscn", "group": "Inimigos", "kind": "Inimigos", "stage": "Stage 01"},
+    {"name": "Flame Skimmer", "path": "res://characters/enemies/stage_01/enemy_flame_skimmer.tscn", "group": "Inimigos", "kind": "Inimigos", "stage": "Stage 01"},
+    {"name": "Cinder Flyer", "path": "res://characters/enemies/stage_01/enemy_cinder_flyer.tscn", "group": "Inimigos", "kind": "Inimigos", "stage": "Stage 01"},
+    {"name": "Heat Mortar", "path": "res://characters/enemies/stage_01/enemy_heat_mortar.tscn", "group": "Inimigos", "kind": "Inimigos", "stage": "Stage 01"},
+    {"name": "Magma Turret", "path": "res://characters/enemies/stage_01/enemy_magma_turret.tscn", "group": "Inimigos", "kind": "Inimigos", "stage": "Stage 01"},
+    {"name": "Lava Serpent", "path": "res://characters/enemies/stage_01/enemy_lava_serpent.tscn", "group": "Inimigos", "kind": "Inimigos", "stage": "Stage 01"},
     {"name": "Boss Base", "path": "res://characters/bosses/boss_base.tscn", "group": "Bosses", "kind": "Bosses", "stage": ""},
     {"name": "Intro Boss", "path": "res://characters/bosses/intro_boss.tscn", "group": "Bosses", "kind": "Bosses", "stage": "Stage 00"},
     {"name": "Cryovex", "path": "res://characters/bosses/cryovex.tscn", "group": "Bosses", "kind": "Bosses", "stage": "Stage 02"},
@@ -53,6 +62,7 @@ const _HITBOX_ENTITIES: Array = [
     {"name": "Zael Bullet", "path": "res://characters/ranged/zael_bullet.tscn", "group": "Projeteis", "kind": "Projeteis", "stage": ""},
     {"name": "Boss Projectile", "path": "res://characters/bosses/boss_projectile.tscn", "group": "Projeteis", "kind": "Projeteis", "stage": ""},
     {"name": "Ice Projectile", "path": "res://characters/enemies/stage_02/enemy_ice_projectile.tscn", "group": "Projeteis", "kind": "Projeteis", "stage": "Stage 02"},
+    {"name": "Fire Projectile", "path": "res://characters/enemies/stage_01/fire_projectile.tscn", "group": "Projeteis", "kind": "Projeteis", "stage": "Stage 01"},
     {"name": "Zara Hitbox", "path": "res://characters/melee/zara_hitbox.tscn", "group": "Projeteis", "kind": "Projeteis", "stage": ""},
 ]
 
@@ -1224,6 +1234,10 @@ class _HitboxOverlay extends Node2D:
             "eye_beam":
                 draw_rect(Rect2(pos + Vector2(-4.0, -6.0), Vector2(42.0, 12.0)), Color(0.38, 0.95, 1.0, 0.35), true)
                 draw_rect(Rect2(pos + Vector2(-4.0, -6.0), Vector2(42.0, 12.0)), color, false, 2.0)
+            "fire_bolt", "fire_glob", "fire_spit", "heat_mortar_shell":
+                var fr: float = 12.0 if variant == "heat_mortar_shell" else 10.0
+                draw_circle(pos, fr, Color(1.0, 0.5, 0.12, 0.4))
+                draw_arc(pos, fr, 0.0, TAU, 32, Color(1.0, 0.36, 0.08, 0.95), 2.0)
             _:
                 draw_circle(pos, 9.0, Color(0.55, 0.92, 1.0, 0.35))
                 draw_arc(pos, 9.0, 0.0, TAU, 32, color, 2.0)
@@ -1251,6 +1265,12 @@ class _HitboxView extends Control:
         "Frost Turret": {"label": "Ice Cannonball", "variant": "ice_cannonball", "release_frame": 3, "offset": Vector2(32.0, 0.0), "parabolic": false},
         "Cryo Bomber": {"label": "Ice Ball", "variant": "ice_ball", "release_frame": 3, "offset": Vector2(16.0, -56.0), "parabolic": true},
         "Glacier Shield": {"label": "Eye Beam", "variant": "eye_beam", "release_frame": 2, "offset": Vector2(34.0, -18.0), "parabolic": false},
+        # Stage 01 — offsets espelham o _fire() de cada inimigo (turret usa face_dir=-1 → muzzle à esquerda).
+        "Ember Orbiter": {"label": "Fire Bolt", "variant": "fire_bolt", "release_frame": 2, "offset": Vector2(0.0, 0.0), "parabolic": false},
+        "Cinder Flyer": {"label": "Fire Bolt", "variant": "fire_bolt", "release_frame": 1, "offset": Vector2(0.0, 0.0), "parabolic": false},
+        "Heat Mortar": {"label": "Heat Mortar Shell", "variant": "heat_mortar_shell", "release_frame": 4, "offset": Vector2(30.0, -30.0), "parabolic": true},
+        "Magma Turret": {"label": "Fire Glob", "variant": "fire_glob", "release_frame": 1, "offset": Vector2(-28.0, -8.0), "parabolic": false},
+        "Lava Serpent": {"label": "Fire Spit", "variant": "fire_spit", "release_frame": 9, "offset": Vector2(0.0, -20.0), "parabolic": false},
     }
 
     var _current_index: int = 0
@@ -1417,6 +1437,7 @@ class _HitboxView extends Control:
         _shape_infos = _collect_shapes(_current_instance)
         _align_current_to_floor()
         _freeze_node_tree(_current_instance)
+        _current_instance.visible = true   # inimigos que se auto-escondem no _ready (ex.: lava_serpent submersa)
         _apply_selected_frame()
         _shape_infos = _collect_shapes(_current_instance)
         if _shape_overlay != null:
