@@ -15,7 +15,7 @@ script = ExtResource("1_script")
 shape = SubResource("Cap_1")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
-position = Vector2(0, -30)
+position = Vector2(0, -20)
 texture = ExtResource("2_tex")
 hframes = 3
 vframes = 3
