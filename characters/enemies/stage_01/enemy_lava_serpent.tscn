@@ -1,0 +1,30 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://characters/enemies/stage_01/enemy_lava_serpent.gd" id="1_script"]
+[ext_resource type="Texture2D" path="res://characters/enemies/stage_01/enemy_lava_serpent.png" id="2_tex"]
+
+[sub_resource type="CapsuleShape2D" id="Cap_1"]
+radius = 26.0
+height = 96.0
+
+[node name="EnemyLavaSerpent" type="CharacterBody2D"]
+collision_layer = 4
+collision_mask = 1
+script = ExtResource("1_script")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("Cap_1")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("2_tex")
+hframes = 4
+vframes = 4
+frame = 0
+scale = Vector2(0.9, 0.9)
+
+[node name="ContactZone" type="Area2D" parent="."]
+collision_layer = 0
+collision_mask = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ContactZone"]
+shape = SubResource("Cap_1")
