@@ -8,6 +8,9 @@ const ENEMIES := {
 	"res://characters/enemies/stage_01/enemy_flame_skimmer.tscn": "EnemyFlameSkimmer",
 	"res://characters/enemies/stage_01/enemy_ember_orbiter.tscn": "EnemyEmberOrbiter",
 	"res://characters/enemies/stage_01/enemy_cinder_flyer.tscn": "EnemyCinderFlyer",
+	"res://characters/enemies/stage_01/enemy_heat_mortar.tscn": "EnemyHeatMortar",
+	"res://characters/enemies/stage_01/enemy_magma_turret.tscn": "EnemyMagmaTurret",
+	"res://characters/enemies/stage_01/enemy_lava_serpent.tscn": "EnemyLavaSerpent",
 }
 
 func _ready() -> void:
@@ -26,8 +29,16 @@ func _ready() -> void:
 		else:
 			print("OK: ", ENEMIES[path])
 		e.free()
+	var proj = load("res://characters/enemies/stage_01/fire_projectile.tscn").instantiate()
+	add_child(proj)
+	proj.setup(Vector2(200, 0), 5, "test", 0.0, "fire_glob")
+	if proj.damage != 5 or proj.variant != "fire_glob":
+		print("FAIL: fire_projectile.setup"); fail = true
+	else:
+		print("OK: fire_projectile")
+	proj.free()
 	if fail:
 		get_tree().quit(1)
 	else:
-		print("PASS: melee+fly fire enemies")
+		print("PASS: all fire enemies")
 		get_tree().quit(0)

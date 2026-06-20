@@ -1,8 +1,7 @@
 extends "res://characters/enemies/enemy_flyer.gd"
 class_name EnemyEmberOrbiter
 
-# TODO(Fase 3): trocar load()+guard por `preload()` quando fire_projectile.tscn existir.
-const FIRE_PROJECTILE_PATH := "res://characters/enemies/stage_01/fire_projectile.tscn"
+const _PROJ := preload("res://characters/enemies/stage_01/fire_projectile.tscn")
 const SHOOT_INTERVAL := 1.6
 const SHOOT_RANGE := 480.0
 const BOLT_SPEED := 320.0
@@ -31,10 +30,8 @@ func _physics_process(delta: float) -> void:
 			_fire_bolt(p)
 
 func _fire_bolt(target: Node2D) -> void:
-	if not ResourceLoader.exists(FIRE_PROJECTILE_PATH):
-		return
 	var dir: Vector2 = (target.global_position - global_position).normalized()
-	var proj = load(FIRE_PROJECTILE_PATH).instantiate()
+	var proj = _PROJ.instantiate()
 	proj.setup(dir * BOLT_SPEED, BOLT_DAMAGE, "ember_orbiter", 0.0, "fire_bolt")
 	get_parent().add_child(proj)
 	proj.global_position = global_position
