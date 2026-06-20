@@ -1,11 +1,13 @@
 extends Area2D
 class_name FireProjectile
 
+# Texturas pré-carregadas (preload garante presença no PCK web; load() por-frame
+# poderia renderizar em branco se a variante faltasse no export — ver feedback web case-sensitive).
 const TEX := {
-	"fire_bolt": "res://characters/enemies/stage_01/fire_bolt.png",
-	"fire_glob": "res://characters/enemies/stage_01/fire_glob.png",
-	"fire_spit": "res://characters/enemies/stage_01/fire_spit.png",
-	"heat_mortar_shell": "res://characters/enemies/stage_01/heat_mortar_shell.png",
+	"fire_bolt": preload("res://characters/enemies/stage_01/fire_bolt.png"),
+	"fire_glob": preload("res://characters/enemies/stage_01/fire_glob.png"),
+	"fire_spit": preload("res://characters/enemies/stage_01/fire_spit.png"),
+	"heat_mortar_shell": preload("res://characters/enemies/stage_01/heat_mortar_shell.png"),
 }
 
 var projectile_velocity: Vector2 = Vector2(300.0, 0.0)
@@ -30,7 +32,7 @@ func setup(velocity_value: Vector2, damage_value: int, source_value := "stage01_
 	variant = variant_value
 	var spr := get_node_or_null("Sprite2D") as Sprite2D
 	if spr != null and TEX.has(variant):
-		spr.texture = load(TEX[variant])
+		spr.texture = TEX[variant]
 		spr.hframes = 2
 		spr.vframes = 2
 		spr.frame = 0

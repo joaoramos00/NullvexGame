@@ -65,6 +65,8 @@ func _tick_shot(delta: float) -> void:
 			_shot_active = false
 			_shoot_timer = SHOOT_INTERVAL
 			_shot_frame = 0
+			_set_sprite_frame(0)
+			break
 		_set_sprite_frame(_shot_frame % FRAMES)
 
 func _fire() -> void:
