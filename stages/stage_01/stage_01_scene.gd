@@ -517,6 +517,8 @@ func _z4_crumble(n: String, center: Vector2, size: Vector2) -> void:
 # Remove imediatamente qualquer nó com o mesmo nome antes de adicionar o novo —
 # necessário porque queue_free() é deferido e causaria renaming silencioso pelo Godot.
 func _z4_spawn_flyer(n: String, pos: Vector2) -> void:
+	if DebugBoot.no_enemies:
+		return   # respeita ?noenemies=1 / bot (spawn por script ocorre após a remoção do stage_scene)
 	assert(_FLYER_SCENE != null, "enemy_flyer.tscn não carregou")
 	var old := get_node_or_null(n)
 	if old:
@@ -653,7 +655,9 @@ func _build_z4_boss() -> void:
 	# horizontal entre o corredor e a parede esquerda da arena (x18800→18964) e serve como
 	# degrau sólido nivelado com o piso da arena — o player desce o degrau ao entrar.
 	_z2_static("BossThreshold", Vector2(18882.0, 472.0), Vector2(164.0, 64.0)).set_meta("skip_base_draw", true)
-	# Ignarath
+	# Ignarath — respeita ?noenemies=1 / bot (spawn por script ocorre após a remoção do stage_scene)
+	if DebugBoot.no_enemies:
+		return
 	var ign := preload("res://characters/bosses/ignarath.tscn").instantiate()
 	ign.name = "Ignarath"
 	ign.position = Vector2((_BOSS_L + _BOSS_R) * 0.5, _BOSS_FLOOR_TOP - 80.0)
