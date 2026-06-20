@@ -103,12 +103,12 @@
 <rect x="17348" y="104" width="32" height="224" fill="#f28c26" fill-opacity="0.82" stroke="#f7b472" stroke-width="2"/>
 <rect x="17350" y="106" width="112.16" height="30" fill="#000000" fill-opacity="0.7"/>
 <text x="17354" y="130" font-size="24" fill="#f7b472">zone008</text>
-<rect x="17462.6" y="712.22" width="72" height="96" fill="#f273b3" fill-opacity="0.82" stroke="#f7a4cd" stroke-width="2"/>
-<rect x="17464.6" y="714.22" width="127.04" height="30" fill="#000000" fill-opacity="0.7"/>
-<text x="17468.6" y="738.22" font-size="24" fill="#f7a4cd">flyer002</text>
-<rect x="17084" y="2149" width="192" height="32" fill="#33e6e6" fill-opacity="0.82" stroke="#7aeeee" stroke-width="2"/>
-<rect x="17086" y="2151" width="112.16" height="30" fill="#000000" fill-opacity="0.7"/>
-<text x="17090" y="2175" font-size="24" fill="#7aeeee">movp013</text>
+<rect x="17463.94" y="712.18" width="72" height="96" fill="#f273b3" fill-opacity="0.82" stroke="#f7a4cd" stroke-width="2"/>
+<rect x="17465.94" y="714.18" width="127.04" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="17469.94" y="738.18" font-size="24" fill="#f7a4cd">flyer002</text>
+<rect x="17084" y="2150.5" width="192" height="32" fill="#33e6e6" fill-opacity="0.82" stroke="#7aeeee" stroke-width="2"/>
+<rect x="17086" y="2152.5" width="112.16" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="17090" y="2176.5" font-size="24" fill="#7aeeee">movp013</text>
 <rect x="17400" y="328" width="40" height="128" fill="#b3b3b3" fill-opacity="0.82" stroke="#cdcdcd" stroke-width="2"/>
 <rect x="17402" y="330" width="112.16" height="30" fill="#000000" fill-opacity="0.7"/>
 <text x="17406" y="354" font-size="24" fill="#cdcdcd">misc034</text>
