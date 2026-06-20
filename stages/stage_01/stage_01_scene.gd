@@ -713,8 +713,9 @@ func _zone_spawn(zone: int) -> Vector2:
 		2: return Vector2(3760, 2480)    # zona 2 — sobre Z2Plat1 (pós shaft ↓)
 		3: return Vector2(10800, 2480)   # zona 3 nova — piso de entrada (runway p/ a plataforma)
 		4: return Vector2(16320, 2480)   # zona 4 — base da escada-chase
-		5: return Vector2(23784, 800)    # boss — dentro da arena (reposicionada +2600)
+		5: return Vector2(20300, 360)    # boss — dentro da arena reconstruída (x18900–21716)
 		6: return Vector2(2640, 540)     # DEBUG: shaft ↓ — sobre a Z1Plat4 (testar descida)
-		7: return Vector2(18560, 1500)   # DEBUG: patamar do meio da z4
-		8: return Vector2(22250, 200)    # DEBUG: topo da escada-coupled (Z4Top)
+		7: return Vector2(17520, 1100)   # DEBUG: meio do shaft de wall-jump (seg4)
+		8: return Vector2(17800, 280)    # DEBUG: topo do shaft / câmara pré-chefe (Z4PreR)
+		9: return Vector2(17180, 2120)   # DEBUG: rota secreta — sobre o elevador (galerix)
 		_: return Vector2.ZERO           # zona 1 = início normal
