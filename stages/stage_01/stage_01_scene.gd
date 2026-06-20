@@ -13,6 +13,11 @@ const _LAVA_TILE := "res://stages/stage_01/Stage_01_lava_v2.png"  # toda lava da
 const _Z2_FLOOR_TILE := "res://stages/stage_01/Stage_01T_z2.png"  # mesmo tile do floor
 const _ROOM_TILE := preload("res://stages/stage_01/Stage_01T_z1.png")  # rocha escura: câmara do boss
 const _DOOR_TEX  := preload("res://stages/door_pixellab.png")
+const _CRACKED_WALL := preload("res://stages/stage_01/cracked_wall.gd")
+const _COLLECTIBLE_SCENE := preload("res://stages/collectible.tscn")
+
+# Rota secreta (galerix): a parede #1 carva a BASE da parede esquerda do seg0 do shaft.
+const _CRACK1_TOP := 2080.0
 
 var _corr_boss: CorridorSection = null
 
@@ -428,8 +433,12 @@ func _build_z4_shaft() -> void:
 		var yt: float = s[0]; var yb: float = s[1]; var xl: float = s[2]; var xr: float = s[3]
 		var h: float = yb - yt
 		var cy: float = (yt + yb) * 0.5
-		_z4_wall("Z4ShaftWL%d" % i, xl - 32.0, cy, 64.0, h)   # parede esquerda (grabbable)
-		_z4_wall("Z4ShaftWR%d" % i, xr + 32.0, cy, 64.0, h)   # parede direita (grabbable)
+		# seg0: a base da parede ESQUERDA é um vão p/ a parede #1 quebrável (rota secreta).
+		var lyb: float = _CRACK1_TOP if i == 0 else yb
+		var lh: float = lyb - yt
+		var lcy: float = (yt + lyb) * 0.5
+		_z4_wall("Z4ShaftWL%d" % i, xl - 32.0, lcy, 64.0, lh)   # parede esquerda (grabbable)
+		_z4_wall("Z4ShaftWR%d" % i, xr + 32.0, cy, 64.0, h)     # parede direita (grabbable)
 	# lava única (chase) cobrindo o shaft
 	var lava := _z4_lava("Z4ShaftLava", "chase", 17520.0, 2360.0, 240.0, 1700.0)
 	lava.set("rise_speed", 80.0)
@@ -580,8 +589,66 @@ func _build_z4_boss() -> void:
 	add_child(ign)
 	_setup_boss_room_trigger()
 
+# Rota secreta (atalho de revisita com galerix): parede #1 (base do shaft) → passagem
+# vertical com elevador up_only → câmara do coletável → parede #2 (quebra só por dentro)
+# → câmara pré-chefe. O coletável é a Dual Blades da Zara: stage 01 não tem sub-tank
+# (índices 0–3 já usados por 02/04/06/08) e a Dual Blades era o item da tabela que
+# faltava colocar no stage (coração e capacete-Zael já estão na .tscn).
 func _build_z4_secret() -> void:
-	pass
+	# Parede #1 — base da parede esq do seg0 (x17360–17424, y2080–2208).
+	# Quebra pelo lado do shaft (detector à direita), exige galerix.
+	_z4_cracked("Z4Crack1", Vector2(17392.0, 2144.0), Vector2(64.0, 128.0), "", "R")
+	# Passagem vertical (interior x17000–17360), fechada dos dois lados até a câmara.
+	_z2_static("Z4SecretWL", Vector2(16968.0, 1332.0), Vector2(64.0, 1752.0))   # parede esq
+	_z2_static("Z4SecretWR", Vector2(17392.0, 1268.0), Vector2(64.0, 1624.0))   # parede dir (acima da #1)
+	# Elevador up_only: sobe da base da passagem e encaixa no buraco do piso da câmara.
+	var elev := _VPLAT.new()
+	elev.name = "Z4SecretElevator"
+	elev.up_only = true
+	elev.move_distance = 1820.0
+	elev.speed = 90.0
+	elev.collision_layer = 1
+	elev.collision_mask = 0
+	elev.position = Vector2(17180.0, 2180.0)
+	elev.add_child(_z2_shape(Vector2(192.0, 32.0)))
+	add_child(elev)
+	# Câmara do coletável: piso x16800–17380 com buraco x17080–17280 (encaixe do elevador).
+	_z3_static_floor("Z4CollectFloorL", Vector2(16940.0, 392.0), Vector2(280.0, 128.0))
+	_z3_static_floor("Z4CollectFloorR", Vector2(17330.0, 392.0), Vector2(100.0, 128.0))
+	_z2_static("Z4CollectWL",   Vector2(16768.0, 232.0), Vector2(64.0, 256.0))   # parede esq
+	_z2_static("Z4CollectCeil", Vector2(17090.0,  72.0), Vector2(580.0, 64.0))   # teto
+	# Coletável: Dual Blades da Zara (WEAPON_ZARA / "dual_blades").
+	var col: Area2D = _COLLECTIBLE_SCENE.instantiate()
+	col.name = "Z4DualBlades"
+	col.set("collectible_type", Collectible.Type.WEAPON_ZARA)
+	col.set("ability_id", "dual_blades")
+	col.set("stage_id", 1)
+	col.position = Vector2(16940.0, 300.0)
+	add_child(col)
+	# Parede #2 — separa a câmara do coletável da pré-chefe; quebra só por dentro (esquerda).
+	_z4_cracked("Z4Crack2", Vector2(17412.0, 216.0), Vector2(64.0, 224.0), "left", "L")
+
+# Parede quebrável (cracked_wall.gd): corpo sólido + HitDetector Area2D só no lado
+# permitido. det_side "R"/"L" posiciona o detector à direita/esquerda; break_side
+# restringe o lado que pode quebrá-la (ambos exigem galerix, ver cracked_wall.gd).
+func _z4_cracked(n: String, center: Vector2, size: Vector2, break_side: String, det_side: String) -> void:
+	var w := _CRACKED_WALL.new()
+	w.name = n
+	w.set("break_side", break_side)
+	w.collision_layer = 1
+	w.collision_mask = 0
+	w.position = center
+	w.add_child(_z2_shape(size))
+	var det := Area2D.new()
+	det.name = "HitDetector" + det_side
+	det.collision_layer = 0
+	det.collision_mask = 8   # projéteis (layer 8)
+	var dx: float = (size.x * 0.5 + 16.0) * (1.0 if det_side == "R" else -1.0)
+	var d := _z2_shape(Vector2(32.0, size.y))
+	d.position = Vector2(dx, 0.0)
+	det.add_child(d)
+	w.add_child(det)
+	add_child(w)
 
 # Lava de modo (chase/coupled). low_y = superfície inicial/congelada (bot).
 func _z4_lava(n: String, mode: String, center_x: float, low_y: float, width: float,
