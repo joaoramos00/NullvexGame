@@ -825,17 +825,6 @@ collision_mask = 0
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Z4Plat3"]
 shape = SubResource("ShapeZ1Plat")
 
-[node name="Z4MovingPlat" type="StaticBody2D" parent="."]
-position = Vector2(18880, 832)
-collision_layer = 1
-collision_mask = 0
-script = ExtResource("16_movplat")
-move_distance = 256.0
-speed = 60.0
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Z4MovingPlat"]
-shape = SubResource("ShapeZ1Plat")
-
 [node name="Z4Grunt1" parent="." instance=ExtResource("10_grunt")]
 position = Vector2(17024, 864)
 
