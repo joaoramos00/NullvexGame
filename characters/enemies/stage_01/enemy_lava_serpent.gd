@@ -16,6 +16,7 @@ enum S { SUBMERGED, EMERGING, EXPOSED, SPIT, SUBMERGING }
 var _state: S = S.SUBMERGED
 var _timer := T_SUBMERGED
 var _base_y := 0.0
+var _base_captured := false
 var _spat := false
 
 func _init() -> void:
@@ -26,8 +27,10 @@ func _ready() -> void:
 	max_hp = 14
 	contact_damage = 11
 	super._ready()
-	_base_y = global_position.y
-	_enter(S.SUBMERGED)
+	# _base_y é capturado no 1º frame de física (a posição pode ser setada após add_child).
+	# Já entra escondida/invulnerável p/ não piscar 1 frame antes da captura.
+	_invincible = true
+	_set_visible_contact(false)
 
 func _enter(s: S) -> void:
 	_state = s
@@ -57,6 +60,11 @@ func _set_visible_contact(on: bool) -> void:
 
 func _physics_process(delta: float) -> void:
 	if is_dead:
+		return
+	if not _base_captured:
+		_base_captured = true
+		_base_y = global_position.y
+		_enter(S.SUBMERGED)
 		return
 	_timer -= delta
 	match _state:
@@ -89,7 +97,7 @@ func _physics_process(delta: float) -> void:
 
 func _fire() -> void:
 	var p := get_tree().get_first_node_in_group("player") as Node2D
-	var dir := Vector2(_direction, -0.2)
+	var dir := Vector2(_direction, -0.2).normalized()
 	if p != null:
 		dir = (p.global_position - global_position).normalized()
 	var proj = _PROJ.instantiate()
