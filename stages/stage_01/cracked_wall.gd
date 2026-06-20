@@ -14,8 +14,21 @@ func can_break_from(side: String) -> bool:
 		return false
 	return break_side == "" or break_side == side
 
+# Tint translúcido sobre o tile da zona: pista visual de que a parede é quebrável.
+# O pai (stage_scene._draw) desenha a rocha; este overlay (filho) renderiza por cima
+# e some junto com a parede ao quebrar (queue_free).
+const _TINT := Color(0.95, 0.45, 0.2, 0.38)
+
+func _draw() -> void:
+	for c in get_children():
+		if c is CollisionShape2D and (c as CollisionShape2D).shape is RectangleShape2D:
+			var sz: Vector2 = ((c as CollisionShape2D).shape as RectangleShape2D).size
+			var pos: Vector2 = (c as Node2D).position
+			draw_rect(Rect2(pos - sz * 0.5, sz), _TINT)
+
 func _ready() -> void:
 	add_to_group("cracked_wall")
+	queue_redraw()
 	# Detectores: sufixo "L" → quebra só pela esquerda, "R" → só pela direita, sem sufixo → qualquer lado.
 	for child in get_children():
 		if child is Area2D and child.name.begins_with("HitDetector"):
