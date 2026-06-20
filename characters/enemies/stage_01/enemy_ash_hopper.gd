@@ -25,7 +25,7 @@ func _physics_process(delta: float) -> void:
 	if not is_on_floor():
 		velocity.y += GRAVITY * delta
 	if is_on_floor():
-		if is_on_floor() and not _has_floor_ahead():
+		if not _has_floor_ahead():
 			_direction = -_direction
 		_hop_timer -= delta
 		if _hop_timer <= 0.0:
