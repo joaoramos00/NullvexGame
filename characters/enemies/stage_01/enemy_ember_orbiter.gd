@@ -1,6 +1,7 @@
 extends "res://characters/enemies/enemy_flyer.gd"
 class_name EnemyEmberOrbiter
 
+# TODO(Fase 3): trocar load()+guard por `preload()` quando fire_projectile.tscn existir.
 const FIRE_PROJECTILE_PATH := "res://characters/enemies/stage_01/fire_projectile.tscn"
 const SHOOT_INTERVAL := 1.6
 const SHOOT_RANGE := 480.0
