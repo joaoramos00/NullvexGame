@@ -3,9 +3,8 @@
 [ext_resource type="Script" path="res://characters/enemies/stage_01/enemy_molten_ram.gd" id="1_script"]
 [ext_resource type="Texture2D" path="res://characters/enemies/stage_01/enemy_molten_ram.png" id="2_tex"]
 
-[sub_resource type="CapsuleShape2D" id="Cap_1"]
-radius = 24.0
-height = 84.0
+[sub_resource type="RectangleShape2D" id="Cap_1"]
+size = Vector2(68.0, 42.0)
 
 [node name="EnemyMoltenRam" type="CharacterBody2D"]
 collision_layer = 4
