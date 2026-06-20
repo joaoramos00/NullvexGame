@@ -15,6 +15,17 @@ const _ROOM_TILE := preload("res://stages/stage_01/Stage_01T_z1.png")  # rocha e
 const _DOOR_TEX  := preload("res://stages/door_pixellab.png")
 const _CRACKED_WALL := preload("res://stages/stage_01/cracked_wall.gd")
 const _COLLECTIBLE_SCENE := preload("res://stages/collectible.tscn")
+const _FIRE := {
+	"grunt":   preload("res://characters/enemies/stage_01/enemy_magma_grunt.tscn"),
+	"ram":     preload("res://characters/enemies/stage_01/enemy_molten_ram.tscn"),
+	"hopper":  preload("res://characters/enemies/stage_01/enemy_ash_hopper.tscn"),
+	"orbiter": preload("res://characters/enemies/stage_01/enemy_ember_orbiter.tscn"),
+	"skimmer": preload("res://characters/enemies/stage_01/enemy_flame_skimmer.tscn"),
+	"cinder":  preload("res://characters/enemies/stage_01/enemy_cinder_flyer.tscn"),
+	"mortar":  preload("res://characters/enemies/stage_01/enemy_heat_mortar.tscn"),
+	"turret":  preload("res://characters/enemies/stage_01/enemy_magma_turret.tscn"),
+	"serpent": preload("res://characters/enemies/stage_01/enemy_lava_serpent.tscn"),
+}
 
 # Rota secreta (galerix): a parede #1 carva a BASE da parede esquerda do seg0 do shaft.
 const _CRACK1_TOP := 2080.0
@@ -52,6 +63,7 @@ func _ready() -> void:
 		if corr is CorridorSection and not corr.is_queued_for_deletion():
 			corr.setup(_player)
 			corr.camera_lock_requested.connect(_on_camera_lock)
+	_spawn_fire_roster()
 
 const _BOSS_L          := 18900.0
 const _BOSS_R          := 21716.0
@@ -513,6 +525,69 @@ func _z4_spawn_flyer(n: String, pos: Vector2) -> void:
 	e.name = n
 	e.position = pos
 	add_child(e)
+
+func _spawn_fire(kind: String, n: String, pos: Vector2) -> Node2D:
+	if DebugBoot.no_enemies:
+		return null
+	var old := get_node_or_null(n)
+	if old:
+		old.free()
+	var e: Node2D = _FIRE[kind].instantiate()
+	e.name = n
+	e.position = pos
+	add_child(e)
+	return e
+
+# Roster de fogo (~43) — coordenadas derivadas da geometria real das zonas.
+# Terrestres ficam sobre pisos andáveis; voadores acima; serpentes sobre a lava.
+func _spawn_fire_roster() -> void:
+	# Z1 — início (piso SecretArmorFloor topo y2624)
+	_spawn_fire("grunt", "F_Z1Grunt1", Vector2(1800, 2560))
+	_spawn_fire("grunt", "F_Z1Grunt2", Vector2(2150, 2560))
+	_spawn_fire("grunt", "F_Z1Grunt3", Vector2(2550, 2560))
+	_spawn_fire("grunt", "F_Z1Grunt4", Vector2(2950, 2560))
+	_spawn_fire("hopper", "F_Z1Hop1", Vector2(1950, 2560))
+	_spawn_fire("hopper", "F_Z1Hop2", Vector2(2400, 2560))
+	_spawn_fire("hopper", "F_Z1Hop3", Vector2(2850, 2560))
+	_spawn_fire("cinder", "F_Z1Cin1", Vector2(2000, 2350))
+	_spawn_fire("cinder", "F_Z1Cin2", Vector2(2550, 2350))
+	_spawn_fire("cinder", "F_Z1Cin3", Vector2(3050, 2350))
+	# Z2 — Rio de Lava (ledges topo y2624; lava topo y2700)
+	_spawn_fire("ram", "F_Z2Ram1", Vector2(4950, 2560))
+	_spawn_fire("ram", "F_Z2Ram2", Vector2(6100, 2560))
+	_spawn_fire("ram", "F_Z2Ram3", Vector2(7500, 2560))
+	_spawn_fire("turret", "F_Z2Tur1", Vector2(5350, 2560))
+	_spawn_fire("turret", "F_Z2Tur2", Vector2(6600, 2560))
+	_spawn_fire("turret", "F_Z2Tur3", Vector2(8300, 2560))
+	_spawn_fire("orbiter", "F_Z2Orb1", Vector2(5000, 2380))
+	_spawn_fire("orbiter", "F_Z2Orb2", Vector2(6300, 2380))
+	_spawn_fire("orbiter", "F_Z2Orb3", Vector2(7900, 2380))
+	_spawn_fire("serpent", "F_Z2Ser1", Vector2(4250, 2700))
+	_spawn_fire("serpent", "F_Z2Ser2", Vector2(7100, 2700))
+	# Z3 — maré (passes topo y2624; maré topo y2748)
+	_spawn_fire("mortar", "F_Z3Mor1", Vector2(10900, 2560))
+	_spawn_fire("mortar", "F_Z3Mor2", Vector2(12550, 2560))
+	_spawn_fire("mortar", "F_Z3Mor3", Vector2(14400, 2560))
+	_spawn_fire("skimmer", "F_Z3Ski1", Vector2(11600, 2350))
+	_spawn_fire("skimmer", "F_Z3Ski2", Vector2(12900, 2350))
+	_spawn_fire("skimmer", "F_Z3Ski3", Vector2(14200, 2350))
+	_spawn_fire("hopper", "F_Z3Hop1", Vector2(11050, 2560))
+	_spawn_fire("hopper", "F_Z3Hop2", Vector2(13050, 2560))
+	_spawn_fire("hopper", "F_Z3Hop3", Vector2(14900, 2560))
+	_spawn_fire("serpent", "F_Z3Ser1", Vector2(12320, 2748))
+	_spawn_fire("serpent", "F_Z3Ser2", Vector2(13280, 2748))
+	# Z4 — shaft de wall-jump (voadores no poço; terrestres em pisos)
+	_spawn_fire("cinder", "F_Z4Cin1", Vector2(17520, 1900))
+	_spawn_fire("cinder", "F_Z4Cin2", Vector2(17520, 1400))
+	_spawn_fire("cinder", "F_Z4Cin3", Vector2(17520, 900))
+	_spawn_fire("orbiter", "F_Z4Orb1", Vector2(17520, 1700))
+	_spawn_fire("orbiter", "F_Z4Orb2", Vector2(17520, 1200))
+	_spawn_fire("orbiter", "F_Z4Orb3", Vector2(17520, 700))
+	_spawn_fire("grunt", "F_Z4Grunt1", Vector2(16400, 2540))
+	_spawn_fire("grunt", "F_Z4Grunt2", Vector2(17100, 2140))
+	_spawn_fire("grunt", "F_Z4Grunt3", Vector2(17800, 280))
+	_spawn_fire("skimmer", "F_Z4Ski1", Vector2(17520, 1100))
+	_spawn_fire("skimmer", "F_Z4Ski2", Vector2(17520, 600))
 
 func _build_z4_top() -> void:
 	# Câmara pré-chefe: piso seco com vão (saída do seg6) em x17456–17584.
