@@ -1910,6 +1910,7 @@ class _MovView extends Control:
         _world = mw
 
         _camera = Camera2D.new()
+        _camera.zoom = Vector2(2.0, 2.0)   # mesmo zoom do jogo e da aba Hitbox
         _camera.global_position = Vector2(_PLAYER_X, _GROUND_Y + 80.0)
         _world.add_child(_camera)
 
