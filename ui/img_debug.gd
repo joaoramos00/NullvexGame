@@ -1171,14 +1171,16 @@ class _HitboxOverlay extends Node2D:
         _draw_projectile_preview()
 
     # Régua de pixels centrada na origem da entidade: ticks a cada 10px, marcas
-    # maiores + rótulo a cada 50px. Os números são o offset em px do centro da entidade.
+    # maiores + rótulo a cada 50px. Os números são em GAME-PX (= o valor que vai
+    # direto nos offsets do código, 1:1). Ler sempre pelo NÚMERO impresso, nunca
+    # contando pixels na tela (a câmera amplia 2x — é só zoom visual).
     func _draw_ruler() -> void:
         var o := ruler_origin
         var ext := 420.0
         var font := ThemeDB.fallback_font
-        var axis_col := Color(0.5, 0.9, 1.0, 0.55)
-        var minor_col := Color(1.0, 1.0, 1.0, 0.18)
-        var major_col := Color(1.0, 1.0, 1.0, 0.55)
+        var axis_col := Color(0.5, 0.9, 1.0, 0.7)
+        var minor_col := Color(1.0, 1.0, 1.0, 0.22)
+        var major_col := Color(1.0, 1.0, 1.0, 0.7)
         draw_line(o + Vector2(-ext, 0.0), o + Vector2(ext, 0.0), axis_col, 1.0)
         draw_line(o + Vector2(0.0, -ext), o + Vector2(0.0, ext), axis_col, 1.0)
         var d := -int(ext)
@@ -1189,9 +1191,17 @@ class _HitboxOverlay extends Node2D:
             draw_line(o + Vector2(d, -tick), o + Vector2(d, tick), col, 1.0)   # marca no eixo X
             draw_line(o + Vector2(-tick, d), o + Vector2(tick, d), col, 1.0)   # marca no eixo Y
             if major and d != 0:
-                draw_string(font, o + Vector2(d + 1.0, -tick - 2.0), str(d), HORIZONTAL_ALIGNMENT_LEFT, -1.0, 10.0, major_col)
-                draw_string(font, o + Vector2(tick + 3.0, d + 4.0), str(d), HORIZONTAL_ALIGNMENT_LEFT, -1.0, 10.0, major_col)
+                _draw_ruler_label(font, str(d), o + Vector2(d + 2.0, -tick - 11.0))   # rótulo eixo X (acima)
+                _draw_ruler_label(font, str(d), o + Vector2(tick + 4.0, d - 1.0))     # rótulo eixo Y (à dir)
             d += 10
+        _draw_ruler_label(font, "0 (game-px)", o + Vector2(6.0, -6.0))
+
+    # Rótulo com fundo escuro p/ legibilidade sobre o sprite. Fonte 9px (mundo).
+    func _draw_ruler_label(font: Font, txt: String, at: Vector2) -> void:
+        var fs := 9
+        var size := font.get_string_size(txt, HORIZONTAL_ALIGNMENT_LEFT, -1.0, fs)
+        draw_rect(Rect2(at + Vector2(-1.0, -size.y), size + Vector2(2.0, 3.0)), Color(0.0, 0.0, 0.0, 0.6), true)
+        draw_string(font, at, txt, HORIZONTAL_ALIGNMENT_LEFT, -1.0, fs, Color(1.0, 1.0, 1.0, 0.95))
 
     func _shape_color(path: String) -> Color:
         if path.contains("ContactZone"):
