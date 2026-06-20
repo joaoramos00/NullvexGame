@@ -55,7 +55,7 @@ const _BOSS_ENTRY_X := 24550.0
 var _player: CharacterBase = null
 var _camera_locked := false
 var _camera_target := Vector2.ZERO
-var _camera_zoom_tgt := 2.2
+var _camera_zoom_tgt := 2.0
 var _corr1: CorridorSection = null
 var _corr2: CorridorSection = null
 var _corr3: CorridorSection = null
@@ -78,7 +78,7 @@ func _ready() -> void:
 	_apply_debug_zone_spawn()
 	$StageController.setup(_player)
 	$HUD.connect_to_player(_player)
-	$Camera2D.zoom = Vector2(2.2, 2.2)
+	$Camera2D.zoom = Vector2(2.0, 2.0)
 	AudioManager.play_bgm(AudioLibrary.get_stage_bgm(2))
 	_setup_corridors()
 	_build_zone1()
@@ -116,7 +116,7 @@ func _process(_delta: float) -> void:
 		cam.global_position = cam.global_position.lerp(_camera_target, 0.12)
 		cam.zoom = cam.zoom.lerp(Vector2(_camera_zoom_tgt, _camera_zoom_tgt), 0.12)
 	else:
-		cam.zoom = cam.zoom.lerp(Vector2(2.2, 2.2), 0.12)
+		cam.zoom = cam.zoom.lerp(Vector2(2.0, 2.0), 0.12)
 		cam.global_position = cam.global_position.lerp(_player.global_position - Vector2(0, 70), 0.12)
 	queue_redraw()
 

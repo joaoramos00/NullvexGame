@@ -78,7 +78,7 @@ var _miniboss_spawned := false
 var _corr3: CorridorSection = null
 var _camera_locked   := false
 var _camera_target   := Vector2.ZERO
-var _camera_zoom_tgt := 2.2
+var _camera_zoom_tgt := 2.0
 
 # Zona 3 — plataforma móvel do gauntlet "Exame Final"
 # DIST 258: half-curso 129px. Com início no centro do fosso (x=14975), os extremos
@@ -118,7 +118,7 @@ func _ready() -> void:
 	# Disconnect GoalZone — stage completion is handled via boss defeat
 	# (BossBase calls GameManager.complete_stage(stage_id) automatically)
 
-	$Camera2D.zoom = Vector2(2.2, 2.2)
+	$Camera2D.zoom = Vector2(2.0, 2.0)
 	AudioManager.play_bgm(AudioLibrary.get_stage_bgm(0))
 
 	_setup_corr1()
@@ -149,9 +149,9 @@ func _process(_delta: float) -> void:
 			cam.global_position = cam.global_position.lerp(_camera_target, 0.1)
 			cam.zoom = cam.zoom.lerp(Vector2(_camera_zoom_tgt, _camera_zoom_tgt), 0.1)
 		else:
-			cam.zoom = cam.zoom.lerp(Vector2(2.2, 2.2), 0.1)
-			if absf(cam.zoom.x - 2.2) < 0.05:
-				cam.zoom = Vector2(2.2, 2.2)
+			cam.zoom = cam.zoom.lerp(Vector2(2.0, 2.0), 0.1)
+			if absf(cam.zoom.x - 2.0) < 0.05:
+				cam.zoom = Vector2(2.0, 2.0)
 				cam.global_position = _player.global_position
 			else:
 				cam.global_position = cam.global_position.lerp(_player.global_position, 0.12)
