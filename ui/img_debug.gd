@@ -1149,10 +1149,14 @@ class _HitboxOverlay extends Node2D:
     var show_labels: bool = true
     var show_floor: bool = true
     var show_hitboxes: bool = true
+    var show_ruler: bool = false
+    var ruler_origin: Vector2 = Vector2.ZERO
 
     func _draw() -> void:
         if show_floor:
             _draw_floor()
+        if show_ruler:
+            _draw_ruler()
         if not show_hitboxes:
             return
         draw_line(Vector2(0.0, ground_y), Vector2(900.0, ground_y), Color(1.0, 0.9, 0.0, 0.9), 2.0)
@@ -1165,6 +1169,29 @@ class _HitboxOverlay extends Node2D:
             if show_labels:
                 draw_string(ThemeDB.fallback_font, cs.global_position + Vector2(8.0, -8.0), String(info.path), HORIZONTAL_ALIGNMENT_LEFT, -1.0, 13.0, color)
         _draw_projectile_preview()
+
+    # Régua de pixels centrada na origem da entidade: ticks a cada 10px, marcas
+    # maiores + rótulo a cada 50px. Os números são o offset em px do centro da entidade.
+    func _draw_ruler() -> void:
+        var o := ruler_origin
+        var ext := 420.0
+        var font := ThemeDB.fallback_font
+        var axis_col := Color(0.5, 0.9, 1.0, 0.55)
+        var minor_col := Color(1.0, 1.0, 1.0, 0.18)
+        var major_col := Color(1.0, 1.0, 1.0, 0.55)
+        draw_line(o + Vector2(-ext, 0.0), o + Vector2(ext, 0.0), axis_col, 1.0)
+        draw_line(o + Vector2(0.0, -ext), o + Vector2(0.0, ext), axis_col, 1.0)
+        var d := -int(ext)
+        while d <= int(ext):
+            var major := (d % 50 == 0)
+            var tick: float = 12.0 if major else 5.0
+            var col := major_col if major else minor_col
+            draw_line(o + Vector2(d, -tick), o + Vector2(d, tick), col, 1.0)   # marca no eixo X
+            draw_line(o + Vector2(-tick, d), o + Vector2(tick, d), col, 1.0)   # marca no eixo Y
+            if major and d != 0:
+                draw_string(font, o + Vector2(d + 1.0, -tick - 2.0), str(d), HORIZONTAL_ALIGNMENT_LEFT, -1.0, 10.0, major_col)
+                draw_string(font, o + Vector2(tick + 3.0, d + 4.0), str(d), HORIZONTAL_ALIGNMENT_LEFT, -1.0, 10.0, major_col)
+            d += 10
 
     func _shape_color(path: String) -> Color:
         if path.contains("ContactZone"):
@@ -1293,6 +1320,8 @@ class _HitboxView extends Control:
     var _meta_label: Label = null
     var _sprite_btn: Button = null
     var _labels_btn: Button = null
+    var _ruler_btn: Button = null
+    var _show_ruler: bool = false
     var _type_row: HBoxContainer = null
     var _stage_row: HBoxContainer = null
     var _entity_row: HBoxContainer = null
@@ -1341,6 +1370,8 @@ class _HitboxView extends Control:
         toolbar.add_child(_sprite_btn)
         _labels_btn = _make_button("Labels ON", _toggle_labels)
         toolbar.add_child(_labels_btn)
+        _ruler_btn = _make_button("Regua OFF", _toggle_ruler)
+        toolbar.add_child(_ruler_btn)
 
         var row := HBoxContainer.new()
         row.add_theme_constant_override("separation", 16)
@@ -1385,6 +1416,8 @@ class _HitboxView extends Control:
         _shape_overlay = _HitboxOverlay.new()
         _shape_overlay.ground_y = _ENTITY_POS.y
         _shape_overlay.show_floor = false
+        _shape_overlay.ruler_origin = _ENTITY_POS
+        _shape_overlay.show_ruler = _show_ruler
         _shape_overlay.z_index = 2
         _scene_root.add_child(_shape_overlay)
         _overlay = _floor_overlay
@@ -1443,6 +1476,9 @@ class _HitboxView extends Control:
         if _shape_overlay != null:
             _shape_overlay.shape_infos = _shape_infos
             _shape_overlay.show_labels = _show_labels
+            # régua ancorada na origem real da entidade (após alinhar ao chão) → os
+            # números batem com os offsets do _PROJECTILE_DEFS / _fire().
+            _shape_overlay.ruler_origin = _current_instance.global_position
             _shape_overlay.queue_redraw()
         _set_meta(entry, _shape_infos)
         _refresh_frame_row()
@@ -1628,6 +1664,14 @@ class _HitboxView extends Control:
             _labels_btn.text = "Labels ON" if _show_labels else "Labels OFF"
         if _shape_overlay != null:
             _shape_overlay.show_labels = _show_labels
+            _shape_overlay.queue_redraw()
+
+    func _toggle_ruler() -> void:
+        _show_ruler = not _show_ruler
+        if _ruler_btn != null:
+            _ruler_btn.text = "Regua ON" if _show_ruler else "Regua OFF"
+        if _shape_overlay != null:
+            _shape_overlay.show_ruler = _show_ruler
             _shape_overlay.queue_redraw()
 
     func _first_filtered_index() -> int:
