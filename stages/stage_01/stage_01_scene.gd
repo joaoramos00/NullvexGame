@@ -528,7 +528,7 @@ func _z4_spawn_flyer(n: String, pos: Vector2) -> void:
 	e.position = pos
 	add_child(e)
 
-func _spawn_fire(kind: String, n: String, pos: Vector2) -> Node2D:
+func _spawn_fire(kind: String, n: String, pos: Vector2, face_dir: float = 0.0) -> Node2D:
 	if DebugBoot.no_enemies:
 		return null
 	var old := get_node_or_null(n)
@@ -537,6 +537,10 @@ func _spawn_fire(kind: String, n: String, pos: Vector2) -> Node2D:
 	var e: Node2D = _FIRE[kind].instantiate()
 	e.name = n
 	e.position = pos
+	# face_dir só vale p/ a turret (que não vira); setar antes do add_child pois o
+	# _ready dela lê face_dir. 0.0 = mantém o default da cena (esquerda).
+	if face_dir != 0.0 and kind == "turret":
+		e.set("face_dir", face_dir)
 	add_child(e)
 	return e
 
@@ -558,9 +562,9 @@ func _spawn_fire_roster() -> void:
 	_spawn_fire("ram", "F_Z2Ram1", Vector2(4950, 2560))
 	_spawn_fire("ram", "F_Z2Ram2", Vector2(6100, 2560))
 	_spawn_fire("ram", "F_Z2Ram3", Vector2(7500, 2560))
-	_spawn_fire("turret", "F_Z2Tur1", Vector2(5350, 2560))
-	_spawn_fire("turret", "F_Z2Tur2", Vector2(6600, 2560))
-	_spawn_fire("turret", "F_Z2Tur3", Vector2(8300, 2560))
+	_spawn_fire("turret", "F_Z2Tur1", Vector2(5350, 2560), 1.0)   # vira p/ direita: pega o player depois que passa
+	_spawn_fire("turret", "F_Z2Tur2", Vector2(6600, 2560), -1.0)  # vira p/ esquerda: pega na aproximação
+	_spawn_fire("turret", "F_Z2Tur3", Vector2(8300, 2560), 1.0)   # vira p/ direita: cobre a saída
 	_spawn_fire("orbiter", "F_Z2Orb1", Vector2(5000, 2380))
 	_spawn_fire("orbiter", "F_Z2Orb2", Vector2(6300, 2380))
 	_spawn_fire("orbiter", "F_Z2Orb3", Vector2(7900, 2380))
