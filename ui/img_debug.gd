@@ -1345,7 +1345,7 @@ class _HitboxView extends Control:
     var _current_instance: Node2D = null
     var _shape_infos: Array = []
     var _filter_group: String = "Todos"
-    var _selected_stage: String = ""
+    var _selected_stage: String = "Todos"
     var _selected_frame: int = 0
     var _frame_count: int = 1
     var _show_sprite: bool = true
@@ -1363,10 +1363,11 @@ class _HitboxView extends Control:
     var _labels_btn: Button = null
     var _ruler_btn: Button = null
     var _show_ruler: bool = false
-    var _type_row: HBoxContainer = null
-    var _stage_row: HBoxContainer = null
-    var _entity_row: HBoxContainer = null
+    var _type_opt: OptionButton = null
+    var _stage_opt: OptionButton = null
+    var _entity_opt: OptionButton = null
     var _frame_row: HBoxContainer = null
+    var _frame_lbl: Label = null
     var _projectile_row: HBoxContainer = null
     var _projectile_label: Label = null
     var _current_projectile_info: Dictionary = {}
@@ -1382,19 +1383,26 @@ class _HitboxView extends Control:
         root.size_flags_vertical = Control.SIZE_EXPAND_FILL
         add_child(root)
 
-        _type_row = HBoxContainer.new()
-        _type_row.add_theme_constant_override("separation", 6)
-        root.add_child(_type_row)
-        for group_name in ["Todos", "Personagens", "Inimigos", "Bosses", "Projeteis"]:
-            _type_row.add_child(_make_button(group_name, _set_filter.bind(group_name)))
+        var sel_row := HBoxContainer.new()
+        sel_row.add_theme_constant_override("separation", 10)
+        root.add_child(sel_row)
 
-        _stage_row = HBoxContainer.new()
-        _stage_row.add_theme_constant_override("separation", 6)
-        root.add_child(_stage_row)
+        _type_opt = OptionButton.new()
+        for g in ["Todos", "Personagens", "Inimigos", "Bosses", "Projeteis"]:
+            _type_opt.add_item(g)
+        _type_opt.item_selected.connect(func(i): _set_filter(_type_opt.get_item_text(i)))
+        sel_row.add_child(_make_label("Tipo:"))
+        sel_row.add_child(_type_opt)
 
-        _entity_row = HBoxContainer.new()
-        _entity_row.add_theme_constant_override("separation", 6)
-        root.add_child(_entity_row)
+        _stage_opt = OptionButton.new()
+        _stage_opt.item_selected.connect(func(i): _set_stage(_stage_opt.get_item_text(i)))
+        sel_row.add_child(_make_label("Stage:"))
+        sel_row.add_child(_stage_opt)
+
+        _entity_opt = OptionButton.new()
+        _entity_opt.item_selected.connect(func(_i): _select_index(int(_entity_opt.get_selected_metadata())))
+        sel_row.add_child(_make_label("Entidade:"))
+        sel_row.add_child(_entity_opt)
 
         _frame_row = HBoxContainer.new()
         _frame_row.add_theme_constant_override("separation", 6)
@@ -1613,6 +1621,12 @@ class _HitboxView extends Control:
         btn.pressed.connect(callback)
         return btn
 
+    func _make_label(txt: String) -> Label:
+        var l := Label.new()
+        l.text = txt
+        l.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+        return l
+
     func _clear_container(container: Container) -> void:
         if container == null:
             return
@@ -1628,20 +1642,13 @@ class _HitboxView extends Control:
 
     func _set_filter(group_name: String) -> void:
         _filter_group = group_name
-        _selected_stage = _first_stage_for_filter()
-        _selected_frame = 0
-        _refresh_hierarchy_rows()
-        var first := _first_filtered_index()
-        if first >= 0:
-            _select_index(first)
+        _selected_stage = "Todos"
+        _refresh_stage_options()
+        _refresh_entity_options()
 
     func _set_stage(stage_name: String) -> void:
         _selected_stage = stage_name
-        _selected_frame = 0
-        _refresh_hierarchy_rows()
-        var first := _first_filtered_index()
-        if first >= 0:
-            _select_index(first)
+        _refresh_entity_options()
 
     func _select_entity_by_name(entity_name: String) -> void:
         for i in ImgDebug._HITBOX_ENTITIES.size():
@@ -1652,32 +1659,45 @@ class _HitboxView extends Control:
                 return
 
     func _refresh_hierarchy_rows() -> void:
-        _refresh_stage_row()
-        _refresh_entity_row()
+        _refresh_stage_options()
+        _refresh_entity_options()
 
-    func _refresh_stage_row() -> void:
-        _clear_container(_stage_row)
-        if _filter_group != "Inimigos":
+    func _refresh_stage_options() -> void:
+        if _stage_opt == null:
             return
-        var stages: Array[String] = []
-        for entry in ImgDebug._HITBOX_ENTITIES:
-            if not _entry_matches_kind(entry):
+        _stage_opt.clear()
+        var stages := ["Todos"]
+        for e in ImgDebug._HITBOX_ENTITIES:
+            if _filter_group != "Todos" and String(e.group) != _filter_group:
                 continue
-            var stage := String(entry.stage)
-            if stage != "" and not stages.has(stage):
-                stages.append(stage)
-        stages.sort()
-        if _selected_stage == "" and not stages.is_empty():
-            _selected_stage = stages[0]
-        for stage in stages:
-            _stage_row.add_child(_make_button(stage, _set_stage.bind(stage)))
+            var st := String(e.get("stage", ""))
+            if st != "" and not stages.has(st):
+                stages.append(st)
+        for s in stages:
+            _stage_opt.add_item(s)
+        for i in _stage_opt.item_count:
+            if _stage_opt.get_item_text(i) == _selected_stage:
+                _stage_opt.select(i)
+                return
+        _selected_stage = "Todos"
+        _stage_opt.select(0)
 
-    func _refresh_entity_row() -> void:
-        _clear_container(_entity_row)
+    func _refresh_entity_options() -> void:
+        if _entity_opt == null:
+            return
+        _entity_opt.clear()
         for i in ImgDebug._HITBOX_ENTITIES.size():
-            var entry: Dictionary = ImgDebug._HITBOX_ENTITIES[i]
-            if _entry_matches_filter(entry):
-                _entity_row.add_child(_make_button(String(entry.name), _select_index.bind(i)))
+            var e: Dictionary = ImgDebug._HITBOX_ENTITIES[i]
+            if _filter_group != "Todos" and String(e.group) != _filter_group:
+                continue
+            if _selected_stage != "Todos" and String(e.get("stage", "")) != _selected_stage:
+                continue
+            var idx := _entity_opt.item_count
+            _entity_opt.add_item(String(e.name))
+            _entity_opt.set_item_metadata(idx, i)
+        if _entity_opt.item_count > 0:
+            _entity_opt.select(0)
+            _select_index(int(_entity_opt.get_selected_metadata()))
 
     func _first_stage_for_filter() -> String:
         if _filter_group != "Inimigos":
@@ -1731,7 +1751,7 @@ class _HitboxView extends Control:
     func _entry_matches_filter(entry: Dictionary) -> bool:
         if not _entry_matches_kind(entry):
             return false
-        if _filter_group == "Inimigos" and _selected_stage != "":
+        if _filter_group == "Inimigos" and _selected_stage != "Todos":
             return String(entry.stage) == _selected_stage
         return true
 
@@ -1746,8 +1766,14 @@ class _HitboxView extends Control:
     func _refresh_frame_row() -> void:
         _clear_container(_frame_row)
         _frame_count = _detect_frame_count(_current_instance)
-        for i in _frame_count:
-            _frame_row.add_child(_make_button("Frame " + str(i + 1), _select_frame.bind(i)))
+        if _frame_count <= 1:
+            _frame_row.visible = false
+            return
+        _frame_row.visible = true
+        _frame_row.add_child(_make_button("◀", func(): _select_frame(wrapi(_selected_frame - 1, 0, _frame_count))))
+        _frame_lbl = _make_label("Frame %d/%d" % [_selected_frame + 1, _frame_count])
+        _frame_row.add_child(_frame_lbl)
+        _frame_row.add_child(_make_button("▶", func(): _select_frame(wrapi(_selected_frame + 1, 0, _frame_count))))
 
     func _detect_frame_count(node: Node) -> int:
         var sprite := _find_sprite2d(node)
