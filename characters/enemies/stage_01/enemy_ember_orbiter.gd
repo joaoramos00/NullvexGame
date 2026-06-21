@@ -34,4 +34,6 @@ func _fire_bolt(target: Node2D) -> void:
 	var proj = _PROJ.instantiate()
 	proj.setup(dir * BOLT_SPEED, BOLT_DAMAGE, "ember_orbiter", 0.0, "fire_bolt")
 	get_parent().add_child(proj)
-	proj.global_position = global_position
+	var ov := HitboxData.proj_offset(_hitbox_id(), 1.0)
+	var off := ov if ov != Vector2.INF else Vector2(0.0, 0.0)
+	proj.global_position = global_position + off
