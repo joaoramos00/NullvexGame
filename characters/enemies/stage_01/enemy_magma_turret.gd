@@ -46,7 +46,9 @@ func _fire() -> void:
 	var proj = _PROJ.instantiate()
 	proj.setup(Vector2(_direction * GLOB_SPEED, 0.0), GLOB_DAMAGE, "magma_turret", 0.0, "fire_glob")
 	get_parent().add_child(proj)
-	proj.global_position = global_position + Vector2(_direction * 38.0, -5.0)
+	var ov := HitboxData.proj_offset(_hitbox_id(), _direction)
+	var off := ov if ov != Vector2.INF else Vector2(_direction * 38.0, -5.0)
+	proj.global_position = global_position + off
 
 func _tick_invincibility(delta: float) -> void:
 	if _invincibility_timer > 0.0:

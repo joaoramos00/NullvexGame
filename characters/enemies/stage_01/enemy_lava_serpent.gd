@@ -103,7 +103,9 @@ func _fire() -> void:
 	var proj = _PROJ.instantiate()
 	proj.setup(dir * SPIT_SPEED, SPIT_DAMAGE, "lava_serpent", 0.0, "fire_spit")
 	get_parent().add_child(proj)
-	proj.global_position = global_position + Vector2(0.0, -20.0)
+	var ov := HitboxData.proj_offset(_hitbox_id(), 1.0)
+	var off := ov if ov != Vector2.INF else Vector2(0.0, -20.0)
+	proj.global_position = global_position + off
 
 func take_damage(amount: int, source: String = "") -> void:
 	if _state == S.SUBMERGED:

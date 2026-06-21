@@ -34,9 +34,68 @@ var show_hitbox: bool = false:
 
 @onready var _sprite := $Sprite2D
 
+var _hb_per_frame: bool = false
+var _hb_last_frame: int = -1
+
 func _ready() -> void:
 	current_hp = max_hp
 	$ContactZone.body_entered.connect(_on_contact)
+	HitboxData.reloaded.connect(_apply_hitbox_data)
+	_apply_hitbox_data()
+
+func _hitbox_id() -> String:
+	var scr: Script = get_script() as Script
+	if scr == null:
+		return ""
+	return scr.resource_path.get_file().get_basename()
+
+func _apply_hitbox_data() -> void:
+	var id := _hitbox_id()
+	if not HitboxData.has(id):
+		return
+	var e := HitboxData.entry(id)
+	if e.has("sprite") and is_instance_valid(_sprite):
+		var sp = e["sprite"]
+		if sp.has("pos"): _sprite.position = Vector2(sp["pos"][0], sp["pos"][1])
+		if sp.has("scale"): _sprite.scale = Vector2(sp["scale"][0], sp["scale"][1])
+	_hb_per_frame = false
+	for s in e.get("shapes", []):
+		var fr = s.get("frames", "all")
+		if not (fr is String and fr == "all"):
+			_hb_per_frame = true
+			break
+	_apply_hitbox_frame(0)
+
+func _apply_hitbox_frame(frame: int) -> void:
+	var id := _hitbox_id()
+	var shapes := HitboxData.frame_shapes(id, frame)
+	if shapes.is_empty():
+		return
+	_rebuild_shapes("body", shapes)
+	_rebuild_shapes("contact", shapes)
+	_hb_last_frame = frame
+
+func _rebuild_shapes(target: String, shapes: Array) -> void:
+	var host: Node = self if target == "body" else get_node_or_null("ContactZone")
+	if host == null:
+		return
+	for c in host.get_children():
+		if c is CollisionShape2D:
+			c.free()
+	for s in shapes:
+		if String(s.get("target", "")) != target:
+			continue
+		var cs := CollisionShape2D.new()
+		cs.position = Vector2(s["pos"][0], s["pos"][1])
+		if String(s.get("kind", "rect")) == "capsule":
+			var cap := CapsuleShape2D.new()
+			cap.radius = float(s["size"][0]); cap.height = float(s["size"][1])
+			cs.shape = cap
+		else:
+			var r := RectangleShape2D.new()
+			r.size = Vector2(s["size"][0], s["size"][1])
+			cs.shape = r
+		host.add_child(cs)
 
 func _physics_process(delta: float) -> void:
 	if is_dead:
@@ -96,7 +155,10 @@ func _animate_sprite_frames(delta: float, frame_count: int = WALK_FRAMES, fps: f
 
 func _advance_sprite_frame_loop(delta: float, frame_count: int, fps: float) -> int:
 	_animate_sprite_frames(delta, frame_count, fps)
-	return _sprite.frame if is_instance_valid(_sprite) else 0
+	var fr: int = _sprite.frame if is_instance_valid(_sprite) else 0
+	if _hb_per_frame and fr != _hb_last_frame:
+		_apply_hitbox_frame(fr)
+	return fr
 
 func _set_sprite_frame(frame_index: int) -> void:
 	_anim_frame = max(0, frame_index)
