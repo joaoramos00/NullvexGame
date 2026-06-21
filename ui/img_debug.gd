@@ -1304,7 +1304,7 @@ class _HitboxView extends Control:
         "Glacier Shield": {"label": "Eye Beam", "variant": "eye_beam", "release_frame": 2, "offset": Vector2(34.0, -18.0), "parabolic": false},
         # Stage 01 — offsets espelham o _fire() de cada inimigo (turret usa face_dir=-1 → muzzle à esquerda).
         "Ember Orbiter": {"label": "Fire Bolt", "variant": "fire_bolt", "release_frame": 2, "offset": Vector2(0.0, 0.0), "parabolic": false},
-        "Cinder Flyer": {"label": "Fire Bolt", "variant": "fire_bolt", "release_frame": 1, "offset": Vector2(0.0, 0.0), "parabolic": false},
+        "Cinder Flyer": {"label": "Fire Bolt", "variant": "fire_bolt", "release_frame": 1, "offset": Vector2(10.0, -10.0), "parabolic": false},
         "Heat Mortar": {"label": "Heat Mortar Shell", "variant": "heat_mortar_shell", "release_frame": 4, "offset": Vector2(30.0, -30.0), "parabolic": true},
         "Magma Turret": {"label": "Fire Glob", "variant": "fire_glob", "release_frame": 1, "offset": Vector2(-28.0, -8.0), "parabolic": false},
         "Lava Serpent": {"label": "Fire Spit", "variant": "fire_spit", "release_frame": 9, "offset": Vector2(0.0, -20.0), "parabolic": false},
