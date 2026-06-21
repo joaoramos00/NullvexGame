@@ -30,6 +30,7 @@ AudioManager="*res://autoloads/audio_manager.gd"
 AudioLibrary="*res://autoloads/audio_library.gd"
 InputSetup="*res://autoloads/input_setup.gd"
 DebugBoot="*res://tests/bot/debug_boot.gd"
+HitboxData="*res://autoloads/hitbox_data.gd"
 
 [display]
 
