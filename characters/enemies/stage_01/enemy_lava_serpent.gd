@@ -4,7 +4,6 @@ class_name EnemyLavaSerpent
 const _PROJ := preload("res://characters/enemies/stage_01/fire_projectile.tscn")
 const FRAMES := 16
 const FPS := 10.0
-const RISE := 140.0           # px que sobe ao emergir
 const T_SUBMERGED := 1.6
 const T_EMERGE := 0.7
 const T_EXPOSED := 1.2
@@ -73,8 +72,6 @@ func _physics_process(delta: float) -> void:
 				visible = true
 				_enter(S.EMERGING)
 		S.EMERGING:
-			var t: float = clampf(1.0 - _timer / T_EMERGE, 0.0, 1.0)
-			global_position.y = _base_y - RISE * t
 			if _timer <= 0.0:
 				_enter(S.EXPOSED)
 		S.EXPOSED:
@@ -88,8 +85,6 @@ func _physics_process(delta: float) -> void:
 			elif _timer <= 0.0:
 				_enter(S.SUBMERGING)
 		S.SUBMERGING:
-			var t2: float = clampf(_timer / T_SUBMERGE, 0.0, 1.0)
-			global_position.y = _base_y - RISE * t2
 			if _timer <= 0.0:
 				_enter(S.SUBMERGED)
 	if _state in [S.EMERGING, S.EXPOSED, S.SPIT, S.SUBMERGING]:
