@@ -10,8 +10,9 @@ const T_EXPOSED := 1.2
 const T_SUBMERGE := 0.6
 const SPIT_SPEED := 320.0
 const SPIT_DAMAGE := 8
+const SPIT_FRAME := 9   # cospe o fogo quando a animação chega neste frame
 
-enum S { SUBMERGED, EMERGING, EXPOSED, SPIT, SUBMERGING }
+enum S { SUBMERGED, EMERGING, EXPOSED, SUBMERGING }
 var _state: S = S.SUBMERGED
 var _timer := T_SUBMERGED
 var _base_y := 0.0
@@ -41,12 +42,12 @@ func _enter(s: S) -> void:
 			_set_visible_contact(false)
 		S.EMERGING:
 			_timer = T_EMERGE
+			_spat = false
+			_set_sprite_frame(0)   # reseta a animação p/ o SPIT_FRAME ser consistente por ciclo
 		S.EXPOSED:
 			_timer = T_EXPOSED
 			_invincible = false
 			_set_visible_contact(true)
-		S.SPIT:
-			_spat = false
 		S.SUBMERGING:
 			_timer = T_SUBMERGE
 
@@ -56,6 +57,17 @@ func _set_visible_contact(on: bool) -> void:
 	if cz != null:
 		cz.monitoring = on
 		cz.monitorable = on
+
+# Vira a serpente para o player (ela é fixa; só espelha o sprite).
+func _face_player() -> void:
+	var p := get_tree().get_first_node_in_group("player") as Node2D
+	if p == null:
+		return
+	var d: float = signf(p.global_position.x - global_position.x)
+	if d != 0.0:
+		_direction = d
+		if is_instance_valid(_sprite):
+			_sprite.flip_h = _direction < 0.0
 
 func _physics_process(delta: float) -> void:
 	if is_dead:
@@ -72,22 +84,21 @@ func _physics_process(delta: float) -> void:
 				visible = true
 				_enter(S.EMERGING)
 		S.EMERGING:
+			# Emerge no lugar — a animação de 16 frames faz o visual de subir do poço.
 			if _timer <= 0.0:
 				_enter(S.EXPOSED)
 		S.EXPOSED:
-			if _timer <= 0.0:
-				_enter(S.SPIT)
-		S.SPIT:
-			if not _spat:
+			_face_player()
+			# Cospe fogo quando a animação atinge o frame de disparo (uma vez por ciclo).
+			if not _spat and is_instance_valid(_sprite) and _sprite.frame >= SPIT_FRAME:
 				_spat = true
 				_fire()
-				_timer = 0.4
-			elif _timer <= 0.0:
+			if _timer <= 0.0:
 				_enter(S.SUBMERGING)
 		S.SUBMERGING:
 			if _timer <= 0.0:
 				_enter(S.SUBMERGED)
-	if _state in [S.EMERGING, S.EXPOSED, S.SPIT, S.SUBMERGING]:
+	if _state in [S.EMERGING, S.EXPOSED, S.SUBMERGING]:
 		_advance_sprite_frame_loop(delta, FRAMES, FPS)
 
 func _fire() -> void:
@@ -98,8 +109,8 @@ func _fire() -> void:
 	var proj = _PROJ.instantiate()
 	proj.setup(dir * SPIT_SPEED, SPIT_DAMAGE, "lava_serpent", 0.0, "fire_spit")
 	get_parent().add_child(proj)
-	var ov := HitboxData.proj_offset(_hitbox_id(), 1.0)
-	var off := ov if ov != Vector2.INF else Vector2(0.0, -20.0)
+	var ov := HitboxData.proj_offset(_hitbox_id(), _direction)
+	var off := ov if ov != Vector2.INF else Vector2(_direction * 50.0, -20.0)
 	proj.global_position = global_position + off
 
 func take_damage(amount: int, source: String = "") -> void:
