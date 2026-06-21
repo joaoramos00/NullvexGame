@@ -1140,6 +1140,15 @@ class _FillCeilWorld extends Node2D:
 class _HitboxOverlay extends Node2D:
     const _TILE_SRC := 32.0
     const _TILE_DRAW := 64.0
+    # Texturas reais dos projéteis que têm sprite (fogo). Desenhadas no preview
+    # no tamanho de jogo (frame único da sheet 2x2, escala 0.35 = igual ao fire_projectile.tscn).
+    const _PROJ_TEX := {
+        "fire_bolt": preload("res://characters/enemies/stage_01/fire_bolt.png"),
+        "fire_glob": preload("res://characters/enemies/stage_01/fire_glob.png"),
+        "fire_spit": preload("res://characters/enemies/stage_01/fire_spit.png"),
+        "heat_mortar_shell": preload("res://characters/enemies/stage_01/heat_mortar_shell.png"),
+    }
+    const _PROJ_TEX_SCALE := 0.35
 
     var floor_tex: Texture2D = null
     var floor_body_rows: int = 1
@@ -1272,12 +1281,22 @@ class _HitboxOverlay extends Node2D:
                 draw_rect(Rect2(pos + Vector2(-4.0, -6.0), Vector2(42.0, 12.0)), Color(0.38, 0.95, 1.0, 0.35), true)
                 draw_rect(Rect2(pos + Vector2(-4.0, -6.0), Vector2(42.0, 12.0)), color, false, 2.0)
             "fire_bolt", "fire_glob", "fire_spit", "heat_mortar_shell":
-                var fr: float = 12.0 if variant == "heat_mortar_shell" else 10.0
-                draw_circle(pos, fr, Color(1.0, 0.5, 0.12, 0.4))
-                draw_arc(pos, fr, 0.0, TAU, 32, Color(1.0, 0.36, 0.08, 0.95), 2.0)
+                _draw_proj_sprite(variant, pos)
             _:
                 draw_circle(pos, 9.0, Color(0.55, 0.92, 1.0, 0.35))
                 draw_arc(pos, 9.0, 0.0, TAU, 32, color, 2.0)
+
+    # Desenha o sprite real do projétil (1º frame da sheet 2x2) centrado no ponto de
+    # spawn, no tamanho de jogo, + um marcador do ponto exato.
+    func _draw_proj_sprite(variant: String, pos: Vector2) -> void:
+        var tex: Texture2D = _PROJ_TEX.get(variant)
+        if tex == null:
+            return
+        var fw := tex.get_width() * 0.5
+        var fh := tex.get_height() * 0.5
+        var sz := Vector2(fw, fh) * _PROJ_TEX_SCALE
+        draw_texture_rect_region(tex, Rect2(pos - sz * 0.5, sz), Rect2(0.0, 0.0, fw, fh))
+        draw_circle(pos, 3.0, Color(1.0, 1.0, 1.0, 0.9))
 
     func _draw_floor() -> void:
         if floor_tex == null:
