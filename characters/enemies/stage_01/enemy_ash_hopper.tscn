@@ -3,9 +3,11 @@
 [ext_resource type="Script" path="res://characters/enemies/stage_01/enemy_ash_hopper.gd" id="1_script"]
 [ext_resource type="Texture2D" path="res://characters/enemies/stage_01/enemy_ash_hopper.png" id="2_tex"]
 
-[sub_resource type="CapsuleShape2D" id="Cap_1"]
-radius = 16.0
-height = 60.0
+[sub_resource type="RectangleShape2D" id="Body_1"]
+size = Vector2(52.0, 30.0)
+
+[sub_resource type="RectangleShape2D" id="Contact_1"]
+size = Vector2(52.0, 30.0)
 
 [node name="EnemyAshHopper" type="CharacterBody2D"]
 collision_layer = 4
@@ -13,7 +15,8 @@ collision_mask = 1
 script = ExtResource("1_script")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-shape = SubResource("Cap_1")
+position = Vector2(0, 15)
+shape = SubResource("Body_1")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
 texture = ExtResource("2_tex")
@@ -27,4 +30,5 @@ collision_layer = 0
 collision_mask = 2
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="ContactZone"]
-shape = SubResource("Cap_1")
+position = Vector2(0, 15)
+shape = SubResource("Contact_1")
