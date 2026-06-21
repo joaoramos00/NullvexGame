@@ -3,9 +3,8 @@
 [ext_resource type="Script" path="res://characters/enemies/stage_01/enemy_flame_skimmer.gd" id="1_script"]
 [ext_resource type="Texture2D" path="res://characters/enemies/stage_01/enemy_flame_skimmer.png" id="2_tex"]
 
-[sub_resource type="CapsuleShape2D" id="Cap_1"]
-radius = 22.0
-height = 70.0
+[sub_resource type="RectangleShape2D" id="Cap_1"]
+size = Vector2(88.0, 35.0)
 
 [node name="EnemyFlameSkimmer" type="CharacterBody2D"]
 collision_layer = 4
