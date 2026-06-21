@@ -3,9 +3,8 @@
 [ext_resource type="Script" path="res://characters/enemies/stage_01/enemy_cinder_flyer.gd" id="1_script"]
 [ext_resource type="Texture2D" path="res://characters/enemies/stage_01/enemy_cinder_flyer.png" id="2_tex"]
 
-[sub_resource type="CapsuleShape2D" id="Cap_1"]
-radius = 18.0
-height = 56.0
+[sub_resource type="RectangleShape2D" id="Cap_1"]
+size = Vector2(72.0, 56.0)
 
 [node name="EnemyCinderFlyer" type="CharacterBody2D"]
 collision_layer = 4
