@@ -1255,12 +1255,15 @@ class _HitboxOverlay extends Node2D:
         var variant := String(projectile_preview.get("variant", "ice_ball"))
         var parabolic := bool(projectile_preview.get("parabolic", false))
         var color := Color(1.0, 0.48, 0.12, 0.95)
+        var traj_angle := 0.0
         # Trajetória reta diagonal até o chão à frente (projétil que mira no player no solo).
         if String(projectile_preview.get("trajectory", "")) == "floor":
             var target := Vector2(pos.x + 240.0, ground_y)
+            traj_angle = (target - pos).angle()
             draw_line(pos, target, Color(1.0, 0.6, 0.2, 0.85), 2.0)
             draw_circle(target, 5.0, Color(1.0, 0.6, 0.2, 0.6))
         if parabolic:
+            traj_angle = Vector2(52.0, -60.0).angle()   # tangente inicial do arco
             var points := PackedVector2Array([
                 pos,
                 pos + Vector2(52.0, -60.0),
@@ -1286,21 +1289,24 @@ class _HitboxOverlay extends Node2D:
                 draw_rect(Rect2(pos + Vector2(-4.0, -6.0), Vector2(42.0, 12.0)), Color(0.38, 0.95, 1.0, 0.35), true)
                 draw_rect(Rect2(pos + Vector2(-4.0, -6.0), Vector2(42.0, 12.0)), color, false, 2.0)
             "fire_bolt", "fire_glob", "fire_spit", "heat_mortar_shell":
-                _draw_proj_sprite(variant, pos)
+                _draw_proj_sprite(variant, pos, traj_angle)
             _:
                 draw_circle(pos, 9.0, Color(0.55, 0.92, 1.0, 0.35))
                 draw_arc(pos, 9.0, 0.0, TAU, 32, color, 2.0)
 
     # Desenha o sprite real do projétil (1º frame da sheet 2x2) centrado no ponto de
     # spawn, no tamanho de jogo, + um marcador do ponto exato.
-    func _draw_proj_sprite(variant: String, pos: Vector2) -> void:
+    func _draw_proj_sprite(variant: String, pos: Vector2, angle: float = 0.0) -> void:
         var tex: Texture2D = _PROJ_TEX.get(variant)
         if tex == null:
             return
         var fw := tex.get_width() * 0.5
         var fh := tex.get_height() * 0.5
         var sz := Vector2(fw, fh) * _PROJ_TEX_SCALE
-        draw_texture_rect_region(tex, Rect2(pos - sz * 0.5, sz), Rect2(0.0, 0.0, fw, fh))
+        # Rotaciona o sprite p/ o ângulo da trajetória (igual ao jogo: rotation = velocity.angle()).
+        draw_set_transform(pos, angle, Vector2.ONE)
+        draw_texture_rect_region(tex, Rect2(-sz * 0.5, sz), Rect2(0.0, 0.0, fw, fh))
+        draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
         draw_circle(pos, 3.0, Color(1.0, 1.0, 1.0, 0.9))
 
     func _draw_floor() -> void:
@@ -1329,7 +1335,7 @@ class _HitboxView extends Control:
         "Glacier Shield": {"label": "Eye Beam", "variant": "eye_beam", "release_frame": 2, "offset": Vector2(34.0, -18.0), "parabolic": false},
         # Stage 01 — offsets espelham o _fire() de cada inimigo (turret usa face_dir=-1 → muzzle à esquerda).
         "Ember Orbiter": {"label": "Fire Bolt", "variant": "fire_bolt", "release_frame": 2, "offset": Vector2(0.0, 0.0), "parabolic": false},
-        "Cinder Flyer": {"label": "Fire Bolt", "variant": "fire_bolt", "release_frame": 1, "offset": Vector2(10.0, -10.0), "parabolic": false, "trajectory": "floor"},
+        "Cinder Flyer": {"label": "Fire Bolt", "variant": "fire_bolt", "release_frame": 1, "offset": Vector2(10.0, 40.0), "parabolic": false, "trajectory": "floor"},
         "Heat Mortar": {"label": "Heat Mortar Shell", "variant": "heat_mortar_shell", "release_frame": 4, "offset": Vector2(17.0, -40.0), "parabolic": true},
         "Magma Turret": {"label": "Fire Glob", "variant": "fire_glob", "release_frame": 2, "offset": Vector2(-38.0, -5.0), "parabolic": false},
         "Lava Serpent": {"label": "Fire Spit", "variant": "fire_spit", "release_frame": 9, "offset": Vector2(0.0, -20.0), "parabolic": false},
