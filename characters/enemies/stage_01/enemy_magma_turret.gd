@@ -46,7 +46,7 @@ func _fire() -> void:
 	var proj = _PROJ.instantiate()
 	proj.setup(Vector2(_direction * GLOB_SPEED, 0.0), GLOB_DAMAGE, "magma_turret", 0.0, "fire_glob")
 	get_parent().add_child(proj)
-	proj.global_position = global_position + Vector2(_direction * 28.0, -8.0)
+	proj.global_position = global_position + Vector2(_direction * 38.0, -5.0)
 
 func _tick_invincibility(delta: float) -> void:
 	if _invincibility_timer > 0.0:

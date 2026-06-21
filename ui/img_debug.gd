@@ -1306,7 +1306,7 @@ class _HitboxView extends Control:
         "Ember Orbiter": {"label": "Fire Bolt", "variant": "fire_bolt", "release_frame": 2, "offset": Vector2(0.0, 0.0), "parabolic": false},
         "Cinder Flyer": {"label": "Fire Bolt", "variant": "fire_bolt", "release_frame": 1, "offset": Vector2(10.0, -10.0), "parabolic": false},
         "Heat Mortar": {"label": "Heat Mortar Shell", "variant": "heat_mortar_shell", "release_frame": 4, "offset": Vector2(17.0, -40.0), "parabolic": true},
-        "Magma Turret": {"label": "Fire Glob", "variant": "fire_glob", "release_frame": 1, "offset": Vector2(-28.0, -8.0), "parabolic": false},
+        "Magma Turret": {"label": "Fire Glob", "variant": "fire_glob", "release_frame": 2, "offset": Vector2(-38.0, -5.0), "parabolic": false},
         "Lava Serpent": {"label": "Fire Spit", "variant": "fire_spit", "release_frame": 9, "offset": Vector2(0.0, -20.0), "parabolic": false},
     }
 
