@@ -7,16 +7,15 @@ const HOP_INTERVAL := 0.9
 const HOP_VY := -460.0
 const HOP_VX := 150.0
 
-# Hitbox por frame [largura, altura], em game-px. Base original = 32x60.
-# Frames 1-2: -50% vertical + 10px/lado horizontal (52x30). Frame 3: 52x60.
-# Frame 4: atual (32x60). Frame 5: -50% vertical (32x30). Frame 6: atual (32x60).
+# Hitbox por frame [largura, altura], em game-px. Base original = 32x60; todos os
+# frames levam +10px/lado (largura 52). Altura: frames 1,2,5 = 30 (-50%); 3,4,6 = 60.
 const _FRAME_BOX := [
 	Vector2(52.0, 30.0),  # frame 1
 	Vector2(52.0, 30.0),  # frame 2
 	Vector2(52.0, 60.0),  # frame 3
-	Vector2(32.0, 60.0),  # frame 4
-	Vector2(32.0, 30.0),  # frame 5
-	Vector2(32.0, 60.0),  # frame 6
+	Vector2(52.0, 60.0),  # frame 4
+	Vector2(52.0, 30.0),  # frame 5
+	Vector2(52.0, 60.0),  # frame 6
 ]
 const _FOOT_Y := 30.0   # fundo do hitbox (base/2); shapes ancorados aqui p/ os pés não tremerem
 
