@@ -1165,6 +1165,7 @@ class _HitboxOverlay extends Node2D:
     var sel_shape: int = -1
     var edit_proj: Dictionary = {}
     var editing: bool = false
+    var sprite_handle: Vector2 = Vector2.INF
 
     func _draw() -> void:
         if show_floor:
@@ -1206,6 +1207,8 @@ class _HitboxOverlay extends Node2D:
             var po: Array = edit_proj["offset"] as Array
             var pp := ruler_origin + Vector2(float(po[0]), float(po[1]))
             draw_circle(pp, 6.0, Color(0.2, 1.0, 0.4, 0.9))
+        if sprite_handle != Vector2.INF:
+            draw_rect(Rect2(sprite_handle - Vector2(6, 6), Vector2(12, 12)), Color(0.3, 0.85, 1.0, 0.95))
 
     # Régua de pixels centrada na origem da entidade: ticks a cada 10px, marcas
     # maiores + rótulo a cada 50px. Os números são em GAME-PX (= o valor que vai
@@ -1408,8 +1411,6 @@ class _HitboxView extends Control:
     var _edit_this_frame: bool = false
     var _drag_mode: String = ""          # "", move_shape, resize_<e>, move_sprite, scale_sprite, move_proj
     var _drag_last_world: Vector2 = Vector2.ZERO
-    var _drag_grab_size: Vector2 = Vector2.ZERO   # tamanho no momento do grab (resize)
-    var _drag_grab_pos: Vector2 = Vector2.ZERO    # pos no momento do grab (resize/move)
     var _edit_toolbar: HBoxContainer = null
     var _edit_toggle_btn: Button = null
     var _frame_scope_btn: Button = null
@@ -1916,12 +1917,33 @@ class _HitboxView extends Control:
         _sel_shape = (_edit["shapes"].size() - 1) if _edit["shapes"].size() > 0 else -1
         _push_overlay_edit()
 
+    func _sprite_node() -> Sprite2D:
+        return _current_instance.get_node_or_null("Sprite2D") as Sprite2D if _current_instance != null else null
+
+    func _sprite_center_world() -> Vector2:
+        var sp := _sprite_node()
+        if sp == null: return _origin_world()
+        return _origin_world() + sp.position
+
+    func _sprite_half_frame() -> Vector2:
+        var sp := _sprite_node()
+        if sp == null or sp.texture == null: return Vector2(32, 32)
+        var fw := sp.texture.get_width() / maxi(1, sp.hframes)
+        var fh := sp.texture.get_height() / maxi(1, sp.vframes)
+        return Vector2(fw, fh) * 0.5
+
+    func _sprite_scale_handle_world() -> Vector2:
+        var sp := _sprite_node()
+        var sc := sp.scale if sp != null else Vector2.ONE
+        return _sprite_center_world() + Vector2(_sprite_half_frame().x * sc.x, -_sprite_half_frame().y * sc.y)
+
     func _push_overlay_edit() -> void:
         if _shape_overlay == null:
             return
         _shape_overlay.edit_shapes = _edit.get("shapes", [])
         _shape_overlay.sel_shape = _sel_shape
         _shape_overlay.edit_proj = _edit.get("projectile", {})
+        _shape_overlay.sprite_handle = _sprite_scale_handle_world() if _shape_overlay.editing else Vector2.INF
         _shape_overlay.queue_redraw()
 
     func _frame_scope() -> Variant:
@@ -1995,8 +2017,6 @@ class _HitboxView extends Control:
                         elif hx > 0.0: dir += "r"
                         _drag_mode = "resize_" + dir
                         _drag_last_world = world
-                        _drag_grab_size = Vector2(float(s["size"][0]), float(s["size"][1]))
-                        _drag_grab_pos = Vector2(float(s["pos"][0]), float(s["pos"][1]))
                         return
 
         # Testa corpo de cada shape (hit-test → seleciona e inicia move)
@@ -2012,12 +2032,30 @@ class _HitboxView extends Control:
                 _push_overlay_edit()
                 return
 
+        # Sem hit → testa alça de escala do sprite (canto superior-direito)
+        if world.distance_to(_sprite_scale_handle_world()) <= 10.0:
+            _drag_mode = "scale_sprite"
+            _drag_last_world = world
+            return
+
         # Sem hit → tenta mover sprite
         _drag_mode = "move_sprite"
         _drag_last_world = world
 
     func _continue_drag(screen_pos: Vector2) -> void:
         var world := _screen_to_world(screen_pos)
+
+        # scale_sprite usa posição absoluta (não delta); tratado antes do snap guard
+        if _drag_mode == "scale_sprite":
+            var half := _sprite_half_frame()
+            if half.x > 0.0:
+                var s: float = maxf(0.1, absf(world.x - _sprite_center_world().x) / half.x)
+                s = snappedf(s, 0.05)
+                if not _edit.has("sprite"): _edit["sprite"] = {}
+                _edit["sprite"]["scale"] = [s, s]
+                _apply_edit_to_instance()
+            return
+
         var raw_delta := world - _drag_last_world
         # Snap a 1 game-px inteiro
         var delta := Vector2(roundi(raw_delta.x), roundi(raw_delta.y))
@@ -2125,6 +2163,8 @@ class _HitboxView extends Control:
     # ── Save (POST para o servidor de hitbox) ─────────────────────────────────
 
     func _on_save() -> void:
+        if _edit_id.is_empty():
+            return
         var req := HTTPRequest.new()
         add_child(req)
         req.request_completed.connect(func(_r, _c, _h, _b): req.queue_free())
