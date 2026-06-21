@@ -4,7 +4,7 @@
 [ext_resource type="Texture2D" path="res://characters/enemies/stage_01/enemy_magma_turret.png" id="2_tex"]
 
 [sub_resource type="CapsuleShape2D" id="Cap_1"]
-radius = 24.0
+radius = 29.0
 height = 72.0
 
 [node name="EnemyMagmaTurret" type="CharacterBody2D"]
@@ -13,6 +13,7 @@ collision_mask = 1
 script = ExtResource("1_script")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(-5, 0)
 shape = SubResource("Cap_1")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
@@ -27,4 +28,5 @@ collision_layer = 0
 collision_mask = 2
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="ContactZone"]
+position = Vector2(-5, 0)
 shape = SubResource("Cap_1")
