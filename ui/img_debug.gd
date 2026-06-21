@@ -1255,6 +1255,11 @@ class _HitboxOverlay extends Node2D:
         var variant := String(projectile_preview.get("variant", "ice_ball"))
         var parabolic := bool(projectile_preview.get("parabolic", false))
         var color := Color(1.0, 0.48, 0.12, 0.95)
+        # Trajetória reta diagonal até o chão à frente (projétil que mira no player no solo).
+        if String(projectile_preview.get("trajectory", "")) == "floor":
+            var target := Vector2(pos.x + 240.0, ground_y)
+            draw_line(pos, target, Color(1.0, 0.6, 0.2, 0.85), 2.0)
+            draw_circle(target, 5.0, Color(1.0, 0.6, 0.2, 0.6))
         if parabolic:
             var points := PackedVector2Array([
                 pos,
@@ -1316,6 +1321,7 @@ class _HitboxView extends Control:
     const _ENTITY_POS := Vector2(450.0, 300.0)
     const _CAMERA_ZOOM := Vector2(2.0, 2.0)
     const _CAMERA_OFFSET_Y := -76.0   # 24 - 100: câmera sobe 100px (mais espaço acima da entidade)
+    const _FLY_HEIGHT := 140.0        # altura do pulo: voadores flutuam isto acima do chão no preview
     const _PROJECTILE_DEFS := {
         "Ice Archer": {"label": "Ice Arrow", "variant": "ice_arrow", "release_frame": 4, "offset": Vector2(52.0, -82.0), "parabolic": false},
         "Frost Turret": {"label": "Ice Cannonball", "variant": "ice_cannonball", "release_frame": 3, "offset": Vector2(32.0, 0.0), "parabolic": false},
@@ -1323,7 +1329,7 @@ class _HitboxView extends Control:
         "Glacier Shield": {"label": "Eye Beam", "variant": "eye_beam", "release_frame": 2, "offset": Vector2(34.0, -18.0), "parabolic": false},
         # Stage 01 — offsets espelham o _fire() de cada inimigo (turret usa face_dir=-1 → muzzle à esquerda).
         "Ember Orbiter": {"label": "Fire Bolt", "variant": "fire_bolt", "release_frame": 2, "offset": Vector2(0.0, 0.0), "parabolic": false},
-        "Cinder Flyer": {"label": "Fire Bolt", "variant": "fire_bolt", "release_frame": 1, "offset": Vector2(10.0, -10.0), "parabolic": false},
+        "Cinder Flyer": {"label": "Fire Bolt", "variant": "fire_bolt", "release_frame": 1, "offset": Vector2(10.0, -10.0), "parabolic": false, "trajectory": "floor"},
         "Heat Mortar": {"label": "Heat Mortar Shell", "variant": "heat_mortar_shell", "release_frame": 4, "offset": Vector2(17.0, -40.0), "parabolic": true},
         "Magma Turret": {"label": "Fire Glob", "variant": "fire_glob", "release_frame": 2, "offset": Vector2(-38.0, -5.0), "parabolic": false},
         "Lava Serpent": {"label": "Fire Spit", "variant": "fire_spit", "release_frame": 9, "offset": Vector2(0.0, -20.0), "parabolic": false},
@@ -1492,6 +1498,9 @@ class _HitboxView extends Control:
         _apply_selected_frame()
         _shape_infos = _collect_shapes(_current_instance)
         _align_current_to_floor()
+        # Voadores (têm bob_amplitude) sobem p/ a altura do pulo, p/ ver a relação espacial real.
+        if _current_instance.get("bob_amplitude") != null:
+            _current_instance.position.y -= _FLY_HEIGHT
         _freeze_node_tree(_current_instance)
         _current_instance.visible = true   # inimigos que se auto-escondem no _ready (ex.: lava_serpent submersa)
         _apply_selected_frame()
