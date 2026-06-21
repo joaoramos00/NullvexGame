@@ -8,6 +8,19 @@ var _data: Dictionary = {}
 
 func _ready() -> void:
 	_load_baked()
+	if OS.has_feature("web"):
+		var req := HTTPRequest.new()
+		add_child(req)
+		req.request_completed.connect(_on_live_fetch)
+		req.request("/hitbox_overrides.json")
+
+func _on_live_fetch(_result: int, code: int, _headers: PackedStringArray, body: PackedByteArray) -> void:
+	if code != 200:
+		return
+	var parsed = JSON.parse_string(body.get_string_from_utf8())
+	if parsed is Dictionary:
+		_data = parsed
+		reloaded.emit()
 
 func _load_baked() -> void:
 	if not FileAccess.file_exists(_PATH):
