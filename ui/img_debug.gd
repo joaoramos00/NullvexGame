@@ -1749,6 +1749,9 @@ class _HitboxView extends Control:
     func _apply_hitbox_frame_state() -> void:
         if _current_instance == null:
             return
+        # Inimigos com hitbox por frame (ex.: ash_hopper) expõem apply_frame_hitbox.
+        if _current_instance.has_method("apply_frame_hitbox"):
+            _current_instance.call("apply_frame_hitbox", _selected_frame)
         if _current_instance.name == "EnemyGlacierShield":
             var barrier := _current_instance.get_node_or_null("ShieldBarrier") as Area2D
             if barrier != null:
