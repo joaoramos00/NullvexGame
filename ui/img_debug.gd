@@ -1634,12 +1634,6 @@ class _HitboxView extends Control:
             container.remove_child(child)
             child.free()
 
-    func _on_prev() -> void:
-        _step_filtered(-1)
-
-    func _on_next() -> void:
-        _step_filtered(1)
-
     func _set_filter(group_name: String) -> void:
         _filter_group = group_name
         _selected_stage = "Todos"
@@ -1649,14 +1643,6 @@ class _HitboxView extends Control:
     func _set_stage(stage_name: String) -> void:
         _selected_stage = stage_name
         _refresh_entity_options()
-
-    func _select_entity_by_name(entity_name: String) -> void:
-        for i in ImgDebug._HITBOX_ENTITIES.size():
-            var entry: Dictionary = ImgDebug._HITBOX_ENTITIES[i]
-            if String(entry.name) == entity_name and _entry_matches_filter(entry):
-                _selected_frame = 0
-                _select_index(i)
-                return
 
     func _refresh_hierarchy_rows() -> void:
         _refresh_stage_options()
@@ -1699,17 +1685,6 @@ class _HitboxView extends Control:
             _entity_opt.select(0)
             _select_index(int(_entity_opt.get_selected_metadata()))
 
-    func _first_stage_for_filter() -> String:
-        if _filter_group != "Inimigos":
-            return ""
-        for entry in ImgDebug._HITBOX_ENTITIES:
-            if _entry_matches_kind(entry) and String(entry.stage) != "":
-                return String(entry.stage)
-        return ""
-
-    func _entry_matches_kind(entry: Dictionary) -> bool:
-        return _filter_group == "Todos" or String(entry.kind) == _filter_group
-
     func _toggle_sprite() -> void:
         _show_sprite = not _show_sprite
         if _sprite_btn != null:
@@ -1731,29 +1706,6 @@ class _HitboxView extends Control:
         if _shape_overlay != null:
             _shape_overlay.show_ruler = _show_ruler
             _shape_overlay.queue_redraw()
-
-    func _first_filtered_index() -> int:
-        for i in ImgDebug._HITBOX_ENTITIES.size():
-            if _entry_matches_filter(ImgDebug._HITBOX_ENTITIES[i]):
-                return i
-        return -1
-
-    func _step_filtered(direction: int) -> void:
-        if ImgDebug._HITBOX_ENTITIES.is_empty():
-            return
-        var idx := _current_index
-        for _i in ImgDebug._HITBOX_ENTITIES.size():
-            idx = wrapi(idx + direction, 0, ImgDebug._HITBOX_ENTITIES.size())
-            if _entry_matches_filter(ImgDebug._HITBOX_ENTITIES[idx]):
-                _select_index(idx)
-                return
-
-    func _entry_matches_filter(entry: Dictionary) -> bool:
-        if not _entry_matches_kind(entry):
-            return false
-        if _filter_group == "Inimigos" and _selected_stage != "Todos":
-            return String(entry.stage) == _selected_stage
-        return true
 
     func _set_sprites_visible(node: Node, visible: bool) -> void:
         if node == null:
@@ -1786,6 +1738,8 @@ class _HitboxView extends Control:
 
     func _select_frame(frame_index: int) -> void:
         _selected_frame = clampi(frame_index, 0, max(0, _frame_count - 1))
+        if _frame_lbl != null:
+            _frame_lbl.text = "Frame %d/%d" % [_selected_frame + 1, _frame_count]
         _apply_selected_frame()
         _shape_infos = _collect_shapes(_current_instance)
         if _shape_overlay != null:
