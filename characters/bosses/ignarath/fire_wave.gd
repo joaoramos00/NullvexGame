@@ -4,7 +4,12 @@ extends Area2D
 # atual é baixa (~56px) → dá pra PULAR por cima. Some ao chegar na parede
 # (despawn_x) ou no fim do lifetime.
 
-const _FILL_TEX_PATH := "res://stages/stage_01/lava_fill.png"
+const _START_TEX_PATH := "res://characters/bosses/ignarath/fire_wave_start.png"
+const _BODY_TEX_PATH := "res://characters/bosses/ignarath/fire_wave_body.png"
+const _END_TEX_PATH := "res://characters/bosses/ignarath/fire_wave_end.png"
+const _SHEET_COLS := 2
+const _SHEET_ROWS := 2
+const _SHEET_FRAMES := 4
 
 var dir: float = 1.0           # +1 direita, -1 esquerda
 var speed: float = 300.0
@@ -14,42 +19,68 @@ var despawn_x: float = 0.0
 var wave_w: float = 90.0
 var wave_h: float = 150.0
 var _life: float = 6.0
-var _spr: Sprite2D = null
+var _t: float = 0.0
+var _start_sprite: Sprite2D = null
+var _body_line: Line2D = null
+var _end_sprite: Sprite2D = null
 
 func _ready() -> void:
 	collision_layer = 0
 	collision_mask = 2             # só detecta o player (layer 2)
 	var cs := CollisionShape2D.new()
+	cs.name = "CollisionShape2D"
 	var rect := RectangleShape2D.new()
 	rect.size = Vector2(wave_w, wave_h)
 	cs.shape = rect
 	add_child(cs)
 	_build_visual()
+	_update_visuals()
 	body_entered.connect(_on_body_entered)
 
 func _build_visual() -> void:
-	var tex := load(_FILL_TEX_PATH) as Texture2D
-	if tex == null:
+	var start_tex := _load_texture(_START_TEX_PATH)
+	var body_tex := _load_texture(_BODY_TEX_PATH)
+	var end_tex := _load_texture(_END_TEX_PATH)
+
+	if start_tex != null:
+		_start_sprite = Sprite2D.new()
+		_start_sprite.name = "WaveStartSprite"
+		_configure_sheet_sprite(_start_sprite, start_tex)
+		_start_sprite.z_index = 2
+		add_child(_start_sprite)
+
+	if body_tex != null:
+		_body_line = Line2D.new()
+		_body_line.name = "WaveBodyLine"
+		_body_line.texture = body_tex
+		_body_line.texture_mode = Line2D.LINE_TEXTURE_TILE
+		_body_line.joint_mode = Line2D.LINE_JOINT_ROUND
+		_body_line.begin_cap_mode = Line2D.LINE_CAP_NONE
+		_body_line.end_cap_mode = Line2D.LINE_CAP_NONE
+		_body_line.width = wave_h
+		_body_line.z_index = 1
+		add_child(_body_line)
+
+	if end_tex != null:
+		_end_sprite = Sprite2D.new()
+		_end_sprite.name = "WaveEndSprite"
+		_configure_sheet_sprite(_end_sprite, end_tex)
+		_end_sprite.z_index = 2
+		add_child(_end_sprite)
+
+	if _body_line == null:
 		queue_redraw()             # fallback _draw
-		return
-	_spr = Sprite2D.new()
-	_spr.texture = tex
-	_spr.texture_repeat = CanvasItem.TEXTURE_REPEAT_ENABLED
-	_spr.region_enabled = true
-	_spr.region_rect = Rect2(0, 0, wave_w, wave_h)
-	_spr.modulate = Color(1.0, 0.55, 0.15)
-	_spr.z_index = 2
-	add_child(_spr)
 
 func _draw() -> void:
+	if _body_line != null:
+		return
 	# fallback se a textura não carregar
 	draw_rect(Rect2(-wave_w * 0.5, -wave_h * 0.5, wave_w, wave_h), Color(0.95, 0.35, 0.0, 0.85))
 
 func _physics_process(delta: float) -> void:
+	_t += delta
 	global_position.x += dir * speed * delta
-	if _spr != null:                # flicker de chama (só cor — hitbox constante)
-		var f: float = 0.5 + 0.5 * sin(Time.get_ticks_msec() / 35.0)
-		_spr.modulate = Color(1.0, 0.4 + 0.25 * f, 0.1, 1.0)
+	_update_visuals()
 	_life -= delta
 	if _life <= 0.0:
 		queue_free()
@@ -60,3 +91,47 @@ func _physics_process(delta: float) -> void:
 func _on_body_entered(body: Node) -> void:
 	if body.has_method("take_damage"):
 		body.take_damage(damage, source_id)
+
+func _configure_sheet_sprite(sprite: Sprite2D, texture: Texture2D) -> void:
+	sprite.texture = texture
+	sprite.hframes = _SHEET_COLS
+	sprite.vframes = _SHEET_ROWS
+	sprite.centered = true
+
+func _update_visuals() -> void:
+	var frame := int(_t * 12.0) % _SHEET_FRAMES
+	var travel_dir := 1.0 if dir >= 0.0 else -1.0
+	var cap := minf(wave_h * 0.55, wave_w * 0.35)
+	var start_x := -travel_dir * wave_w * 0.5
+	var end_x := travel_dir * wave_w * 0.5
+	var body_start := start_x + travel_dir * cap
+	var body_end := end_x - travel_dir * cap
+	var cap_scale := maxf(0.75, wave_h / 64.0)
+	var flame := 0.5 + 0.5 * sin(Time.get_ticks_msec() / 35.0)
+	var tint := Color(1.0, 0.4 + 0.25 * flame, 0.1, 1.0)
+
+	if _start_sprite != null:
+		_start_sprite.position = Vector2(start_x, 0.0)
+		_start_sprite.frame = frame
+		_start_sprite.scale = Vector2(cap_scale * travel_dir, cap_scale)
+		_start_sprite.modulate = tint
+
+	if _body_line != null:
+		_body_line.points = PackedVector2Array([Vector2(body_start, 0.0), Vector2(body_end, 0.0)])
+		_body_line.width = wave_h
+		_body_line.modulate = tint
+
+	if _end_sprite != null:
+		_end_sprite.position = Vector2(end_x, 0.0)
+		_end_sprite.frame = frame
+		_end_sprite.scale = Vector2(cap_scale * travel_dir, cap_scale)
+		_end_sprite.modulate = tint
+
+func _load_texture(path: String) -> Texture2D:
+	var tex := load(path) as Texture2D
+	if tex != null:
+		return tex
+	var img := Image.load_from_file(path)
+	if img == null or img.is_empty():
+		return null
+	return ImageTexture.create_from_image(img)
