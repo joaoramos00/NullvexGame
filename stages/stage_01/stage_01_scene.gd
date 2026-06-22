@@ -70,13 +70,42 @@ const _BOSS_DOOR_LO    :=   224.0
 const _BOSS_DOOR_HI    :=   440.0
 
 const _SHAFT_SEGS := [
-	# y_top, y_bot, x_l, x_r
-	[1900.0, 2208.0, 17424.0, 17616.0],
-	[1580.0, 1900.0, 17440.0, 17600.0],
-	[1260.0, 1580.0, 17424.0, 17616.0],
-	[ 940.0, 1260.0, 17408.0, 17632.0],
-	[ 620.0,  940.0, 17424.0, 17616.0],
-	[ 360.0,  620.0, 17456.0, 17584.0],
+	# y_top, y_bot, x_l, x_r  (interior = x_r - x_l)
+	# seg0: parede esq é a #1 quebrável do segredo (face 17424, NÃO mover); sem
+	# projeção no centro, então 192 basta. Demais segs alargados p/ caber saliências
+	# (≥256) e saliência+espinho opostos (≥320). Coluna centrada ~x17520.
+	[1900.0, 2208.0, 17424.0, 17616.0],   # 192 — entrada (parede #1 à esq)
+	[1580.0, 1900.0, 17360.0, 17680.0],   # 320 — saliência+espinho opostos
+	[1260.0, 1580.0, 17392.0, 17648.0],   # 256 — saliência (R)
+	[ 940.0, 1260.0, 17360.0, 17680.0],   # 320 — saliência+espinho opostos
+	[ 620.0,  940.0, 17392.0, 17648.0],   # 256 — saliência (R)
+	[ 360.0,  620.0, 17424.0, 17616.0],   # 192 — topo (sem projeção no centro)
+]
+
+# Saliências agarráveis (verde na referência) — wall-grab/jump padrão.
+# [nome, wall_x (face real de _SHAFT_SEGS), cy, side ("L"/"R"), h]
+const _Z4_FOOTHOLDS := [
+	["Z4Foot1", 17360.0, 1740.0, "L", 96.0],   # seg1 esq (oposta ao espinho R)
+	["Z4Foot2", 17648.0, 1420.0, "R", 96.0],   # seg2 dir
+	["Z4Foot3", 17360.0, 1100.0, "L", 96.0],   # seg3 esq (oposta ao espinho R)
+	["Z4Foot4", 17648.0,  780.0, "R", 96.0],   # seg4 dir
+]
+
+# Espinhos instant-kill (vermelho na referência) — projetam da face da parede.
+# [nome, wall_x (face real), cy, side, h]
+const _Z4_SPIKES := [
+	["Z4SpikeR1", 17680.0, 1740.0, "R", 200.0],   # seg1 dir, opõe Z4Foot1
+	["Z4SpikeR3", 17680.0, 1100.0, "R", 200.0],   # seg3 dir, opõe Z4Foot3
+]
+
+# Plataformas andáveis (amarelo na referência) — rests escalonados, encostados num
+# lado deixando vão de wall-jump do outro. [nome, cx, cy(topo), w, h]
+const _Z4_PLATFORMS := [
+	["Z4Plat1", 17440.0, 1660.0, 160.0, 32.0],   # seg1, encostada à esq
+	["Z4Plat2", 17568.0, 1340.0, 160.0, 32.0],   # seg2, encostada à dir
+	["Z4Plat3", 17440.0, 1020.0, 160.0, 32.0],   # seg3, encostada à esq
+	["Z4Plat4", 17560.0,  700.0, 160.0, 32.0],   # seg4, encostada à dir
+	["Z4Plat5", 17500.0,  480.0, 128.0, 32.0],   # seg5 topo (estreita)
 ]
 
 # A luta do Ignarath só começa quando o player ENTRA na sala pela porta lateral,
@@ -478,14 +507,16 @@ func _build_z4_shaft() -> void:
 	trig.add_child(_z2_shape(Vector2(192, 116)))       # largura cheia do seg0; y 2092–2208
 	add_child(trig)
 	trig.body_entered.connect(func(b): if b is CharacterBase: lava.call("activate"))
-	# Espinhos instant-kill (no_wall_grab + lava_floor) — seg3 face direita, seg5 face esquerda
-	_z4_spike_face("Z4SpikeR3", _SHAFT_SEGS[2][3] + 32.0, 1420.0, 64.0, 200.0)
-	_z4_spike_face("Z4SpikeL5", _SHAFT_SEGS[4][2] - 32.0, 780.0, 64.0, 200.0)
-	# Saliências de respiro
-	_z3_static_floor("Z4Ledge2", Vector2(_SHAFT_SEGS[1][3] - 64.0, 1640.0), Vector2(128.0, 32.0))
-	_z3_static_floor("Z4Ledge5", Vector2(_SHAFT_SEGS[4][2] + 64.0, 700.0),  Vector2(128.0, 32.0))
-	# Saliência que desmorona — seg4 (centro)
-	_z4_crumble("Z4Crumble4", Vector2(17520.0, 1100.0), Vector2(160.0, 32.0))
+	# Saliências, espinhos e plataformas: tabelas (fonte única, validadas por
+	# test_z4_shaft_dims). wall_x das tabelas é uma face real de _SHAFT_SEGS.
+	for f in _Z4_FOOTHOLDS:
+		_z4_foothold(f[0], f[1], f[2], f[3], f[4])
+	for s in _Z4_SPIKES:
+		_z4_spike_face(s[0], s[1] + (32.0 if s[3] == "L" else -32.0), s[2], 64.0, s[4])
+	for p in _Z4_PLATFORMS:
+		_z3_static_floor(p[0], Vector2(p[1], p[2] + p[4] * 0.5), Vector2(p[3], p[4]))
+	# Saliência que desmorona — rest central no limite seg3/seg4 (sem espinho oposto)
+	_z4_crumble("Z4Crumble4", Vector2(17520.0, 920.0), Vector2(128.0, 32.0))
 	# Flyer no seg5
 	_z4_spawn_flyer("Z4Flyer1", Vector2(17520.0, 760.0))
 
