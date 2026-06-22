@@ -436,6 +436,15 @@ func _z4_wall(n: String, cx: float, cy: float, w: float, h: float, no_grab := fa
 		b.add_to_group("no_wall_grab")
 	return b
 
+# Saliência agarrável (foothold): parede curta agarrável (SEM no_wall_grab) que se
+# projeta 1 tile (64px) pra dentro do shaft a partir da face `wall_x` da parede do
+# lado `side` ("L" = parede à esquerda, projeta pra direita; "R" = à direita,
+# projeta pra esquerda). Mecânica = wall-grab/wall-jump padrão. Ver skill new-foothold.
+func _z4_foothold(n: String, wall_x: float, cy: float, side: String, h: float = 96.0) -> StaticBody2D:
+	const DEPTH := 64.0
+	var cx: float = wall_x + DEPTH * 0.5 if side == "L" else wall_x - DEPTH * 0.5
+	return _z2_static(n, Vector2(cx, cy), Vector2(DEPTH, h))
+
 func _build_z4_shaft() -> void:
 	for i in _SHAFT_SEGS.size():
 		var s = _SHAFT_SEGS[i]
