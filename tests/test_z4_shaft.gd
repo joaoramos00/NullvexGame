@@ -35,8 +35,8 @@ func _ready() -> void:
 			print("FAIL: %sHurt ausente" % sname); fail = true
 		elif not bool(hurt.get("instant_kill")):
 			print("FAIL: %sHurt instant_kill=false" % sname); fail = true
-	# Plataformas: Z4Plat4 e Z4Plat5 (1-3 colapsam por nome com .tscn stale; validam Z4Plat4-5 neste ramo)
-	for i in range(4, 6):
+	# Plataformas: Z4Plat1..Z4Plat5 (free imediato em _build_z4_shaft evita rename silencioso)
+	for i in range(1, 6):
 		var plat = s.get_node_or_null("Z4Plat%d" % i)
 		if plat == null:
 			print("FAIL: Z4Plat%d ausente" % i); fail = true

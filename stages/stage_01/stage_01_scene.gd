@@ -514,6 +514,9 @@ func _build_z4_shaft() -> void:
 	for s in _Z4_SPIKES:
 		_z4_spike_face(s[0], s[1] + (32.0 if s[3] == "L" else -32.0), s[2], 64.0, s[4])
 	for p in _Z4_PLATFORMS:
+		var _old_p := get_node_or_null(p[0])
+		if _old_p:
+			_old_p.free()   # free imediato: queue_free é deferido e causaria rename silencioso (cf. _z4_spawn_flyer)
 		_z3_static_floor(p[0], Vector2(p[1], p[2] + p[4] * 0.5), Vector2(p[3], p[4]))
 	# Saliência que desmorona — rest central no limite seg3/seg4 (sem espinho oposto)
 	_z4_crumble("Z4Crumble4", Vector2(17520.0, 920.0), Vector2(128.0, 32.0))
