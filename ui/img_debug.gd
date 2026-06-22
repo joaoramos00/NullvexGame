@@ -752,7 +752,7 @@ class _PlatformView extends Control:
     var tile_tex: Texture2D
     var rows: int = 2
     var cols: int = 3
-    var mode: String = "platform"   # "platform" | "room" | "floor_platform" | "floor_platform_hole" | "floor_hole"
+    var mode: String = "platform"   # "platform" | "room" | "floor_platform" | "floor_platform_hole" | "floor_hole" | "foothold"
     var mirror_hole: bool = false    # floor_platform_hole: false = abismo à direita, true = à esquerda
 
     const _TS := 32.0   # tamanho source
@@ -769,7 +769,7 @@ class _PlatformView extends Control:
     func set_dims(r: int, c: int) -> void:
         rows = r
         cols = c
-        var _is_fp := mode == "floor_platform" or mode == "floor_platform_hole"
+        var _is_fp := mode == "floor_platform" or mode == "floor_platform_hole" or mode == "foothold"
         var gd := _fp_grid() if _is_fp else (_fh_grid() if mode == "floor_hole" else Vector2i(c, r))
         custom_minimum_size = Vector2(gd.x * _TD, gd.y * _TD)
         queue_redraw()
@@ -777,6 +777,9 @@ class _PlatformView extends Control:
     func _draw() -> void:
         draw_rect(Rect2(Vector2.ZERO, size), Color(0.04, 0.06, 0.14))
         if not tile_tex:
+            return
+        if mode == "foothold":
+            _draw_foothold()
             return
         if mode == "floor_platform" or mode == "floor_platform_hole":
             _draw_floor_platform()
@@ -930,10 +933,13 @@ class _PlatformView extends Control:
         return r >= rows             # piso lateral: sólido a partir da superfície
 
     func _fp_tile(c: int, r: int) -> Vector2i:
-        var eu := not _fp_solid(c, r - 1)   # exposto em cima
-        var ed := not _fp_solid(c, r + 1)   # exposto embaixo
-        var el := not _fp_solid(c - 1, r)   # exposto à esquerda
-        var er := not _fp_solid(c + 1, r)   # exposto à direita
+        return _fp_tile_for(c, r, func(cc, rr): return _fp_solid(cc, rr))
+
+    func _fp_tile_for(c: int, r: int, solid: Callable) -> Vector2i:
+        var eu: bool = not solid.call(c, r - 1)   # exposto em cima
+        var ed: bool = not solid.call(c, r + 1)   # exposto embaixo
+        var el: bool = not solid.call(c - 1, r)   # exposto à esquerda
+        var er: bool = not solid.call(c + 1, r)   # exposto à direita
         # Cantos convexos (dois lados adjacentes expostos)
         if eu and el: return Vector2i(1, 3)   # canto sup-esq (sólido inf-dir)
         if eu and er: return Vector2i(0, 0)   # canto sup-dir (sólido inf-esq)
@@ -947,8 +953,8 @@ class _PlatformView extends Control:
         if er: return Vector2i(3, 2)   # parede direita visual
         # Cantos côncavos (degrau): diagonal superior vazia, ortogonais sólidas.
         # Espelhados pela mesma convenção (cf. _room_at): entalhe sup-esq → (1,1).
-        if not _fp_solid(c - 1, r - 1): return Vector2i(1, 1)   # entalhe sup-esq
-        if not _fp_solid(c + 1, r - 1): return Vector2i(2, 0)   # entalhe sup-dir
+        if not (solid.call(c - 1, r - 1) as bool): return Vector2i(1, 1)   # entalhe sup-esq
+        if not (solid.call(c + 1, r - 1) as bool): return Vector2i(2, 0)   # entalhe sup-dir
         return Vector2i(2, 1)   # FILL
 
     func _draw_floor_platform() -> void:
@@ -977,6 +983,29 @@ class _PlatformView extends Control:
         if hole <= 0:
             draw_line(Vector2(rx, plat_y), Vector2(rx, floor_y), yellow, 1.5)     # desce (dir)
             draw_line(Vector2(rx, floor_y), Vector2(w, floor_y), yellow, 1.5)     # piso dir
+
+    # Modo "Saliência": parede vertical de 1 tile + ressalto de `cols`×`rows` tiles
+    # projetando pra dentro. Mostra as coords de tile do bump (cantos convexos + faces).
+    func _draw_foothold() -> void:
+        var g := _fp_grid()
+        var wall_col := 0 if not mirror_hole else g.x - 1   # coluna da parede de fundo
+        var bump_top := _FP_DEPTH                            # ressalto começa abaixo do topo da parede
+        var _fsolid := func(c: int, r: int) -> bool:
+            if c < 0 or r < 0 or c >= g.x or r >= g.y:
+                return false
+            if c == wall_col:
+                return true                                  # parede de fundo (coluna cheia)
+            # ressalto: `cols` colunas a partir da parede, `rows` linhas a partir de bump_top
+            var near := (c >= 1 and c <= cols) if not mirror_hole else (c <= g.x - 2 and c >= g.x - 1 - cols)
+            return near and r >= bump_top and r < bump_top + rows
+        for r in g.y:
+            for c in g.x:
+                if not _fsolid.call(c, r):
+                    continue
+                var t := _fp_tile_for(c, r, _fsolid)
+                draw_texture_rect_region(tile_tex,
+                    Rect2(c * _TD, r * _TD, _TD, _TD),
+                    Rect2(t.x * _TS, t.y * _TS, _TS, _TS))
 
 # Nó que vive dentro do SubViewport — desenha fundo, tiles e linhas de colisão
 class _MovWorld extends Node2D:
@@ -3667,7 +3696,7 @@ func _refresh_tiles() -> void:
         for b: Button in mode_btns:
             b.modulate = Color(1.0, 1.0, 0.0) if b.text == mlbl else Color(0.6, 0.6, 0.6)
 
-    for me: Array in [["Plataforma", "platform"], ["Sala", "room"], ["Piso+Plat", "floor_platform"], ["Piso+Abismo", "floor_platform_hole"], ["Buraco no Piso", "floor_hole"]]:
+    for me: Array in [["Plataforma", "platform"], ["Sala", "room"], ["Piso+Plat", "floor_platform"], ["Piso+Abismo", "floor_platform_hole"], ["Buraco no Piso", "floor_hole"], ["Saliência", "foothold"]]:
         var mbtn := Button.new()
         mbtn.text = me[0]
         mbtn.add_theme_font_size_override("font_size", 24)
