@@ -12,16 +12,21 @@ func _ready() -> void:
 	var spikes: Array = stage.get("_Z4_SPIKES") if stage.get("_Z4_SPIKES") != null else []
 	stage.free()
 
+	if footholds.is_empty() and spikes.is_empty():
+		print("FAIL: tabelas de saliências/espinhos vazias (layout não carregou?)")
+		get_tree().quit(1); return
+
 	var violations := _validate(segs, footholds, spikes)
 	if not violations.is_empty():
 		for v: String in violations:
 			print("FAIL: %s" % v)
 		get_tree().quit(1); return
-	print("PASS: shaft Z4 respeita pulo do Zael (vão≥192, passo≤118, folga≥80)")
+	print("PASS: shaft Z4 vão livre ≥192px (passo/folga = calibração manual)")
 	get_tree().quit(0)
 
-# Vão livre horizontal por faixa de y: largura do seg menos 64px por saliência/espinho
-# que projeta naquele y. Falha se < MIN_CLEAR_H.
+# Vão livre horizontal por faixa de y: varre em passos de 32px de yt a yb (inclusive),
+# calcula o vão livre em cada amostra (largura do seg menos 64px por saliência/espinho
+# que projeta naquele y) e usa o PIOR CASO (mínimo). Falha se mínimo < MIN_CLEAR_H.
 func _validate(segs: Array, footholds: Array, spikes: Array) -> Array:
 	var out: Array = []
 	var projs: Array = []   # [wall_x, cy, h, side] de footholds+spikes
@@ -30,18 +35,25 @@ func _validate(segs: Array, footholds: Array, spikes: Array) -> Array:
 	for seg in segs:
 		var yt: float = seg[0]; var yb: float = seg[1]
 		var xl: float = seg[2]; var xr: float = seg[3]
-		var sample_y: float = (yt + yb) * 0.5
-		var left := xl
-		var right := xr
-		for p in projs:
-			var pcy: float = p[1]; var ph: float = p[2]
-			if absf(pcy - sample_y) > ph * 0.5:
-				continue   # projeção não cobre o centro do seg
-			if p[3] == "L":
-				left = maxf(left, p[0] + 64.0)
-			else:
-				right = minf(right, p[0] - 64.0)
-		var clear: float = right - left
-		if clear < MIN_CLEAR_H:
-			out.append("vão livre %.0fpx < %.0f no seg y[%.0f-%.0f]" % [clear, MIN_CLEAR_H, yt, yb])
+		var worst_clear: float = INF
+		var worst_y: float = yt
+		var sample_y: float = yt
+		while sample_y <= yb + 0.001:
+			var left := xl
+			var right := xr
+			for p in projs:
+				var pcy: float = p[1]; var ph: float = p[2]
+				if absf(pcy - sample_y) > ph * 0.5:
+					continue   # projeção não cobre este y
+				if p[3] == "L":
+					left = maxf(left, p[0] + 64.0)
+				else:
+					right = minf(right, p[0] - 64.0)
+			var clear: float = right - left
+			if clear < worst_clear:
+				worst_clear = clear
+				worst_y = sample_y
+			sample_y += 32.0
+		if worst_clear < MIN_CLEAR_H:
+			out.append("vão livre %.0fpx < %.0f no seg y[%.0f-%.0f] (pior em y=%.0f)" % [worst_clear, MIN_CLEAR_H, yt, yb, worst_y])
 	return out

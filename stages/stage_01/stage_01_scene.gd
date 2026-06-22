@@ -74,6 +74,9 @@ const _SHAFT_SEGS := [
 	# seg0: parede esq é a #1 quebrável do segredo (face 17424, NÃO mover); sem
 	# projeção no centro, então 192 basta. Demais segs alargados p/ caber saliências
 	# (≥256) e saliência+espinho opostos (≥320). Coluna centrada ~x17520.
+	# ATENÇÃO: segs com saliência/espinho têm vão livre EXATAMENTE 192px (= alcance
+	# de pulo 196 arredondado à grade, margem zero). Qualquer ±32px num espinho ou
+	# foothold deve ser revalidado com test_z4_shaft_dims antes do commit.
 	[1900.0, 2208.0, 17424.0, 17616.0],   # 192 — entrada (parede #1 à esq)
 	[1580.0, 1900.0, 17360.0, 17680.0],   # 320 — saliência+espinho opostos
 	[1260.0, 1580.0, 17392.0, 17648.0],   # 256 — saliência (R)
