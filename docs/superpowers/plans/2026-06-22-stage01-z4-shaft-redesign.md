@@ -325,8 +325,8 @@ Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>"
 - Modify: `stages/stage_01/stage_01_scene.gd` (expor as tabelas como `const` legíveis pelo teste — feito de fato na Task 5; aqui o teste lê o que existir)
 
 **Interfaces:**
-- Consumes: `_SHAFT_SEGS` (existente) e as tabelas `_Z4_FOOTHOLDS`/`_Z4_SPIKES`/`_Z4_PLATFORMS` (Task 5).
-- Produces: função pura `Z4ShaftDims.validate(segs, footholds, spikes, platforms) -> Array[String]` (lista de violações; vazia = OK), reutilizável pelo teste.
+- Consumes: `_SHAFT_SEGS` (existente) e as tabelas `_Z4_FOOTHOLDS`/`_Z4_SPIKES` (Task 5).
+- Produces: função `_validate(segs, footholds, spikes) -> Array` (lista de violações de vão horizontal; vazia = OK).
 
 > **Nota de ordem:** este teste é escrito ANTES do layout (TDD). Ele falha contra a geometria atual (com projeção dos dois lados o vão cai a <192px) e passa quando a Task 5 alargar o shaft. As tabelas `_Z4_*` ainda não existem na Task 4 — o teste as referencia via `get()` com fallback `[]`, então roda; ele só vira verde após a Task 5.
 
@@ -337,19 +337,18 @@ Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>"
 extends Node
 
 # Player limitante = Zael (caixa 40×80). Pulo: altura 118, alcance 196 (→192 no grid).
+# Gate automático = vão livre horizontal (regra que o layout atual viola). Passo
+# vertical ≤118 e folga ≥80 são checagem assistida no calibrar (Task 5, Step 4).
 const MIN_CLEAR_H := 192.0   # vão livre horizontal mínimo
-const MAX_STEP_V := 118.0    # passo vertical de subida máximo
-const MIN_CLEAR_V := 80.0    # folga vertical livre mínima acima de um apoio
 
 func _ready() -> void:
 	var stage := preload("res://stages/stage_01/stage_01_scene.gd").new()
 	var segs: Array = stage.get("_SHAFT_SEGS")
 	var footholds: Array = stage.get("_Z4_FOOTHOLDS") if stage.get("_Z4_FOOTHOLDS") != null else []
 	var spikes: Array = stage.get("_Z4_SPIKES") if stage.get("_Z4_SPIKES") != null else []
-	var platforms: Array = stage.get("_Z4_PLATFORMS") if stage.get("_Z4_PLATFORMS") != null else []
 	stage.free()
 
-	var violations := _validate(segs, footholds, spikes, platforms)
+	var violations := _validate(segs, footholds, spikes)
 	if not violations.is_empty():
 		for v: String in violations:
 			print("FAIL: %s" % v)
@@ -359,7 +358,7 @@ func _ready() -> void:
 
 # Vão livre horizontal por faixa de y: largura do seg menos 64px por saliência/espinho
 # que projeta naquele y. Falha se < MIN_CLEAR_H.
-func _validate(segs: Array, footholds: Array, spikes: Array, platforms: Array) -> Array:
+func _validate(segs: Array, footholds: Array, spikes: Array) -> Array:
 	var out: Array = []
 	var projs: Array = []   # [wall_x, cy, h, side] de footholds+spikes
 	for f in footholds: projs.append([f[1], f[2], f[4], f[3]])
@@ -381,17 +380,13 @@ func _validate(segs: Array, footholds: Array, spikes: Array, platforms: Array) -
 		var clear: float = right - left
 		if clear < MIN_CLEAR_H:
 			out.append("vão livre %.0fpx < %.0f no seg y[%.0f-%.0f]" % [clear, MIN_CLEAR_H, yt, yb])
-	# Passo vertical entre apoios pisáveis (topos de plataformas), ordenados por y desc.
-	var tops: Array = []
-	for pl in platforms:
-		tops.append(pl[2] - pl[4] * 0.5)   # topo = cy - h/2
-	tops.sort()
-	for i in range(1, tops.size()):
-		var step: float = tops[i - 1] - tops[i]   # quanto sobe pro próximo
-		if absf(step) > MAX_STEP_V and absf(step) > 0.0:
-			pass   # passo entre plataformas distantes é ok se houver saliências entre — checado no calibrar
 	return out
 ```
+
+> **Nota:** o gate automático cobre só o vão horizontal (a regra que o layout
+> atual viola). Passo vertical (≤118) e folga (≥80) dependem da cadeia
+> saliência↔plataforma montada visualmente → checagem assistida no Step 4 da
+> Task 5, não loop automático.
 
 `tests/test_z4_shaft_dims.tscn`:
 ```
