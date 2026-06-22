@@ -12,6 +12,7 @@ const _FLYER_SCENE := preload("res://characters/enemies/enemy_flyer.tscn")
 const _LAVA_TILE := "res://stages/stage_01/Stage_01_lava_v2.png"  # toda lava da fase usa v2 (case-sensitive no PCK web!)
 const _Z2_FLOOR_TILE := "res://stages/stage_01/Stage_01T_z2.png"  # mesmo tile do floor
 const _ROOM_TILE := preload("res://stages/stage_01/Stage_01T_z1.png")  # rocha escura: câmara do boss
+const _Z1_TILE_PATH := "res://stages/stage_01/Stage_01T_z1.png"  # shaft Z4 usa a rocha da zona 1 (lava_override = só visual)
 const _DOOR_TEX  := preload("res://stages/door_pixellab.png")
 const _CRACKED_WALL := preload("res://stages/stage_01/cracked_wall.gd")
 const _COLLECTIBLE_SCENE := preload("res://stages/collectible.tscn")
@@ -77,37 +78,40 @@ const _SHAFT_SEGS := [
 	# ATENÇÃO: segs com saliência/espinho têm vão livre EXATAMENTE 192px (= alcance
 	# de pulo 196 arredondado à grade, margem zero). Qualquer ±32px num espinho ou
 	# foothold deve ser revalidado com test_z4_shaft_dims antes do commit.
-	[1900.0, 2208.0, 17424.0, 17616.0],   # 192 — entrada (parede #1 à esq)
-	[1580.0, 1900.0, 17360.0, 17680.0],   # 320 — saliência+espinho opostos
-	[1260.0, 1580.0, 17392.0, 17648.0],   # 256 — saliência (R)
-	[ 940.0, 1260.0, 17360.0, 17680.0],   # 320 — saliência+espinho opostos
-	[ 620.0,  940.0, 17392.0, 17648.0],   # 256 — saliência (R)
-	[ 360.0,  620.0, 17424.0, 17616.0],   # 192 — topo (sem projeção no centro)
+	# Larguras TRIPLICADAS estendendo a face DIREITA (lado direito do shaft é aberto;
+	# face esquerda fica na borda do segredo). Interior ~3× → folga lateral ampla.
+	# seg5 (topo) NÃO é alargado: é a boca de saída p/ a sala pré-boss (x17424–17616).
+	[1900.0, 2208.0, 17424.0, 18000.0],   # 576 — entrada (esq = parede #1)
+	[1580.0, 1900.0, 17360.0, 18320.0],   # 960 — saliência+espinho opostos
+	[1260.0, 1580.0, 17392.0, 18160.0],   # 768 — saliência (R)
+	[ 940.0, 1260.0, 17360.0, 18320.0],   # 960 — saliência+espinho opostos
+	[ 620.0,  940.0, 17392.0, 18160.0],   # 768 — saliência (R)
+	[ 360.0,  620.0, 17424.0, 17616.0],   # 192 — topo (boca pré-boss, não alargado)
 ]
 
 # Saliências agarráveis (verde na referência) — wall-grab/jump padrão.
 # [nome, wall_x (face real de _SHAFT_SEGS), cy, side ("L"/"R"), h]
 const _Z4_FOOTHOLDS := [
-	["Z4Foot1", 17360.0, 1740.0, "L", 96.0],   # seg1 esq (oposta ao espinho R)
-	["Z4Foot2", 17648.0, 1420.0, "R", 96.0],   # seg2 dir
-	["Z4Foot3", 17360.0, 1100.0, "L", 96.0],   # seg3 esq (oposta ao espinho R)
-	["Z4Foot4", 17648.0,  780.0, "R", 96.0],   # seg4 dir
+	["Z4Foot1", 17360.0, 1740.0, "L", 96.0],   # seg1 esq
+	["Z4Foot2", 18160.0, 1420.0, "R", 96.0],   # seg2 dir (face direita alargada)
+	["Z4Foot3", 17360.0, 1100.0, "L", 96.0],   # seg3 esq
+	["Z4Foot4", 18160.0,  780.0, "R", 96.0],   # seg4 dir (face direita alargada)
 ]
 
 # Espinhos instant-kill (vermelho na referência) — projetam da face da parede.
 # [nome, wall_x (face real), cy, side, h]
 const _Z4_SPIKES := [
-	["Z4SpikeR1", 17680.0, 1740.0, "R", 200.0],   # seg1 dir, opõe Z4Foot1
-	["Z4SpikeR3", 17680.0, 1100.0, "R", 200.0],   # seg3 dir, opõe Z4Foot3
+	["Z4SpikeR1", 18320.0, 1740.0, "R", 200.0],    # seg1 dir (face alargada), opõe Z4Foot1
+	["Z4SpikeR3", 18320.0, 1100.0, "R", 200.0],    # seg3 dir (face alargada), opõe Z4Foot3
 ]
 
 # Plataformas andáveis (amarelo na referência) — rests escalonados, encostados num
 # lado deixando vão de wall-jump do outro. [nome, cx, cy(topo), w, h]
 const _Z4_PLATFORMS := [
 	["Z4Plat1", 17440.0, 1660.0, 160.0, 32.0],   # seg1, encostada à esq
-	["Z4Plat2", 17568.0, 1340.0, 160.0, 32.0],   # seg2, encostada à dir
+	["Z4Plat2", 18080.0, 1340.0, 160.0, 32.0],   # seg2, encostada à dir (face alargada)
 	["Z4Plat3", 17440.0, 1020.0, 160.0, 32.0],   # seg3, encostada à esq
-	["Z4Plat4", 17560.0,  700.0, 160.0, 32.0],   # seg4, encostada à dir
+	["Z4Plat4", 18080.0,  700.0, 160.0, 32.0],   # seg4, encostada à dir (face alargada)
 	["Z4Plat5", 17500.0,  480.0, 128.0, 32.0],   # seg5 topo (estreita)
 ]
 
@@ -464,6 +468,7 @@ func _build_zone4() -> void:
 
 func _z4_wall(n: String, cx: float, cy: float, w: float, h: float, no_grab := false) -> StaticBody2D:
 	var b := _z2_static(n, Vector2(cx, cy), Vector2(w, h))
+	b.set_meta("lava_override", _Z1_TILE_PATH)   # rocha da zona 1 (só visual)
 	if no_grab:
 		b.add_to_group("no_wall_grab")
 	return b
@@ -475,7 +480,9 @@ func _z4_wall(n: String, cx: float, cy: float, w: float, h: float, no_grab := fa
 func _z4_foothold(n: String, wall_x: float, cy: float, side: String, h: float = 96.0) -> StaticBody2D:
 	const DEPTH := 64.0
 	var cx: float = wall_x + DEPTH * 0.5 if side == "L" else wall_x - DEPTH * 0.5
-	return _z2_static(n, Vector2(cx, cy), Vector2(DEPTH, h))
+	var b := _z2_static(n, Vector2(cx, cy), Vector2(DEPTH, h))
+	b.set_meta("lava_override", _Z1_TILE_PATH)   # rocha da zona 1 (só visual)
+	return b
 
 func _build_z4_shaft() -> void:
 	for i in _SHAFT_SEGS.size():
@@ -494,7 +501,9 @@ func _build_z4_shaft() -> void:
 	# shaft pelo vão da parede #1 (y2056–2208) e faz wall-jump pra cima. topo y2208.
 	_z3_static_floor("Z4ShaftEntry", Vector2(17308.0, 2272.0), Vector2(616.0, 128.0))
 	# lava única (chase) cobrindo o shaft
-	var lava := _z4_lava("Z4ShaftLava", "chase", 17520.0, 2360.0, 240.0, 1700.0)
+	# Shaft alargado (até x18320) → lava cobre toda a largura (center 17840, width 1000)
+	# pra o player não escapar pela direita.
+	var lava := _z4_lava("Z4ShaftLava", "chase", 17840.0, 2360.0, 1000.0, 1700.0)
 	lava.set("rise_speed", 80.0)
 	lava.set("cap_y", 480.0)
 	lava.set("accel_y", 975.0)
@@ -506,10 +515,14 @@ func _build_z4_shaft() -> void:
 	trig.name = "Z4ChaseTrigger"
 	trig.collision_layer = 0
 	trig.collision_mask = 2
-	trig.position = Vector2(17520, 2150)               # centro da coluna do shaft, perto da base
-	trig.add_child(_z2_shape(Vector2(192, 116)))       # largura cheia do seg0; y 2092–2208
+	trig.position = Vector2(17712, 2150)               # centro do seg0 alargado, perto da base
+	trig.add_child(_z2_shape(Vector2(576, 116)))       # largura cheia do seg0 (alargado); y 2092–2208
 	add_child(trig)
 	trig.body_entered.connect(func(b): if b is CharacterBase: lava.call("activate"))
+	# Ao morrer, a lava-chase volta ao fundo e desliga (senão respawna já no alto e
+	# mata o player em loop). Re-ativa quando ele reentra no Z4ChaseTrigger.
+	if is_instance_valid(_player):
+		_player.died.connect(func(): lava.call("reset"))
 	# Saliências, espinhos e plataformas: tabelas (fonte única, validadas por
 	# test_z4_shaft_dims). wall_x das tabelas é uma face real de _SHAFT_SEGS.
 	for f in _Z4_FOOTHOLDS:
@@ -520,11 +533,12 @@ func _build_z4_shaft() -> void:
 		var _old_p := get_node_or_null(p[0])
 		if _old_p:
 			_old_p.free()   # free imediato: queue_free é deferido e causaria rename silencioso (cf. _z4_spawn_flyer)
-		_z3_static_floor(p[0], Vector2(p[1], p[2] + p[4] * 0.5), Vector2(p[3], p[4]))
+		var pb := _z3_static_floor(p[0], Vector2(p[1], p[2] + p[4] * 0.5), Vector2(p[3], p[4]))
+		pb.set_meta("lava_override", _Z1_TILE_PATH)   # rocha da zona 1 (só visual)
 	# Saliência que desmorona — rest central no limite seg3/seg4 (sem espinho oposto)
-	_z4_crumble("Z4Crumble4", Vector2(17520.0, 920.0), Vector2(128.0, 32.0))
+	_z4_crumble("Z4Crumble4", Vector2(17840.0, 920.0), Vector2(128.0, 32.0))
 	# Flyer no seg5
-	_z4_spawn_flyer("Z4Flyer1", Vector2(17520.0, 760.0))
+	_z4_spawn_flyer("Z4Flyer1", Vector2(17840.0, 760.0))
 
 # Espinho no_wall_grab: parede de colisão (no_grab) + Area2D de kill (lava_floor, instant_kill)
 # sobrepostos. O player não pode agarrar a parede e tomar dano ao encostar.
@@ -632,17 +646,17 @@ func _spawn_fire_roster() -> void:
 	_spawn_fire("serpent", "F_Z3Ser1", Vector2(12320, 2748))
 	_spawn_fire("serpent", "F_Z3Ser2", Vector2(13280, 2748))
 	# Z4 — shaft de wall-jump (voadores no poço; terrestres em pisos)
-	_spawn_fire("cinder", "F_Z4Cin1", Vector2(17520, 1900))
-	_spawn_fire("cinder", "F_Z4Cin2", Vector2(17520, 1400))
-	_spawn_fire("cinder", "F_Z4Cin3", Vector2(17520, 900))
-	_spawn_fire("orbiter", "F_Z4Orb1", Vector2(17520, 1700))
-	_spawn_fire("orbiter", "F_Z4Orb2", Vector2(17520, 1200))
-	_spawn_fire("orbiter", "F_Z4Orb3", Vector2(17520, 700))
+	_spawn_fire("cinder", "F_Z4Cin1", Vector2(17560, 1900))
+	_spawn_fire("cinder", "F_Z4Cin2", Vector2(17560, 1400))
+	_spawn_fire("cinder", "F_Z4Cin3", Vector2(17560, 900))
+	_spawn_fire("orbiter", "F_Z4Orb1", Vector2(18000, 1700))
+	_spawn_fire("orbiter", "F_Z4Orb2", Vector2(18000, 1200))
+	_spawn_fire("orbiter", "F_Z4Orb3", Vector2(17900, 700))
 	_spawn_fire("grunt", "F_Z4Grunt1", Vector2(16400, 2540))
 	_spawn_fire("grunt", "F_Z4Grunt2", Vector2(17100, 2140))
 	_spawn_fire("grunt", "F_Z4Grunt3", Vector2(17800, 280))
-	_spawn_fire("skimmer", "F_Z4Ski1", Vector2(17520, 1100))
-	_spawn_fire("skimmer", "F_Z4Ski2", Vector2(17520, 600))
+	_spawn_fire("skimmer", "F_Z4Ski1", Vector2(17700, 1100))
+	_spawn_fire("skimmer", "F_Z4Ski2", Vector2(17700, 600))
 
 func _build_z4_top() -> void:
 	# Câmara pré-chefe: piso seco com vão (boca do shaft, seg5 alargado) em x17424–17616.
