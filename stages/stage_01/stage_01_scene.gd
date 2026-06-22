@@ -27,9 +27,6 @@ const _FIRE := {
 	"serpent": preload("res://characters/enemies/stage_01/enemy_lava_serpent.tscn"),
 }
 
-# Rota secreta (galerix): a parede #1 carva a BASE da parede esquerda do seg0 do shaft.
-const _CRACK1_TOP := 2080.0
-
 var _corr_boss: CorridorSection = null
 
 func _ready() -> void:
@@ -445,25 +442,31 @@ func _build_z4_shaft() -> void:
 		var yt: float = s[0]; var yb: float = s[1]; var xl: float = s[2]; var xr: float = s[3]
 		var h: float = yb - yt
 		var cy: float = (yt + yb) * 0.5
-		# seg0: a base da parede ESQUERDA é um vão p/ a parede #1 quebrável (rota secreta).
-		var lyb: float = _CRACK1_TOP if i == 0 else yb
-		var lh: float = lyb - yt
-		var lcy: float = (yt + lyb) * 0.5
-		_z4_wall("Z4ShaftWL%d" % i, xl - 32.0, lcy, 64.0, lh)   # parede esquerda (grabbable)
-		_z4_wall("Z4ShaftWR%d" % i, xr + 32.0, cy, 64.0, h)     # parede direita (grabbable)
+		# seg0: a parede ESQUERDA inteira é substituída pela parede #1 quebrável (y1900–2056)
+		# + o VÃO DE ENTRADA (y2056–2208), por onde o player entra vindo da escada.
+		# A #1 e o vão são montados em _build_z4_secret. Aqui só pulamos a parede do seg0.
+		if i != 0:
+			_z4_wall("Z4ShaftWL%d" % i, xl - 32.0, cy, 64.0, h)   # parede esquerda (grabbable)
+		_z4_wall("Z4ShaftWR%d" % i, xr + 32.0, cy, 64.0, h)       # parede direita (grabbable)
+	# Piso de ENTRADA: liga o topo da escada (step3, x17056–17184) à boca do shaft,
+	# cobrindo o antigo buraco da passagem secreta. O player anda da escada direto pro
+	# shaft pelo vão da parede #1 (y2056–2208) e faz wall-jump pra cima. topo y2208.
+	_z3_static_floor("Z4ShaftEntry", Vector2(17308.0, 2272.0), Vector2(616.0, 128.0))
 	# lava única (chase) cobrindo o shaft
 	var lava := _z4_lava("Z4ShaftLava", "chase", 17520.0, 2360.0, 240.0, 1700.0)
 	lava.set("rise_speed", 80.0)
 	lava.set("cap_y", 480.0)
 	lava.set("accel_y", 975.0)
 	lava.set("accel_speed", 150.0)
-	# gatilho na base do shaft (na borda da escada-chase, à esquerda das paredes) → ativa a lava
+	# gatilho na ENTRADA do shaft (boca de baixo, dentro da coluna seg0) → a lava só
+	# começa a subir quando o player de fato entra no shaft. Antes ela espera parada em
+	# low_y (2360), 152px abaixo do piso do shaft (2208), sem aparecer na coluna.
 	var trig := Area2D.new()
 	trig.name = "Z4ChaseTrigger"
 	trig.collision_layer = 0
 	trig.collision_mask = 2
-	trig.position = Vector2(16480, 2560)
-	trig.add_child(_z2_shape(Vector2(64, 256)))
+	trig.position = Vector2(17520, 2150)               # centro da coluna do shaft, perto da base
+	trig.add_child(_z2_shape(Vector2(192, 116)))       # largura cheia do seg0; y 2092–2208
 	add_child(trig)
 	trig.body_entered.connect(func(b): if b is CharacterBase: lava.call("activate"))
 	# Espinhos instant-kill (no_wall_grab + lava_floor) — seg3 face direita, seg5 face esquerda
@@ -678,21 +681,25 @@ func _build_z4_boss() -> void:
 # (índices 0–3 já usados por 02/04/06/08) e a Dual Blades era o item da tabela que
 # faltava colocar no stage (coração e capacete-Zael já estão na .tscn).
 func _build_z4_secret() -> void:
-	# Parede #1 — base da parede esq do seg0 (x17360–17424, y2080–2208).
-	# Quebra pelo lado do shaft (detector à direita), exige galerix.
-	_z4_cracked("Z4Crack1", Vector2(17392.0, 2144.0), Vector2(64.0, 128.0), "", "R")
-	# Passagem vertical (interior x17000–17360), fechada dos dois lados até a câmara.
-	_z2_static("Z4SecretWL", Vector2(16968.0, 1332.0), Vector2(64.0, 1752.0))   # parede esq
-	_z2_static("Z4SecretWR", Vector2(17392.0, 1268.0), Vector2(64.0, 1624.0))   # parede dir (acima da #1)
-	# Elevador up_only: sobe da base da passagem e encaixa no buraco do piso da câmara.
+	# Parede #1 — parede ESQUERDA do seg0 do shaft (x17360–17424, y1900–2056). É a ÚNICA
+	# entrada do segredo: quebra pelo lado do shaft (detector à direita), exige galerix.
+	# Abaixo dela (y2056–2208) fica o vão de entrada do shaft (ver _build_z4_shaft).
+	_z4_cracked("Z4Crack1", Vector2(17392.0, 1978.0), Vector2(64.0, 156.0), "", "R")
+	# Passagem vertical TOTALMENTE FECHADA (interior x17000–17360): paredes lat. + TAMPA no
+	# fundo (Z4SecretFloor) selam tudo; só a parede #1 dá acesso. Sem buraco no piso da escada.
+	_z2_static("Z4SecretWL", Vector2(16968.0, 1256.0), Vector2(64.0, 1600.0))   # parede esq (y456–2056, alinhada à tampa)
+	_z2_static("Z4SecretWR", Vector2(17392.0, 1178.0), Vector2(64.0, 1444.0))   # parede dir acima da #1 (y456–1900)
+	_z2_static("Z4SecretFloor", Vector2(17180.0, 2040.0), Vector2(360.0, 32.0)) # tampa do fundo (y2024–2056)
+	# Elevador up_only: descansa SOBRE a tampa (atrás da parede #1) e sobe até o buraco do
+	# piso da câmara. Só alcançável depois de quebrar a parede #1.
 	var elev := _VPLAT.new()
 	elev.name = "Z4SecretElevator"
 	elev.up_only = true
-	elev.move_distance = 1820.0
+	elev.move_distance = 1648.0
 	elev.speed = 90.0
 	elev.collision_layer = 1
 	elev.collision_mask = 0
-	elev.position = Vector2(17180.0, 2180.0)
+	elev.position = Vector2(17180.0, 2008.0)
 	elev.add_child(_z2_shape(Vector2(192.0, 32.0)))
 	add_child(elev)
 	# Câmara do coletável: piso x16800–17380 com buraco x17080–17280 (encaixe do elevador).
@@ -800,5 +807,7 @@ func _zone_spawn(zone: int) -> Vector2:
 		6: return Vector2(2640, 540)     # DEBUG: shaft ↓ — sobre a Z1Plat4 (testar descida)
 		7: return Vector2(17520, 1100)   # DEBUG: meio do shaft de wall-jump (seg4)
 		8: return Vector2(17800, 280)    # DEBUG: topo do shaft / câmara pré-chefe (Z4PreR)
-		9: return Vector2(17180, 2120)   # DEBUG: rota secreta — sobre o elevador (galerix)
+		9: return Vector2(17180, 2120)   # DEBUG: corredor de entrada (sob a tampa do segredo)
+		10: return Vector2(17392, 2120)  # DEBUG: vão de entrada do shaft (deve cair no piso, vão aberto)
+		11: return Vector2(17500, 2120)  # DEBUG: interior do shaft, base (paredes dos 2 lados)
 		_: return Vector2.ZERO           # zona 1 = início normal
