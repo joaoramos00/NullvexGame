@@ -639,13 +639,17 @@ func _spawn_fire_roster() -> void:
 	_spawn_fire("skimmer", "F_Z4Ski2", Vector2(17520, 600))
 
 func _build_z4_top() -> void:
-	# Câmara pré-chefe: piso seco com vão (saída do seg6) em x17456–17584.
-	# Trecho esquerdo: fecha a parede esquerda do shaft (seg6 topo x17456).
+	# Câmara pré-chefe: piso seco com vão (boca do shaft, seg5 alargado) em x17424–17616.
+	# (Task 5 alargou o seg5 topo de x17456–17584 p/ x17424–17616 = 192px; Z4PreL/Z4PreR
+	# realinhados pra deixar a boca toda livre, senão o piso pré-boss invadia a subida.)
+	# Trecho esquerdo: tampa a parede esquerda do topo do shaft (Z4ShaftWL5, x17360–17424);
+	# face direita = x17424 (= face esquerda do interior do seg5).
 	# Z4PreL/Z4PreR reusam o helper _z3_static_floor de propósito: piso seco com o
 	# mesmo tile/desenho de chão do corredor (não é plataforma elevada, só piso reto).
-	_z3_static_floor("Z4PreL", Vector2(17420.0, 392.0), Vector2(40.0, 128.0))
-	# Trecho direito: corredor até a entrada do boss corridor (x17584–18200).
-	_z3_static_floor("Z4PreR", Vector2(17892.0, 392.0), Vector2(616.0, 128.0))
+	_z3_static_floor("Z4PreL", Vector2(17392.0, 392.0), Vector2(64.0, 128.0))   # x17360–17424
+	# Trecho direito: começa em x17616 (= face direita do interior do seg5, sobre o
+	# Z4ShaftWR5) e segue até a entrada do boss corridor (x17616–18200).
+	_z3_static_floor("Z4PreR", Vector2(17908.0, 392.0), Vector2(584.0, 128.0))  # x17616–18200
 	# Corredor pré-boss com checkpoint 2 e câmera bloqueada.
 	_corr_boss = CorridorSection.new()
 	_corr_boss.tileset              = _ROOM_TILE
@@ -715,16 +719,25 @@ func _build_z4_boss() -> void:
 	add_child(ign)
 	_setup_boss_room_trigger()
 
-# Rota secreta (atalho de revisita com galerix): parede #1 (base do shaft) → passagem
-# vertical com elevador up_only → câmara do coletável → parede #2 (quebra só por dentro)
-# → câmara pré-chefe. O coletável é a Dual Blades da Zara: stage 01 não tem sub-tank
-# (índices 0–3 já usados por 02/04/06/08) e a Dual Blades era o item da tabela que
-# faltava colocar no stage (coração e capacete-Zael já estão na .tscn).
+# Passagem secreta = coluna azul-clara à ESQUERDA do shaft (referência shaftStage01Zona4.png),
+# altura cheia e paralela ao shaft de escalada. Fluxo (atalho de revisita com galerix):
+#   1. Parede #1 quebrável (base, lado direito da coluna) — quebra de FORA, pelo lado do shaft
+#      (detector "R"); o player no shaft atira pra ESQUERDA e entra no segredo.
+#   2. Elevador up_only (Z4SecretElevator, ativa ao pisar) sobe até a câmara do coletável.
+#      A Dual Blades da Zara (Z4DualBlades) fica dentro.
+#   3. Parede #2 quebrável (topo, lado direito da coluna) — quebra só de DENTRO (detector "L");
+#      o player no topo do segredo atira pra direita e sai no TOPO do shaft, perto da sala pré-boss.
+# Segredo TOTALMENTE SELADO: as duas paredes quebráveis são as ÚNICAS entradas/saídas;
+# WL/WR + tampa de fundo + piso/teto da câmara fecham todo o resto.
+# (Coletável = Dual Blades: stage 01 não tem sub-tank — índices 0–3 já usados por 02/04/06/08 —
+# e a Dual Blades era o item da tabela que faltava colocar; coração/capacete-Zael já na .tscn.)
 func _build_z4_secret() -> void:
-	# Parede #1 — parede ESQUERDA do seg0 do shaft (x17360–17424, y1900–2056). É a ÚNICA
-	# entrada do segredo: quebra pelo lado do shaft (detector à direita), exige galerix.
-	# Abaixo dela (y2056–2208) fica o vão de entrada do shaft (ver _build_z4_shaft).
-	_z4_cracked("Z4Crack1", Vector2(17392.0, 1978.0), Vector2(64.0, 156.0), "", "R")
+	# Parede #1 (INFERIOR) — slot direito da coluna no seg0 do shaft (x17360–17424, y1900–2056).
+	# É a entrada do segredo vinda do shaft: quebra de FORA, pelo lado do shaft (detector "R",
+	# break_side="right"); o player no shaft atira pra ESQUERDA pra entrar. Exige galerix.
+	# A face direita (x17424) encosta na face esquerda do seg0 do shaft. Abaixo dela
+	# (y2056–2208) fica o vão de entrada do shaft (ver _build_z4_shaft).
+	_z4_cracked("Z4Crack1", Vector2(17392.0, 1978.0), Vector2(64.0, 156.0), "right", "R")
 	# Passagem vertical TOTALMENTE FECHADA (interior x17000–17360): paredes lat. + TAMPA no
 	# fundo (Z4SecretFloor) selam tudo; só a parede #1 dá acesso. Sem buraco no piso da escada.
 	_z2_static("Z4SecretWL", Vector2(16968.0, 1256.0), Vector2(64.0, 1600.0))   # parede esq (y456–2056, alinhada à tampa)
@@ -755,7 +768,10 @@ func _build_z4_secret() -> void:
 	col.set("stage_id", 1)
 	col.position = Vector2(16940.0, 300.0)
 	add_child(col)
-	# Parede #2 — separa a câmara do coletável da pré-chefe; quebra só por dentro (esquerda).
+	# Parede #2 (SUPERIOR) — slot direito da câmara do coletável (x17380–17444, y104–328),
+	# fica em pé sobre o piso da câmara (y328). Separa o segredo da sala pré-boss / topo do
+	# shaft. Quebra só de DENTRO (lado esquerdo/interior: detector "L", break_side="left");
+	# o player no topo do segredo atira pra DIREITA pra sair no topo do shaft. Exige galerix.
 	_z4_cracked("Z4Crack2", Vector2(17412.0, 216.0), Vector2(64.0, 224.0), "left", "L")
 
 # Parede quebrável (cracked_wall.gd): corpo sólido + HitDetector Area2D só no lado
