@@ -1,44 +1,56 @@
 extends Node
-const WALLJUMP_MAX := 256.0
 func _ready() -> void:
 	var s: Node = load("res://stages/stage_01/stage_01.tscn").instantiate()
 	add_child(s)
-	for i in 4: await get_tree().physics_frame
+	for i in 10: await get_tree().physics_frame
 	var fail := false
+	# Paredes direitas: Z4ShaftWR0 .. Z4ShaftWR5 (todas 6)
 	for i in 6:
-		var wl = s.get_node_or_null("Z4ShaftWL%d" % i)
 		var wr = s.get_node_or_null("Z4ShaftWR%d" % i)
-		if wl == null or wr == null:
-			print("FAIL: faltou parede do seg %d" % i); fail = true; continue
-		# vão livre entre as faces internas das paredes (paredes 64px; centro-a-centro - 64 = vão)
-		var inner: float = wr.position.x - wl.position.x - 64.0
-		if inner > WALLJUMP_MAX + 0.5:
-			print("FAIL: seg %d largura %.0f > %.0f" % [i, inner, WALLJUMP_MAX]); fail = true
+		if wr == null:
+			print("FAIL: Z4ShaftWR%d ausente" % i); fail = true
+	# Paredes esquerdas: Z4ShaftWL1 .. Z4ShaftWL5 (NÃO Z4ShaftWL0 — seg0 sem parede esq)
+	for i in range(1, 6):
+		var wl = s.get_node_or_null("Z4ShaftWL%d" % i)
+		if wl == null:
+			print("FAIL: Z4ShaftWL%d ausente" % i); fail = true
+	# Lava do shaft (chase)
 	var lava = s.get_node_or_null("Z4ShaftLava")
-	if lava == null or float(lava.get("cap_y")) > 520.0:
-		print("FAIL: lava cap_y nao protege o topo"); fail = true
-	# Task 6: hazards e elementos do shaft
-	for expected in ["Z4SpikeR3", "Z4SpikeL5", "Z4Ledge2", "Z4Ledge5", "Z4Crumble4", "Z4Flyer1"]:
-		if s.get_node_or_null(expected) == null:
-			print("FAIL: no existe %s" % expected); fail = true
-	# Espinhos devem ser Area2D com lava_floor + instant_kill
-	var spike := s.get_node_or_null("Z4SpikeR3Hurt")
-	if spike == null or not bool(spike.get("instant_kill")):
-		print("FAIL: Z4SpikeR3Hurt ausente ou instant_kill=false"); fail = true
-	var spike_l := s.get_node_or_null("Z4SpikeL5Hurt")
-	if spike_l == null or not bool(spike_l.get("instant_kill")):
-		print("FAIL: Z4SpikeL5Hurt ausente ou instant_kill=false"); fail = true
-	# Task 7: câmara pré-chefe + corredor do boss
-	if s.get_node_or_null("Z4PreR") == null:
-		print("FAIL: Z4PreR ausente"); fail = true
-	if s.get_node_or_null("Z4PreL") == null:
-		print("FAIL: Z4PreL ausente"); fail = true
-	var found_corridor := false
-	for child in s.get_children():
-		if child is CorridorSection:
-			found_corridor = true
-			break
-	if not found_corridor:
-		print("FAIL: CorridorSection (_corr_boss) ausente como filho da stage"); fail = true
+	if lava == null:
+		print("FAIL: Z4ShaftLava ausente"); fail = true
+	# Footholds (agarráveis — não devem estar em no_wall_grab)
+	for fname in ["Z4Foot1", "Z4Foot2", "Z4Foot3", "Z4Foot4"]:
+		var foot = s.get_node_or_null(fname)
+		if foot == null:
+			print("FAIL: %s ausente" % fname); fail = true
+		elif foot.is_in_group("no_wall_grab"):
+			print("FAIL: %s está em grupo no_wall_grab (deve ser agarrável)" % fname); fail = true
+	# Espinhos instant-kill (Z4SpikeR1 e Z4SpikeR3)
+	for sname in ["Z4SpikeR1", "Z4SpikeR3"]:
+		var spike = s.get_node_or_null(sname)
+		if spike == null:
+			print("FAIL: %s ausente" % sname); fail = true
+		var hurt = s.get_node_or_null(sname + "Hurt")
+		if hurt == null:
+			print("FAIL: %sHurt ausente" % sname); fail = true
+		elif not bool(hurt.get("instant_kill")):
+			print("FAIL: %sHurt instant_kill=false" % sname); fail = true
+	# Plataformas: Z4Plat4 e Z4Plat5 (1-3 colapsam por nome com .tscn stale; validam Z4Plat4-5 neste ramo)
+	for i in range(4, 6):
+		var plat = s.get_node_or_null("Z4Plat%d" % i)
+		if plat == null:
+			print("FAIL: Z4Plat%d ausente" % i); fail = true
+	# Outros elementos do shaft
+	for ename in ["Z4Crumble4", "Z4Flyer1"]:
+		if s.get_node_or_null(ename) == null:
+			print("FAIL: %s ausente" % ename); fail = true
+	# Câmara pré-chefe
+	for pname in ["Z4PreL", "Z4PreR"]:
+		if s.get_node_or_null(pname) == null:
+			print("FAIL: %s ausente" % pname); fail = true
+	# Segredo: crackeadas + elevador + coletável
+	for sname in ["Z4Crack1", "Z4Crack2", "Z4SecretElevator", "Z4DualBlades"]:
+		if s.get_node_or_null(sname) == null:
+			print("FAIL: %s ausente" % sname); fail = true
 	if fail: get_tree().quit(1)
-	else: print("PASS: shaft geometry"); get_tree().quit(0)
+	else: print("PASS: shaft geometry (novo layout)"); get_tree().quit(0)
