@@ -9,11 +9,10 @@ func _ready() -> void:
 		var wr = s.get_node_or_null("Z4ShaftWR%d" % i)
 		if wr == null:
 			print("FAIL: Z4ShaftWR%d ausente" % i); fail = true
-	# Paredes esquerdas: Z4ShaftWL1 .. Z4ShaftWL5 (NÃO Z4ShaftWL0 — seg0 sem parede esq)
-	for i in range(1, 6):
-		var wl = s.get_node_or_null("Z4ShaftWL%d" % i)
-		if wl == null:
-			print("FAIL: Z4ShaftWL%d ausente" % i); fail = true
+	# Parede ESQUERDA do shaft = Z4SecretWR (não há mais Z4ShaftWL — eram redundantes
+	# c/ a coluna do segredo e foram removidas; o WR sela o segredo E é a parede de wall-jump esq).
+	if s.get_node_or_null("Z4SecretWR") == null:
+		print("FAIL: Z4SecretWR ausente (parede esquerda do shaft)"); fail = true
 	# Lava do shaft (chase)
 	var lava = s.get_node_or_null("Z4ShaftLava")
 	if lava == null:
