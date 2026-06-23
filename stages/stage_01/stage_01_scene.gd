@@ -84,20 +84,23 @@ const _SHAFT_SEGS := [
 	# cima até y-3336; bloco boss/pré-boss/segredo-topo deslocado -3696 p/ acompanhar),
 	# largura ×3 estendendo a face DIREITA (lado aberto). seg5 (topo) fica estreito:
 	# é a boca de saída p/ a sala pré-boss (x17424–17616).
-	[1284.0, 2208.0, 17424.0, 18000.0],   # entrada (esq = parede #1)
-	[ 324.0, 1284.0, 17360.0, 18320.0],   # saliência+espinho opostos
-	[-636.0,  324.0, 17392.0, 18160.0],   # saliência (R)
-	[-1596.0, -636.0, 17360.0, 18320.0],  # saliência+espinho opostos
-	[-2556.0, -1596.0, 17392.0, 18160.0], # saliência (R)
+	# Face ESQUERDA fixa em 17424 (a parede esq do shaft é o Z4SecretWR do segredo, que
+	# já sela e serve de wall-jump). NÃO há mais Z4ShaftWL (eram redundantes e invadiam
+	# o segredo — as "barras laranja" duplicadas). Direita estendida = folga lateral.
+	[1284.0, 2208.0, 17424.0, 18000.0],   # entrada
+	[ 324.0, 1284.0, 17424.0, 18320.0],   # saliência+espinho opostos
+	[-636.0,  324.0, 17424.0, 18160.0],   # saliência (R)
+	[-1596.0, -636.0, 17424.0, 18320.0],  # saliência+espinho opostos
+	[-2556.0, -1596.0, 17424.0, 18160.0], # saliência (R)
 	[-3336.0, -2556.0, 17424.0, 17616.0], # topo (boca pré-boss, estreito)
 ]
 
 # Saliências agarráveis (verde na referência) — wall-grab/jump padrão.
 # [nome, wall_x (face real de _SHAFT_SEGS), cy, side ("L"/"R"), h]
 const _Z4_FOOTHOLDS := [
-	["Z4Foot1", 17360.0,  804.0, "L", 96.0],    # seg1 esq
+	["Z4Foot1", 17424.0,  804.0, "L", 96.0],    # seg1 esq (face do Z4SecretWR)
 	["Z4Foot2", 18160.0, -156.0, "R", 96.0],    # seg2 dir (face alargada)
-	["Z4Foot3", 17360.0, -1116.0, "L", 96.0],   # seg3 esq
+	["Z4Foot3", 17424.0, -1116.0, "L", 96.0],   # seg3 esq (face do Z4SecretWR)
 	["Z4Foot4", 18160.0, -2076.0, "R", 96.0],   # seg4 dir (face alargada)
 ]
 
@@ -463,11 +466,19 @@ func _z3_rising_lava(n: String, center_x: float, width: float, low_y: float, hig
 # Lavas congelam no bot.
 func _build_zone4() -> void:
 	_z3_static_floor("Z4Base", Vector2(16320, 2688), Vector2(320, 128))
-	_z4_stair("Z4ChaseStep", 16480.0, 2520.0, 192.0, 104.0, 4, 128.0)   # step0..3
+	_z4_stair("Z4ChaseStep", 16480.0, 2520.0, 192.0, 104.0, 3, 128.0)   # step0..2 (step3 era redundante c/ Z4ShaftEntry)
 	_build_z4_shaft()
 	_build_z4_top()
 	_build_z4_boss()
 	_build_z4_secret()
+	# Tile da zona 1 também nas paredes/pisos ESTRUTURAIS do shaft (sem override antes
+	# usavam o tile z4 laranja/vulcânico, destoando das paredes de escalada já em z1).
+	for n in ["Z4ShaftEntry", "Z4SecretWL", "Z4SecretWR", "Z4SecretFloor",
+			"Z4CollectFloorL", "Z4CollectFloorR", "Z4CollectWL", "Z4CollectCeil",
+			"Z4PreL", "Z4PreR"]:
+		var b := get_node_or_null(n)
+		if b:
+			b.set_meta("lava_override", _Z1_TILE_PATH)
 
 func _z4_wall(n: String, cx: float, cy: float, w: float, h: float, no_grab := false) -> StaticBody2D:
 	var b := _z2_static(n, Vector2(cx, cy), Vector2(w, h))
@@ -493,21 +504,19 @@ func _build_z4_shaft() -> void:
 		var yt: float = s[0]; var yb: float = s[1]; var xl: float = s[2]; var xr: float = s[3]
 		var h: float = yb - yt
 		var cy: float = (yt + yb) * 0.5
-		# seg0: a parede ESQUERDA inteira é substituída pela parede #1 quebrável (y1900–2056)
-		# + o VÃO DE ENTRADA (y2056–2208), por onde o player entra vindo da escada.
-		# A #1 e o vão são montados em _build_z4_secret. Aqui só pulamos a parede do seg0.
-		if i != 0:
-			_z4_wall("Z4ShaftWL%d" % i, xl - 32.0, cy, 64.0, h)   # parede esquerda (grabbable)
+		# Parede ESQUERDA do shaft = Z4SecretWR (montado em _build_z4_secret, x17360–17424):
+		# sela o segredo E serve de wall-jump. Não criamos Z4ShaftWL (eram redundantes e
+		# invadiam o segredo). Só a parede DIREITA por seg.
 		_z4_wall("Z4ShaftWR%d" % i, xr + 32.0, cy, 64.0, h)       # parede direita (grabbable)
 	# Piso de ENTRADA: liga o topo da escada (step3, x17056–17184) à boca do shaft,
 	# cobrindo o antigo buraco da passagem secreta. O player anda da escada direto pro
 	# shaft pelo vão da parede #1 (y2056–2208) e faz wall-jump pra cima. topo y2208.
 	_z3_static_floor("Z4ShaftEntry", Vector2(17308.0, 2272.0), Vector2(616.0, 128.0))
 	# lava única (chase) cobrindo o shaft
-	# Shaft 3× (largura até x18320, altura até y-3336) → lava cobre toda a largura
-	# (center 17840, width 1000) e sobe até o topo (cap -3200), 3× mais rápido p/
-	# manter a pressão proporcional à subida triplicada.
-	var lava := _z4_lava("Z4ShaftLava", "chase", 17840.0, 2360.0, 1000.0, 5700.0)
+	# Shaft 3× alto → lava sobe até o topo (cap -3200), 3× mais rápido. Largura = seg0
+	# (boca de entrada, x17424–18000) pra NÃO vazar além das paredes (z_index=1 renderiza
+	# na frente; lava mais larga aparecia como coluna laranja fora da parede).
+	var lava := _z4_lava("Z4ShaftLava", "chase", 17712.0, 2360.0, 576.0, 5700.0)
 	lava.set("rise_speed", 240.0)
 	lava.set("cap_y", -3200.0)
 	lava.set("accel_y", -1491.0)
@@ -519,8 +528,8 @@ func _build_z4_shaft() -> void:
 	trig.name = "Z4ChaseTrigger"
 	trig.collision_layer = 0
 	trig.collision_mask = 2
-	trig.position = Vector2(17712, 2150)               # centro do seg0 alargado, perto da base
-	trig.add_child(_z2_shape(Vector2(576, 116)))       # largura cheia do seg0 (alargado); y 2092–2208
+	trig.position = Vector2(17712, 2150)
+	trig.add_child(_z2_shape(Vector2(576, 116)))
 	add_child(trig)
 	trig.body_entered.connect(func(b): if b is CharacterBase: lava.call("activate"))
 	# Ao morrer, a lava-chase volta ao fundo e desliga (senão respawna já no alto e
@@ -768,14 +777,16 @@ func _build_z4_secret() -> void:
 	# break_side="right"); o player no shaft atira pra ESQUERDA pra entrar. Exige galerix.
 	# A face direita (x17424) encosta na face esquerda do seg0 do shaft. Abaixo dela
 	# (y2056–2208) fica o vão de entrada do shaft (ver _build_z4_shaft).
-	_z4_cracked("Z4Crack1", Vector2(17392.0, 1978.0), Vector2(64.0, 156.0), "right", "R")
+	# Entrada do segredo: parede quebrável que COMEÇA no piso (base y2024 = topo da tampa,
+	# topo y1900 = base do WR). Quebra pelo lado do shaft (detector à direita), exige galerix.
+	_z4_cracked("Z4Crack1", Vector2(17392.0, 1982.0), Vector2(64.0, 164.0), "right", "R")   # topo y1900, altura 164
 	# Passagem vertical TOTALMENTE FECHADA (interior x17000–17360): paredes lat. + TAMPA no
 	# fundo (Z4SecretFloor) selam tudo; só a parede #1 dá acesso. Sem buraco no piso da escada.
 	# Coluna estendida p/ acompanhar o shaft triplicado: sela do fundo (tampa y2056) até a
 	# câmara do coletável (deslocada -3696, topo ~y-3368).
-	_z2_static("Z4SecretWL", Vector2(16968.0, -656.0), Vector2(64.0, 5424.0))   # parede esq (y-3368–2056)
-	_z2_static("Z4SecretWR", Vector2(17392.0, -734.0), Vector2(64.0, 5268.0))   # parede dir acima da #1 (y-3368–1900)
-	_z2_static("Z4SecretFloor", Vector2(17180.0, 2040.0), Vector2(360.0, 32.0)) # tampa do fundo (y2024–2056)
+	_z2_static("Z4SecretWL", Vector2(16968.0, -652.0), Vector2(64.0, 5432.0))   # parede esq (y-3368–2064, alinhada à tampa)
+	_z2_static("Z4SecretWR", Vector2(17392.0, -734.0), Vector2(64.0, 5268.0))   # parede dir (sela o segredo + wall-jump esq do shaft)
+	_z2_static("Z4SecretFloor", Vector2(17270.0, 2080.0), Vector2(540.0, 32.0)) # tampa do fundo (x17000–17540, y2064–2096) — alinhada à base do Crack1
 	# Elevador up_only: descansa SOBRE a tampa (atrás da parede #1) e sobe até o buraco do
 	# piso da câmara (agora ~y-3304). Só alcançável depois de quebrar a parede #1.
 	var elev := _VPLAT.new()
@@ -785,7 +796,7 @@ func _build_z4_secret() -> void:
 	elev.speed = 90.0
 	elev.collision_layer = 1
 	elev.collision_mask = 0
-	elev.position = Vector2(17180.0, 2008.0)
+	elev.position = Vector2(17180.0, 2048.0)   # descansa sobre a tampa realinhada (y2064)
 	elev.add_child(_z2_shape(Vector2(192.0, 32.0)))
 	add_child(elev)
 	# Câmara do coletável: piso x16800–17380 com buraco x17080–17280 (encaixe do elevador).
@@ -817,6 +828,10 @@ func _z4_cracked(n: String, center: Vector2, size: Vector2, break_side: String, 
 	w.collision_layer = 1
 	w.collision_mask = 0
 	w.position = center
+	# Render em modo FILL com tile z1 (escuro), em vez do default "lava" — senão o
+	# _draw_lava_tiles desenha min. 7 linhas e o visual transborda ~448px pra baixo da
+	# parede (a "parede passável" laranja abaixo do piso). Fill = exatamente o rect.
+	w.set_meta("tileset_override", _Z1_TILE_PATH)
 	w.add_child(_z2_shape(size))
 	var det := Area2D.new()
 	det.name = "HitDetector" + det_side
