@@ -301,14 +301,10 @@ func _draw_room_tiles(rect: Rect2, piece_name: String, skip_bottom_corner: bool 
 			var is_bottom := row == 0
 			var tile: Vector2i
 			if piece_name.ends_with("_Ceil"):
-				if is_top:         # linha de face (visível ao player)
-					if is_left:    tile = Vector2i(3, 3)   # canto inf-dir
-					elif is_right: tile = Vector2i(0, 2)   # canto inf-esq
-					else:          tile = Vector2i(1, 2)   # face de teto
-				else:              # linhas de fill (acima da face)
-					if is_left:    tile = Vector2i(3, 2)   # face lateral dir
-					elif is_right: tile = Vector2i(1, 0)   # face lateral esq
-					else:          tile = Vector2i(2, 1)   # fill sólido
+				# base_ys=+src_ts desloca row=1 para fora do rect (dh=0); só row=0 visível.
+				if is_left:        tile = Vector2i(3, 3)   # canto inf-dir
+				elif is_right:     tile = Vector2i(0, 2)   # canto inf-esq
+				else:              tile = Vector2i(1, 2)   # face de teto
 			elif piece_name.ends_with("_Wall_L") or piece_name.ends_with("LWall"):
 				if is_bottom:      tile = Vector2i(2, 2)
 				elif is_top:       tile = Vector2i(1, 1)
