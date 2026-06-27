@@ -35,6 +35,13 @@ func set_player(p: Node2D) -> void:
 func activate() -> void:
 	_active = true
 
+# Volta ao estado inicial (chase): desce p/ low_y e desliga, esperando re-trigger.
+# Chamado quando o player morre, p/ a lava não respawnar já no alto.
+func reset() -> void:
+	_active = false
+	_going_up = true
+	position.y = low_y
+
 func _on_body_entered(body: Node) -> void:
 	if body is CharacterBase:
 		(body as CharacterBase).kill()

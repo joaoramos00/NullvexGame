@@ -39,6 +39,15 @@ const _HITBOX_ENTITIES: Array = [
     {"name": "Ice Wisp", "path": "res://characters/enemies/stage_02/enemy_ice_wisp.tscn", "group": "Inimigos", "kind": "Inimigos", "stage": "Stage 02"},
     {"name": "Ice Miniboss", "path": "res://characters/enemies/stage_02/enemy_ice_miniboss.tscn", "group": "Bosses", "kind": "Inimigos", "stage": "Stage 02"},
     {"name": "Cryovex", "path": "res://characters/bosses/cryovex.tscn", "group": "Bosses", "kind": "Inimigos", "stage": "Stage 02"},
+    {"name": "Magma Grunt", "path": "res://characters/enemies/stage_01/enemy_magma_grunt.tscn", "group": "Inimigos", "kind": "Inimigos", "stage": "Stage 01"},
+    {"name": "Molten Ram", "path": "res://characters/enemies/stage_01/enemy_molten_ram.tscn", "group": "Inimigos", "kind": "Inimigos", "stage": "Stage 01"},
+    {"name": "Ash Hopper", "path": "res://characters/enemies/stage_01/enemy_ash_hopper.tscn", "group": "Inimigos", "kind": "Inimigos", "stage": "Stage 01"},
+    {"name": "Ember Orbiter", "path": "res://characters/enemies/stage_01/enemy_ember_orbiter.tscn", "group": "Inimigos", "kind": "Inimigos", "stage": "Stage 01"},
+    {"name": "Flame Skimmer", "path": "res://characters/enemies/stage_01/enemy_flame_skimmer.tscn", "group": "Inimigos", "kind": "Inimigos", "stage": "Stage 01"},
+    {"name": "Cinder Flyer", "path": "res://characters/enemies/stage_01/enemy_cinder_flyer.tscn", "group": "Inimigos", "kind": "Inimigos", "stage": "Stage 01"},
+    {"name": "Heat Mortar", "path": "res://characters/enemies/stage_01/enemy_heat_mortar.tscn", "group": "Inimigos", "kind": "Inimigos", "stage": "Stage 01"},
+    {"name": "Magma Turret", "path": "res://characters/enemies/stage_01/enemy_magma_turret.tscn", "group": "Inimigos", "kind": "Inimigos", "stage": "Stage 01"},
+    {"name": "Lava Serpent", "path": "res://characters/enemies/stage_01/enemy_lava_serpent.tscn", "group": "Inimigos", "kind": "Inimigos", "stage": "Stage 01"},
     {"name": "Boss Base", "path": "res://characters/bosses/boss_base.tscn", "group": "Bosses", "kind": "Bosses", "stage": ""},
     {"name": "Intro Boss", "path": "res://characters/bosses/intro_boss.tscn", "group": "Bosses", "kind": "Bosses", "stage": "Stage 00"},
     {"name": "Cryovex", "path": "res://characters/bosses/cryovex.tscn", "group": "Bosses", "kind": "Bosses", "stage": "Stage 02"},
@@ -53,6 +62,7 @@ const _HITBOX_ENTITIES: Array = [
     {"name": "Zael Bullet", "path": "res://characters/ranged/zael_bullet.tscn", "group": "Projeteis", "kind": "Projeteis", "stage": ""},
     {"name": "Boss Projectile", "path": "res://characters/bosses/boss_projectile.tscn", "group": "Projeteis", "kind": "Projeteis", "stage": ""},
     {"name": "Ice Projectile", "path": "res://characters/enemies/stage_02/enemy_ice_projectile.tscn", "group": "Projeteis", "kind": "Projeteis", "stage": "Stage 02"},
+    {"name": "Fire Projectile", "path": "res://characters/enemies/stage_01/fire_projectile.tscn", "group": "Projeteis", "kind": "Projeteis", "stage": "Stage 01"},
     {"name": "Zara Hitbox", "path": "res://characters/melee/zara_hitbox.tscn", "group": "Projeteis", "kind": "Projeteis", "stage": ""},
 ]
 
@@ -742,7 +752,7 @@ class _PlatformView extends Control:
     var tile_tex: Texture2D
     var rows: int = 2
     var cols: int = 3
-    var mode: String = "platform"   # "platform" | "room" | "floor_platform" | "floor_platform_hole" | "floor_hole"
+    var mode: String = "platform"   # "platform" | "room" | "floor_platform" | "floor_platform_hole" | "floor_hole" | "foothold"
     var mirror_hole: bool = false    # floor_platform_hole: false = abismo à direita, true = à esquerda
 
     const _TS := 32.0   # tamanho source
@@ -759,7 +769,7 @@ class _PlatformView extends Control:
     func set_dims(r: int, c: int) -> void:
         rows = r
         cols = c
-        var _is_fp := mode == "floor_platform" or mode == "floor_platform_hole"
+        var _is_fp := mode == "floor_platform" or mode == "floor_platform_hole" or mode == "foothold"
         var gd := _fp_grid() if _is_fp else (_fh_grid() if mode == "floor_hole" else Vector2i(c, r))
         custom_minimum_size = Vector2(gd.x * _TD, gd.y * _TD)
         queue_redraw()
@@ -767,6 +777,9 @@ class _PlatformView extends Control:
     func _draw() -> void:
         draw_rect(Rect2(Vector2.ZERO, size), Color(0.04, 0.06, 0.14))
         if not tile_tex:
+            return
+        if mode == "foothold":
+            _draw_foothold()
             return
         if mode == "floor_platform" or mode == "floor_platform_hole":
             _draw_floor_platform()
@@ -920,10 +933,13 @@ class _PlatformView extends Control:
         return r >= rows             # piso lateral: sólido a partir da superfície
 
     func _fp_tile(c: int, r: int) -> Vector2i:
-        var eu := not _fp_solid(c, r - 1)   # exposto em cima
-        var ed := not _fp_solid(c, r + 1)   # exposto embaixo
-        var el := not _fp_solid(c - 1, r)   # exposto à esquerda
-        var er := not _fp_solid(c + 1, r)   # exposto à direita
+        return _fp_tile_for(c, r, func(cc, rr): return _fp_solid(cc, rr))
+
+    func _fp_tile_for(c: int, r: int, solid: Callable) -> Vector2i:
+        var eu: bool = not solid.call(c, r - 1)   # exposto em cima
+        var ed: bool = not solid.call(c, r + 1)   # exposto embaixo
+        var el: bool = not solid.call(c - 1, r)   # exposto à esquerda
+        var er: bool = not solid.call(c + 1, r)   # exposto à direita
         # Cantos convexos (dois lados adjacentes expostos)
         if eu and el: return Vector2i(1, 3)   # canto sup-esq (sólido inf-dir)
         if eu and er: return Vector2i(0, 0)   # canto sup-dir (sólido inf-esq)
@@ -937,8 +953,8 @@ class _PlatformView extends Control:
         if er: return Vector2i(3, 2)   # parede direita visual
         # Cantos côncavos (degrau): diagonal superior vazia, ortogonais sólidas.
         # Espelhados pela mesma convenção (cf. _room_at): entalhe sup-esq → (1,1).
-        if not _fp_solid(c - 1, r - 1): return Vector2i(1, 1)   # entalhe sup-esq
-        if not _fp_solid(c + 1, r - 1): return Vector2i(2, 0)   # entalhe sup-dir
+        if not (solid.call(c - 1, r - 1) as bool): return Vector2i(1, 1)   # entalhe sup-esq
+        if not (solid.call(c + 1, r - 1) as bool): return Vector2i(2, 0)   # entalhe sup-dir
         return Vector2i(2, 1)   # FILL
 
     func _draw_floor_platform() -> void:
@@ -967,6 +983,29 @@ class _PlatformView extends Control:
         if hole <= 0:
             draw_line(Vector2(rx, plat_y), Vector2(rx, floor_y), yellow, 1.5)     # desce (dir)
             draw_line(Vector2(rx, floor_y), Vector2(w, floor_y), yellow, 1.5)     # piso dir
+
+    # Modo "Saliência": parede vertical de 1 tile + ressalto de `cols`×`rows` tiles
+    # projetando pra dentro. Mostra as coords de tile do bump (cantos convexos + faces).
+    func _draw_foothold() -> void:
+        var g := _fp_grid()
+        var wall_col := 0 if not mirror_hole else g.x - 1   # coluna da parede de fundo
+        var bump_top := _FP_DEPTH                            # ressalto começa abaixo do topo da parede
+        var _fsolid := func(c: int, r: int) -> bool:
+            if c < 0 or r < 0 or c >= g.x or r >= g.y:
+                return false
+            if c == wall_col:
+                return true                                  # parede de fundo (coluna cheia)
+            # ressalto: `cols` colunas a partir da parede, `rows` linhas a partir de bump_top
+            var near := (c >= 1 and c <= cols) if not mirror_hole else (c <= g.x - 2 and c >= g.x - 1 - cols)
+            return near and r >= bump_top and r < bump_top + rows
+        for r in g.y:
+            for c in g.x:
+                if not _fsolid.call(c, r):
+                    continue
+                var t := _fp_tile_for(c, r, _fsolid)
+                draw_texture_rect_region(tile_tex,
+                    Rect2(c * _TD, r * _TD, _TD, _TD),
+                    Rect2(t.x * _TS, t.y * _TS, _TS, _TS))
 
 # Nó que vive dentro do SubViewport — desenha fundo, tiles e linhas de colisão
 class _MovWorld extends Node2D:
@@ -1130,6 +1169,15 @@ class _FillCeilWorld extends Node2D:
 class _HitboxOverlay extends Node2D:
     const _TILE_SRC := 32.0
     const _TILE_DRAW := 64.0
+    # Texturas reais dos projéteis que têm sprite (fogo). Desenhadas no preview
+    # no tamanho de jogo (frame único da sheet 2x2, escala 0.35 = igual ao fire_projectile.tscn).
+    const _PROJ_TEX := {
+        "fire_bolt": preload("res://characters/enemies/stage_01/fire_bolt.png"),
+        "fire_glob": preload("res://characters/enemies/stage_01/fire_glob.png"),
+        "fire_spit": preload("res://characters/enemies/stage_01/fire_spit.png"),
+        "heat_mortar_shell": preload("res://characters/enemies/stage_01/heat_mortar_shell.png"),
+    }
+    const _PROJ_TEX_SCALE := 0.35
 
     var floor_tex: Texture2D = null
     var floor_body_rows: int = 1
@@ -1139,10 +1187,20 @@ class _HitboxOverlay extends Node2D:
     var show_labels: bool = true
     var show_floor: bool = true
     var show_hitboxes: bool = true
+    var show_ruler: bool = false
+    var ruler_origin: Vector2 = Vector2.ZERO
+    # Editor por mouse
+    var edit_shapes: Array = []
+    var sel_shape: int = -1
+    var edit_proj: Dictionary = {}
+    var editing: bool = false
+    var sprite_handle: Vector2 = Vector2.INF
 
     func _draw() -> void:
         if show_floor:
             _draw_floor()
+        if show_ruler:
+            _draw_ruler()
         if not show_hitboxes:
             return
         draw_line(Vector2(0.0, ground_y), Vector2(900.0, ground_y), Color(1.0, 0.9, 0.0, 0.9), 2.0)
@@ -1155,6 +1213,64 @@ class _HitboxOverlay extends Node2D:
             if show_labels:
                 draw_string(ThemeDB.fallback_font, cs.global_position + Vector2(8.0, -8.0), String(info.path), HORIZONTAL_ALIGNMENT_LEFT, -1.0, 13.0, color)
         _draw_projectile_preview()
+        _draw_edit_handles()
+
+    func _draw_edit_handles() -> void:
+        if not editing:
+            return
+        if sel_shape >= 0 and sel_shape < edit_shapes.size():
+            var s: Dictionary = edit_shapes[sel_shape]
+            var c := ruler_origin + Vector2(float(s["pos"][0]), float(s["pos"][1]))
+            var half := Vector2(float(s["size"][0]), float(s["size"][1])) * 0.5
+            draw_rect(Rect2(c - half, half * 2.0), Color(1.0, 1.0, 0.0, 0.9), false, 2.0)
+            var hs := 5.0
+            for hxi in 3:
+                for hyi in 3:
+                    var hx: float = float(hxi) - 1.0
+                    var hy: float = float(hyi) - 1.0
+                    if hx == 0.0 and hy == 0.0:
+                        continue
+                    var hp := c + Vector2(half.x * hx, half.y * hy)
+                    draw_rect(Rect2(hp - Vector2(hs, hs), Vector2(hs * 2.0, hs * 2.0)), Color(1.0, 1.0, 0.0, 0.95))
+        if edit_proj.has("offset"):
+            var po: Array = edit_proj["offset"] as Array
+            var pp := ruler_origin + Vector2(float(po[0]), float(po[1]))
+            draw_circle(pp, 6.0, Color(0.2, 1.0, 0.4, 0.9))
+        if sprite_handle != Vector2.INF:
+            draw_rect(Rect2(sprite_handle - Vector2(6, 6), Vector2(12, 12)), Color(0.3, 0.85, 1.0, 0.95))
+
+    # Régua de pixels centrada na origem da entidade: ticks a cada 10px, marcas
+    # maiores + rótulo a cada 50px. Os números são em GAME-PX (= o valor que vai
+    # direto nos offsets do código, 1:1). Ler sempre pelo NÚMERO impresso, nunca
+    # contando pixels na tela (a câmera amplia 2x — é só zoom visual).
+    func _draw_ruler() -> void:
+        var o := ruler_origin
+        var ext := 420.0
+        var font := ThemeDB.fallback_font
+        var axis_col := Color(0.5, 0.9, 1.0, 0.7)
+        var minor_col := Color(1.0, 1.0, 1.0, 0.22)
+        var major_col := Color(1.0, 1.0, 1.0, 0.7)
+        draw_line(o + Vector2(-ext, 0.0), o + Vector2(ext, 0.0), axis_col, 1.0)
+        draw_line(o + Vector2(0.0, -ext), o + Vector2(0.0, ext), axis_col, 1.0)
+        var d := -int(ext)
+        while d <= int(ext):
+            var major := (d % 50 == 0)
+            var tick: float = 12.0 if major else 5.0
+            var col := major_col if major else minor_col
+            draw_line(o + Vector2(d, -tick), o + Vector2(d, tick), col, 1.0)   # marca no eixo X
+            draw_line(o + Vector2(-tick, d), o + Vector2(tick, d), col, 1.0)   # marca no eixo Y
+            if major and d != 0:
+                _draw_ruler_label(font, str(d), o + Vector2(d + 2.0, -tick - 11.0))   # rótulo eixo X (acima)
+                _draw_ruler_label(font, str(d), o + Vector2(tick + 4.0, d - 1.0))     # rótulo eixo Y (à dir)
+            d += 10
+        _draw_ruler_label(font, "0 (game-px)", o + Vector2(6.0, -6.0))
+
+    # Rótulo com fundo escuro p/ legibilidade sobre o sprite. Fonte 9px (mundo).
+    func _draw_ruler_label(font: Font, txt: String, at: Vector2) -> void:
+        var fs := 9
+        var size := font.get_string_size(txt, HORIZONTAL_ALIGNMENT_LEFT, -1.0, fs)
+        draw_rect(Rect2(at + Vector2(-1.0, -size.y), size + Vector2(2.0, 3.0)), Color(0.0, 0.0, 0.0, 0.6), true)
+        draw_string(font, at, txt, HORIZONTAL_ALIGNMENT_LEFT, -1.0, fs, Color(1.0, 1.0, 1.0, 0.95))
 
     func _shape_color(path: String) -> Color:
         if path.contains("ContactZone"):
@@ -1199,7 +1315,15 @@ class _HitboxOverlay extends Node2D:
         var variant := String(projectile_preview.get("variant", "ice_ball"))
         var parabolic := bool(projectile_preview.get("parabolic", false))
         var color := Color(1.0, 0.48, 0.12, 0.95)
+        var traj_angle := 0.0
+        # Trajetória reta diagonal até o chão à frente (projétil que mira no player no solo).
+        if String(projectile_preview.get("trajectory", "")) == "floor":
+            var target := Vector2(pos.x + 240.0, ground_y)
+            traj_angle = (target - pos).angle()
+            draw_line(pos, target, Color(1.0, 0.6, 0.2, 0.85), 2.0)
+            draw_circle(target, 5.0, Color(1.0, 0.6, 0.2, 0.6))
         if parabolic:
+            traj_angle = Vector2(52.0, -60.0).angle()   # tangente inicial do arco
             var points := PackedVector2Array([
                 pos,
                 pos + Vector2(52.0, -60.0),
@@ -1224,9 +1348,26 @@ class _HitboxOverlay extends Node2D:
             "eye_beam":
                 draw_rect(Rect2(pos + Vector2(-4.0, -6.0), Vector2(42.0, 12.0)), Color(0.38, 0.95, 1.0, 0.35), true)
                 draw_rect(Rect2(pos + Vector2(-4.0, -6.0), Vector2(42.0, 12.0)), color, false, 2.0)
+            "fire_bolt", "fire_glob", "fire_spit", "heat_mortar_shell":
+                _draw_proj_sprite(variant, pos, traj_angle)
             _:
                 draw_circle(pos, 9.0, Color(0.55, 0.92, 1.0, 0.35))
                 draw_arc(pos, 9.0, 0.0, TAU, 32, color, 2.0)
+
+    # Desenha o sprite real do projétil (1º frame da sheet 2x2) centrado no ponto de
+    # spawn, no tamanho de jogo, + um marcador do ponto exato.
+    func _draw_proj_sprite(variant: String, pos: Vector2, angle: float = 0.0) -> void:
+        var tex: Texture2D = _PROJ_TEX.get(variant)
+        if tex == null:
+            return
+        var fw := tex.get_width() * 0.5
+        var fh := tex.get_height() * 0.5
+        var sz := Vector2(fw, fh) * _PROJ_TEX_SCALE
+        # Rotaciona o sprite p/ o ângulo da trajetória (igual ao jogo: rotation = velocity.angle()).
+        draw_set_transform(pos, angle, Vector2.ONE)
+        draw_texture_rect_region(tex, Rect2(-sz * 0.5, sz), Rect2(0.0, 0.0, fw, fh))
+        draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+        draw_circle(pos, 3.0, Color(1.0, 1.0, 1.0, 0.9))
 
     func _draw_floor() -> void:
         if floor_tex == null:
@@ -1242,22 +1383,29 @@ class _HitboxOverlay extends Node2D:
             x += _TILE_DRAW
 
 class _HitboxView extends Control:
-    const _VIEW_SIZE := Vector2(900.0, 460.0)
+    const _VIEW_SIZE := Vector2(1100.0, 640.0)
     const _ENTITY_POS := Vector2(450.0, 300.0)
     const _CAMERA_ZOOM := Vector2(2.0, 2.0)
-    const _CAMERA_OFFSET_Y := 24.0
+    const _CAMERA_OFFSET_Y := -76.0   # 24 - 100: câmera sobe 100px (mais espaço acima da entidade)
+    const _FLY_HEIGHT := 140.0        # altura do pulo: voadores flutuam isto acima do chão no preview
     const _PROJECTILE_DEFS := {
         "Ice Archer": {"label": "Ice Arrow", "variant": "ice_arrow", "release_frame": 4, "offset": Vector2(52.0, -82.0), "parabolic": false},
         "Frost Turret": {"label": "Ice Cannonball", "variant": "ice_cannonball", "release_frame": 3, "offset": Vector2(32.0, 0.0), "parabolic": false},
         "Cryo Bomber": {"label": "Ice Ball", "variant": "ice_ball", "release_frame": 3, "offset": Vector2(16.0, -56.0), "parabolic": true},
         "Glacier Shield": {"label": "Eye Beam", "variant": "eye_beam", "release_frame": 2, "offset": Vector2(34.0, -18.0), "parabolic": false},
+        # Stage 01 — offsets espelham o _fire() de cada inimigo (turret usa face_dir=-1 → muzzle à esquerda).
+        "Ember Orbiter": {"label": "Fire Bolt", "variant": "fire_bolt", "release_frame": 2, "offset": Vector2(0.0, 0.0), "parabolic": false},
+        "Cinder Flyer": {"label": "Fire Bolt", "variant": "fire_bolt", "release_frame": 1, "offset": Vector2(10.0, 40.0), "parabolic": false, "trajectory": "floor"},
+        "Heat Mortar": {"label": "Heat Mortar Shell", "variant": "heat_mortar_shell", "release_frame": 4, "offset": Vector2(17.0, -40.0), "parabolic": true},
+        "Magma Turret": {"label": "Fire Glob", "variant": "fire_glob", "release_frame": 2, "offset": Vector2(-38.0, -5.0), "parabolic": false},
+        "Lava Serpent": {"label": "Fire Spit", "variant": "fire_spit", "release_frame": 9, "offset": Vector2(50.0, -20.0), "parabolic": false},
     }
 
     var _current_index: int = 0
     var _current_instance: Node2D = null
     var _shape_infos: Array = []
     var _filter_group: String = "Todos"
-    var _selected_stage: String = ""
+    var _selected_stage: String = "Todos"
     var _selected_frame: int = 0
     var _frame_count: int = 1
     var _show_sprite: bool = true
@@ -1273,13 +1421,29 @@ class _HitboxView extends Control:
     var _meta_label: Label = null
     var _sprite_btn: Button = null
     var _labels_btn: Button = null
-    var _type_row: HBoxContainer = null
-    var _stage_row: HBoxContainer = null
-    var _entity_row: HBoxContainer = null
+    var _ruler_btn: Button = null
+    var _show_ruler: bool = false
+    var _type_opt: OptionButton = null
+    var _stage_opt: OptionButton = null
+    var _entity_opt: OptionButton = null
     var _frame_row: HBoxContainer = null
+    var _frame_lbl: Label = null
     var _projectile_row: HBoxContainer = null
     var _projectile_label: Label = null
     var _current_projectile_info: Dictionary = {}
+    # ── Editor por mouse ──────────────────────────────────────────────────────
+    var _viewport_container: SubViewportContainer = null
+    var _edit: Dictionary = {}
+    var _edit_id: String = ""
+    var _sel_shape: int = -1
+    var _edit_target: String = "body"
+    var _edit_this_frame: bool = false
+    var _drag_mode: String = ""          # "", move_shape, resize_<e>, move_sprite, scale_sprite, move_proj
+    var _drag_last_world: Vector2 = Vector2.ZERO
+    var _edit_toolbar: HBoxContainer = null
+    var _edit_toggle_btn: Button = null
+    var _frame_scope_btn: Button = null
+    var _target_opt: OptionButton = null
 
     func _ready() -> void:
         _build()
@@ -1292,19 +1456,26 @@ class _HitboxView extends Control:
         root.size_flags_vertical = Control.SIZE_EXPAND_FILL
         add_child(root)
 
-        _type_row = HBoxContainer.new()
-        _type_row.add_theme_constant_override("separation", 6)
-        root.add_child(_type_row)
-        for group_name in ["Todos", "Personagens", "Inimigos", "Bosses", "Projeteis"]:
-            _type_row.add_child(_make_button(group_name, _set_filter.bind(group_name)))
+        var sel_row := HBoxContainer.new()
+        sel_row.add_theme_constant_override("separation", 10)
+        root.add_child(sel_row)
 
-        _stage_row = HBoxContainer.new()
-        _stage_row.add_theme_constant_override("separation", 6)
-        root.add_child(_stage_row)
+        _type_opt = OptionButton.new()
+        for g in ["Todos", "Personagens", "Inimigos", "Bosses", "Projeteis"]:
+            _type_opt.add_item(g)
+        _type_opt.item_selected.connect(func(i): _set_filter(_type_opt.get_item_text(i)))
+        sel_row.add_child(_make_label("Tipo:"))
+        sel_row.add_child(_type_opt)
 
-        _entity_row = HBoxContainer.new()
-        _entity_row.add_theme_constant_override("separation", 6)
-        root.add_child(_entity_row)
+        _stage_opt = OptionButton.new()
+        _stage_opt.item_selected.connect(func(i): _set_stage(_stage_opt.get_item_text(i)))
+        sel_row.add_child(_make_label("Stage:"))
+        sel_row.add_child(_stage_opt)
+
+        _entity_opt = OptionButton.new()
+        _entity_opt.item_selected.connect(func(_i): _select_index(int(_entity_opt.get_selected_metadata())))
+        sel_row.add_child(_make_label("Entidade:"))
+        sel_row.add_child(_entity_opt)
 
         _frame_row = HBoxContainer.new()
         _frame_row.add_theme_constant_override("separation", 6)
@@ -1321,6 +1492,16 @@ class _HitboxView extends Control:
         toolbar.add_child(_sprite_btn)
         _labels_btn = _make_button("Labels ON", _toggle_labels)
         toolbar.add_child(_labels_btn)
+        _ruler_btn = _make_button("Regua OFF", _toggle_ruler)
+        toolbar.add_child(_ruler_btn)
+        # Nome da entidade compacto na toolbar (o painel de descrição foi removido p/
+        # dar toda a largura ao viewport de hitbox).
+        _name_label = Label.new()
+        _name_label.add_theme_font_size_override("font_size", 18)
+        _name_label.add_theme_color_override("font_color", Color(0.9, 0.9, 0.3))
+        _name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+        _name_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+        toolbar.add_child(_name_label)
 
         var row := HBoxContainer.new()
         row.add_theme_constant_override("separation", 16)
@@ -1328,7 +1509,8 @@ class _HitboxView extends Control:
         row.size_flags_vertical = Control.SIZE_EXPAND_FILL
         root.add_child(row)
 
-        var viewport_container := SubViewportContainer.new()
+        _viewport_container = SubViewportContainer.new()
+        var viewport_container := _viewport_container
         viewport_container.custom_minimum_size = _VIEW_SIZE
         viewport_container.size_flags_horizontal = Control.SIZE_EXPAND_FILL
         viewport_container.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -1365,26 +1547,48 @@ class _HitboxView extends Control:
         _shape_overlay = _HitboxOverlay.new()
         _shape_overlay.ground_y = _ENTITY_POS.y
         _shape_overlay.show_floor = false
+        _shape_overlay.ruler_origin = _ENTITY_POS
+        _shape_overlay.show_ruler = _show_ruler
         _shape_overlay.z_index = 2
         _scene_root.add_child(_shape_overlay)
         _overlay = _floor_overlay
 
-        var info_col := VBoxContainer.new()
-        info_col.custom_minimum_size.x = 360.0
-        info_col.size_flags_vertical = Control.SIZE_EXPAND_FILL
-        info_col.add_theme_constant_override("separation", 8)
-        row.add_child(info_col)
+        # ── Toolbar do editor por mouse ──────────────────────────────────────
+        _edit_toolbar = HBoxContainer.new()
+        _edit_toolbar.add_theme_constant_override("separation", 6)
+        root.add_child(_edit_toolbar)
 
-        _name_label = Label.new()
-        _name_label.add_theme_font_size_override("font_size", 24)
-        _name_label.add_theme_color_override("font_color", Color(0.9, 0.9, 0.3))
-        info_col.add_child(_name_label)
+        _edit_toggle_btn = _make_button("Editar OFF", _on_toggle_edit)
+        _edit_toolbar.add_child(_edit_toggle_btn)
 
-        _meta_label = Label.new()
-        _meta_label.add_theme_font_size_override("font_size", 16)
-        _meta_label.add_theme_color_override("font_color", Color(0.82, 0.82, 0.86))
-        _meta_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-        info_col.add_child(_meta_label)
+        var add_btn := _make_button("+ Hitbox", _on_add_shape)
+        _edit_toolbar.add_child(add_btn)
+
+        var del_btn := _make_button("Deletar", _on_delete_shape)
+        _edit_toolbar.add_child(del_btn)
+
+        var tgt_lbl := _make_label("Alvo:")
+        _edit_toolbar.add_child(tgt_lbl)
+
+        _target_opt = OptionButton.new()
+        _target_opt.add_item("body")
+        _target_opt.add_item("contact")
+        _target_opt.add_theme_font_size_override("font_size", 20)
+        _target_opt.item_selected.connect(func(i): _edit_target = _target_opt.get_item_text(i))
+        _edit_toolbar.add_child(_target_opt)
+
+        _frame_scope_btn = _make_button("Frame: Todos", _on_toggle_frame_scope)
+        _edit_toolbar.add_child(_frame_scope_btn)
+
+        var save_btn := _make_button("Salvar", _on_save)
+        _edit_toolbar.add_child(save_btn)
+
+        # gui_input do container de viewport (sem stretch → coords diretas ao viewport)
+        viewport_container.gui_input.connect(_on_viewport_gui_input)
+        viewport_container.mouse_filter = Control.MOUSE_FILTER_STOP
+
+        # Painel de descrição removido: o viewport de hitbox usa a linha inteira.
+        # _meta_label fica null (os usos em _set_meta já têm null-guard).
         _refresh_hierarchy_rows()
 
     func _find_first_group(group_name: String) -> int:
@@ -1416,16 +1620,24 @@ class _HitboxView extends Control:
         _apply_selected_frame()
         _shape_infos = _collect_shapes(_current_instance)
         _align_current_to_floor()
+        # Voadores (têm bob_amplitude) sobem p/ a altura do pulo, p/ ver a relação espacial real.
+        if _current_instance.get("bob_amplitude") != null:
+            _current_instance.position.y -= _FLY_HEIGHT
         _freeze_node_tree(_current_instance)
+        _current_instance.visible = true   # inimigos que se auto-escondem no _ready (ex.: lava_serpent submersa)
         _apply_selected_frame()
         _shape_infos = _collect_shapes(_current_instance)
         if _shape_overlay != null:
             _shape_overlay.shape_infos = _shape_infos
             _shape_overlay.show_labels = _show_labels
+            # régua ancorada na origem real da entidade (após alinhar ao chão) → os
+            # números batem com os offsets do _PROJECTILE_DEFS / _fire().
+            _shape_overlay.ruler_origin = _current_instance.global_position
             _shape_overlay.queue_redraw()
         _set_meta(entry, _shape_infos)
         _refresh_frame_row()
         _refresh_projectile_row()
+        _load_edit_state()
 
     func _clear_current() -> void:
         _shape_infos.clear()
@@ -1518,6 +1730,12 @@ class _HitboxView extends Control:
         btn.pressed.connect(callback)
         return btn
 
+    func _make_label(txt: String) -> Label:
+        var l := Label.new()
+        l.text = txt
+        l.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+        return l
+
     func _clear_container(container: Container) -> void:
         if container == null:
             return
@@ -1525,75 +1743,56 @@ class _HitboxView extends Control:
             container.remove_child(child)
             child.free()
 
-    func _on_prev() -> void:
-        _step_filtered(-1)
-
-    func _on_next() -> void:
-        _step_filtered(1)
-
     func _set_filter(group_name: String) -> void:
         _filter_group = group_name
-        _selected_stage = _first_stage_for_filter()
-        _selected_frame = 0
-        _refresh_hierarchy_rows()
-        var first := _first_filtered_index()
-        if first >= 0:
-            _select_index(first)
+        _selected_stage = "Todos"
+        _refresh_stage_options()
+        _refresh_entity_options()
 
     func _set_stage(stage_name: String) -> void:
         _selected_stage = stage_name
-        _selected_frame = 0
-        _refresh_hierarchy_rows()
-        var first := _first_filtered_index()
-        if first >= 0:
-            _select_index(first)
-
-    func _select_entity_by_name(entity_name: String) -> void:
-        for i in ImgDebug._HITBOX_ENTITIES.size():
-            var entry: Dictionary = ImgDebug._HITBOX_ENTITIES[i]
-            if String(entry.name) == entity_name and _entry_matches_filter(entry):
-                _selected_frame = 0
-                _select_index(i)
-                return
+        _refresh_entity_options()
 
     func _refresh_hierarchy_rows() -> void:
-        _refresh_stage_row()
-        _refresh_entity_row()
+        _refresh_stage_options()
+        _refresh_entity_options()
 
-    func _refresh_stage_row() -> void:
-        _clear_container(_stage_row)
-        if _filter_group != "Inimigos":
+    func _refresh_stage_options() -> void:
+        if _stage_opt == null:
             return
-        var stages: Array[String] = []
-        for entry in ImgDebug._HITBOX_ENTITIES:
-            if not _entry_matches_kind(entry):
+        _stage_opt.clear()
+        var stages := ["Todos"]
+        for e in ImgDebug._HITBOX_ENTITIES:
+            if _filter_group != "Todos" and String(e.group) != _filter_group:
                 continue
-            var stage := String(entry.stage)
-            if stage != "" and not stages.has(stage):
-                stages.append(stage)
-        stages.sort()
-        if _selected_stage == "" and not stages.is_empty():
-            _selected_stage = stages[0]
-        for stage in stages:
-            _stage_row.add_child(_make_button(stage, _set_stage.bind(stage)))
+            var st := String(e.get("stage", ""))
+            if st != "" and not stages.has(st):
+                stages.append(st)
+        for s in stages:
+            _stage_opt.add_item(s)
+        for i in _stage_opt.item_count:
+            if _stage_opt.get_item_text(i) == _selected_stage:
+                _stage_opt.select(i)
+                return
+        _selected_stage = "Todos"
+        _stage_opt.select(0)
 
-    func _refresh_entity_row() -> void:
-        _clear_container(_entity_row)
+    func _refresh_entity_options() -> void:
+        if _entity_opt == null:
+            return
+        _entity_opt.clear()
         for i in ImgDebug._HITBOX_ENTITIES.size():
-            var entry: Dictionary = ImgDebug._HITBOX_ENTITIES[i]
-            if _entry_matches_filter(entry):
-                _entity_row.add_child(_make_button(String(entry.name), _select_index.bind(i)))
-
-    func _first_stage_for_filter() -> String:
-        if _filter_group != "Inimigos":
-            return ""
-        for entry in ImgDebug._HITBOX_ENTITIES:
-            if _entry_matches_kind(entry) and String(entry.stage) != "":
-                return String(entry.stage)
-        return ""
-
-    func _entry_matches_kind(entry: Dictionary) -> bool:
-        return _filter_group == "Todos" or String(entry.kind) == _filter_group
+            var e: Dictionary = ImgDebug._HITBOX_ENTITIES[i]
+            if _filter_group != "Todos" and String(e.group) != _filter_group:
+                continue
+            if _selected_stage != "Todos" and String(e.get("stage", "")) != _selected_stage:
+                continue
+            var idx := _entity_opt.item_count
+            _entity_opt.add_item(String(e.name))
+            _entity_opt.set_item_metadata(idx, i)
+        if _entity_opt.item_count > 0:
+            _entity_opt.select(0)
+            _select_index(int(_entity_opt.get_selected_metadata()))
 
     func _toggle_sprite() -> void:
         _show_sprite = not _show_sprite
@@ -1609,28 +1808,13 @@ class _HitboxView extends Control:
             _shape_overlay.show_labels = _show_labels
             _shape_overlay.queue_redraw()
 
-    func _first_filtered_index() -> int:
-        for i in ImgDebug._HITBOX_ENTITIES.size():
-            if _entry_matches_filter(ImgDebug._HITBOX_ENTITIES[i]):
-                return i
-        return -1
-
-    func _step_filtered(direction: int) -> void:
-        if ImgDebug._HITBOX_ENTITIES.is_empty():
-            return
-        var idx := _current_index
-        for _i in ImgDebug._HITBOX_ENTITIES.size():
-            idx = wrapi(idx + direction, 0, ImgDebug._HITBOX_ENTITIES.size())
-            if _entry_matches_filter(ImgDebug._HITBOX_ENTITIES[idx]):
-                _select_index(idx)
-                return
-
-    func _entry_matches_filter(entry: Dictionary) -> bool:
-        if not _entry_matches_kind(entry):
-            return false
-        if _filter_group == "Inimigos" and _selected_stage != "":
-            return String(entry.stage) == _selected_stage
-        return true
+    func _toggle_ruler() -> void:
+        _show_ruler = not _show_ruler
+        if _ruler_btn != null:
+            _ruler_btn.text = "Regua ON" if _show_ruler else "Regua OFF"
+        if _shape_overlay != null:
+            _shape_overlay.show_ruler = _show_ruler
+            _shape_overlay.queue_redraw()
 
     func _set_sprites_visible(node: Node, visible: bool) -> void:
         if node == null:
@@ -1643,8 +1827,14 @@ class _HitboxView extends Control:
     func _refresh_frame_row() -> void:
         _clear_container(_frame_row)
         _frame_count = _detect_frame_count(_current_instance)
-        for i in _frame_count:
-            _frame_row.add_child(_make_button("Frame " + str(i + 1), _select_frame.bind(i)))
+        if _frame_count <= 1:
+            _frame_row.visible = false
+            return
+        _frame_row.visible = true
+        _frame_row.add_child(_make_button("◀", func(): _select_frame(wrapi(_selected_frame - 1, 0, _frame_count))))
+        _frame_lbl = _make_label("Frame %d/%d" % [_selected_frame + 1, _frame_count])
+        _frame_row.add_child(_frame_lbl)
+        _frame_row.add_child(_make_button("▶", func(): _select_frame(wrapi(_selected_frame + 1, 0, _frame_count))))
 
     func _detect_frame_count(node: Node) -> int:
         var sprite := _find_sprite2d(node)
@@ -1657,6 +1847,8 @@ class _HitboxView extends Control:
 
     func _select_frame(frame_index: int) -> void:
         _selected_frame = clampi(frame_index, 0, max(0, _frame_count - 1))
+        if _frame_lbl != null:
+            _frame_lbl.text = "Frame %d/%d" % [_selected_frame + 1, _frame_count]
         _apply_selected_frame()
         _shape_infos = _collect_shapes(_current_instance)
         if _shape_overlay != null:
@@ -1680,6 +1872,9 @@ class _HitboxView extends Control:
     func _apply_hitbox_frame_state() -> void:
         if _current_instance == null:
             return
+        # Inimigos com hitbox por frame expõem _apply_hitbox_frame (EnemyBase).
+        if _current_instance.has_method("_apply_hitbox_frame"):
+            _current_instance.call("_apply_hitbox_frame", _selected_frame)
         if _current_instance.name == "EnemyGlacierShield":
             var barrier := _current_instance.get_node_or_null("ShieldBarrier") as Area2D
             if barrier != null:
@@ -1734,6 +1929,279 @@ class _HitboxView extends Control:
         if _current_instance == null:
             return _ENTITY_POS + offset
         return _current_instance.global_position + offset
+
+    # ── Editor por mouse: estado / helpers ────────────────────────────────────
+
+    func _entity_hitbox_id() -> String:
+        if _current_instance == null:
+            return ""
+        var scr := _current_instance.get_script() as Script
+        return scr.resource_path.get_file().get_basename() if scr != null else ""
+
+    func _load_edit_state() -> void:
+        _edit_id = _entity_hitbox_id()
+        _edit = HitboxData.entry(_edit_id).duplicate(true)
+        if not _edit.has("shapes"):
+            _edit["shapes"] = []
+        _sel_shape = (_edit["shapes"].size() - 1) if _edit["shapes"].size() > 0 else -1
+        _push_overlay_edit()
+
+    func _sprite_node() -> Sprite2D:
+        return _current_instance.get_node_or_null("Sprite2D") as Sprite2D if _current_instance != null else null
+
+    func _sprite_center_world() -> Vector2:
+        var sp := _sprite_node()
+        if sp == null: return _origin_world()
+        return _origin_world() + sp.position
+
+    func _sprite_half_frame() -> Vector2:
+        var sp := _sprite_node()
+        if sp == null or sp.texture == null: return Vector2(32, 32)
+        var fw := sp.texture.get_width() / maxi(1, sp.hframes)
+        var fh := sp.texture.get_height() / maxi(1, sp.vframes)
+        return Vector2(fw, fh) * 0.5
+
+    func _sprite_scale_handle_world() -> Vector2:
+        var sp := _sprite_node()
+        var sc := sp.scale if sp != null else Vector2.ONE
+        return _sprite_center_world() + Vector2(_sprite_half_frame().x * sc.x, -_sprite_half_frame().y * sc.y)
+
+    func _push_overlay_edit() -> void:
+        if _shape_overlay == null:
+            return
+        _shape_overlay.edit_shapes = _edit.get("shapes", [])
+        _shape_overlay.sel_shape = _sel_shape
+        _shape_overlay.edit_proj = _edit.get("projectile", {})
+        _shape_overlay.sprite_handle = _sprite_scale_handle_world() if _shape_overlay.editing else Vector2.INF
+        _shape_overlay.queue_redraw()
+
+    func _frame_scope() -> Variant:
+        return [_selected_frame] if _edit_this_frame else "all"
+
+    # ── Coordenadas tela → mundo ──────────────────────────────────────────────
+
+    func _screen_to_world(p: Vector2) -> Vector2:
+        # p é relativo ao canto superior esquerdo do SubViewportContainer
+        # sem stretch: 1 px container = 1 px viewport
+        # câmera zoom 2.0: 1 world-px = 2 viewport-px
+        var vp_center := Vector2(_viewport.size) * 0.5
+        return _camera.global_position + (p - vp_center) / _camera.zoom
+
+    func _origin_world() -> Vector2:
+        return _current_instance.global_position if _current_instance != null else _ENTITY_POS
+
+    # ── Drag: hittest e processamento ─────────────────────────────────────────
+
+    func _handle_radius() -> float:
+        return 8.0 / _camera.zoom.x   # 8 px tela → world-px
+
+    func _on_viewport_gui_input(event: InputEvent) -> void:
+        if _current_instance == null:
+            return
+        if not _shape_overlay.editing:
+            return
+        if event is InputEventMouseButton:
+            var mb := event as InputEventMouseButton
+            if mb.button_index == MOUSE_BUTTON_LEFT:
+                if mb.pressed:
+                    _start_drag(mb.position)
+                else:
+                    _drag_mode = ""
+        elif event is InputEventMouseMotion:
+            if _drag_mode != "":
+                _continue_drag((event as InputEventMouseMotion).position)
+
+    func _start_drag(screen_pos: Vector2) -> void:
+        var world := _screen_to_world(screen_pos)
+        var origin := _origin_world()
+        var local := world - origin      # coords relativas à entidade
+        var hr := _handle_radius()
+
+        # Testa projétil primeiro
+        if _edit.has("projectile") and _edit["projectile"].has("offset"):
+            var po: Array = _edit["projectile"]["offset"] as Array
+            var pp := Vector2(float(po[0]), float(po[1]))
+            if local.distance_to(pp) <= hr * 1.5:
+                _drag_mode = "move_proj"
+                _drag_last_world = world
+                return
+
+        # Testa handles do shape selecionado
+        if _sel_shape >= 0 and _sel_shape < _edit["shapes"].size():
+            var s: Dictionary = _edit["shapes"][_sel_shape]
+            var sp := Vector2(float(s["pos"][0]), float(s["pos"][1]))
+            var half := Vector2(float(s["size"][0]), float(s["size"][1])) * 0.5
+            for hxi in 3:
+                for hyi in 3:
+                    var hx: float = float(hxi) - 1.0
+                    var hy: float = float(hyi) - 1.0
+                    if hx == 0.0 and hy == 0.0:
+                        continue
+                    var hp := sp + Vector2(half.x * hx, half.y * hy)
+                    if local.distance_to(hp) <= hr:
+                        var dir := ""
+                        if hy < 0.0: dir += "t"
+                        elif hy > 0.0: dir += "b"
+                        if hx < 0.0: dir += "l"
+                        elif hx > 0.0: dir += "r"
+                        _drag_mode = "resize_" + dir
+                        _drag_last_world = world
+                        return
+
+        # Testa corpo de cada shape (hit-test → seleciona e inicia move)
+        for si in _edit["shapes"].size():
+            var s: Dictionary = _edit["shapes"][si]
+            var sp := Vector2(float(s["pos"][0]), float(s["pos"][1]))
+            var half := Vector2(float(s["size"][0]), float(s["size"][1])) * 0.5
+            var rect := Rect2(sp - half, half * 2.0)
+            if rect.has_point(local):
+                _sel_shape = si
+                _drag_mode = "move_shape"
+                _drag_last_world = world
+                _push_overlay_edit()
+                return
+
+        # Sem hit → testa alça de escala do sprite (canto superior-direito)
+        if world.distance_to(_sprite_scale_handle_world()) <= 10.0:
+            _drag_mode = "scale_sprite"
+            _drag_last_world = world
+            return
+
+        # Sem hit → tenta mover sprite
+        _drag_mode = "move_sprite"
+        _drag_last_world = world
+
+    func _continue_drag(screen_pos: Vector2) -> void:
+        var world := _screen_to_world(screen_pos)
+
+        # scale_sprite usa posição absoluta (não delta); tratado antes do snap guard
+        if _drag_mode == "scale_sprite":
+            var half := _sprite_half_frame()
+            if half.x > 0.0:
+                var s: float = maxf(0.1, absf(world.x - _sprite_center_world().x) / half.x)
+                s = snappedf(s, 0.05)
+                if not _edit.has("sprite"): _edit["sprite"] = {}
+                _edit["sprite"]["scale"] = [s, s]
+                _apply_edit_to_instance()
+            return
+
+        var raw_delta := world - _drag_last_world
+        # Snap a 1 game-px inteiro
+        var delta := Vector2(roundi(raw_delta.x), roundi(raw_delta.y))
+        if delta == Vector2.ZERO:
+            return
+        _drag_last_world += delta   # acumula apenas o snap consumido
+
+        if _drag_mode == "move_shape" and _sel_shape >= 0 and _sel_shape < _edit["shapes"].size():
+            var s: Dictionary = _edit["shapes"][_sel_shape]
+            s["pos"] = [int(s["pos"][0]) + int(delta.x), int(s["pos"][1]) + int(delta.y)]
+            _edit["shapes"][_sel_shape] = s
+            _apply_edit_to_instance()
+        elif _drag_mode == "move_proj":
+            if not _edit.has("projectile"):
+                _edit["projectile"] = {}
+            var cur_off: Array = (_edit["projectile"].get("offset", [0, 0])) as Array
+            _edit["projectile"]["offset"] = [int(cur_off[0]) + int(delta.x), int(cur_off[1]) + int(delta.y)]
+            _apply_edit_to_instance()
+        elif _drag_mode == "move_sprite":
+            if not _edit.has("sprite"):
+                _edit["sprite"] = {"pos": [0, 0], "scale": [1.0, 1.0]}
+            var sp: Array = (_edit["sprite"].get("pos", [0, 0])) as Array
+            _edit["sprite"]["pos"] = [int(sp[0]) + int(delta.x), int(sp[1]) + int(delta.y)]
+            _apply_edit_to_instance()
+        elif _drag_mode.begins_with("resize_") and _sel_shape >= 0 and _sel_shape < _edit["shapes"].size():
+            _apply_resize(delta)
+
+    func _apply_resize(delta: Vector2) -> void:
+        if _sel_shape < 0 or _sel_shape >= _edit["shapes"].size():
+            return
+        var s: Dictionary = _edit["shapes"][_sel_shape]
+        var pos := Vector2(float(s["pos"][0]), float(s["pos"][1]))
+        var sz  := Vector2(float(s["size"][0]), float(s["size"][1]))
+        var dir := _drag_mode.substr(7)   # after "resize_"
+        var min_sz := 4.0
+        if dir.contains("l"):
+            var new_w := maxf(min_sz, sz.x - delta.x)
+            pos.x += (sz.x - new_w) * 0.5
+            sz.x = new_w
+        if dir.contains("r"):
+            var new_w := maxf(min_sz, sz.x + delta.x)
+            pos.x += (new_w - sz.x) * 0.5
+            sz.x = new_w
+        if dir.contains("t"):
+            var new_h := maxf(min_sz, sz.y - delta.y)
+            pos.y += (sz.y - new_h) * 0.5
+            sz.y = new_h
+        if dir.contains("b"):
+            var new_h := maxf(min_sz, sz.y + delta.y)
+            pos.y += (new_h - sz.y) * 0.5
+            sz.y = new_h
+        s["pos"] = [roundi(pos.x), roundi(pos.y)]
+        s["size"] = [roundi(sz.x), roundi(sz.y)]
+        _edit["shapes"][_sel_shape] = s
+        _apply_edit_to_instance()
+
+    func _apply_edit_to_instance() -> void:
+        if _current_instance == null:
+            return
+        if _edit_id != "":
+            HitboxData._data[_edit_id] = _edit
+        if _current_instance.has_method("_apply_hitbox_data"):
+            _current_instance._apply_hitbox_data()
+        _push_overlay_edit()
+
+    # ── CRUD toolbar ──────────────────────────────────────────────────────────
+
+    func _on_toggle_edit() -> void:
+        if _shape_overlay == null:
+            return
+        _shape_overlay.editing = not _shape_overlay.editing
+        if _edit_toggle_btn != null:
+            _edit_toggle_btn.text = "Editar ON" if _shape_overlay.editing else "Editar OFF"
+        _shape_overlay.queue_redraw()
+
+    func _on_add_shape() -> void:
+        if not _edit.has("shapes"):
+            _edit["shapes"] = []
+        _edit["shapes"].append({
+            "target": _edit_target,
+            "kind": "rect",
+            "pos": [0, 0],
+            "size": [40, 40],
+            "frames": _frame_scope()
+        })
+        _sel_shape = _edit["shapes"].size() - 1
+        _apply_edit_to_instance()
+
+    func _on_delete_shape() -> void:
+        if _sel_shape < 0 or not _edit.has("shapes"):
+            return
+        if _sel_shape >= _edit["shapes"].size():
+            return
+        _edit["shapes"].remove_at(_sel_shape)
+        _sel_shape = clampi(_sel_shape, 0, _edit["shapes"].size() - 1)
+        if _edit["shapes"].is_empty():
+            _sel_shape = -1
+        _apply_edit_to_instance()
+
+    func _on_toggle_frame_scope() -> void:
+        _edit_this_frame = not _edit_this_frame
+        if _frame_scope_btn != null:
+            _frame_scope_btn.text = "Frame: Este" if _edit_this_frame else "Frame: Todos"
+
+    # ── Save (POST para o servidor de hitbox) ─────────────────────────────────
+
+    func _on_save() -> void:
+        if _edit_id.is_empty():
+            return
+        var req := HTTPRequest.new()
+        add_child(req)
+        req.request_completed.connect(func(_r, _c, _h, _b): req.queue_free())
+        var payload := JSON.stringify({"id": _edit_id, "data": _edit})
+        req.request("/save-hitbox",
+            PackedStringArray(["Content-Type: application/json"]),
+            HTTPClient.METHOD_POST,
+            payload)
 
     func _find_sprite2d(node: Node) -> Sprite2D:
         if node is Sprite2D:
@@ -1841,6 +2309,7 @@ class _MovView extends Control:
         _world = mw
 
         _camera = Camera2D.new()
+        _camera.zoom = Vector2(2.0, 2.0)   # mesmo zoom do jogo e da aba Hitbox
         _camera.global_position = Vector2(_PLAYER_X, _GROUND_Y + 80.0)
         _world.add_child(_camera)
 
@@ -2488,7 +2957,7 @@ func _build_ui() -> void:
     _hitboxes_box.add_theme_constant_override("separation", 8)
     main.add_child(_hitboxes_box)
     _hitbox_view = _HitboxView.new()
-    _hitbox_view.custom_minimum_size = Vector2(0.0, 520.0)
+    _hitbox_view.custom_minimum_size = Vector2(0.0, 720.0)
     _hitbox_view.size_flags_horizontal = Control.SIZE_EXPAND_FILL
     _hitbox_view.size_flags_vertical = Control.SIZE_EXPAND_FILL
     _hitboxes_box.add_child(_hitbox_view)
@@ -3227,7 +3696,7 @@ func _refresh_tiles() -> void:
         for b: Button in mode_btns:
             b.modulate = Color(1.0, 1.0, 0.0) if b.text == mlbl else Color(0.6, 0.6, 0.6)
 
-    for me: Array in [["Plataforma", "platform"], ["Sala", "room"], ["Piso+Plat", "floor_platform"], ["Piso+Abismo", "floor_platform_hole"], ["Buraco no Piso", "floor_hole"]]:
+    for me: Array in [["Plataforma", "platform"], ["Sala", "room"], ["Piso+Plat", "floor_platform"], ["Piso+Abismo", "floor_platform_hole"], ["Buraco no Piso", "floor_hole"], ["Saliência", "foothold"]]:
         var mbtn := Button.new()
         mbtn.text = me[0]
         mbtn.add_theme_font_size_override("font_size", 24)

@@ -304,15 +304,6 @@ arena_left = 19776.0
 arena_right = 22592.0
 arena_floor = 960.0
 
-[node name="Grunt2" parent="." instance=ExtResource("10_grunt")]
-position = Vector2(1664, 768)
-
-[node name="Grunt3" parent="." instance=ExtResource("10_grunt")]
-position = Vector2(2560, 608)
-
-[node name="Flyer1" parent="." instance=ExtResource("11_flyer")]
-position = Vector2(1600, 512)
-
 [node name="HUD" parent="." instance=ExtResource("5_hud")]
 [node name="PauseMenu" parent="." instance=ExtResource("6_pause")]
 [node name="GameOver" parent="." instance=ExtResource("7_gameover")]
@@ -683,7 +674,7 @@ shape = SubResource("ShapeHeartCol")
 
 [node name="Camera2D" type="Camera2D" parent="."]
 limit_left = 0
-limit_top = -300
+limit_top = -1500
 limit_bottom = 3000
 limit_right = 25600
 position_smoothing_enabled = true
@@ -823,17 +814,6 @@ collision_layer = 1
 collision_mask = 0
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Z4Plat3"]
-shape = SubResource("ShapeZ1Plat")
-
-[node name="Z4MovingPlat" type="StaticBody2D" parent="."]
-position = Vector2(18880, 832)
-collision_layer = 1
-collision_mask = 0
-script = ExtResource("16_movplat")
-move_distance = 256.0
-speed = 60.0
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Z4MovingPlat"]
 shape = SubResource("ShapeZ1Plat")
 
 [node name="Z4Grunt1" parent="." instance=ExtResource("10_grunt")]

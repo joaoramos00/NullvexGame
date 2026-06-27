@@ -83,6 +83,7 @@ Nenhum plano pendente. Desenvolvimento principal concluído.
 - **CorridorSection** (`stages/corridor_section.gd`) — Node2D reutilizável para corredores de transição entre zonas; troque `tileset` e `glass_tex` por @export; emite sinais `camera_lock_requested`, `checkpoint_triggered`, `player_healed`, `player_traversed` para a stage conectar
 - **Grupo `"no_wall_grab"`** — qualquer `StaticBody2D` nesse grupo se torna parede lisa: bloqueia o player (colisão normal), mas desativa wall grab, wall jump e cap de queda (gravidade plena). O `character_base.gd` detecta via `get_slide_collision()` a cada frame. Para ativar: `body.add_to_group("no_wall_grab")`. O `CorridorSection` já aplica isso ao vidro lateral automaticamente.
 - **Painel imgdebug — aba "Plataformas"** (`ui/img_debug.gd`, classe `_PlatformView`): visualizadores de layout via marching-squares (`_fp_tile`). Modos: `platform`, `room` (sala vista por dentro), `floor_platform` (piso + plataforma elevada + piso), e **`floor_platform_hole`** = botão **"Piso+Buraco"** (piso + plataforma elevada + **abismo** de um lado). O botão **"Espelhar"** alterna `mirror_hole` (false = buraco à direita, true = à esquerda). O penhasco sai automático do `_fp_tile` ao vazar as colunas do lado do buraco em `_fp_solid` (helper `_fp_hole_dir()` → +1/-1/0). Para pedir: "modo Piso+Buraco" / "layout piso+plataforma+buraco".
+- **Saliência agarrável (foothold)** — parede curta agarrável (sem `no_wall_grab`) que projeta 1 tile pra dentro do shaft; mecânica = wall-grab padrão. Helper `_z4_foothold` (stage 01) + modo "Saliência" na aba "Plataformas" do imgdebug. Ver skill `new-foothold`.
 
 ---
 
@@ -189,6 +190,7 @@ Skills locais em `.claude/skills/`. Invocar dizendo "use a skill X" ou `/X`.
 | `new-boss` | Criar novo boss elemental com AI e fraqueza |
 | `new-stage` | Criar nova fase (simple ou complex com zonas) |
 | `new-corridor` | Adicionar corredor de transição a um stage complexo usando `CorridorSection` |
+| `new-foothold` | Criar saliência agarrável (foothold) num shaft — parede curta que projeta 1 tile, com modo "Saliência" no imgdebug |
 | `run-tests` | Rodar testes headless do Godot, reportar PASS/FAIL |
 | `web-export` | Exportar build web e publicar no GitHub Pages |
 | `pixellab` | Gerar sprites de inimigos/bosses e tilesets via PixelLab API |
