@@ -521,7 +521,9 @@ func _build_z4_shaft() -> void:
 	# Piso de ENTRADA: liga o topo da escada (step3, x17056–17184) à boca do shaft,
 	# cobrindo o antigo buraco da passagem secreta. O player anda da escada direto pro
 	# shaft pelo vão da parede #1 (y2056–2208) e faz wall-jump pra cima. topo y2208.
-	_z3_static_floor("Z4ShaftEntry", Vector2(17308.0, 2272.0), Vector2(616.0, 128.0))
+	# Extendido à direita: esq x17000 → dir x17712 (face interna WR0 do seg0) pra tapar o
+	# buraco de 96px que existia no canto inferior direito da entrada do shaft.
+	_z3_static_floor("Z4ShaftEntry", Vector2(17356.0, 2272.0), Vector2(712.0, 128.0))
 	# lava única (chase) cobrindo o shaft
 	# Shaft 3× alto → lava sobe até o topo (cap -3200), 3× mais rápido. Largura = seg0
 	# (boca de entrada, x17424–18000) pra NÃO vazar além das paredes (z_index=1 renderiza
@@ -842,7 +844,7 @@ func _build_z4_secret() -> void:
 	add_child(col)
 	# Parede #2 (SUPERIOR) — slot direito da câmara do coletável.
 	# Separa o segredo da sala pré-boss / topo do shaft. Quebra só de DENTRO (detector "L").
-	_z4_cracked("Z4Crack2", Vector2(17412.0, -1098.0), Vector2(64.0, 224.0), "left", "L")
+	_z4_cracked("Z4Crack2", Vector2(17392.0, -1098.0), Vector2(64.0, 224.0), "left", "L")   # cx 17412→17392: face dir em x17424 (flush c/ parede esq do shaft)
 
 # Parede quebrável (cracked_wall.gd): corpo sólido + HitDetector Area2D só no lado
 # permitido. det_side "R"/"L" posiciona o detector à direita/esquerda; break_side
