@@ -41,6 +41,12 @@ func _on_boss_defeated(_ability: String) -> void:
 	_boss_bar.visible = false
 	_boss_label.visible = false
 
+# Esconde a barra sem o boss ter sido derrotado (ex.: player morreu e o boss
+# foi despawnado — a barra reaparece no próximo aggro do boss recriado).
+func hide_boss_bar() -> void:
+	_boss_bar.visible = false
+	_boss_label.visible = false
+
 func _update_lives(lives: int) -> void:
 	_lives_label.text = "x %d" % lives
 
