@@ -765,18 +765,19 @@ class _PlatformView extends Control:
     # Modo "floor_hole": piso reto com um poço 2×2 cortado (mesmos tiles do jogo).
     const _FH_SIDE := 3    # tiles de piso de cada lado do poço
     const _FH_ROWS := 4    # profundidade do piso mostrada
+    const _CG := 3         # gap de jogo entre face do teto e superfície do piso
+    const _FD := 2         # profundidade do piso (linhas abaixo da superfície)
 
     func set_dims(r: int, c: int) -> void:
         rows = r
         cols = c
         var _is_fp := mode == "floor_platform" or mode == "floor_platform_hole" or mode == "foothold"
-        var _is_ceil_fp := mode == "ceil_step" or mode == "ceil_hole" or mode == "ceil_platform"
+        var _is_ceil := mode == "ceil_flat" or mode == "ceil_step" or mode == "ceil_hole" or mode == "ceil_platform"
         var gd: Vector2i
-        if _is_fp:             gd = _fp_grid()
+        if _is_fp:              gd = _fp_grid()
         elif mode == "floor_hole": gd = _fh_grid()
-        elif mode == "ceil_flat":  gd = Vector2i(cols, rows + 1)
-        elif _is_ceil_fp:      gd = _ceil_fp_grid()
-        else:                  gd = Vector2i(c, r)
+        elif _is_ceil:          gd = _ceil_combined_grid()
+        else:                   gd = Vector2i(c, r)
         custom_minimum_size = Vector2(gd.x * _TD, gd.y * _TD)
         queue_redraw()
 
@@ -793,11 +794,8 @@ class _PlatformView extends Control:
         if mode == "floor_hole":
             _draw_floor_hole()
             return
-        if mode == "ceil_flat":
-            _draw_ceil_flat()
-            return
-        if mode == "ceil_step" or mode == "ceil_hole" or mode == "ceil_platform":
-            _draw_ceil_fp()
+        if mode == "ceil_flat" or mode == "ceil_step" or mode == "ceil_hole" or mode == "ceil_platform":
+            _draw_ceil_combined()
             return
         for row in rows:
             for col in cols:
@@ -918,12 +916,14 @@ class _PlatformView extends Control:
             for c in g.x:
                 var t: Vector2i
                 if c == pit_l or c == pit_r:
-                    if r > 1:
-                        continue                              # buraco aberto (piso cortado)
                     if c == pit_l:
-                        t = Vector2i(0, 0) if r == 0 else Vector2i(2, 0)
+                        if   r == 0: t = Vector2i(0, 0)   # canto sup-dir
+                        elif r == 1: t = Vector2i(2, 0)   # canto inner-TR
+                        else:        t = Vector2i(3, 2)   # parede face dir
                     else:
-                        t = Vector2i(1, 3) if r == 0 else Vector2i(1, 1)
+                        if   r == 0: t = Vector2i(1, 3)   # canto sup-esq
+                        elif r == 1: t = Vector2i(1, 1)   # canto inner-TL
+                        else:        t = Vector2i(1, 0)   # parede face esq
                 else:
                     t = Vector2i(3, 0) if r == 0 else Vector2i(2, 1)   # piso: topo (3,0), corpo (2,1)
                 draw_texture_rect_region(tile_tex,
@@ -1019,92 +1019,107 @@ class _PlatformView extends Control:
                     Rect2(c * _TD, r * _TD, _TD, _TD),
                     Rect2(t.x * _TS, t.y * _TS, _TS, _TS))
 
-    # ── Modos de teto ────────────────────────────────────────────────────────
-    # Teto reto: `cols` de largura, `rows` de profundidade; face inferior = (1,2).
-    # Teto escada: seção profunda (`rows`) + seção rasa (2 tiles) unidas por degrau.
-    # Teto buraco: teto com gap central de `cols` tiles de largura.
-    # Teto plataforma: saliência que desce `rows` no centro, rasa nas bordas.
+    # ── Modos de teto (vista combinada: teto + zona de jogo + piso) ─────────
+    # rows = espessura do teto no lado mais profundo (ou elevação do degrau/plataforma).
+    # O tipo descreve o PISO abaixo; o teto acompanha mantendo gap _CG constante:
+    #   Reto    → piso plano,  teto plano
+    #   Escada  → piso com degrau, teto com degrau correspondente
+    #   Buraco  → piso com abertura central, teto com gap acima do buraco
+    #   Plat    → piso com plataforma elevada, teto elevado acima dela
 
-    func _ceil_fp_grid() -> Vector2i:
-        return Vector2i(_FP_SIDE + cols + _FP_SIDE, rows + 1)
+    # Linha da face inferior do teto para cada coluna (-1 = sem teto/gap)
+    func _ceil_face_at(c: int) -> int:
+        match mode:
+            "ceil_flat":
+                return rows - 1
+            "ceil_step":
+                var is_deep := (c < _FP_SIDE + cols) if not mirror_hole else (c >= _FP_SIDE)
+                return (rows - 1) if is_deep else 0
+            "ceil_hole":
+                if c >= _FP_SIDE and c < _FP_SIDE + cols: return -1
+                return rows - 1
+            "ceil_platform":
+                if c >= _FP_SIDE and c < _FP_SIDE + cols: return 0
+                return rows - 1
+        return 0
 
-    func _ceil_flat_solid(c: int, r: int) -> bool:
-        if c < 0 or r < 0 or c >= cols or r > rows: return false
-        return r < rows
+    func _floor_top_at(c: int) -> int:
+        var cf := _ceil_face_at(c)
+        return -1 if cf < 0 else cf + _CG + 1
 
-    func _ceil_fp_solid(c: int, r: int) -> bool:
-        var g := _ceil_fp_grid()
-        if c < 0 or r < 0 or c >= g.x or r >= g.y: return false
-        var in_center := c >= _FP_SIDE and c < _FP_SIDE + cols
-        if mode == "ceil_step":
-            var is_deep := (c < _FP_SIDE + cols) if not mirror_hole else (c >= _FP_SIDE)
-            return r < (rows if is_deep else 2)
-        elif mode == "ceil_hole":
-            return false if in_center else r < rows
-        elif mode == "ceil_platform":
-            return r < (rows if in_center else 1)
-        return false
+    func _ceil_combined_grid() -> Vector2i:
+        var w := cols if mode == "ceil_flat" else (_FP_SIDE + cols + _FP_SIDE)
+        var max_h := 0
+        for cc in w:
+            var ft := _floor_top_at(cc)
+            if ft >= 0: max_h = maxi(max_h, ft + _FD)
+        return Vector2i(w, max_h)
 
-    # Como _fp_tile_for mas também verifica diagonais inferiores (necessário para
-    # cantos côncavos na face inferior do teto, ex. base do degrau/plataforma).
-    # Teto: o topo é sempre fundo sólido (2,1) — nunca usa `eu`.
-    # Face visível = inferior (ed); cantos esq=(0,2) dir=(3,3).
+    func _ceil_solid_c(c: int, r: int) -> bool:
+        if c < 0 or r < 0: return false
+        var cf := _ceil_face_at(c)
+        var gd := _ceil_combined_grid()
+        if c >= gd.x or r >= gd.y: return false
+        return cf >= 0 and r <= cf
+
+    func _floor_solid_c(c: int, r: int) -> bool:
+        if c < 0 or r < 0: return false
+        var ft := _floor_top_at(c)
+        var gd := _ceil_combined_grid()
+        if c >= gd.x or r >= gd.y: return false
+        return ft >= 0 and r >= ft
+
+    # Marching-squares para teto: ignora face superior (fundo sempre sólido = 2,1).
     func _ceil_tile_for(c: int, r: int, solid: Callable) -> Vector2i:
         var ed: bool = not solid.call(c, r + 1)
         var el: bool = not solid.call(c - 1, r)
         var er: bool = not solid.call(c + 1, r)
-        if ed and el: return Vector2i(0, 2)   # canto inf-esq
-        if ed and er: return Vector2i(3, 3)   # canto inf-dir
-        if ed:        return Vector2i(1, 2)   # face de teto
-        if el:        return Vector2i(1, 0)   # face lateral
-        if er:        return Vector2i(3, 2)   # face lateral
-        if not (solid.call(c - 1, r + 1) as bool): return Vector2i(2, 2)  # entalhe inf-esq
-        if not (solid.call(c + 1, r + 1) as bool): return Vector2i(3, 1)  # entalhe inf-dir
-        return Vector2i(2, 1)   # fill sólido
+        if ed and el: return Vector2i(0, 2)
+        if ed and er: return Vector2i(3, 3)
+        if ed:        return Vector2i(1, 2)
+        if el:        return Vector2i(1, 0)
+        if er:        return Vector2i(3, 2)
+        if not (solid.call(c - 1, r + 1) as bool): return Vector2i(2, 2)
+        if not (solid.call(c + 1, r + 1) as bool): return Vector2i(3, 1)
+        return Vector2i(2, 1)
 
-    func _draw_ceil_flat() -> void:
-        var solid_fn := func(cc: int, rr: int) -> bool: return _ceil_flat_solid(cc, rr)
-        for r in rows + 1:
-            for c in cols:
-                if not _ceil_flat_solid(c, r): continue
-                var t := _ceil_tile_for(c, r, solid_fn)
-                draw_texture_rect_region(tile_tex, Rect2(c * _TD, r * _TD, _TD, _TD),
-                    Rect2(t.x * _TS, t.y * _TS, _TS, _TS))
-        draw_line(Vector2(0.0, rows * _TD), Vector2(cols * _TD, rows * _TD),
-            Color(1.0, 0.9, 0.0, 0.9), 1.5)
-
-    func _draw_ceil_fp() -> void:
-        var g := _ceil_fp_grid()
-        var solid_fn := func(cc: int, rr: int) -> bool: return _ceil_fp_solid(cc, rr)
+    func _draw_ceil_combined() -> void:
+        var g := _ceil_combined_grid()
+        var csol := func(cc: int, rr: int) -> bool: return _ceil_solid_c(cc, rr)
+        var fsol := func(cc: int, rr: int) -> bool: return _floor_solid_c(cc, rr)
         for r in g.y:
             for c in g.x:
-                if not _ceil_fp_solid(c, r): continue
-                var t := _ceil_tile_for(c, r, solid_fn)
-                draw_texture_rect_region(tile_tex, Rect2(c * _TD, r * _TD, _TD, _TD),
-                    Rect2(t.x * _TS, t.y * _TS, _TS, _TS))
+                if _ceil_solid_c(c, r):
+                    var t := _ceil_tile_for(c, r, csol)
+                    draw_texture_rect_region(tile_tex, Rect2(c * _TD, r * _TD, _TD, _TD),
+                        Rect2(t.x * _TS, t.y * _TS, _TS, _TS))
+                elif _floor_solid_c(c, r):
+                    var t := _fp_tile_for(c, r, fsol)
+                    draw_texture_rect_region(tile_tex, Rect2(c * _TD, r * _TD, _TD, _TD),
+                        Rect2(t.x * _TS, t.y * _TS, _TS, _TS))
+        _draw_ceil_guide(g)
+
+    func _draw_ceil_guide(g: Vector2i) -> void:
         var yellow := Color(1.0, 0.9, 0.0, 0.9)
-        var w  := float(_ceil_fp_grid().x) * _TD
-        var lx := float(_FP_SIDE) * _TD
-        var rx := float(_FP_SIDE + cols) * _TD
-        match mode:
-            "ceil_step":
-                if not mirror_hole:
-                    draw_line(Vector2(0.0,  rows * _TD), Vector2(rx,  rows * _TD), yellow, 1.5)
-                    draw_line(Vector2(rx,   rows * _TD), Vector2(rx,   2.0 * _TD), yellow, 1.5)
-                    draw_line(Vector2(rx,    2.0 * _TD), Vector2(w,    2.0 * _TD), yellow, 1.5)
-                else:
-                    draw_line(Vector2(0.0,  2.0 * _TD), Vector2(lx,   2.0 * _TD), yellow, 1.5)
-                    draw_line(Vector2(lx,   2.0 * _TD), Vector2(lx,  rows * _TD), yellow, 1.5)
-                    draw_line(Vector2(lx,  rows * _TD), Vector2(w,   rows * _TD), yellow, 1.5)
-            "ceil_hole":
-                draw_line(Vector2(0.0,  rows * _TD), Vector2(lx,  rows * _TD), yellow, 1.5)
-                draw_line(Vector2(rx,   rows * _TD), Vector2(w,   rows * _TD), yellow, 1.5)
-            "ceil_platform":
-                draw_line(Vector2(0.0,  1.0 * _TD), Vector2(lx,  1.0 * _TD), yellow, 1.5)
-                draw_line(Vector2(lx,   1.0 * _TD), Vector2(lx,  rows * _TD), yellow, 1.5)
-                draw_line(Vector2(lx,  rows * _TD), Vector2(rx,  rows * _TD), yellow, 1.5)
-                draw_line(Vector2(rx,  rows * _TD), Vector2(rx,  1.0 * _TD), yellow, 1.5)
-                draw_line(Vector2(rx,  1.0 * _TD), Vector2(w,   1.0 * _TD), yellow, 1.5)
+        for c in g.x:
+            var cf := _ceil_face_at(c)
+            var ft := _floor_top_at(c)
+            var x0 := float(c) * _TD;  var x1 := float(c + 1) * _TD
+            # Linha da face inferior do teto
+            if cf >= 0:
+                draw_line(Vector2(x0, (cf + 1) * _TD), Vector2(x1, (cf + 1) * _TD), yellow, 1.5)
+                if c > 0:
+                    var pcf := _ceil_face_at(c - 1)
+                    if pcf >= 0 and pcf != cf:
+                        draw_line(Vector2(x0, (pcf + 1) * _TD), Vector2(x0, (cf + 1) * _TD), yellow, 1.5)
+            # Linha da superfície do piso
+            if ft >= 0:
+                draw_line(Vector2(x0, float(ft) * _TD), Vector2(x1, float(ft) * _TD), yellow, 1.5)
+                if c > 0:
+                    var pft := _floor_top_at(c - 1)
+                    if pft >= 0 and pft != ft:
+                        draw_line(Vector2(x0, float(minf(ft, pft)) * _TD),
+                                  Vector2(x0, float(maxf(ft, pft)) * _TD), yellow, 1.5)
 
 # Nó que vive dentro do SubViewport — desenha fundo, tiles e linhas de colisão
 class _MovWorld extends Node2D:
