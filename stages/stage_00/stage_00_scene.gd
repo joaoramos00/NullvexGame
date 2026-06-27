@@ -79,6 +79,7 @@ var _corr3: CorridorSection = null
 var _camera_locked   := false
 var _camera_target   := Vector2.ZERO
 var _camera_zoom_tgt := 2.0
+var _ceil_z1: StaticBody2D = null
 
 # Zona 3 — plataforma móvel do gauntlet "Exame Final"
 # DIST 258: half-curso 129px. Com início no centro do fosso (x=14975), os extremos
@@ -141,6 +142,7 @@ func _ready() -> void:
 	# Default respawn at stage start (index 0 means spawn_position)
 	# Checkpoint 1 will be saved when player passes through CP1 entry door
 
+	_ceil_z1 = get_node_or_null("Ceil_Z1") as StaticBody2D
 	_setup_floor_platform()
 	_build_z2_peak()
 	_build_zone3()
@@ -159,6 +161,10 @@ func _process(_delta: float) -> void:
 				cam.global_position = _player.global_position
 			else:
 				cam.global_position = cam.global_position.lerp(_player.global_position, 0.12)
+	# Teto dinâmico: acompanha o topo da câmera para sempre ficar visível mas
+	# nunca bloquear o pulo (sobe quando o player sobe, desce quando desce).
+	if is_instance_valid(_ceil_z1):
+		_ceil_z1.global_position = Vector2(cam.global_position.x, cam.global_position.y - 238.0)
 	queue_redraw()
 
 func _unhandled_input(event: InputEvent) -> void:
