@@ -902,16 +902,7 @@ func _draw_zone1_ceiling() -> void:
 		var x1: float = s[1]
 		var yb: float = s[2]
 		_draw_room_tiles(Rect2(x0, yb - ts - src_ts, x1 - x0, ts + src_ts), "Z1Ceiling_Ceil")
-	# Cantos de degrau nos pontos de junção entre segmentos de alturas diferentes
-	for i in segs.size() - 1:
-		var y_left: float  = segs[i][2]
-		var y_right: float = segs[i + 1][2]
-		if is_equal_approx(y_left, y_right):
-			continue
-		var jx: float    = segs[i][1]
-		var y_high: float = min(y_left, y_right)
-		var y_low: float  = max(y_left, y_right)
-		_draw_ceil_step(jx, y_high, y_low, y_right < y_left)
+	# Os cantos (3,3)/(0,2) nos segmentos já criam o degrau visualmente (idêntico ao imgdebug).
 
 # Parede vertical do degrau entre dois níveis de teto.
 # going_up=true → teto sobe à direita (parede-dir da seção baixa).
