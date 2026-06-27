@@ -674,7 +674,7 @@ shape = SubResource("ShapeHeartCol")
 
 [node name="Camera2D" type="Camera2D" parent="."]
 limit_left = 0
-limit_top = -300
+limit_top = -1500
 limit_bottom = 3000
 limit_right = 25600
 position_smoothing_enabled = true
