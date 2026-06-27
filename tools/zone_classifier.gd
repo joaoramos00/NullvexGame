@@ -41,6 +41,10 @@ func classify_type(node_name: String, kind: String) -> String:
 	if node_name.contains("Plat"):
 		return "plat"
 
+	if node_name.contains("Foot") or node_name.contains("Crumble"):
+		return "plat"
+	if node_name.contains("Crack"):
+		return "block"
 	if node_name.contains("Step"):
 		return "step"
 	if node_name.contains("Block"):
