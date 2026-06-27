@@ -1042,12 +1042,10 @@ class _PlatformView extends Control:
                 if c >= _FP_SIDE and c < _FP_SIDE + cols: return 0
                 return rows - 1
             "ceil_plat_pit":
-                # piso | buraco | plataforma | buraco | piso
-                if c < _FP_SIDE:                                 return rows - 1   # piso esq
-                if c < _FP_SIDE + _BW:                          return -1         # buraco esq: sem teto
-                if c < _FP_SIDE + _BW + cols:                   return 0          # plataforma: teto alto
-                if c < _FP_SIDE + _BW + cols + _BW:             return -1         # buraco dir: sem teto
-                return rows - 1                                                    # piso dir
+                # piso | escada | plataforma | escada(espelho) | piso
+                # teto continuo: buraco so no PISO, teto baixo cobre piso+buraco
+                if c >= _FP_SIDE + _BW and c < _FP_SIDE + _BW + cols: return 0   # plataforma: teto alto
+                return rows - 1                                                    # piso+buraco: teto baixo
         return 0
 
     func _floor_top_at(c: int) -> int:
@@ -1075,6 +1073,10 @@ class _PlatformView extends Control:
         if c < 0 or r < 0: return false
         if mode == "ceil_hole" and c >= _FP_SIDE and c < _FP_SIDE + cols:
             return false   # buraco no piso (teto continua reto acima)
+        if mode == "ceil_plat_pit":
+            var lb := _FP_SIDE; var rb := _FP_SIDE + _BW + cols
+            if (c >= lb and c < lb + _BW) or (c >= rb and c < rb + _BW):
+                return false   # buraco no piso de cada lado da plataforma
         var ft := _floor_top_at(c)
         var gd := _ceil_combined_grid()
         if c >= gd.x or r >= gd.y: return false
