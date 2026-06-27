@@ -516,7 +516,7 @@ func _build_z4_shaft() -> void:
 	# Shaft 3× alto → lava sobe até o topo (cap -3200), 3× mais rápido. Largura = seg0
 	# (boca de entrada, x17424–18000) pra NÃO vazar além das paredes (z_index=1 renderiza
 	# na frente; lava mais larga aparecia como coluna laranja fora da parede).
-	var lava := _z4_lava("Z4ShaftLava", "chase", 17712.0, 2360.0, 288.0, 5700.0)
+	var lava := _z4_lava("Z4ShaftLava", "chase", 17712.0, 2360.0, 144.0, 5700.0)
 	lava.set("rise_speed", 60.0)
 	lava.set("cap_y", -3200.0)
 	lava.set("accel_y", -1491.0)
