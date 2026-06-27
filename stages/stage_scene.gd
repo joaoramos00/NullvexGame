@@ -17,6 +17,9 @@ var _override_tex_cache: Dictionary = {}
 var _zone_min: float = 0.0
 var _zone_max: float = 1.0
 var _zone_use_y: bool = false
+# Rect da área visível pela câmera (world-space). Atualizado em _process a cada frame;
+# usado em _draw() para pintar o backdrop antes das plataformas.
+var _cam_visible_rect := Rect2()
 
 func _ready() -> void:
 	if StageManager.current_stage_id < 0:
@@ -69,6 +72,11 @@ const _CAM_RISE := 70.0
 func _process(_delta: float) -> void:
 	if is_instance_valid(_player):
 		$Camera2D.global_position = _player.global_position - Vector2(0.0, _CAM_RISE)
+	# Actualiza o rect visível p/ o backdrop do _draw().
+	var zoom := $Camera2D.zoom
+	var vp   := get_viewport().get_visible_rect().size
+	var half := vp / zoom * 0.5
+	_cam_visible_rect = Rect2($Camera2D.global_position - half, half * 2.0)
 	queue_redraw()
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -129,6 +137,17 @@ func _cached_override_tex(path: String) -> Texture2D:
 	return t
 
 func _draw() -> void:
+	# Backdrop: preenche a área visível com o tile de preenchimento (2,1) da zona atual.
+	# Desenhado ANTES das plataformas; as plataformas sobreescrevem com seu tile próprio.
+	# Elimina o vazio preto fora das paredes (shaft, laterais de corredores, etc.).
+	# Ativo apenas para fases 1-8 (que têm zone_tilesets carregados).
+	if not _zone_tilesets.is_empty() and _cam_visible_rect.size.x > 0.0:
+		var bdr_tex := _get_zone_tileset(_cam_visible_rect.get_center())
+		if bdr_tex:
+			# Expande às bordas de tile para não aparecer borda branca.
+			var tl := (_cam_visible_rect.position / float(_TS)).floor() * _TS
+			var br := (_cam_visible_rect.end   / float(_TS)).ceil()  * _TS
+			_draw_fill_tiles(Rect2(tl, br - tl), bdr_tex)
 	for child in get_children():
 		if not child is StaticBody2D:
 			continue
