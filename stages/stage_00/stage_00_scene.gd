@@ -144,6 +144,7 @@ func _ready() -> void:
 	_setup_floor_platform()
 	_build_z2_peak()
 	_build_zone3()
+	_build_zone1_ceiling()
 	queue_redraw()
 
 func _process(_delta: float) -> void:
@@ -613,6 +614,44 @@ func _setup_floor_platform() -> void:
 	})
 
 # ─── Pico Z2 + entrada Z3 — consolida floor006-008, sub001-002, cover001 ─────────
+# Teto da zona 1: segmentos independentes que contornam as plataformas
+# elevadas, sempre a CLEAR px acima do chão mais próximo. Visível em toda
+# a zona 1 — desce sobre plataformas altas, sobe sobre o chão principal.
+func _build_zone1_ceiling() -> void:
+	const H     := 64.0    # espessura de cada segmento
+	const CLEAR := 200.0   # distância mínima acima do piso (> max_jump 182px)
+	# [x0, x1, floor_top] — limites horizontais e topo do piso em cada secção.
+	# Plataformas derivadas das collision shapes do .tscn:
+	#   Plat_Z1A  (2600,1090) size(256,180) → top=1000  x:2472–2728
+	#   Block_Z1A (3400, 992) size(320,192) → top=896   x:3240–3560
+	#   Plat_Z1B  (4500, 960) size(384, 64) → top=928   x:4308–4692
+	var segs: Array = [
+		[   0.0, 2472.0, 1088.0],
+		[2472.0, 2728.0, 1000.0],
+		[2728.0, 3240.0, 1088.0],
+		[3240.0, 3560.0,  896.0],
+		[3560.0, 4308.0, 1088.0],
+		[4308.0, 4692.0,  928.0],
+		[4692.0, 5534.0, 1088.0],
+	]
+	for i in segs.size():
+		var x0: float        = segs[i][0]
+		var x1: float        = segs[i][1]
+		var floor_top: float = segs[i][2]
+		var w := x1 - x0
+		var cy := floor_top - CLEAR - H * 0.5   # center y do segmento
+		var b := StaticBody2D.new()
+		b.name = "Z1Ceil_%d" % i
+		b.collision_layer = 1
+		b.collision_mask  = 0
+		var cs := CollisionShape2D.new()
+		var shape := RectangleShape2D.new()
+		shape.size = Vector2(w, H)
+		cs.shape    = shape
+		cs.position = Vector2(x0 + w * 0.5, cy)
+		b.add_child(cs)
+		add_child(b)
+
 # Remove 6 nós fragmentados (Floor_Z2_Peak, SubPlat_Z2_1/2, Cover_Z2,
 # Floor_Z2_Trans, CorrZ3_Entry_Floor) e cria um único piso+plataforma+piso
 # com fp_params, mantendo a mesma geometria de colisão e visual coeso.
