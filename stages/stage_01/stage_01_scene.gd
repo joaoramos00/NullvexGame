@@ -54,6 +54,11 @@ func _ready() -> void:
 		var node := get_node_or_null(n)
 		if node:
 			node.queue_free()
+	# Tetos desenhados com room-tiles (face (1,2)) em _draw_stage01_ceilings()
+	for ceil_n in ["Z1Ceil", "Z2Ceil", "SecretArmorCeil", "Z3Ceil"]:
+		var cn := get_node_or_null(ceil_n)
+		if cn:
+			cn.set_meta("skip_base_draw", true)
 	_build_zone2()
 	_build_zone3()
 	_build_zone4()
@@ -155,6 +160,23 @@ func _on_camera_lock(center: Vector2, zoom: float) -> void:
 func _draw() -> void:
 	super._draw()       # terreno/lava/plataformas (pula o perímetro do boss via skip_base_draw)
 	_draw_boss_room()
+	_draw_stage01_ceilings()
+
+# Tetos das zonas 1-3 e da área secreta: tile (1,2) via room-tiles.
+func _draw_stage01_ceilings() -> void:
+	var ts     := _TS
+	var src_ts := _SRC_TS
+	for n_name in ["Z1Ceil", "Z2Ceil", "SecretArmorCeil", "Z3Ceil"]:
+		var node := get_node_or_null(n_name)
+		if not is_instance_valid(node):
+			continue
+		var cs := (node as Node2D).get_node_or_null("CollisionShape2D") as CollisionShape2D
+		if not cs or not cs.shape is RectangleShape2D:
+			continue
+		var size := (cs.shape as RectangleShape2D).size
+		var center := (node as Node2D).position + cs.position
+		var y_bot := center.y + size.y * 0.5
+		_draw_room_tiles(Rect2(center.x - size.x * 0.5, y_bot - ts - src_ts, size.x, ts + src_ts), n_name + "_Ceil")
 
 # Câmara do boss desenhada como grid unificado (molde do stage_00 _draw_boss_room): perímetro
 # de rocha (z1) com cantos côncavos corretos em uma passada. A abertura fica na PAREDE ESQUERDA

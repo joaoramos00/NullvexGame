@@ -279,6 +279,56 @@ func _draw_platform_tiles(rect: Rect2, tex: Texture2D) -> void:
 			var src := Rect2(tile.x * src_ts, tile.y * src_ts, src_ts * dw / ts, src_ts * dh / ts)
 			draw_texture_rect_region(tex, Rect2(dx, dy, dw, dh), src)
 
+func _draw_room_tiles(rect: Rect2, piece_name: String, skip_bottom_corner: bool = false) -> void:
+	var ts     := _TS
+	var src_ts := _SRC_TS
+	var tex: Texture2D = _get_zone_tileset(rect.get_center())
+	if tex == null:
+		return
+	var base_xs := 0
+	var base_ys := 0
+	if   piece_name.ends_with("_Floor"):                                      base_ys = -src_ts
+	elif piece_name.ends_with("_Ceil"):                                       base_ys =  src_ts
+	elif piece_name.ends_with("_Wall_L") or piece_name.ends_with("LWall"):   base_xs =  src_ts
+	elif piece_name.ends_with("_Wall_R") or piece_name.ends_with("RWall"):   base_xs = -src_ts
+	var cols := ceili(rect.size.x / ts)
+	var rows := ceili(rect.size.y / ts)
+	for row in rows:
+		for col in cols:
+			var is_left   := col == cols - 1
+			var is_right  := col == 0
+			var is_top    := row == rows - 1 and not skip_bottom_corner
+			var is_bottom := row == 0
+			var tile: Vector2i
+			if piece_name.ends_with("_Ceil"):
+				if is_left:        tile = Vector2i(2, 2)
+				elif is_right:     tile = Vector2i(3, 1)
+				else:              tile = Vector2i(1, 2)
+			elif piece_name.ends_with("_Wall_L") or piece_name.ends_with("LWall"):
+				if is_bottom:      tile = Vector2i(2, 2)
+				elif is_top:       tile = Vector2i(1, 1)
+				else:              tile = Vector2i(1, 0)
+			elif piece_name.ends_with("_Wall_R") or piece_name.ends_with("RWall"):
+				if is_bottom:      tile = Vector2i(3, 1)
+				elif is_top:       tile = Vector2i(2, 0)
+				else:              tile = Vector2i(3, 2)
+			else:  # _Floor
+				tile = Vector2i(3, 0)
+			var tx := base_xs
+			var ty := base_ys
+			if piece_name.ends_with("_Wall_L") or piece_name.ends_with("LWall"):
+				if is_bottom:   ty =  src_ts
+				elif is_top:    ty = -src_ts
+			elif piece_name.ends_with("_Wall_R") or piece_name.ends_with("RWall"):
+				if is_bottom:   ty =  src_ts
+				elif is_top:    ty = -src_ts
+			var dx := rect.position.x + col * ts + tx
+			var dy := rect.position.y + row * ts + ty
+			var dw := minf(ts, rect.position.x + rect.size.x - dx)
+			var dh := minf(ts, rect.position.y + rect.size.y - dy)
+			var src := Rect2(float(tile.x) * src_ts, float(tile.y) * src_ts, src_ts * dw / ts, src_ts * dh / ts)
+			draw_texture_rect_region(tex, Rect2(dx, dy, dw, dh), src)
+
 func _gap_fill_tile(row: int, rows: int) -> Vector2i:
 	if row == 0:        return Vector2i(3, 0)  # TOP — linha visual superior
 	if row == rows - 1: return Vector2i(1, 2)  # BOTTOM — linha visual inferior
