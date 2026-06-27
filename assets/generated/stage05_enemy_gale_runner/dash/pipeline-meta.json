@@ -1,0 +1,249 @@
+{
+  "target": "creature",
+  "mode": "run",
+  "prompt": "",
+  "role": "",
+  "input": "assets\\generated\\stage05_enemy_gale_runner\\dash\\raw-sheet.png",
+  "threshold": 100,
+  "edge_threshold": 150,
+  "duration": 200,
+  "rows": 2,
+  "cols": 3,
+  "cell_size": 128,
+  "fit_scale": 0.82,
+  "trim_border": 4,
+  "edge_clean_depth": 3,
+  "align": "bottom",
+  "shared_scale": true,
+  "component_mode": "largest",
+  "component_padding": 0,
+  "min_component_area": 1,
+  "edge_touch_margin": 0,
+  "frame_labels": [
+    "dash-1",
+    "dash-2",
+    "dash-3",
+    "dash-4",
+    "dash-5",
+    "dash-6"
+  ],
+  "frames": [
+    {
+      "grid": [
+        0,
+        0
+      ],
+      "source_box": [
+        0,
+        0,
+        512,
+        512
+      ],
+      "component_mode": "largest",
+      "component_count": 1,
+      "selected_component_area": 12922,
+      "selected_component_bbox": [
+        239,
+        212,
+        360,
+        414
+      ],
+      "crop_bbox": [
+        239,
+        212,
+        360,
+        414
+      ],
+      "edge_touch": false,
+      "output_size": [
+        51,
+        85
+      ],
+      "paste_position": [
+        38,
+        32
+      ]
+    },
+    {
+      "grid": [
+        0,
+        1
+      ],
+      "source_box": [
+        512,
+        0,
+        1024,
+        512
+      ],
+      "component_mode": "largest",
+      "component_count": 4,
+      "selected_component_area": 13865,
+      "selected_component_bbox": [
+        106,
+        239,
+        353,
+        411
+      ],
+      "crop_bbox": [
+        106,
+        239,
+        353,
+        411
+      ],
+      "edge_touch": false,
+      "output_size": [
+        104,
+        73
+      ],
+      "paste_position": [
+        12,
+        44
+      ]
+    },
+    {
+      "grid": [
+        0,
+        2
+      ],
+      "source_box": [
+        1024,
+        0,
+        1536,
+        512
+      ],
+      "component_mode": "largest",
+      "component_count": 3,
+      "selected_component_area": 14052,
+      "selected_component_bbox": [
+        49,
+        250,
+        292,
+        416
+      ],
+      "crop_bbox": [
+        49,
+        250,
+        292,
+        416
+      ],
+      "edge_touch": false,
+      "output_size": [
+        103,
+        70
+      ],
+      "paste_position": [
+        12,
+        47
+      ]
+    },
+    {
+      "grid": [
+        1,
+        0
+      ],
+      "source_box": [
+        0,
+        512,
+        512,
+        1024
+      ],
+      "component_mode": "largest",
+      "component_count": 10,
+      "selected_component_area": 15914,
+      "selected_component_bbox": [
+        197,
+        141,
+        402,
+        327
+      ],
+      "crop_bbox": [
+        197,
+        141,
+        402,
+        327
+      ],
+      "edge_touch": false,
+      "output_size": [
+        87,
+        79
+      ],
+      "paste_position": [
+        20,
+        38
+      ]
+    },
+    {
+      "grid": [
+        1,
+        1
+      ],
+      "source_box": [
+        512,
+        512,
+        1024,
+        1024
+      ],
+      "component_mode": "largest",
+      "component_count": 1,
+      "selected_component_area": 12889,
+      "selected_component_bbox": [
+        195,
+        125,
+        316,
+        327
+      ],
+      "crop_bbox": [
+        195,
+        125,
+        316,
+        327
+      ],
+      "edge_touch": false,
+      "output_size": [
+        51,
+        85
+      ],
+      "paste_position": [
+        38,
+        32
+      ]
+    },
+    {
+      "grid": [
+        1,
+        2
+      ],
+      "source_box": [
+        1024,
+        512,
+        1536,
+        1024
+      ],
+      "component_mode": "largest",
+      "component_count": 1,
+      "selected_component_area": 12835,
+      "selected_component_bbox": [
+        131,
+        127,
+        252,
+        327
+      ],
+      "crop_bbox": [
+        131,
+        127,
+        252,
+        327
+      ],
+      "edge_touch": false,
+      "output_size": [
+        51,
+        84
+      ],
+      "paste_position": [
+        38,
+        33
+      ]
+    }
+  ],
+  "edge_touch_frames": []
+}
