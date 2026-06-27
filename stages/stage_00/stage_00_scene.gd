@@ -770,6 +770,7 @@ func _draw() -> void:
 	_draw_glass_panels()
 	_draw_platforms()
 	_draw_boss_room()
+	_draw_zone1_ceiling()
 	if DebugBoot.z3debug:
 		_draw_z3_debug()
 
@@ -882,6 +883,71 @@ func _draw_background() -> void:
 		var stripe_color := Color(0.1, 0.1, 0.25) if i % 2 == 0 else Color(0.08, 0.08, 0.20)
 		draw_rect(Rect2(16640, panel_y + 248, 1920, 8), stripe_color)
 
+func _draw_zone1_ceiling() -> void:
+	var ts     := _TS
+	var src_ts := _SRC_TS
+	# [x0, x1, y_bottom] — y_bottom = floor_top - CLEAR (200 px)
+	var segs: Array = [
+		[   0.0, 2472.0, 888.0],
+		[2472.0, 2728.0, 800.0],
+		[2728.0, 3240.0, 888.0],
+		[3240.0, 3560.0, 696.0],
+		[3560.0, 4308.0, 888.0],
+		[4308.0, 4692.0, 728.0],
+		[4692.0, 5534.0, 888.0],
+	]
+	# Segmentos: tile de teto (1,2) via _draw_room_tiles (piece "_Ceil")
+	for s in segs:
+		var x0: float = s[0]
+		var x1: float = s[1]
+		var yb: float = s[2]
+		_draw_room_tiles(Rect2(x0, yb - ts - src_ts, x1 - x0, ts + src_ts), "Z1Ceiling_Ceil")
+	# Cantos de degrau nos pontos de junção entre segmentos de alturas diferentes
+	for i in segs.size() - 1:
+		var y_left: float  = segs[i][2]
+		var y_right: float = segs[i + 1][2]
+		if is_equal_approx(y_left, y_right):
+			continue
+		var jx: float    = segs[i][1]
+		var y_high: float = min(y_left, y_right)
+		var y_low: float  = max(y_left, y_right)
+		_draw_ceil_step(jx, y_high, y_low, y_right < y_left)
+
+# Parede vertical do degrau entre dois níveis de teto.
+# going_up=true → teto sobe à direita (parede-dir da seção baixa).
+# going_up=false → teto desce à direita (parede-esq da seção baixa à dir).
+func _draw_ceil_step(jx: float, y_high: float, y_low: float, going_up: bool) -> void:
+	var ts     := _TS
+	var src_ts := _SRC_TS
+	var face_tile: Vector2i
+	var top_tile: Vector2i
+	var bot_tile: Vector2i
+	var dx: float
+	if going_up:
+		# Seção alta à DIREITA → parede-dir da seção baixa (_Wall_R convention)
+		face_tile = Vector2i(3, 2)  # LEFT face interna
+		top_tile  = Vector2i(3, 1)  # Inner-BR — junção c/ ceil alto
+		bot_tile  = Vector2i(2, 0)  # Inner-TR — junção c/ ceil baixo
+		dx = jx - src_ts
+	else:
+		# Seção alta à ESQUERDA → parede-esq da seção baixa à dir (_Wall_L convention)
+		face_tile = Vector2i(1, 0)  # RIGHT face interna
+		top_tile  = Vector2i(2, 2)  # Inner-BL — junção c/ ceil alto
+		bot_tile  = Vector2i(1, 1)  # Inner-TL — junção c/ ceil baixo
+		dx = jx + src_ts
+	_draw_raw_tile(top_tile, dx, y_high - src_ts)
+	var y := y_high + src_ts
+	while y + ts <= y_low - src_ts:
+		_draw_raw_tile(face_tile, dx, y)
+		y += ts
+	_draw_raw_tile(bot_tile, dx, y_low - src_ts)
+
+func _draw_raw_tile(tile: Vector2i, dx: float, dy: float) -> void:
+	var src_ts := _SRC_TS
+	draw_texture_rect_region(_TILESET,
+		Rect2(dx, dy, _TS, _TS),
+		Rect2(float(tile.x) * src_ts, float(tile.y) * src_ts, src_ts, src_ts))
+
 func _draw_platforms() -> void:
 	for child in get_children():
 		if not (child is StaticBody2D or child is AnimatableBody2D):  # AnimatableBody2D = plataforma móvel
@@ -900,6 +966,9 @@ func _draw_platforms() -> void:
 			var n_check: String = (child as Node).name
 			# Sala do boss é desenhada como grid unificado em _draw_boss_room()
 			if n_check.begins_with("Boss_"):
+				continue
+			# Teto Z1 desenhado com room-tiles corretos em _draw_zone1_ceiling()
+			if n_check.begins_with("Z1Ceil_"):
 				continue
 			if cs.disabled and not n_check.begins_with("MiniBoss_"):
 				continue
