@@ -63,14 +63,14 @@ func _ready() -> void:
 			corr.camera_lock_requested.connect(_on_camera_lock)
 	_spawn_fire_roster()
 
-# Arena do boss deslocada -1160 em Y p/ acompanhar o topo do shaft reduzido (y-564).
-# X inalterado. (delta = old_top 360 - new_top -564, ajustado p/ tscn y=832 → -1160.)
+# Arena do boss deslocada -1622 em Y p/ acompanhar o topo do shaft reduzido (y-1026).
+# X inalterado. (tscn y=832 − 1622 = −790.)
 const _BOSS_L          := 18900.0
 const _BOSS_R          := 21716.0
-const _BOSS_FLOOR_TOP  := -524.0
-const _BOSS_CEIL_TOP   := -824.0
-const _BOSS_DOOR_LO    := -632.0
-const _BOSS_DOOR_HI    := -524.0
+const _BOSS_FLOOR_TOP  := -986.0
+const _BOSS_CEIL_TOP   := -1286.0
+const _BOSS_DOOR_LO    := -1094.0
+const _BOSS_DOOR_HI    := -986.0
 
 const _SHAFT_SEGS := [
 	# y_top, y_bot, x_l, x_r  (interior = x_r - x_l)
@@ -87,38 +87,38 @@ const _SHAFT_SEGS := [
 	# Face ESQUERDA fixa em 17424 (a parede esq do shaft é o Z4SecretWR do segredo, que
 	# já sela e serve de wall-jump). NÃO há mais Z4ShaftWL (eram redundantes e invadiam
 	# o segredo — as "barras laranja" duplicadas). Direita estendida = folga lateral.
-	[1746.0, 2208.0, 17424.0, 18000.0],   # entrada
-	[1266.0, 1746.0, 17424.0, 18320.0],   # saliência+espinho opostos
-	[ 786.0, 1266.0, 17424.0, 18160.0],   # saliência (R)
-	[ 306.0,  786.0, 17424.0, 18320.0],   # saliência+espinho opostos
-	[-174.0,  306.0, 17424.0, 18160.0],   # saliência (R)
-	[-564.0, -174.0, 17424.0, 17616.0],   # topo (boca pré-boss, estreito)
+	[1284.0,  2208.0, 17424.0, 18000.0],   # entrada (tamanho original restaurado)
+	[ 804.0,  1284.0, 17424.0, 18320.0],   # saliência+espinho opostos
+	[ 324.0,   804.0, 17424.0, 18160.0],   # saliência (R)
+	[-156.0,   324.0, 17424.0, 18320.0],   # saliência+espinho opostos
+	[-636.0,  -156.0, 17424.0, 18160.0],   # saliência (R)
+	[-1026.0, -636.0, 17424.0, 17616.0],   # topo (boca pré-boss, estreito)
 ]
 
 # Saliências agarráveis (verde na referência) — wall-grab/jump padrão.
 # [nome, wall_x (face real de _SHAFT_SEGS), cy, side ("L"/"R"), h]
 const _Z4_FOOTHOLDS := [
-	["Z4Foot1", 17424.0, 1506.0, "L", 96.0],    # seg1 esq (face do Z4SecretWR)
-	["Z4Foot2", 18160.0, 1026.0, "R", 96.0],    # seg2 dir (face alargada)
-	["Z4Foot3", 17424.0,  546.0, "L", 96.0],    # seg3 esq (face do Z4SecretWR)
-	["Z4Foot4", 18160.0,   66.0, "R", 96.0],    # seg4 dir (face alargada)
+	["Z4Foot1", 17424.0, 1044.0, "L", 96.0],    # seg1 esq (face do Z4SecretWR)
+	["Z4Foot2", 18160.0,  564.0, "R", 96.0],    # seg2 dir (face alargada)
+	["Z4Foot3", 17424.0,   84.0, "L", 96.0],    # seg3 esq (face do Z4SecretWR)
+	["Z4Foot4", 18160.0, -396.0, "R", 96.0],    # seg4 dir (face alargada)
 ]
 
 # Espinhos instant-kill (vermelho na referência) — projetam da face da parede.
 # [nome, wall_x (face real), cy, side, h]
 const _Z4_SPIKES := [
-	["Z4SpikeR1", 18320.0, 1506.0, "R", 200.0],    # seg1 dir (face alargada), opõe Z4Foot1
-	["Z4SpikeR3", 18320.0,  546.0, "R", 200.0],    # seg3 dir (face alargada), opõe Z4Foot3
+	["Z4SpikeR1", 18320.0, 1044.0, "R", 200.0],    # seg1 dir (face alargada), opõe Z4Foot1
+	["Z4SpikeR3", 18320.0,   84.0, "R", 200.0],    # seg3 dir (face alargada), opõe Z4Foot3
 ]
 
 # Plataformas andáveis (amarelo na referência) — rests escalonados, encostados num
 # lado deixando vão de wall-jump do outro. [nome, cx, cy(topo), w, h]
 const _Z4_PLATFORMS := [
-	["Z4Plat1", 17440.0, 1386.0, 160.0, 32.0],    # seg1, encostada à esq
-	["Z4Plat2", 18080.0,  906.0, 160.0, 32.0],    # seg2, encostada à dir (face alargada)
-	["Z4Plat3", 17440.0,  426.0, 160.0, 32.0],    # seg3, encostada à esq
-	["Z4Plat4", 18080.0,  -54.0, 160.0, 32.0],    # seg4, encostada à dir (face alargada)
-	["Z4Plat5", 17500.0, -384.0, 128.0, 32.0],    # seg5 topo (estreita)
+	["Z4Plat1", 17440.0,  924.0, 160.0, 32.0],    # seg1, encostada à esq
+	["Z4Plat2", 18080.0,  444.0, 160.0, 32.0],    # seg2, encostada à dir (face alargada)
+	["Z4Plat3", 17440.0,  -36.0, 160.0, 32.0],    # seg3, encostada à esq
+	["Z4Plat4", 18080.0, -516.0, 160.0, 32.0],    # seg4, encostada à dir (face alargada)
+	["Z4Plat5", 17500.0, -846.0, 128.0, 32.0],    # seg5 topo (estreita)
 ]
 
 # A luta do Ignarath só começa quando o player ENTRA na sala pela porta lateral,
@@ -516,10 +516,10 @@ func _build_z4_shaft() -> void:
 	# Shaft 3× alto → lava sobe até o topo (cap -3200), 3× mais rápido. Largura = seg0
 	# (boca de entrada, x17424–18000) pra NÃO vazar além das paredes (z_index=1 renderiza
 	# na frente; lava mais larga aparecia como coluna laranja fora da parede).
-	var lava := _z4_lava("Z4ShaftLava", "chase", 17712.0, 2284.0, 144.0, 2800.0)
+	var lava := _z4_lava("Z4ShaftLava", "chase", 17712.0, 2360.0, 144.0, 3400.0)
 	lava.set("rise_speed", 60.0)
-	lava.set("cap_y", -496.0)
-	lava.set("accel_y", 360.0)
+	lava.set("cap_y", -958.0)
+	lava.set("accel_y", -102.0)
 	lava.set("accel_speed", 110.0)
 	# gatilho na ENTRADA do shaft (boca de baixo, dentro da coluna seg0) → a lava só
 	# começa a subir quando o player de fato entra no shaft. Antes ela espera parada em
@@ -528,7 +528,7 @@ func _build_z4_shaft() -> void:
 	trig.name = "Z4ChaseTrigger"
 	trig.collision_layer = 0
 	trig.collision_mask = 2
-	trig.position = Vector2(17712, 2179)
+	trig.position = Vector2(17712, 2150)
 	trig.add_child(_z2_shape(Vector2(576, 116)))
 	add_child(trig)
 	trig.body_entered.connect(func(b): if b is CharacterBase: lava.call("activate"))
@@ -549,9 +549,9 @@ func _build_z4_shaft() -> void:
 		var pb := _z3_static_floor(p[0], Vector2(p[1], p[2] + p[4] * 0.5), Vector2(p[3], p[4]))
 		pb.set_meta("lava_override", _Z1_TILE_PATH)   # rocha da zona 1 (só visual)
 	# Saliência que desmorona — rest central no limite seg3/seg4 (sem espinho oposto)
-	_z4_crumble("Z4Crumble4", Vector2(17840.0, 276.0), Vector2(128.0, 32.0))
+	_z4_crumble("Z4Crumble4", Vector2(17840.0, -186.0), Vector2(128.0, 32.0))
 	# Flyer no seg5
-	_z4_spawn_flyer("Z4Flyer1", Vector2(17840.0, 36.0))
+	_z4_spawn_flyer("Z4Flyer1", Vector2(17840.0, -426.0))
 
 # Espinho no_wall_grab: parede de colisão (no_grab) + Area2D de kill (lava_floor, instant_kill)
 # sobrepostos. O player não pode agarrar a parede e tomar dano ao encostar.
@@ -681,22 +681,22 @@ func _build_z4_top() -> void:
 	# face direita = x17424 (= face esquerda do interior do seg5).
 	# Z4PreL/Z4PreR reusam o helper _z3_static_floor de propósito: piso seco com o
 	# mesmo tile/desenho de chão do corredor (não é plataforma elevada, só piso reto).
-	_z3_static_floor("Z4PreL", Vector2(17392.0, -548.0), Vector2(64.0, 128.0))   # x17360–17424 (offset -1160)
+	_z3_static_floor("Z4PreL", Vector2(17392.0, -1010.0), Vector2(64.0, 128.0))   # x17360–17424 (offset -1622)
 	# Trecho direito: começa em x17616 (= face direita do interior do seg5, sobre o
 	# Z4ShaftWR5) e segue até a entrada do boss corridor (x17616–18200).
-	_z3_static_floor("Z4PreR", Vector2(17908.0, -548.0), Vector2(584.0, 128.0))  # x17616–18200 (offset -1160)
+	_z3_static_floor("Z4PreR", Vector2(17908.0, -1010.0), Vector2(584.0, 128.0))  # x17616–18200 (offset -1622)
 	# Corredor pré-boss com checkpoint 2 e câmera bloqueada.
 	_corr_boss = CorridorSection.new()
 	_corr_boss.tileset              = _ROOM_TILE
 	_corr_boss.glass_tex            = null       # sem painel de vidro neste corredor
 	_corr_boss.door_tex             = _DOOR_TEX
-	_corr_boss.floor_center         = Vector2(18530.0, -540.0)
+	_corr_boss.floor_center         = Vector2(18530.0, -1002.0)
 	_corr_boss.floor_size           = Vector2(660.0, 64.0)
-	_corr_boss.ceil_center          = Vector2(18530.0, -640.0)
+	_corr_boss.ceil_center          = Vector2(18530.0, -1102.0)
 	_corr_boss.ceil_size            = Vector2(660.0, 64.0)
-	_corr_boss.wall_l_center        = Vector2(18200.0, -590.0)
+	_corr_boss.wall_l_center        = Vector2(18200.0, -1052.0)
 	_corr_boss.wall_l_size          = Vector2(64.0, 264.0)
-	_corr_boss.wall_r_center        = Vector2(18860.0, -590.0)
+	_corr_boss.wall_r_center        = Vector2(18860.0, -1052.0)
 	_corr_boss.wall_r_size          = Vector2(64.0, 264.0)
 	_corr_boss.entry_x              = 18260.0
 	_corr_boss.exit_x               = 18800.0
@@ -705,7 +705,7 @@ func _build_z4_top() -> void:
 	_corr_boss.checkpoint_respawn_x = 18300.0
 	_corr_boss.heal_on_entry        = false
 	_corr_boss.exit_retriggerable   = true
-	_corr_boss.cam_center           = Vector2(18530.0, -590.0)
+	_corr_boss.cam_center           = Vector2(18530.0, -1052.0)
 	_corr_boss.cam_zoom             = 2.0
 	# setup() e conexão do sinal são feitos pelo loop em _ready() (evita double-connect).
 	add_child(_corr_boss)
@@ -722,7 +722,7 @@ func _build_z4_boss() -> void:
 	for pn in ["BossPlat1", "BossPlat2"]:
 		var bp := get_node_or_null(pn) as Node2D
 		if bp:
-			bp.position.y -= 1160.0
+			bp.position.y -= 1622.0
 	# Paredes, piso e teto da arena — marcados skip_base_draw p/ não serem desenhados
 	# pelo loop padrão de plataformas; o visual é gerenciado em _draw_boss_room().
 	var h := _BOSS_FLOOR_TOP - _BOSS_CEIL_TOP + 64.0
@@ -745,7 +745,7 @@ func _build_z4_boss() -> void:
 	# a arena começa em _BOSS_FLOOR_TOP=440 (64px mais baixo). Este bloco cobre o vão
 	# horizontal entre o corredor e a parede esquerda da arena (x18800→18964) e serve como
 	# degrau sólido nivelado com o piso da arena — o player desce o degrau ao entrar.
-	_z2_static("BossThreshold", Vector2(18882.0, -508.0), Vector2(164.0, 64.0)).set_meta("skip_base_draw", true)
+	_z2_static("BossThreshold", Vector2(18882.0, -970.0), Vector2(164.0, 64.0)).set_meta("skip_base_draw", true)
 	# Ignarath — respeita ?noenemies=1 / bot (spawn por script ocorre após a remoção do stage_scene)
 	if DebugBoot.no_enemies:
 		return
@@ -779,42 +779,41 @@ func _build_z4_secret() -> void:
 	# (y2056–2208) fica o vão de entrada do shaft (ver _build_z4_shaft).
 	# Entrada do segredo: parede quebrável que COMEÇA no piso (base y2024 = topo da tampa,
 	# topo y1900 = base do WR). Quebra pelo lado do shaft (detector à direita), exige galerix.
-	_z4_cracked("Z4Crack1", Vector2(17392.0, 2095.0), Vector2(64.0, 164.0), "right", "R")   # topo y2013, altura 164
+	_z4_cracked("Z4Crack1", Vector2(17392.0, 1982.0), Vector2(64.0, 164.0), "right", "R")   # topo y1900, altura 164 (restaurado)
 	# Passagem vertical TOTALMENTE FECHADA (interior x17000–17360): paredes lat. + TAMPA no
 	# fundo (Z4SecretFloor) selam tudo; só a parede #1 dá acesso. Sem buraco no piso da escada.
-	# Coluna reduzida p/ acompanhar o shaft 50% menor: sela do fundo (tampa y2136) até a
-	# câmara do coletável (deslocada -1160, topo ~y-580).
-	_z2_static("Z4SecretWL", Vector2(16968.0, 778.0), Vector2(64.0, 2716.0))   # parede esq (y-580–2136, alinhada à tampa)
-	_z2_static("Z4SecretWR", Vector2(17392.0, 737.0), Vector2(64.0, 2634.0))   # parede dir (sela o segredo + wall-jump esq do shaft)
-	_z2_static("Z4SecretFloor", Vector2(17270.0, 2144.0), Vector2(540.0, 32.0)) # tampa do fundo — alinhada à base do Crack1
+	# Coluna: entrada (y1900–2064) inalterada; câmara deslocada p/ y-1042 (shaft 50% menor).
+	_z2_static("Z4SecretWL", Vector2(16968.0, 511.0), Vector2(64.0, 3106.0))   # parede esq (y-1042–2064)
+	_z2_static("Z4SecretWR", Vector2(17392.0, 429.0), Vector2(64.0, 2942.0))   # parede dir (y-1042–1900; sela + wall-jump esq do shaft)
+	_z2_static("Z4SecretFloor", Vector2(17270.0, 2080.0), Vector2(540.0, 32.0)) # tampa do fundo (restaurado)
 	# Elevador up_only: descansa SOBRE a tampa (atrás da parede #1) e sobe até o buraco do
 	# piso da câmara. Só alcançável depois de quebrar a parede #1.
 	var elev := _VPLAT.new()
 	elev.name = "Z4SecretElevator"
 	elev.up_only = true
-	elev.move_distance = 2656.0
+	elev.move_distance = 3038.0
 	elev.speed = 90.0
 	elev.collision_layer = 1
 	elev.collision_mask = 0
-	elev.position = Vector2(17180.0, 2128.0)   # descansa sobre a tampa (y2144)
+	elev.position = Vector2(17180.0, 2048.0)   # descansa sobre a tampa (restaurado)
 	elev.add_child(_z2_shape(Vector2(192.0, 32.0)))
 	add_child(elev)
 	# Câmara do coletável: piso x16800–17380 com buraco x17080–17280 (encaixe do elevador).
-	_z3_static_floor("Z4CollectFloorL", Vector2(16940.0, -548.0), Vector2(280.0, 128.0))
-	_z3_static_floor("Z4CollectFloorR", Vector2(17330.0, -548.0), Vector2(100.0, 128.0))
-	_z2_static("Z4CollectWL",   Vector2(16768.0, -628.0), Vector2(64.0, 256.0))   # parede esq
-	_z2_static("Z4CollectCeil", Vector2(17090.0, -708.0), Vector2(580.0, 64.0))   # teto
+	_z3_static_floor("Z4CollectFloorL", Vector2(16940.0, -1010.0), Vector2(280.0, 128.0))
+	_z3_static_floor("Z4CollectFloorR", Vector2(17330.0, -1010.0), Vector2(100.0, 128.0))
+	_z2_static("Z4CollectWL",   Vector2(16768.0, -1090.0), Vector2(64.0, 256.0))   # parede esq
+	_z2_static("Z4CollectCeil", Vector2(17090.0, -1170.0), Vector2(580.0, 64.0))   # teto
 	# Coletável: Dual Blades da Zara (WEAPON_ZARA / "dual_blades").
 	var col: Area2D = _COLLECTIBLE_SCENE.instantiate()
 	col.name = "Z4DualBlades"
 	col.set("collectible_type", Collectible.Type.WEAPON_ZARA)
 	col.set("ability_id", "dual_blades")
 	col.set("stage_id", 1)
-	col.position = Vector2(16940.0, -594.0)
+	col.position = Vector2(16940.0, -1056.0)
 	add_child(col)
 	# Parede #2 (SUPERIOR) — slot direito da câmara do coletável.
 	# Separa o segredo da sala pré-boss / topo do shaft. Quebra só de DENTRO (detector "L").
-	_z4_cracked("Z4Crack2", Vector2(17412.0, -636.0), Vector2(64.0, 224.0), "left", "L")
+	_z4_cracked("Z4Crack2", Vector2(17412.0, -1098.0), Vector2(64.0, 224.0), "left", "L")
 
 # Parede quebrável (cracked_wall.gd): corpo sólido + HitDetector Area2D só no lado
 # permitido. det_side "R"/"L" posiciona o detector à direita/esquerda; break_side
