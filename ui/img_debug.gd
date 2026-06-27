@@ -1047,24 +1047,20 @@ class _PlatformView extends Control:
 
     # Como _fp_tile_for mas também verifica diagonais inferiores (necessário para
     # cantos côncavos na face inferior do teto, ex. base do degrau/plataforma).
+    # Teto: o topo é sempre fundo sólido (2,1) — nunca usa `eu`.
+    # Face visível = inferior (ed); cantos esq=(0,2) dir=(3,3).
     func _ceil_tile_for(c: int, r: int, solid: Callable) -> Vector2i:
-        var eu: bool = not solid.call(c, r - 1)
         var ed: bool = not solid.call(c, r + 1)
         var el: bool = not solid.call(c - 1, r)
         var er: bool = not solid.call(c + 1, r)
-        if eu and el: return Vector2i(1, 3)
-        if eu and er: return Vector2i(0, 0)
-        if ed and el: return Vector2i(0, 2)
-        if ed and er: return Vector2i(3, 3)
-        if eu: return Vector2i(3, 0)
-        if ed: return Vector2i(1, 2)
-        if el: return Vector2i(1, 0)
-        if er: return Vector2i(3, 2)
-        if not (solid.call(c - 1, r - 1) as bool): return Vector2i(1, 1)
-        if not (solid.call(c + 1, r - 1) as bool): return Vector2i(2, 0)
+        if ed and el: return Vector2i(0, 2)   # canto inf-esq
+        if ed and er: return Vector2i(3, 3)   # canto inf-dir
+        if ed:        return Vector2i(1, 2)   # face de teto
+        if el:        return Vector2i(1, 0)   # face lateral
+        if er:        return Vector2i(3, 2)   # face lateral
         if not (solid.call(c - 1, r + 1) as bool): return Vector2i(2, 2)  # entalhe inf-esq
         if not (solid.call(c + 1, r + 1) as bool): return Vector2i(3, 1)  # entalhe inf-dir
-        return Vector2i(2, 1)
+        return Vector2i(2, 1)   # fill sólido
 
     func _draw_ceil_flat() -> void:
         var solid_fn := func(cc: int, rr: int) -> bool: return _ceil_flat_solid(cc, rr)
@@ -3792,39 +3788,56 @@ func _refresh_tiles() -> void:
     var ctrl_row := HBoxContainer.new()
     ctrl_row.add_theme_constant_override("separation", 20)
 
+    var ceil_sub_visible: Array = []   # Array[Control] — preenchido após criação da sub-row
+    var ceil_sub_btns: Array = []      # Array[Button]  — preenchido após criação dos sub-botões
+
     var mode_btns: Array = []
     var _sw := func(mkey: String, mlbl: String) -> void:
         pview.mode = mkey
-        pview.set_dims(pview.rows, pview.cols)   # recalcula min size p/ o grid do modo
+        pview.set_dims(pview.rows, pview.cols)
         for b: Button in mode_btns:
             b.modulate = Color(1.0, 1.0, 0.0) if b.text == mlbl else Color(0.6, 0.6, 0.6)
+        if ceil_sub_visible.size() > 0 and is_instance_valid(ceil_sub_visible[0]):
+            (ceil_sub_visible[0] as Control).visible = mkey.begins_with("ceil_")
 
-    for me: Array in [["Plataforma", "platform"], ["Sala", "room"], ["Piso+Plat", "floor_platform"], ["Piso+Abismo", "floor_platform_hole"], ["Buraco no Piso", "floor_hole"], ["Saliência", "foothold"]]:
+    for me: Array in [["Plataforma", "platform"], ["Sala", "room"], ["Piso+Plat", "floor_platform"], ["Piso+Abismo", "floor_platform_hole"], ["Buraco no Piso", "floor_hole"], ["Saliência", "foothold"], ["Teto", "ceil_flat"]]:
         var mbtn := Button.new()
         mbtn.text = me[0]
         mbtn.add_theme_font_size_override("font_size", 24)
         var mk: String = me[1]
         var ml: String = me[0]
-        mbtn.pressed.connect(func(): _sw.call(mk, ml))
+        mbtn.pressed.connect(func():
+            _sw.call(mk, ml)
+            if mk.begins_with("ceil_"):
+                for sb: Button in ceil_sub_btns:
+                    sb.modulate = Color(1.0, 1.0, 0.0) if sb.text == "Reto" else Color(0.6, 0.6, 0.6))
         mode_row.add_child(mbtn)
         mode_btns.append(mbtn)
     mode_btns[0].modulate = Color(1.0, 1.0, 0.0)
 
-    var ceil_row := HBoxContainer.new()
-    ceil_row.add_theme_constant_override("separation", 6)
-    var ceil_lbl2 := Label.new()
-    ceil_lbl2.text = "Teto:"
-    ceil_lbl2.add_theme_font_size_override("font_size", 18)
-    ceil_row.add_child(ceil_lbl2)
-    for ce: Array in [["Teto Reto", "ceil_flat"], ["Teto Escada", "ceil_step"], ["Teto Buraco", "ceil_hole"], ["Teto Plat", "ceil_platform"]]:
-        var cbtn := Button.new()
-        cbtn.text = ce[0]
-        cbtn.add_theme_font_size_override("font_size", 24)
-        var ck: String = ce[0]; var cv: String = ce[1]
-        cbtn.pressed.connect(func(): _sw.call(cv, ck))
-        ceil_row.add_child(cbtn)
-        mode_btns.append(cbtn)
-    plat_panel.add_child(ceil_row)
+    # Sub-row de teto (escondida até o modo "Teto" ser activado)
+    var ceil_sub_row := HBoxContainer.new()
+    ceil_sub_row.add_theme_constant_override("separation", 6)
+    ceil_sub_row.visible = false
+    var ceil_tipo_lbl := Label.new()
+    ceil_tipo_lbl.text = "Tipo:"
+    ceil_tipo_lbl.add_theme_font_size_override("font_size", 18)
+    ceil_sub_row.add_child(ceil_tipo_lbl)
+    var _sw_sub := func(sk: String, sl: String) -> void:
+        _sw.call(sk, "Teto")
+        for sb: Button in ceil_sub_btns:
+            sb.modulate = Color(1.0, 1.0, 0.0) if sb.text == sl else Color(0.6, 0.6, 0.6)
+    for sub: Array in [["Reto", "ceil_flat"], ["Escada", "ceil_step"], ["Buraco", "ceil_hole"], ["Plat", "ceil_platform"]]:
+        var sbtn := Button.new()
+        sbtn.text = sub[0]
+        sbtn.add_theme_font_size_override("font_size", 24)
+        var sk: String = sub[1]; var sl: String = sub[0]
+        sbtn.pressed.connect(func(): _sw_sub.call(sk, sl))
+        ceil_sub_row.add_child(sbtn)
+        ceil_sub_btns.append(sbtn)
+    ceil_sub_btns[0].modulate = Color(1.0, 1.0, 0.0)
+    ceil_sub_visible.append(ceil_sub_row)
+    plat_panel.add_child(ceil_sub_row)
 
     plat_panel.add_child(ctrl_row)
 
