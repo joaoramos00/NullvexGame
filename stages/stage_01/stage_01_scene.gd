@@ -508,6 +508,16 @@ func _build_z4_shaft() -> void:
 		# sela o segredo E serve de wall-jump. Não criamos Z4ShaftWL (eram redundantes e
 		# invadiam o segredo). Só a parede DIREITA por seg.
 		_z4_wall("Z4ShaftWR%d" % i, xr + 32.0, cy, 64.0, h)       # parede direita (grabbable)
+		# Cap de transição: quando o xr muda entre segs adjacentes (degrau), um bloco
+		# horizontal no-grab sela o degrau na borda inferior (yb) deste seg. Sem ele,
+		# o topo da parede do seg inferior fica exposto como ledge acessível a partir do
+		# seg superior (alargamento) ou cria um vão entre as duas faces (estreitamento).
+		if i > 0:
+			var xr_below: float = _SHAFT_SEGS[i - 1][3]   # xr do seg ABAIXO (maior y)
+			if xr != xr_below:
+				var xr_min := minf(xr, xr_below)
+				var xr_max := maxf(xr, xr_below)
+				_z4_wall("Z4Trans%d" % i, (xr_min + xr_max) * 0.5, yb, xr_max - xr_min, 32.0, true)
 	# Piso de ENTRADA: liga o topo da escada (step3, x17056–17184) à boca do shaft,
 	# cobrindo o antigo buraco da passagem secreta. O player anda da escada direto pro
 	# shaft pelo vão da parede #1 (y2056–2208) e faz wall-jump pra cima. topo y2208.
