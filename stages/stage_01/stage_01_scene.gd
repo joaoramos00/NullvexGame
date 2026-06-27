@@ -114,9 +114,9 @@ const _Z4_SPIKES := [
 # Plataformas andáveis (amarelo na referência) — rests escalonados, encostados num
 # lado deixando vão de wall-jump do outro. [nome, cx, cy(topo), w, h]
 const _Z4_PLATFORMS := [
-	["Z4Plat1", 17440.0,  924.0, 160.0, 32.0],    # seg1, encostada à esq
+	["Z4Plat1", 17504.0,  924.0, 160.0, 32.0],    # seg1, encostada à esq (left edge=17424)
 	["Z4Plat2", 17712.0,  444.0, 160.0, 32.0],    # seg2, encostada à dir (face reduzida)
-	["Z4Plat3", 17440.0,  -36.0, 160.0, 32.0],    # seg3, encostada à esq
+	["Z4Plat3", 17504.0,  -36.0, 160.0, 32.0],    # seg3, encostada à esq (left edge=17424)
 	["Z4Plat4", 17712.0, -516.0, 160.0, 32.0],    # seg4, encostada à dir (face reduzida)
 	["Z4Plat5", 17472.0, -846.0,  64.0, 32.0],    # seg5 topo (estreita, 64px p/ caber em 96px)
 ]
