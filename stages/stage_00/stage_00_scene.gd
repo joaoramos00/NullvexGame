@@ -895,25 +895,34 @@ func _draw_zone1_ceiling() -> void:
 		[4308.0, 4692.0, 728.0],
 		[4692.0, 5534.0, 888.0],
 	]
-	# yb da coluna que contém wx; -1.0 se fora dos limites
 	var seg_yb := func(wx: float) -> float:
 		for s: Array in segs:
 			if wx >= (s[0] as float) and wx < (s[1] as float): return s[2] as float
 		return -1.0
-	# Marching-squares idêntico ao imgdebug ceil_platform:
-	# canto só no segmento BAIXO adjacente ao ALTO; segmento alto usa (1,2) em toda a extensão.
+	# Tile at (wx, y) is solid when y < seg_yb(wx) (within the ceiling mass)
+	var solid := func(wx: float, y: float) -> bool:
+		var yb: float = seg_yb.call(wx)
+		return yb > 0.0 and y < yb
+	# Full marching-squares — draws fill rows AND face row so curva tiles appear at steps
 	var x := segs[0][0] as float
 	while x < segs[-1][1] as float:
-		var yb: float   = seg_yb.call(x)
-		var yb_l: float = seg_yb.call(x - ts)   # -1 se fora
-		var yb_r: float = seg_yb.call(x + ts)   # -1 se fora
-		var el := yb_l < 0.0 or yb_l < yb   # vizinho esq mais alto → exposto à esq
-		var er := yb_r < 0.0 or yb_r < yb   # vizinho dir mais alto → exposto à dir
-		var tile: Vector2i
-		if   el: tile = Vector2i(0, 2)   # canto inf-esq
-		elif er: tile = Vector2i(3, 3)   # canto inf-dir
-		else:    tile = Vector2i(1, 2)   # face de teto reta
-		_draw_raw_tile(tile, x, yb - ts)
+		var yb: float = seg_yb.call(x)
+		var y := 0.0   # fill ceiling from y=0 down to face
+		while y < yb:
+			var ed := not solid.call(x,        y + ts)
+			var el := not solid.call(x - ts,   y)
+			var er := not solid.call(x + ts,   y)
+			var tile: Vector2i
+			if   ed and el:                          tile = Vector2i(0, 2)
+			elif ed and er:                          tile = Vector2i(3, 3)
+			elif ed:                                 tile = Vector2i(1, 2)
+			elif el:                                 tile = Vector2i(1, 0)
+			elif er:                                 tile = Vector2i(3, 2)
+			elif not solid.call(x - ts, y + ts):    tile = Vector2i(2, 2)
+			elif not solid.call(x + ts, y + ts):    tile = Vector2i(3, 1)
+			else:                                    tile = Vector2i(2, 1)
+			_draw_raw_tile(tile, x, y)
+			y += ts
 		x += ts
 
 
