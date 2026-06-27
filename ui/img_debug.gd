@@ -1024,7 +1024,7 @@ class _PlatformView extends Control:
     # O tipo descreve o PISO abaixo; o teto acompanha mantendo gap _CG constante:
     #   Reto    → piso plano,  teto plano
     #   Escada  → piso com degrau, teto com degrau correspondente
-    #   Buraco  → piso com abertura central, teto com gap acima do buraco
+    #   Buraco  → piso com abertura central, teto reto (sem gap no teto)
     #   Plat    → piso com plataforma elevada, teto elevado acima dela
 
     # Linha da face inferior do teto para cada coluna (-1 = sem teto/gap)
@@ -1036,8 +1036,7 @@ class _PlatformView extends Control:
                 var is_deep := (c < _FP_SIDE + cols) if not mirror_hole else (c >= _FP_SIDE)
                 return (rows - 1) if is_deep else 0
             "ceil_hole":
-                if c >= _FP_SIDE and c < _FP_SIDE + cols: return -1
-                return rows - 1
+                return rows - 1   # teto sempre reto; só o piso tem buraco
             "ceil_platform":
                 if c >= _FP_SIDE and c < _FP_SIDE + cols: return 0
                 return rows - 1
@@ -1064,6 +1063,8 @@ class _PlatformView extends Control:
 
     func _floor_solid_c(c: int, r: int) -> bool:
         if c < 0 or r < 0: return false
+        if mode == "ceil_hole" and c >= _FP_SIDE and c < _FP_SIDE + cols:
+            return false   # buraco no piso (teto continua reto acima)
         var ft := _floor_top_at(c)
         var gd := _ceil_combined_grid()
         if c >= gd.x or r >= gd.y: return false
