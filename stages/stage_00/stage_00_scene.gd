@@ -884,8 +884,7 @@ func _draw_background() -> void:
 		draw_rect(Rect2(16640, panel_y + 248, 1920, 8), stripe_color)
 
 func _draw_zone1_ceiling() -> void:
-	var ts     := _TS
-	var src_ts := _SRC_TS
+	var ts := _TS
 	# [x0, x1, y_bottom] — y_bottom = floor_top - CLEAR (200 px)
 	var segs: Array = [
 		[   0.0, 2472.0, 888.0],
@@ -896,42 +895,27 @@ func _draw_zone1_ceiling() -> void:
 		[4308.0, 4692.0, 728.0],
 		[4692.0, 5534.0, 888.0],
 	]
-	# Segmentos: tile de teto (1,2) via _draw_room_tiles (piece "_Ceil")
-	for s in segs:
-		var x0: float = s[0]
-		var x1: float = s[1]
-		var yb: float = s[2]
-		_draw_room_tiles(Rect2(x0, yb - ts - src_ts, x1 - x0, ts + src_ts), "Z1Ceiling_Ceil")
-	# Os cantos (3,3)/(0,2) nos segmentos já criam o degrau visualmente (idêntico ao imgdebug).
+	# yb da coluna que contém wx; -1.0 se fora dos limites
+	var seg_yb := func(wx: float) -> float:
+		for s: Array in segs:
+			if wx >= (s[0] as float) and wx < (s[1] as float): return s[2] as float
+		return -1.0
+	# Marching-squares idêntico ao imgdebug ceil_platform:
+	# canto só no segmento BAIXO adjacente ao ALTO; segmento alto usa (1,2) em toda a extensão.
+	var x := segs[0][0] as float
+	while x < segs[-1][1] as float:
+		var yb: float   = seg_yb.call(x)
+		var yb_l: float = seg_yb.call(x - ts)   # -1 se fora
+		var yb_r: float = seg_yb.call(x + ts)   # -1 se fora
+		var el := yb_l < 0.0 or yb_l < yb   # vizinho esq mais alto → exposto à esq
+		var er := yb_r < 0.0 or yb_r < yb   # vizinho dir mais alto → exposto à dir
+		var tile: Vector2i
+		if   el: tile = Vector2i(0, 2)   # canto inf-esq
+		elif er: tile = Vector2i(3, 3)   # canto inf-dir
+		else:    tile = Vector2i(1, 2)   # face de teto reta
+		_draw_raw_tile(tile, x, yb - ts)
+		x += ts
 
-# Parede vertical do degrau entre dois níveis de teto.
-# going_up=true → teto sobe à direita (parede-dir da seção baixa).
-# going_up=false → teto desce à direita (parede-esq da seção baixa à dir).
-func _draw_ceil_step(jx: float, y_high: float, y_low: float, going_up: bool) -> void:
-	var ts     := _TS
-	var src_ts := _SRC_TS
-	var face_tile: Vector2i
-	var top_tile: Vector2i
-	var bot_tile: Vector2i
-	var dx: float
-	if going_up:
-		# Seção alta à DIREITA → parede-dir da seção baixa (_Wall_R convention)
-		face_tile = Vector2i(3, 2)  # LEFT face interna
-		top_tile  = Vector2i(3, 1)  # Inner-BR — junção c/ ceil alto
-		bot_tile  = Vector2i(2, 0)  # Inner-TR — junção c/ ceil baixo
-		dx = jx - src_ts
-	else:
-		# Seção alta à ESQUERDA → parede-esq da seção baixa à dir (_Wall_L convention)
-		face_tile = Vector2i(1, 0)  # RIGHT face interna
-		top_tile  = Vector2i(2, 2)  # Inner-BL — junção c/ ceil alto
-		bot_tile  = Vector2i(1, 1)  # Inner-TL — junção c/ ceil baixo
-		dx = jx + src_ts
-	_draw_raw_tile(top_tile, dx, y_high - src_ts)
-	var y := y_high + src_ts
-	while y + ts <= y_low - src_ts:
-		_draw_raw_tile(face_tile, dx, y)
-		y += ts
-	_draw_raw_tile(bot_tile, dx, y_low - src_ts)
 
 func _draw_raw_tile(tile: Vector2i, dx: float, dy: float) -> void:
 	var src_ts := _SRC_TS
