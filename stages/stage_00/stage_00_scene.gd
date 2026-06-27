@@ -625,13 +625,15 @@ func _build_zone1_ceiling() -> void:
 	#   Plat_Z1A  (2600,1090) size(256,180) → top=1000  x:2472–2728
 	#   Block_Z1A (3400, 992) size(320,192) → top=896   x:3240–3560
 	#   Plat_Z1B  (4500, 960) size(384, 64) → top=928   x:4308–4692
+	# Pré-abertura: 5 tiles (320px) antes de cada plataforma para o player ter
+	# espaço de pulo sem bater no teto (floor_top=1088 → teto em y=888 trava o salto).
 	var segs: Array = [
 		[   0.0, 2472.0, 1088.0],
 		[2472.0, 2728.0, 1000.0],
-		[2728.0, 3240.0, 1088.0],
-		[3240.0, 3560.0,  896.0],
-		[3560.0, 4308.0, 1088.0],
-		[4308.0, 4692.0,  928.0],
+		[2728.0, 2920.0, 1088.0],   # abordagem curta
+		[2920.0, 3560.0,  896.0],   # pré-abertura (320px) + Block_Z1A
+		[3560.0, 3988.0, 1088.0],   # abordagem curta
+		[3988.0, 4692.0,  928.0],   # pré-abertura (320px) + Plat_Z1B
 		[4692.0, 5534.0, 1088.0],
 	]
 	for i in segs.size():
@@ -886,13 +888,13 @@ func _draw_background() -> void:
 # Retorna y_bottom do segmento do teto Z1 que contém wx; -1 se fora
 func _z1_seg_yb(wx: float) -> float:
 	if   wx <    0.0: return -1.0
-	elif wx < 2472.0: return 888.0
-	elif wx < 2728.0: return 800.0
-	elif wx < 3240.0: return 888.0
-	elif wx < 3560.0: return 696.0
-	elif wx < 4308.0: return 888.0
-	elif wx < 4692.0: return 728.0
-	elif wx < 5534.0: return 888.0
+	elif wx < 2472.0: return 888.0   # piso (floor_top=1088)
+	elif wx < 2728.0: return 800.0   # Plat_Z1A (floor_top=1000)
+	elif wx < 2920.0: return 888.0   # piso curto
+	elif wx < 3560.0: return 696.0   # pré-abertura + Block_Z1A (floor_top=896)
+	elif wx < 3988.0: return 888.0   # piso curto
+	elif wx < 4692.0: return 728.0   # pré-abertura + Plat_Z1B (floor_top=928)
+	elif wx < 5534.0: return 888.0   # piso
 	return -1.0
 
 # Tile (wx,y) é sólido quando está dentro da massa do teto (y < yb)
