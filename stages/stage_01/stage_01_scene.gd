@@ -676,20 +676,20 @@ func _spawn_fire_roster() -> void:
 	_spawn_fire("hopper", "F_Z3Hop3", Vector2(14900, 2560))
 	_spawn_fire("serpent", "F_Z3Ser1", Vector2(12320, 2748))
 	_spawn_fire("serpent", "F_Z3Ser2", Vector2(13280, 2748))
-	# Z4 — shaft de wall-jump (voadores no poço; terrestres em pisos)
-	# In-shaft: y escalado ×3 sobre o fundo y2208. Grunt1/2 ficam (base/entrada);
-	# Grunt3 (topo) acompanha o bloco do boss (-3696).
-	_spawn_fire("cinder", "F_Z4Cin1", Vector2(17560, 1284))
-	_spawn_fire("cinder", "F_Z4Cin2", Vector2(17560, -216))
-	_spawn_fire("cinder", "F_Z4Cin3", Vector2(17560, -1716))
-	_spawn_fire("orbiter", "F_Z4Orb1", Vector2(18000, 684))
-	_spawn_fire("orbiter", "F_Z4Orb2", Vector2(18000, -816))
-	_spawn_fire("orbiter", "F_Z4Orb3", Vector2(17900, -2316))
-	_spawn_fire("grunt", "F_Z4Grunt1", Vector2(16400, 2540))
-	_spawn_fire("grunt", "F_Z4Grunt2", Vector2(17100, 2140))
-	_spawn_fire("grunt", "F_Z4Grunt3", Vector2(17800, -3416))
-	_spawn_fire("skimmer", "F_Z4Ski1", Vector2(17700, -1116))
-	_spawn_fire("skimmer", "F_Z4Ski2", Vector2(17700, -2616))
+	# Z4 — shaft de wall-jump (voadores no poço; terrestres em pisos/plataformas)
+	# Orbitadores: centros dos segs largos (448px=seg1/3, 368px=seg4). Cinder topo no seg5.
+	# Grunt3 sobre Z4Plat4 (seg4). Skimmers perto das plataformas de descanso.
+	_spawn_fire("cinder",  "F_Z4Cin1",  Vector2(17560, 1284))   # seg0/seg1 boundary
+	_spawn_fire("cinder",  "F_Z4Cin2",  Vector2(17560, -216))   # seg4 (yt=-636, yb=-156)
+	_spawn_fire("cinder",  "F_Z4Cin3",  Vector2(17472, -750))   # seg5 (yt=-1026, yb=-636)
+	_spawn_fire("orbiter", "F_Z4Orb1",  Vector2(17648, 1044))   # seg1 center (448px wide)
+	_spawn_fire("orbiter", "F_Z4Orb2",  Vector2(17648,   84))   # seg3 center (448px wide)
+	_spawn_fire("orbiter", "F_Z4Orb3",  Vector2(17608, -396))   # seg4 center (368px wide)
+	_spawn_fire("grunt",   "F_Z4Grunt1", Vector2(16400, 2540))  # base / escada Z4
+	_spawn_fire("grunt",   "F_Z4Grunt2", Vector2(17100, 2140))  # entrada do shaft
+	_spawn_fire("grunt",   "F_Z4Grunt3", Vector2(17712, -548))  # seg4, sobre Z4Plat4 (top -516)
+	_spawn_fire("skimmer", "F_Z4Ski1",  Vector2(17560, 940))    # seg1, perto de Z4Plat1 (top 924)
+	_spawn_fire("skimmer", "F_Z4Ski2",  Vector2(17560, -56))    # seg3, perto de Z4Plat3 (top -36)
 
 func _build_z4_top() -> void:
 	# Câmara pré-chefe: piso seco com vão (boca do shaft, seg5 alargado) em x17424–17616.
