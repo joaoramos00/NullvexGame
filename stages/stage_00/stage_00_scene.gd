@@ -114,6 +114,10 @@ func _ready() -> void:
 	_apply_debug_zone_spawn()
 	$StageController.setup(_player)
 	$HUD.connect_to_player(_player)
+	# Ao morrer, o player respawna no CP2 (corredor) sem recarregar a cena: a stage
+	# precisa destravar a câmera e despawnar o boss (senão a câmera fica na sala e o
+	# boss continua lutando). O boss recriado ao re-atravessar o Corr3.
+	_player.died.connect(_on_player_died_reset)
 
 	# Disconnect GoalZone — stage completion is handled via boss defeat
 	# (BossBase calls GameManager.complete_stage(stage_id) automatically)
@@ -250,6 +254,10 @@ func _on_corr3_exit_opening() -> void:
 		boss_lwall.get_node("CollisionShape2D").set_deferred("disabled", true)
 
 func _on_corr3_traversed() -> void:
+	# _camera_locked = true também aqui: numa RE-entrada (após morte, que destrava a
+	# câmera) a porta de entrada do Corr3 não re-dispara o lock; sem isto a câmera não
+	# voltaria a focar a sala do boss.
+	_camera_locked   = true
 	_camera_target   = _BOSS_CAM_CENTER
 	_camera_zoom_tgt = _BOSS_CAM_ZOOM
 	if is_instance_valid(_boss):
@@ -257,6 +265,10 @@ func _on_corr3_traversed() -> void:
 		_boss = null
 	_boss_spawned = false
 	_spawn_boss()
+	# Aggro imediato ao ENTRAR na sala (o auto-walk da porta para o player em ~17216,
+	# antes do trigger de aggro em x=17260 — por isso o boss ficava parado até o 1º passo).
+	if is_instance_valid(_boss):
+		_boss.call("aggro")
 	var boss_lwall := get_node_or_null("Boss_LWall")
 	await get_tree().create_timer(1.0).timeout
 	if is_instance_valid(boss_lwall):
@@ -304,6 +316,23 @@ func _on_boss_defeated(_ability_id: String) -> void:
 	_camera_locked = false
 	# BossBase already called GameManager.complete_stage(0) in _run_death_sequence
 	GameManager.save_game()
+
+# Player morreu: a cena não recarrega (só respawn no checkpoint). Limpa o estado da
+# sala do boss para o respawn voltar ao corredor com câmera livre e sem boss ativo.
+# O boss é recriado quando o player re-atravessa o Corr3 (exit_retriggerable=true).
+func _on_player_died_reset() -> void:
+	_camera_locked = false
+	if is_instance_valid(_player):
+		_player.process_mode = Node.PROCESS_MODE_INHERIT  # caso tenha morrido congelado
+	if is_instance_valid(_boss):
+		_boss.queue_free()
+	_boss = null
+	_boss_spawned = false
+	$HUD.hide_boss_bar()
+	# Remove projéteis do boss morto que ainda estejam em voo na sala.
+	for child in get_children():
+		if child is BossProjectile:
+			child.queue_free()
 
 # ─── Corredor 2 (Corr2) ──────────────────────────────────────────────────────
 
