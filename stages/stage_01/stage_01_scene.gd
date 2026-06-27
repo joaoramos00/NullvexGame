@@ -517,10 +517,10 @@ func _build_z4_shaft() -> void:
 	# (boca de entrada, x17424–18000) pra NÃO vazar além das paredes (z_index=1 renderiza
 	# na frente; lava mais larga aparecia como coluna laranja fora da parede).
 	var lava := _z4_lava("Z4ShaftLava", "chase", 17712.0, 2360.0, 576.0, 5700.0)
-	lava.set("rise_speed", 240.0)
+	lava.set("rise_speed", 120.0)
 	lava.set("cap_y", -3200.0)
 	lava.set("accel_y", -1491.0)
-	lava.set("accel_speed", 450.0)
+	lava.set("accel_speed", 220.0)
 	# gatilho na ENTRADA do shaft (boca de baixo, dentro da coluna seg0) → a lava só
 	# começa a subir quando o player de fato entra no shaft. Antes ela espera parada em
 	# low_y (2360), 152px abaixo do piso do shaft (2208), sem aparecer na coluna.
