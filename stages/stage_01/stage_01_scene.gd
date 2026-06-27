@@ -541,7 +541,7 @@ func _build_z4_shaft() -> void:
 	for f in _Z4_FOOTHOLDS:
 		_z4_foothold(f[0], f[1], f[2], f[3], f[4])
 	for s in _Z4_SPIKES:
-		_z4_spike_face(s[0], s[1] + (32.0 if s[3] == "L" else -32.0), s[2], 64.0, s[4])
+		_z4_spike_face(s[0], s[1] + (32.0 if s[3] == "L" else -32.0), s[2], 64.0, s[4], s[3])
 	for p in _Z4_PLATFORMS:
 		var _old_p := get_node_or_null(p[0])
 		if _old_p:
@@ -554,8 +554,9 @@ func _build_z4_shaft() -> void:
 	_z4_spawn_flyer("Z4Flyer1", Vector2(17632.0, -426.0))
 
 # Espinho no_wall_grab: parede de colisão (no_grab) + Area2D de kill (lava_floor, instant_kill)
-# sobrepostos. O player não pode agarrar a parede e tomar dano ao encostar.
-func _z4_spike_face(n: String, cx: float, cy: float, w: float, h: float) -> void:
+# sobrepostos + visual girado da textura da zona 2.
+# side "R" = parede direita, espinhos apontam pra esquerda; "L" = esquerda, apontam direita.
+func _z4_spike_face(n: String, cx: float, cy: float, w: float, h: float, side: String = "R") -> void:
 	_z4_wall(n, cx, cy, w, h, true)   # parede no_grab
 	var hurt := Area2D.new()
 	hurt.name = n + "Hurt"
@@ -566,6 +567,23 @@ func _z4_spike_face(n: String, cx: float, cy: float, w: float, h: float) -> void
 	hurt.position = Vector2(cx, cy)
 	hurt.add_child(_z2_shape(Vector2(w, h)))
 	add_child(hurt)
+	# Visual: mesma textura dos espinhos da zona 2 (spikes.png, tips apontando UP).
+	# Rotação +PI/2 (90° horário) → tips apontam ESQUERDA (parede "R").
+	# Rotação -PI/2 (90° anti-horário) → tips apontam DIREITA (parede "L").
+	# region_rect: h*0.5 px de largura (= h px na escala 2) ao longo da parede,
+	#              32 px de altura (= 64 px na escala 2) = profundidade do espinho.
+	var spr := Sprite2D.new()
+	spr.name = n + "Vis"
+	spr.texture = _SPIKES_TEX
+	spr.centered = true
+	spr.texture_repeat = CanvasItem.TEXTURE_REPEAT_ENABLED
+	spr.region_enabled = true
+	spr.region_rect = Rect2(0.0, 0.0, h * 0.5, 32.0)
+	spr.scale = Vector2(2.0, 2.0)
+	spr.rotation = PI * 0.5 if side == "R" else -PI * 0.5
+	spr.position = Vector2(cx, cy)
+	spr.z_index = 5
+	add_child(spr)
 
 # Saliência que desmorona: StaticBody2D com crumbling_ledge.gd + LandDetector no topo.
 func _z4_crumble(n: String, center: Vector2, size: Vector2) -> void:

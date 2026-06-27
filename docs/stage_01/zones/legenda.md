@@ -7,6 +7,7 @@ Hazards de lava aparecem como tipo `lava` (vermelho). Abra os `.svg` no navegado
 
 | ID | nó real | tipo | rect (x, y, w, h) |
 |----|---------|------|-------------------|
+| block001 | CrackedWall | block | (2944, 2160, 64, 512) |
 | ceil001 | Z1Ceil | ceil | (512, 416, 2752, 64) |
 | ceil002 | SecretArmorCeil | ceil | (1600, 2144, 1408, 64) |
 | floor001 | SecretArmorFloor | floor | (1600, 2624, 1664, 128) |
@@ -31,7 +32,6 @@ Hazards de lava aparecem como tipo `lava` (vermelho). Abra os `.svg` no navegado
 | spawn001 | PlayerSpawn | spawn | (800, 848, 64, 64) |
 | wall001 | SecretArmorWallL | wall | (1568, 2176, 64, 512) |
 | wall002 | ShaftWallL | wall | (2944, 640, 64, 1568) |
-| wall003 | CrackedWall | wall | (2944, 2160, 64, 512) |
 | zone001 | Checkpoint1 | zone | (1990, 810, 20, 80) |
 | zone002 | ArmorHelmetZael | zone | (2420, 2612, 24, 24) |
 | zone003 | HitDetector | zone | (2912, 2160, 128, 512) |
@@ -74,7 +74,7 @@ Hazards de lava aparecem como tipo `lava` (vermelho). Abra os `.svg` no navegado
 | movp011 | Z2Elev2 | movp | (5660, 2550, 160, 64) |
 | movp012 | Z2Raft3 | movp | (7011, 2608, 200, 64) |
 | spikes001 | Z2Spikes | spikes | (4400, 2120, 1600, 60) |
-| wall004 | ShaftWallR | wall | (3264, 480, 64, 1728) |
+| wall003 | ShaftWallR | wall | (3264, 480, 64, 1728) |
 | zone004 | Checkpoint2 | zone | (3490, 810, 20, 80) |
 
 ## Z3
@@ -113,15 +113,17 @@ Hazards de lava aparecem como tipo `lava` (vermelho). Abra os `.svg` no navegado
 | misc019 | Z3Pass6 | misc | (14320, 2624, 320, 128) |
 | misc020 | Z3Pass7 | misc | (14800, 2624, 320, 128) |
 | misc021 | Z3Exit | misc | (15240, 2624, 1152, 128) |
-| wall005 | HeartChamberWallL | wall | (13440, 2848, 64, 192) |
-| wall006 | HeartChamberFloor | wall | (13472, 2848, 384, 64) |
-| wall007 | HeartChamberWallR | wall | (13824, 2848, 64, 192) |
+| wall004 | HeartChamberWallL | wall | (13440, 2848, 64, 192) |
+| wall005 | HeartChamberFloor | wall | (13472, 2848, 384, 64) |
+| wall006 | HeartChamberWallR | wall | (13824, 2848, 64, 192) |
 | zone005 | HeartZ3 | zone | (13652, 2804, 24, 24) |
 
 ## Z4
 
 | ID | nó real | tipo | rect (x, y, w, h) |
 |----|---------|------|-------------------|
+| block002 | Z4Crack1 | block | (17360, 1900, 64, 164) |
+| block003 | Z4Crack2 | block | (17380, -1210, 64, 224) |
 | ceil004 | Z4CollectCeil | ceil | (16800, -1274, 580, 64) |
 | door003 | CheckpointDoor | door | (18226, -1198, 66, 200) |
 | floor002 | Z4CollectFloorL | floor | (16800, -986, 280, 128) |
@@ -146,26 +148,24 @@ Hazards de lava aparecem como tipo `lava` (vermelho). Abra os `.svg` no navegado
 | misc025 | Z4ShaftEntry | misc | (17000, 2208, 616, 128) |
 | misc026 | Z4PreL | misc | (17360, -1074, 64, 128) |
 | misc027 | Z4SecretWR | misc | (17360, -1042, 64, 2942) |
-| misc028 | Z4Crack1 | misc | (17360, 1900, 64, 164) |
-| misc029 | Z4Crack2 | misc | (17380, -1210, 64, 224) |
-| misc030 | Z4Foot3 | misc | (17424, 36, 64, 96) |
-| misc031 | Z4Foot1 | misc | (17424, 996, 64, 96) |
-| misc032 | Z4PreR | misc | (17520, -1074, 680, 128) |
-| misc033 | Z4ShaftWR5 | misc | (17520, -1026, 64, 390) |
-| misc034 | Z4Crumble4 | misc | (17568, -202, 128, 32) |
-| misc035 | Z4ShaftWR0 | misc | (17712, 1284, 64, 924) |
-| misc036 | Z4Foot4 | misc | (17728, -444, 64, 96) |
-| misc037 | Z4Foot2 | misc | (17728, 516, 64, 96) |
-| misc038 | Z4ShaftWR4 | misc | (17792, -636, 64, 480) |
-| misc039 | Z4ShaftWR2 | misc | (17792, 324, 64, 480) |
-| misc040 | Z4ShaftWR3 | misc | (17872, -156, 64, 480) |
-| misc041 | Z4ShaftWR1 | misc | (17872, 804, 64, 480) |
+| misc028 | Z4PreR | misc | (17520, -1074, 680, 128) |
+| misc029 | Z4ShaftWR5 | misc | (17520, -1026, 64, 390) |
+| misc030 | Z4ShaftWR0 | misc | (17712, 1284, 64, 924) |
+| misc031 | Z4ShaftWR4 | misc | (17792, -636, 64, 480) |
+| misc032 | Z4ShaftWR2 | misc | (17792, 324, 64, 480) |
+| misc033 | Z4ShaftWR3 | misc | (17872, -156, 64, 480) |
+| misc034 | Z4ShaftWR1 | misc | (17872, 804, 64, 480) |
 | movp013 | Z4SecretElevator | movp | (17084, 2017, 192, 32) |
 | plat005 | Z4Plat3 | plat | (17360, -36, 160, 32) |
 | plat006 | Z4Plat1 | plat | (17360, 924, 160, 32) |
-| plat007 | Z4Plat5 | plat | (17440, -846, 64, 32) |
-| plat008 | Z4Plat4 | plat | (17632, -516, 160, 32) |
-| plat009 | Z4Plat2 | plat | (17632, 444, 160, 32) |
+| plat007 | Z4Foot3 | plat | (17424, 36, 64, 96) |
+| plat008 | Z4Foot1 | plat | (17424, 996, 64, 96) |
+| plat009 | Z4Plat5 | plat | (17440, -846, 64, 32) |
+| plat010 | Z4Crumble4 | plat | (17568, -202, 128, 32) |
+| plat011 | Z4Plat4 | plat | (17632, -516, 160, 32) |
+| plat012 | Z4Plat2 | plat | (17632, 444, 160, 32) |
+| plat013 | Z4Foot4 | plat | (17728, -444, 64, 96) |
+| plat014 | Z4Foot2 | plat | (17728, 516, 64, 96) |
 | spikes002 | Z4SpikeR3 | spikes | (17808, -16, 64, 200) |
 | spikes003 | Z4SpikeR3Hurt | spikes | (17808, -16, 64, 200) |
 | spikes004 | Z4SpikeR1 | spikes | (17808, 944, 64, 200) |
@@ -186,11 +186,11 @@ Hazards de lava aparecem como tipo `lava` (vermelho). Abra os `.svg` no navegado
 | ceil005 | BossCeil | ceil | (18900, -1350, 2816, 64) |
 | door004 | @StaticBody2D@139 | door | (18766, -1198, 66, 200) |
 | floor005 | BossFloor | floor | (18900, -986, 2816, 64) |
-| misc042 | @StaticBody2D@138 | misc | (18200, -1134, 660, 64) |
-| misc043 | @StaticBody2D@136 | misc | (18200, -1034, 660, 64) |
-| misc044 | BossThreshold | misc | (18800, -1002, 164, 64) |
-| plat010 | BossPlat1 | plat | (19968, -806, 384, 32) |
-| plat011 | BossPlat2 | plat | (22016, -806, 384, 32) |
-| wall008 | BossWallL | wall | (18868, -1350, 64, 256) |
-| wall009 | BossWallR | wall | (21684, -1318, 64, 364) |
+| misc035 | @StaticBody2D@138 | misc | (18200, -1134, 660, 64) |
+| misc036 | @StaticBody2D@136 | misc | (18200, -1034, 660, 64) |
+| misc037 | BossThreshold | misc | (18800, -1002, 164, 64) |
+| plat015 | BossPlat1 | plat | (19968, -806, 384, 32) |
+| plat016 | BossPlat2 | plat | (22016, -806, 384, 32) |
+| wall007 | BossWallL | wall | (18868, -1350, 64, 256) |
+| wall008 | BossWallR | wall | (21684, -1318, 64, 364) |
 | zone011 | BossRoomTrigger | zone | (18964, -1094, 2688, 108) |
