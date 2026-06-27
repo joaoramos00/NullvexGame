@@ -883,44 +883,43 @@ func _draw_background() -> void:
 		var stripe_color := Color(0.1, 0.1, 0.25) if i % 2 == 0 else Color(0.08, 0.08, 0.20)
 		draw_rect(Rect2(16640, panel_y + 248, 1920, 8), stripe_color)
 
+# Retorna y_bottom do segmento do teto Z1 que contém wx; -1 se fora
+func _z1_seg_yb(wx: float) -> float:
+	if   wx <    0.0: return -1.0
+	elif wx < 2472.0: return 888.0
+	elif wx < 2728.0: return 800.0
+	elif wx < 3240.0: return 888.0
+	elif wx < 3560.0: return 696.0
+	elif wx < 4308.0: return 888.0
+	elif wx < 4692.0: return 728.0
+	elif wx < 5534.0: return 888.0
+	return -1.0
+
+# Tile (wx,y) é sólido quando está dentro da massa do teto (y < yb)
+func _z1_solid(wx: float, y: float) -> bool:
+	var yb: float = _z1_seg_yb(wx)
+	return yb > 0.0 and y < yb
+
 func _draw_zone1_ceiling() -> void:
 	var ts := _TS
-	# [x0, x1, y_bottom] — y_bottom = floor_top - CLEAR (200 px)
-	var segs: Array = [
-		[   0.0, 2472.0, 888.0],
-		[2472.0, 2728.0, 800.0],
-		[2728.0, 3240.0, 888.0],
-		[3240.0, 3560.0, 696.0],
-		[3560.0, 4308.0, 888.0],
-		[4308.0, 4692.0, 728.0],
-		[4692.0, 5534.0, 888.0],
-	]
-	var seg_yb := func(wx: float) -> float:
-		for s: Array in segs:
-			if wx >= (s[0] as float) and wx < (s[1] as float): return s[2] as float
-		return -1.0
-	# Tile at (wx, y) is solid when y < seg_yb(wx) (within the ceiling mass)
-	var solid := func(wx: float, y: float) -> bool:
-		var yb: float = seg_yb.call(wx)
-		return yb > 0.0 and y < yb
-	# Full marching-squares — draws fill rows AND face row so curva tiles appear at steps
-	var x := segs[0][0] as float
-	while x < segs[-1][1] as float:
-		var yb: float = seg_yb.call(x)
-		var y := 0.0   # fill ceiling from y=0 down to face
+	# Marching-squares completo: fill rows + face — gera curvas (3,1)/(2,2) nas escadas
+	var x := 0.0
+	while x < 5534.0:
+		var yb: float = _z1_seg_yb(x)
+		var y := 0.0
 		while y < yb:
-			var ed := not solid.call(x,        y + ts)
-			var el := not solid.call(x - ts,   y)
-			var er := not solid.call(x + ts,   y)
+			var ed := not _z1_solid(x,        y + ts)
+			var el := not _z1_solid(x - ts,   y)
+			var er := not _z1_solid(x + ts,   y)
 			var tile: Vector2i
-			if   ed and el:                          tile = Vector2i(0, 2)
-			elif ed and er:                          tile = Vector2i(3, 3)
-			elif ed:                                 tile = Vector2i(1, 2)
-			elif el:                                 tile = Vector2i(1, 0)
-			elif er:                                 tile = Vector2i(3, 2)
-			elif not solid.call(x - ts, y + ts):    tile = Vector2i(2, 2)
-			elif not solid.call(x + ts, y + ts):    tile = Vector2i(3, 1)
-			else:                                    tile = Vector2i(2, 1)
+			if   ed and el:                    tile = Vector2i(0, 2)
+			elif ed and er:                    tile = Vector2i(3, 3)
+			elif ed:                           tile = Vector2i(1, 2)
+			elif el:                           tile = Vector2i(1, 0)
+			elif er:                           tile = Vector2i(3, 2)
+			elif not _z1_solid(x - ts, y + ts): tile = Vector2i(2, 2)
+			elif not _z1_solid(x + ts, y + ts): tile = Vector2i(3, 1)
+			else:                              tile = Vector2i(2, 1)
 			_draw_raw_tile(tile, x, y)
 			y += ts
 		x += ts
