@@ -752,7 +752,7 @@ class _PlatformView extends Control:
     var tile_tex: Texture2D
     var rows: int = 2
     var cols: int = 3
-    var mode: String = "platform"   # "platform" | "room" | "floor_platform" | "floor_platform_hole" | "floor_hole" | "foothold" | "ceil_flat" | "ceil_step" | "ceil_hole" | "ceil_platform"
+    var mode: String = "platform"   # "platform" | "room" | "floor_platform" | "floor_platform_hole" | "floor_hole" | "foothold" | "ceil_flat" | "ceil_step" | "ceil_hole" | "ceil_platform" | "ceil_plat_pit"
     var mirror_hole: bool = false    # floor_platform_hole: false = abismo à direita, true = à esquerda; ceil_step: false = degrau à direita, true = à esquerda
 
     const _TS := 32.0   # tamanho source
@@ -767,12 +767,13 @@ class _PlatformView extends Control:
     const _FH_ROWS := 4    # profundidade do piso mostrada
     const _CG := 3         # gap de jogo entre face do teto e superfície do piso
     const _FD := 2         # profundidade do piso (linhas abaixo da superfície)
+    const _BW := 1         # largura do buraco (vão sem teto) em cada lado — modo ceil_plat_pit
 
     func set_dims(r: int, c: int) -> void:
         rows = r
         cols = c
         var _is_fp := mode == "floor_platform" or mode == "floor_platform_hole" or mode == "foothold"
-        var _is_ceil := mode == "ceil_flat" or mode == "ceil_step" or mode == "ceil_hole" or mode == "ceil_platform"
+        var _is_ceil := mode == "ceil_flat" or mode == "ceil_step" or mode == "ceil_hole" or mode == "ceil_platform" or mode == "ceil_plat_pit"
         var gd: Vector2i
         if _is_fp:              gd = _fp_grid()
         elif mode == "floor_hole": gd = _fh_grid()
@@ -794,7 +795,7 @@ class _PlatformView extends Control:
         if mode == "floor_hole":
             _draw_floor_hole()
             return
-        if mode == "ceil_flat" or mode == "ceil_step" or mode == "ceil_hole" or mode == "ceil_platform":
+        if mode == "ceil_flat" or mode == "ceil_step" or mode == "ceil_hole" or mode == "ceil_platform" or mode == "ceil_plat_pit":
             _draw_ceil_combined()
             return
         for row in rows:
@@ -1040,6 +1041,13 @@ class _PlatformView extends Control:
             "ceil_platform":
                 if c >= _FP_SIDE and c < _FP_SIDE + cols: return 0
                 return rows - 1
+            "ceil_plat_pit":
+                # piso | buraco | plataforma | buraco | piso
+                if c < _FP_SIDE:                                 return rows - 1   # piso esq
+                if c < _FP_SIDE + _BW:                          return -1         # buraco esq: sem teto
+                if c < _FP_SIDE + _BW + cols:                   return 0          # plataforma: teto alto
+                if c < _FP_SIDE + _BW + cols + _BW:             return -1         # buraco dir: sem teto
+                return rows - 1                                                    # piso dir
         return 0
 
     func _floor_top_at(c: int) -> int:
@@ -1047,7 +1055,9 @@ class _PlatformView extends Control:
         return -1 if cf < 0 else cf + _CG + 1
 
     func _ceil_combined_grid() -> Vector2i:
-        var w := cols if mode == "ceil_flat" else (_FP_SIDE + cols + _FP_SIDE)
+        var w := cols if mode == "ceil_flat" else \
+                 (_FP_SIDE + _BW + cols + _BW + _FP_SIDE) if mode == "ceil_plat_pit" else \
+                 (_FP_SIDE + cols + _FP_SIDE)
         var max_h := 0
         for cc in w:
             var ft := _floor_top_at(cc)
@@ -3843,7 +3853,7 @@ func _refresh_tiles() -> void:
         _sw.call(sk, "Teto")
         for sb: Button in ceil_sub_btns:
             sb.modulate = Color(1.0, 1.0, 0.0) if sb.text == sl else Color(0.6, 0.6, 0.6)
-    for sub: Array in [["Reto", "ceil_flat"], ["Escada", "ceil_step"], ["Buraco", "ceil_hole"], ["Plat", "ceil_platform"]]:
+    for sub: Array in [["Reto", "ceil_flat"], ["Escada", "ceil_step"], ["Buraco", "ceil_hole"], ["Plat", "ceil_platform"], ["Pit+Plat", "ceil_plat_pit"]]:
         var sbtn := Button.new()
         sbtn.text = sub[0]
         sbtn.add_theme_font_size_override("font_size", 24)
