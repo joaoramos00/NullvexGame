@@ -78,8 +78,10 @@ var _miniboss_spawned := false
 var _corr3: CorridorSection = null
 var _camera_locked   := false
 var _camera_target   := Vector2.ZERO
-var _cam_y           := 0.0   # Y lazy: atualiza só no chão ou caindo, não durante pulos
-const _CAM_RISE      := 128.0 # câmera acima do player → piso a 60px da borda inferior
+var _cam_y           := 0.0
+var _cam_floor_y     := 0.0   # nível de piso que a câmera está a seguir
+const _CAM_RISE            := 128.0
+const _CAM_FLOOR_THRESHOLD := 256.0   # 4 tiles — mínimo para actualizar o nível de piso
 var _camera_zoom_tgt := 2.0
 
 # Zona 3 — plataforma móvel do gauntlet "Exame Final"
@@ -113,7 +115,8 @@ func _ready() -> void:
 
 	StageManager.spawn_position = $PlayerSpawn.global_position
 	_spawn_player()
-	_cam_y = _player.global_position.y - _CAM_RISE
+	_cam_floor_y = _player.global_position.y
+	_cam_y       = _player.global_position.y - _CAM_RISE
 	_apply_debug_zone_spawn()
 	$StageController.setup(_player)
 	$HUD.connect_to_player(_player)
@@ -156,16 +159,19 @@ func _process(delta: float) -> void:
 		if _camera_locked:
 			cam.global_position = cam.global_position.lerp(_camera_target, 0.1)
 			cam.zoom = cam.zoom.lerp(Vector2(_camera_zoom_tgt, _camera_zoom_tgt), 0.1)
-			_cam_y = cam.global_position.y   # sync p/ não saltar ao desbloquear
+			_cam_y       = cam.global_position.y       # sync p/ não saltar ao desbloquear
+				_cam_floor_y = _player.global_position.y   # reset nível de piso
 		else:
 			cam.zoom = cam.zoom.lerp(Vector2(2.0, 2.0), 0.1)
 			if absf(cam.zoom.x - 2.0) < 0.05:
 				cam.zoom = Vector2(2.0, 2.0)
-				var ty: float = _player.global_position.y - _CAM_RISE
 				if _player.is_on_floor():
-					_cam_y = lerpf(_cam_y, ty, minf(10.0 * delta, 1.0))
-				elif ty > _cam_y:   # caindo: segue para baixo
-					_cam_y = lerpf(_cam_y, ty, minf(5.0 * delta, 1.0))
+					var py: float = _player.global_position.y
+					if absf(py - _cam_floor_y) >= _CAM_FLOOR_THRESHOLD:
+						_cam_floor_y = py
+					_cam_y = lerpf(_cam_y, _cam_floor_y - _CAM_RISE, minf(4.0 * delta, 1.0))
+				elif _player.velocity.y > 0.0:   # caindo: segue para baixo
+					_cam_y = lerpf(_cam_y, _player.global_position.y - _CAM_RISE, minf(5.0 * delta, 1.0))
 				cam.global_position = Vector2(_player.global_position.x, _cam_y)
 			else:
 				# retornando do corredor/boss: segue livremente até o zoom estabilizar
