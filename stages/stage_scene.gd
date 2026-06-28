@@ -9,8 +9,7 @@ const _SRC_TS := 32   # tamanho do tile no PNG (pixels)
 @export var platform_color: Color = Color(0.35, 0.35, 0.35)
 
 var _player: CharacterBase
-var _cam_y       := 0.0   # Y atual da câmera (lerp contínuo)
-var _cam_floor_y := 0.0   # nível de piso que a câmera está a seguir
+var _cam_ctrl: CameraController = null
 var _zone_tilesets: Array[Texture2D] = []
 # Override textures must be held by a persistent strong reference. Loading them
 # per-frame inside _draw() drops the reference each frame; on web (WebGL2) the
@@ -28,8 +27,8 @@ func _ready() -> void:
 		GameManager.reset()
 		GameManager.set_active_character("zael")
 	_player = _spawn_player()
-	_cam_floor_y = _player.global_position.y
-	_cam_y       = _player.global_position.y - _CAM_RISE
+	_cam_ctrl = CameraController.new()
+	_cam_ctrl.setup(_player, $Camera2D)
 	for child in get_children():
 		if DebugBoot.no_enemies and (child is EnemyBase or child is BossBase):
 			child.queue_free()
@@ -70,22 +69,10 @@ func _apply_kill_plane() -> void:
 	if lowest > -INF:
 		_player.kill_y = maxf(CharacterBase.KILL_Y, lowest + 600.0)
 
-# Câmera com deadzone vertical: só atualiza o nível de referência quando a mudança
-# de altitude ≥ _CAM_FLOOR_THRESHOLD (4 tiles). Plataformas pequenas (Z1) não movem
-# a câmera; escadas/zonas elevadas (Z2/Z3) excedem o threshold e disparam o scroll.
-const _CAM_RISE            := 128.0
-const _CAM_FLOOR_THRESHOLD := 256.0   # 4 tiles — mínimo para actualizar o nível de piso
 func _process(delta: float) -> void:
-	if is_instance_valid(_player):
-		if _player.is_on_floor():
-			var py: float = _player.global_position.y
-			if absf(py - _cam_floor_y) >= _CAM_FLOOR_THRESHOLD:
-				_cam_floor_y = py
-			_cam_y = lerpf(_cam_y, _cam_floor_y - _CAM_RISE, minf(4.0 * delta, 1.0))
-		elif _player.velocity.y > 0.0:   # caindo: segue para baixo
-			_cam_y = lerpf(_cam_y, _player.global_position.y - _CAM_RISE, minf(5.0 * delta, 1.0))
-		$Camera2D.global_position = Vector2(_player.global_position.x, _cam_y)
-	# Actualiza o rect visível p/ o backdrop do _draw().
+	if is_instance_valid(_player) and _cam_ctrl != null:
+		_cam_ctrl.update(delta)
+		$Camera2D.global_position = Vector2(_cam_ctrl.target_x, _cam_ctrl.target_y)
 	var zoom := $Camera2D.zoom
 	var vp   := get_viewport().get_visible_rect().size
 	var half := vp / zoom * 0.5
