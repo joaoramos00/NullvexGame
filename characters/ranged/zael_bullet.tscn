@@ -17,3 +17,7 @@ shape = SubResource("CircleShape2D_1")
 wait_time = 3.0
 one_shot = true
 autostart = true
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+centered = true
+texture_filter = 1

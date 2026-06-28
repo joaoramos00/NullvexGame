@@ -449,6 +449,7 @@ func _fire(level: int) -> void:
     _sprite.play("shoot_%d" % level)
     var bullet: ZaelBullet = _BULLET_SCENE.instantiate()
     bullet.damage = BULLET_DAMAGE[level]
+    bullet.level = level
     # Durante wall grab, facing_right reflete a direção de avanço (em direção à parede),
     # não a direção visual. Usa _wall_normal para disparar para fora da parede.
     var fire_right: bool = (_wall_normal.x > 0.0) if _is_wall_sliding else facing_right
