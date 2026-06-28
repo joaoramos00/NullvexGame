@@ -3,9 +3,9 @@ class_name ZaelBullet
 
 const SPEED := 500.0
 
-const _TEX_L1 := preload("res://assets/generated/zael_buster/buster_L1.png")
-const _TEX_L2 := preload("res://assets/generated/zael_buster/buster_L2.png")
-const _TEX_L3 := preload("res://assets/generated/zael_buster/buster_L3.png")
+const _TEX_L1 := preload("res://assets/buster/buster_L1.png")
+const _TEX_L2 := preload("res://assets/buster/buster_L2.png")
+const _TEX_L3 := preload("res://assets/buster/buster_L3.png")
 
 const _N_FRAMES    := 9
 const _FPS         := 12.0
