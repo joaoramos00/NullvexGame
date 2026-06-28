@@ -160,7 +160,7 @@ func _process(delta: float) -> void:
 			cam.global_position = cam.global_position.lerp(_camera_target, 0.1)
 			cam.zoom = cam.zoom.lerp(Vector2(_camera_zoom_tgt, _camera_zoom_tgt), 0.1)
 			_cam_y       = cam.global_position.y       # sync p/ não saltar ao desbloquear
-				_cam_floor_y = _player.global_position.y   # reset nível de piso
+			_cam_floor_y = _player.global_position.y   # reset nível de piso
 		else:
 			cam.zoom = cam.zoom.lerp(Vector2(2.0, 2.0), 0.1)
 			if absf(cam.zoom.x - 2.0) < 0.05:
