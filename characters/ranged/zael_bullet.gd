@@ -10,8 +10,7 @@ var level: int = 1
 var _hit: bool = false
 var _deflected: bool = false
 var _deflect_velocity: Vector2 = Vector2.ZERO
-
-@onready var _sprite: AnimatedSprite2D = $AnimatedSprite2D
+var _sprite: AnimatedSprite2D
 
 func _ready() -> void:
 	add_to_group("player_bullet")
@@ -33,9 +32,11 @@ func _setup_anim() -> void:
 		at.filter_clip = true
 		at.region = Rect2(i * 32, 0, 32, 32)
 		sf.add_frame("fly", at)
+	_sprite = AnimatedSprite2D.new()
 	_sprite.sprite_frames = sf
 	_sprite.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	_sprite.flip_h = direction < 0.0
+	add_child(_sprite)
 	_sprite.play("fly")
 
 func _physics_process(delta: float) -> void:
