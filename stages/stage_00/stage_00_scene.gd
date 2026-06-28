@@ -618,8 +618,7 @@ func _setup_floor_platform() -> void:
 # elevadas, sempre a CLEAR px acima do chão mais próximo. Visível em toda
 # a zona 1 — desce sobre plataformas altas, sobe sobre o chão principal.
 func _build_zone1_ceiling() -> void:
-	const H     := 64.0    # espessura de cada segmento
-	const CLEAR := 200.0   # distância mínima acima do piso (> max_jump 182px)
+	const CLEAR := 200.0
 	# [x0, x1, floor_top] — limites horizontais e topo do piso em cada secção.
 	# Plataformas derivadas das collision shapes do .tscn:
 	#   Plat_Z1A  (2600,1090) size(256,180) → top=1000  x:2472–2728
@@ -636,23 +635,24 @@ func _build_zone1_ceiling() -> void:
 		[4180.0, 4820.0,  928.0],   # pré(128) + Plat_Z1B  + pós(128)  (4692+128=4820)
 		[4820.0, 5534.0, 1088.0],
 	]
-	for i in segs.size():
-		var x0: float        = segs[i][0]
-		var x1: float        = segs[i][1]
-		var floor_top: float = segs[i][2]
-		var w := x1 - x0
-		var cy := floor_top - CLEAR - H * 0.5   # center y do segmento
-		var b := StaticBody2D.new()
-		b.name = "Z1Ceil_%d" % i
-		b.collision_layer = 1
-		b.collision_mask  = 0
+	# Um único StaticBody2D com SegmentShape2D (só a superfície inferior) por segmento.
+	# RectangleShape2D separados criam paredes laterais invisíveis nas junções de altura;
+	# SegmentShape2D tem apenas a superfície de contato, sem faces laterais.
+	var body := StaticBody2D.new()
+	body.name = "Z1Ceil_0"
+	body.collision_layer = 1
+	body.collision_mask  = 0
+	add_child(body)
+	for s: Array in segs:
+		var x0: float      = s[0]
+		var x1: float      = s[1]
+		var y_surf: float  = (s[2] as float) - CLEAR   # superfície inferior do teto
 		var cs := CollisionShape2D.new()
-		var shape := RectangleShape2D.new()
-		shape.size = Vector2(w, H)
-		cs.shape    = shape
-		cs.position = Vector2(x0 + w * 0.5, cy)
-		b.add_child(cs)
-		add_child(b)
+		var shape := SegmentShape2D.new()
+		shape.a = Vector2(x0, y_surf)
+		shape.b = Vector2(x1, y_surf)
+		cs.shape = shape
+		body.add_child(cs)
 
 # Remove 6 nós fragmentados (Floor_Z2_Peak, SubPlat_Z2_1/2, Cover_Z2,
 # Floor_Z2_Trans, CorrZ3_Entry_Floor) e cria um único piso+plataforma+piso
