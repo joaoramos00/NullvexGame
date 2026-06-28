@@ -45,12 +45,18 @@ func _process(delta: float) -> void:
 		queue_redraw()
 
 func _draw() -> void:
+	# DIAG-A: círculo amarelo confirma que _draw() está sendo chamado
+	draw_circle(Vector2.ZERO, 8.0, Color.YELLOW)
+	# DIAG-B: tenta desenhar textura por cima
+	var tex := _tex()
+	if tex == null:
+		return
 	var half: float = _FRAME_SIZE * 0.5
 	var src := Rect2(_frame * _FRAME_SIZE, 0.0, _FRAME_SIZE, _FRAME_SIZE)
 	var dst := Rect2(-half, -half, _FRAME_SIZE, _FRAME_SIZE)
 	if direction < 0.0:
 		draw_set_transform(Vector2.ZERO, 0.0, Vector2(-1.0, 1.0))
-	draw_texture_rect_region(_tex(), dst, src)
+	draw_texture_rect_region(tex, dst, src)
 
 func _physics_process(delta: float) -> void:
 	if _hit:
