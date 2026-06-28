@@ -78,6 +78,7 @@ var _miniboss_spawned := false
 var _corr3: CorridorSection = null
 var _camera_locked   := false
 var _camera_target   := Vector2.ZERO
+var _cam_y           := 0.0   # Y lazy: atualiza só no chão ou caindo, não durante pulos
 var _camera_zoom_tgt := 2.0
 
 # Zona 3 — plataforma móvel do gauntlet "Exame Final"
@@ -111,6 +112,7 @@ func _ready() -> void:
 
 	StageManager.spawn_position = $PlayerSpawn.global_position
 	_spawn_player()
+	_cam_y = _player.global_position.y
 	_apply_debug_zone_spawn()
 	$StageController.setup(_player)
 	$HUD.connect_to_player(_player)
@@ -147,19 +149,27 @@ func _ready() -> void:
 	_build_zone1_ceiling()
 	queue_redraw()
 
-func _process(_delta: float) -> void:
+func _process(delta: float) -> void:
 	var cam := $Camera2D as Camera2D
 	if is_instance_valid(_player):
 		if _camera_locked:
 			cam.global_position = cam.global_position.lerp(_camera_target, 0.1)
 			cam.zoom = cam.zoom.lerp(Vector2(_camera_zoom_tgt, _camera_zoom_tgt), 0.1)
+			_cam_y = cam.global_position.y   # sync p/ não saltar ao desbloquear
 		else:
 			cam.zoom = cam.zoom.lerp(Vector2(2.0, 2.0), 0.1)
 			if absf(cam.zoom.x - 2.0) < 0.05:
 				cam.zoom = Vector2(2.0, 2.0)
-				cam.global_position = _player.global_position
+				var ty: float = _player.global_position.y
+				if _player.is_on_floor():
+					_cam_y = lerpf(_cam_y, ty, minf(10.0 * delta, 1.0))
+				elif ty > _cam_y:   # caindo: segue para baixo
+					_cam_y = lerpf(_cam_y, ty, minf(5.0 * delta, 1.0))
+				cam.global_position = Vector2(_player.global_position.x, _cam_y)
 			else:
+				# retornando do corredor/boss: segue livremente até o zoom estabilizar
 				cam.global_position = cam.global_position.lerp(_player.global_position, 0.12)
+				_cam_y = cam.global_position.y   # sync para continuar suavemente após zoom
 	queue_redraw()
 
 func _unhandled_input(event: InputEvent) -> void:
