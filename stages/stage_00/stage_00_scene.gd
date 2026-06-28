@@ -628,7 +628,7 @@ func _setup_floor_platform() -> void:
 # elevadas, sempre a CLEAR px acima do chão mais próximo. Visível em toda
 # a zona 1 — desce sobre plataformas altas, sobe sobre o chão principal.
 func _build_zone1_ceiling() -> void:
-	const CLEAR := 200.0
+	const CLEAR := 328.0
 	# [x0, x1, floor_top] — limites horizontais e topo do piso em cada secção.
 	# Plataformas derivadas das collision shapes do .tscn:
 	#   Plat_Z1A  (2600,1090) size(256,180) → top=1000  x:2472–2728
@@ -898,13 +898,13 @@ func _draw_background() -> void:
 # Retorna y_bottom do segmento do teto Z1 que contém wx; -1 se fora
 func _z1_seg_yb(wx: float) -> float:
 	if   wx <    0.0: return -1.0
-	elif wx < 2472.0: return 888.0   # piso
-	elif wx < 2728.0: return 800.0   # Plat_Z1A
-	elif wx < 3112.0: return 888.0   # piso
-	elif wx < 3688.0: return 696.0   # pré+Block_Z1A+pós
-	elif wx < 4180.0: return 888.0   # piso
-	elif wx < 4820.0: return 728.0   # pré+Plat_Z1B+pós
-	elif wx < 5534.0: return 888.0   # piso
+	elif wx < 2472.0: return 760.0   # piso        (1088-328)
+	elif wx < 2728.0: return 672.0   # Plat_Z1A    (1000-328)
+	elif wx < 3112.0: return 760.0   # piso
+	elif wx < 3688.0: return 568.0   # pré+Block_Z1A+pós  (896-328)
+	elif wx < 4180.0: return 760.0   # piso
+	elif wx < 4820.0: return 600.0   # pré+Plat_Z1B+pós   (928-328)
+	elif wx < 5534.0: return 760.0   # piso
 	return -1.0
 
 # Tile (wx,y) é sólido quando está dentro da massa do teto (y < yb)
