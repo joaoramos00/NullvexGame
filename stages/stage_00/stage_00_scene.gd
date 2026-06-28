@@ -76,12 +76,7 @@ var _boss_trigger_added := false
 var _miniboss: Node = null
 var _miniboss_spawned := false
 var _corr3: CorridorSection = null
-var _camera_locked   := false
-var _camera_target   := Vector2.ZERO
-var _cam_y           := 0.0
-var _cam_floor_y     := 0.0   # nível de piso que a câmera está a seguir
-const _CAM_RISE            := 128.0
-const _CAM_FLOOR_THRESHOLD := 256.0   # 4 tiles — mínimo para actualizar o nível de piso
+var _cam_ctrl: CameraController = null
 var _camera_zoom_tgt := 2.0
 
 # Zona 3 — plataforma móvel do gauntlet "Exame Final"
@@ -115,8 +110,8 @@ func _ready() -> void:
 
 	StageManager.spawn_position = $PlayerSpawn.global_position
 	_spawn_player()
-	_cam_floor_y = _player.global_position.y
-	_cam_y       = _player.global_position.y - _CAM_RISE
+	_cam_ctrl = CameraController.new()
+	_cam_ctrl.setup(_player, $Camera2D)
 	_apply_debug_zone_spawn()
 	$StageController.setup(_player)
 	$HUD.connect_to_player(_player)
@@ -155,28 +150,13 @@ func _ready() -> void:
 
 func _process(delta: float) -> void:
 	var cam := $Camera2D as Camera2D
-	if is_instance_valid(_player):
-		if _camera_locked:
-			cam.global_position = cam.global_position.lerp(_camera_target, 0.1)
-			cam.zoom = cam.zoom.lerp(Vector2(_camera_zoom_tgt, _camera_zoom_tgt), 0.1)
-			_cam_y       = cam.global_position.y       # sync p/ não saltar ao desbloquear
-			_cam_floor_y = _player.global_position.y   # reset nível de piso
+	if is_instance_valid(_player) and _cam_ctrl != null:
+		_cam_ctrl.update(delta)
+		if _cam_ctrl.is_locked:
+			cam.zoom = cam.zoom.lerp(Vector2(_cam_ctrl.lock_zoom, _cam_ctrl.lock_zoom), 0.1)
 		else:
 			cam.zoom = cam.zoom.lerp(Vector2(2.0, 2.0), 0.1)
-			if absf(cam.zoom.x - 2.0) < 0.05:
-				cam.zoom = Vector2(2.0, 2.0)
-				if _player.is_on_floor():
-					var py: float = _player.global_position.y
-					if absf(py - _cam_floor_y) >= _CAM_FLOOR_THRESHOLD:
-						_cam_floor_y = py
-					_cam_y = lerpf(_cam_y, _cam_floor_y - _CAM_RISE, minf(4.0 * delta, 1.0))
-				elif _player.velocity.y > 0.0:   # caindo: segue para baixo
-					_cam_y = lerpf(_cam_y, _player.global_position.y - _CAM_RISE, minf(5.0 * delta, 1.0))
-				cam.global_position = Vector2(_player.global_position.x, _cam_y)
-			else:
-				# retornando do corredor/boss: segue livremente até o zoom estabilizar
-				cam.global_position = cam.global_position.lerp(_player.global_position, 0.12)
-				_cam_y = cam.global_position.y   # sync para continuar suavemente após zoom
+		cam.global_position = Vector2(_cam_ctrl.target_x, _cam_ctrl.target_y)
 	queue_redraw()
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -256,14 +236,10 @@ func _setup_corr1() -> void:
 			n.queue_free()
 
 func _on_corr1_cam_lock(center: Vector2, zoom: float) -> void:
-	_camera_locked   = true
-	_camera_target   = center
-	_camera_zoom_tgt = zoom
+	_cam_ctrl.lock_to(center, zoom)
 
 func _on_corr3_cam_lock(center: Vector2, zoom: float) -> void:
-	_camera_locked   = true
-	_camera_target   = center
-	_camera_zoom_tgt = zoom
+	_cam_ctrl.lock_to(center, zoom)
 
 func _on_corr3_exit_opening() -> void:
 	# Desabilita Boss_LWall ANTES do auto-walk para o player conseguir entrar
@@ -272,12 +248,10 @@ func _on_corr3_exit_opening() -> void:
 		boss_lwall.get_node("CollisionShape2D").set_deferred("disabled", true)
 
 func _on_corr3_traversed() -> void:
-	# _camera_locked = true também aqui: numa RE-entrada (após morte, que destrava a
-	# câmera) a porta de entrada do Corr3 não re-dispara o lock; sem isto a câmera não
-	# voltaria a focar a sala do boss.
-	_camera_locked   = true
-	_camera_target   = _BOSS_CAM_CENTER
-	_camera_zoom_tgt = _BOSS_CAM_ZOOM
+	# Lock também numa RE-entrada (após morte, que destrava a câmera): a porta de
+	# entrada do Corr3 não re-dispara o lock; sem isto a câmera não voltaria a focar
+	# a sala do boss.
+	_cam_ctrl.lock_to(_BOSS_CAM_CENTER, _BOSS_CAM_ZOOM)
 	if is_instance_valid(_boss):
 		_boss.queue_free()
 		_boss = null
@@ -331,7 +305,7 @@ func _setup_boss_aggro_trigger() -> void:
 	add_child(trig)
 
 func _on_boss_defeated(_ability_id: String) -> void:
-	_camera_locked = false
+	_cam_ctrl.unlock()
 	# BossBase already called GameManager.complete_stage(0) in _run_death_sequence
 	GameManager.save_game()
 
@@ -339,7 +313,7 @@ func _on_boss_defeated(_ability_id: String) -> void:
 # sala do boss para o respawn voltar ao corredor com câmera livre e sem boss ativo.
 # O boss é recriado quando o player re-atravessa o Corr3 (exit_retriggerable=true).
 func _on_player_died_reset() -> void:
-	_camera_locked = false
+	_cam_ctrl.unlock()
 	if is_instance_valid(_player):
 		_player.process_mode = Node.PROCESS_MODE_INHERIT  # caso tenha morrido congelado
 	if is_instance_valid(_boss):
@@ -381,12 +355,10 @@ func _setup_corr2_section() -> void:
 	_corr2.setup(_player)
 
 func _on_corr2_cam_lock(center: Vector2, zoom: float) -> void:
-	_camera_locked   = true
-	_camera_target   = center
-	_camera_zoom_tgt = zoom
+	_cam_ctrl.lock_to(center, zoom)
 
 func _on_corr2_traversed() -> void:
-	_camera_locked = false
+	_cam_ctrl.unlock()
 
 # ─── MiniBoss Room ────────────────────────────────────────────────────────────
 
@@ -424,9 +396,7 @@ func _on_miniboss_room_entered(body: Node2D) -> void:
 	var lwall := get_node_or_null("MiniBoss_LWall")
 	if lwall:
 		lwall.get_node("CollisionShape2D").set_deferred("disabled", false)
-	_camera_locked   = true
-	_camera_target   = _MINIBOSS_CAM_CENTER
-	_camera_zoom_tgt = _MINIBOSS_CAM_ZOOM
+	_cam_ctrl.lock_to(_MINIBOSS_CAM_CENTER, _MINIBOSS_CAM_ZOOM)
 
 func _apply_debug_zone_spawn() -> void:
 	# Param ?zone=N: spawna direto numa zona pra testar (debug). Atualiza o respawn também.
@@ -443,9 +413,7 @@ func _apply_debug_zone_spawn() -> void:
 	_player.global_position = pos
 	StageManager.spawn_position = pos
 	if DebugBoot.zone == 4:  # debug: trava a câmera na sala do boss (visão real da luta)
-		_camera_locked   = true
-		_camera_target   = _BOSS_CAM_CENTER
-		_camera_zoom_tgt = _BOSS_CAM_ZOOM
+		_cam_ctrl.lock_to(_BOSS_CAM_CENTER, _BOSS_CAM_ZOOM)
 
 func _open_miniboss_gate_for_debug() -> void:
 	# no_enemies: sem miniboss pra derrotar, a parede de saída fica aberta (senão tranca a sala).
