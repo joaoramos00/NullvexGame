@@ -71,7 +71,7 @@ func _apply_kill_plane() -> void:
 # Câmera sobe um pouco em relação ao player: foco acima dele → o player fica um
 # pouco abaixo do centro, mostrando mais à frente/acima (limites do Camera2D ainda clampam).
 # Vertical lazy: só atualiza ao pousar ou cair — não segue o pulo para cima.
-const _CAM_RISE := 150.0
+const _CAM_RISE := 60.0
 func _process(delta: float) -> void:
 	if is_instance_valid(_player):
 		var ty: float = _player.global_position.y - _CAM_RISE
