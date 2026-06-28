@@ -67,6 +67,10 @@ func _ready() -> void:
 			corr.setup(_player)
 			corr.camera_lock_requested.connect(_on_camera_lock)
 	_spawn_fire_roster()
+	var shaft_area := get_node_or_null("Z4ShaftCamArea") as Area2D
+	if shaft_area:
+		shaft_area.body_entered.connect(_on_shaft_body_entered)
+		shaft_area.body_exited.connect(_on_shaft_body_exited)
 
 # Arena do boss deslocada -1622 em Y p/ acompanhar o topo do shaft reduzido (y-1026).
 # X inalterado. (tscn y=832 − 1622 = −790.)
@@ -156,6 +160,14 @@ func _setup_boss_room_trigger() -> void:
 func _on_camera_lock(center: Vector2, zoom: float) -> void:
 	$Camera2D.zoom = Vector2(zoom, zoom)
 	# câmera volta a seguir o player automaticamente pelo _process herdado
+
+func _on_shaft_body_entered(body: Node2D) -> void:
+	if body == _player and _cam_ctrl != null:
+		_cam_ctrl.set_shaft_mode(true)
+
+func _on_shaft_body_exited(body: Node2D) -> void:
+	if body == _player and _cam_ctrl != null:
+		_cam_ctrl.set_shaft_mode(false)
 
 func _draw() -> void:
 	super._draw()       # terreno/lava/plataformas (pula o perímetro do boss via skip_base_draw)
