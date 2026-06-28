@@ -3,6 +3,12 @@ class_name ZaelBullet
 
 const SPEED := 500.0
 
+const _BUSTER_TEX := [
+	preload("res://assets/generated/zael_buster/buster_L1.png"),
+	preload("res://assets/generated/zael_buster/buster_L2.png"),
+	preload("res://assets/generated/zael_buster/buster_L3.png"),
+]
+
 var damage: int = 5
 var direction: float = 1.0
 var source_id: String = "single"
@@ -20,8 +26,7 @@ func _ready() -> void:
 	_setup_anim()
 
 func _setup_anim() -> void:
-	var lvl_name := "L%d" % clampi(level, 1, 3)
-	var tex := load("res://assets/generated/zael_buster/buster_%s.png" % lvl_name) as Texture2D
+	var tex: Texture2D = _BUSTER_TEX[clampi(level, 1, 3) - 1]
 	var sf := SpriteFrames.new()
 	sf.add_animation("fly")
 	sf.set_animation_loop("fly", true)
