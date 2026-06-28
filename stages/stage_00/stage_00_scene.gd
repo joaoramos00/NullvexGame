@@ -79,6 +79,7 @@ var _corr3: CorridorSection = null
 var _camera_locked   := false
 var _camera_target   := Vector2.ZERO
 var _cam_y           := 0.0   # Y lazy: atualiza só no chão ou caindo, não durante pulos
+const _CAM_RISE      := 128.0 # câmera acima do player → piso a 60px da borda inferior
 var _camera_zoom_tgt := 2.0
 
 # Zona 3 — plataforma móvel do gauntlet "Exame Final"
@@ -112,7 +113,7 @@ func _ready() -> void:
 
 	StageManager.spawn_position = $PlayerSpawn.global_position
 	_spawn_player()
-	_cam_y = _player.global_position.y
+	_cam_y = _player.global_position.y - _CAM_RISE
 	_apply_debug_zone_spawn()
 	$StageController.setup(_player)
 	$HUD.connect_to_player(_player)
@@ -160,7 +161,7 @@ func _process(delta: float) -> void:
 			cam.zoom = cam.zoom.lerp(Vector2(2.0, 2.0), 0.1)
 			if absf(cam.zoom.x - 2.0) < 0.05:
 				cam.zoom = Vector2(2.0, 2.0)
-				var ty: float = _player.global_position.y
+				var ty: float = _player.global_position.y - _CAM_RISE
 				if _player.is_on_floor():
 					_cam_y = lerpf(_cam_y, ty, minf(10.0 * delta, 1.0))
 				elif ty > _cam_y:   # caindo: segue para baixo
