@@ -1501,6 +1501,20 @@ class _HitboxOverlay extends Node2D:
                 draw_rect(Rect2(pos + Vector2(-4.0, -6.0), Vector2(42.0, 12.0)), color, false, 2.0)
             "fire_bolt", "fire_glob", "fire_spit", "heat_mortar_shell":
                 _draw_proj_sprite(variant, pos, traj_angle)
+            "fire_beam":
+                # Beam a 45° varrendo em direção ao chão (facing=-1 → esquerda).
+                var _depth := maxf(8.0, ground_y - pos.y)
+                var _beam_end := pos + Vector2(-_depth, _depth)  # 45°: dx=dy
+                # Núcleo interno amarelo (mais fino, mais brilhante).
+                draw_line(pos, _beam_end, Color(1.0, 0.9, 0.3, 0.9), 10.0)
+                # Glow laranja externo (mais largo, semi-transparente).
+                draw_line(pos, _beam_end, Color(1.0, 0.35, 0.05, 0.45), 36.0)
+                # Marca de impacto no chão (círculo expansivo).
+                draw_circle(_beam_end, 18.0, Color(1.0, 0.45, 0.05, 0.35))
+                draw_arc(_beam_end, 18.0, 0.0, TAU, 32, Color(1.0, 0.6, 0.1, 0.9), 2.0)
+                # Origem (swirl na boca).
+                draw_circle(pos, 10.0, Color(1.0, 0.55, 0.1, 0.9))
+                draw_arc(pos, 10.0, 0.0, TAU, 32, Color(1.0, 0.85, 0.3, 0.95), 2.0)
             _:
                 draw_circle(pos, 9.0, Color(0.55, 0.92, 1.0, 0.35))
                 draw_arc(pos, 9.0, 0.0, TAU, 32, color, 2.0)
@@ -1551,7 +1565,7 @@ class _HitboxView extends Control:
         "Magma Turret": {"label": "Fire Glob", "variant": "fire_glob", "release_frame": 2, "offset": Vector2(-38.0, -5.0), "parabolic": false},
         "Lava Serpent": {"label": "Fire Spit", "variant": "fire_spit", "release_frame": 9, "offset": Vector2(50.0, -20.0), "parabolic": false},
         # Bosses
-        "Ignarath": {"label": "Firebreath (boca)", "variant": "", "release_frame": 4, "offset": Vector2(-30.8, -12.0), "parabolic": false},
+        "Ignarath": {"label": "Firebreath (boca)", "variant": "fire_beam", "release_frame": 4, "offset": Vector2(-30.8, -12.0), "parabolic": false},
     }
 
     var _current_index: int = 0
