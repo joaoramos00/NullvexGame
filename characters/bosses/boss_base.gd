@@ -54,6 +54,52 @@ var _is_attacking: bool = false
 func _ready() -> void:
 	current_hp = max_hp
 	queue_redraw()
+	HitboxData.reloaded.connect(_apply_hitbox_data)
+	_apply_hitbox_data()
+
+func _hitbox_id() -> String:
+	var scr: Script = get_script() as Script
+	return scr.resource_path.get_file().get_basename() if scr != null else ""
+
+func _apply_hitbox_data() -> void:
+	var id := _hitbox_id()
+	if not HitboxData.has(id):
+		return
+	var e := HitboxData.entry(id)
+	if e.has("sprite"):
+		var spr := get_node_or_null("Sprite2D") as Sprite2D
+		if spr != null:
+			var sp = e["sprite"]
+			if sp.has("pos"): spr.position = Vector2(sp["pos"][0], sp["pos"][1])
+			if sp.has("scale"): spr.scale = Vector2(sp["scale"][0], sp["scale"][1])
+	_rebuild_boss_shapes(e.get("shapes", []))
+
+func _rebuild_boss_shapes(shapes: Array) -> void:
+	if shapes.is_empty():
+		return
+	for c in get_children():
+		if c is CollisionShape2D:
+			c.free()
+	for s in shapes:
+		if String(s.get("target", "body")) != "body":
+			continue
+		var cs := CollisionShape2D.new()
+		cs.position = Vector2(s["pos"][0], s["pos"][1])
+		var _kind := String(s.get("kind", "rect"))
+		if _kind == "capsule":
+			var cap := CapsuleShape2D.new()
+			cap.radius = float(s["size"][0])
+			cap.height = float(s["size"][1])
+			cs.shape = cap
+		elif _kind == "circle":
+			var circ := CircleShape2D.new()
+			circ.radius = float(s["size"][0])
+			cs.shape = circ
+		else:
+			var r := RectangleShape2D.new()
+			r.size = Vector2(s["size"][0], s["size"][1])
+			cs.shape = r
+		add_child(cs)
 
 func _draw() -> void:
 	var draw_color := Color.WHITE if _hit_flash_timer > 0.0 else boss_color

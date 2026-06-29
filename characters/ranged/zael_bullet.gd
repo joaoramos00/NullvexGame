@@ -51,8 +51,7 @@ func _draw() -> void:
 	var half: float = _FRAME_SIZE * 0.5
 	var src := Rect2(_frame * _FRAME_SIZE, 0.0, _FRAME_SIZE, _FRAME_SIZE)
 	var dst := Rect2(-half, -half, _FRAME_SIZE, _FRAME_SIZE)
-	var sx: float = -1.0 if direction < 0.0 else 1.0
-	draw_set_transform(Vector2.ZERO, -PI / 2.0, Vector2(sx, 1.0))
+	draw_set_transform(Vector2.ZERO, direction * (-PI / 2.0), Vector2.ONE)
 	draw_texture_rect_region(tex, dst, src)
 
 func _physics_process(delta: float) -> void:

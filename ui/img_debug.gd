@@ -28,8 +28,20 @@ const _HITBOX_ENTITIES: Array = [
     {"name": "Zara", "path": "res://characters/melee/zara.tscn", "group": "Personagens", "kind": "Personagens", "stage": ""},
     {"name": "Enemy Base", "path": "res://characters/enemies/enemy_base.tscn", "group": "Inimigos", "kind": "Inimigos", "stage": "Stage 00"},
     {"name": "Enemy Flyer", "path": "res://characters/enemies/enemy_flyer.tscn", "group": "Inimigos", "kind": "Inimigos", "stage": "Stage 00"},
-    {"name": "Enemy Miniboss", "path": "res://characters/enemies/enemy_miniboss.tscn", "group": "Bosses", "kind": "Inimigos", "stage": "Stage 00"},
-    {"name": "Intro Boss", "path": "res://characters/bosses/intro_boss.tscn", "group": "Bosses", "kind": "Inimigos", "stage": "Stage 00"},
+    {"name": "Enemy Miniboss", "path": "res://characters/enemies/enemy_miniboss.tscn", "group": "Bosses", "kind": "Inimigos", "stage": "Stage 00", "anims": [
+        {"label": "Walk",   "path": "res://characters/enemies/miniboss/stage_00/miniboss_walk.png",   "frames": 6},
+        {"label": "Idle",   "path": "res://characters/enemies/miniboss/stage_00/miniboss_idle.png",   "frames": 4},
+        {"label": "Punch",  "path": "res://characters/enemies/miniboss/stage_00/miniboss_punch.png",  "frames": 9},
+        {"label": "Stomp",  "path": "res://characters/enemies/miniboss/stage_00/miniboss_stomp.png",  "frames": 9},
+        {"label": "Charge", "path": "res://characters/enemies/miniboss/stage_00/miniboss_charge.png", "frames": 9},
+    ]},
+    {"name": "Intro Boss", "path": "res://characters/bosses/intro_boss.tscn", "group": "Bosses", "kind": "Inimigos", "stage": "Stage 00", "anims": [
+        {"label": "Entry", "path": "res://characters/bosses/intro_boss/intro_boss_entry.png", "frames": 9},
+        {"label": "Idle",  "path": "res://characters/bosses/intro_boss/intro_boss_idle.png",  "frames": 8},
+        {"label": "Walk",  "path": "res://characters/bosses/intro_boss/intro_boss_walk.png",  "frames": 6},
+        {"label": "Dash",  "path": "res://characters/bosses/intro_boss/intro_boss_dash.png",  "frames": 7},
+        {"label": "Shoot", "path": "res://characters/bosses/intro_boss/intro_boss_shoot.png", "frames": 7},
+    ]},
     {"name": "Ice Grunt", "path": "res://characters/enemies/stage_02/enemy_ice_grunt.tscn", "group": "Inimigos", "kind": "Inimigos", "stage": "Stage 02"},
     {"name": "Ice Flyer", "path": "res://characters/enemies/stage_02/enemy_ice_flyer.tscn", "group": "Inimigos", "kind": "Inimigos", "stage": "Stage 02"},
     {"name": "Ice Archer", "path": "res://characters/enemies/stage_02/enemy_ice_archer.tscn", "group": "Inimigos", "kind": "Inimigos", "stage": "Stage 02"},
@@ -49,11 +61,23 @@ const _HITBOX_ENTITIES: Array = [
     {"name": "Magma Turret", "path": "res://characters/enemies/stage_01/enemy_magma_turret.tscn", "group": "Inimigos", "kind": "Inimigos", "stage": "Stage 01"},
     {"name": "Lava Serpent", "path": "res://characters/enemies/stage_01/enemy_lava_serpent.tscn", "group": "Inimigos", "kind": "Inimigos", "stage": "Stage 01"},
     {"name": "Boss Base", "path": "res://characters/bosses/boss_base.tscn", "group": "Bosses", "kind": "Bosses", "stage": ""},
-    {"name": "Intro Boss", "path": "res://characters/bosses/intro_boss.tscn", "group": "Bosses", "kind": "Bosses", "stage": "Stage 00"},
+    {"name": "Intro Boss", "path": "res://characters/bosses/intro_boss.tscn", "group": "Bosses", "kind": "Bosses", "stage": "Stage 00", "anims": [
+        {"label": "Entry", "path": "res://characters/bosses/intro_boss/intro_boss_entry.png", "frames": 9},
+        {"label": "Idle",  "path": "res://characters/bosses/intro_boss/intro_boss_idle.png",  "frames": 8},
+        {"label": "Walk",  "path": "res://characters/bosses/intro_boss/intro_boss_walk.png",  "frames": 6},
+        {"label": "Dash",  "path": "res://characters/bosses/intro_boss/intro_boss_dash.png",  "frames": 7},
+        {"label": "Shoot", "path": "res://characters/bosses/intro_boss/intro_boss_shoot.png", "frames": 7},
+    ]},
     {"name": "Cryovex", "path": "res://characters/bosses/cryovex.tscn", "group": "Bosses", "kind": "Bosses", "stage": "Stage 02"},
     {"name": "Galerix", "path": "res://characters/bosses/galerix.tscn", "group": "Bosses", "kind": "Bosses", "stage": ""},
     {"name": "Gravitus", "path": "res://characters/bosses/gravitus.tscn", "group": "Bosses", "kind": "Bosses", "stage": ""},
-    {"name": "Ignarath", "path": "res://characters/bosses/ignarath.tscn", "group": "Bosses", "kind": "Bosses", "stage": ""},
+    {"name": "Ignarath", "path": "res://characters/bosses/ignarath.tscn", "group": "Bosses", "kind": "Bosses", "stage": "", "anims": [
+        {"label": "Walk",       "path": "res://characters/bosses/ignarath/ignarath_walking.png",   "frames": 9},
+        {"label": "Enter",      "path": "res://characters/bosses/ignarath/ignarath_enter.png",      "frames": 9},
+        {"label": "Firebreath", "path": "res://characters/bosses/ignarath/ignarath_firebreath.png", "frames": 9},
+        {"label": "Claw",       "path": "res://characters/bosses/ignarath/ignarath_claw.png",       "frames": 9},
+        {"label": "TakingHit",  "path": "res://characters/bosses/ignarath/ignarath_takinghit.png",  "frames": 9},
+    ]},
     {"name": "Luxar", "path": "res://characters/bosses/luxar.tscn", "group": "Bosses", "kind": "Bosses", "stage": ""},
     {"name": "Nullvex", "path": "res://characters/bosses/nullvex.tscn", "group": "Bosses", "kind": "Bosses", "stage": ""},
     {"name": "Terragor", "path": "res://characters/bosses/terragor.tscn", "group": "Bosses", "kind": "Bosses", "stage": ""},
@@ -1303,6 +1327,9 @@ class _HitboxOverlay extends Node2D:
         "fire_glob": preload("res://characters/enemies/stage_01/fire_glob.png"),
         "fire_spit": preload("res://characters/enemies/stage_01/fire_spit.png"),
         "heat_mortar_shell": preload("res://characters/enemies/stage_01/heat_mortar_shell.png"),
+        "fire_beam_body":   preload("res://characters/bosses/ignarath/fire_beam_body.png"),
+        "fire_beam_origin": preload("res://characters/bosses/ignarath/fire_beam_origin.png"),
+        "fire_beam_end":    preload("res://characters/bosses/ignarath/fire_beam_end.png"),
     }
     const _PROJ_TEX_SCALE := 0.35
 
@@ -1316,13 +1343,6 @@ class _HitboxOverlay extends Node2D:
     var show_hitboxes: bool = true
     var show_ruler: bool = false
     var ruler_origin: Vector2 = Vector2.ZERO
-    # Editor por mouse
-    var edit_shapes: Array = []
-    var sel_shape: int = -1
-    var edit_proj: Dictionary = {}
-    var editing: bool = false
-    var sprite_handle: Vector2 = Vector2.INF
-
     func _draw() -> void:
         if show_floor:
             _draw_floor()
@@ -1340,31 +1360,6 @@ class _HitboxOverlay extends Node2D:
             if show_labels:
                 draw_string(ThemeDB.fallback_font, cs.global_position + Vector2(8.0, -8.0), String(info.path), HORIZONTAL_ALIGNMENT_LEFT, -1.0, 13.0, color)
         _draw_projectile_preview()
-        _draw_edit_handles()
-
-    func _draw_edit_handles() -> void:
-        if not editing:
-            return
-        if sel_shape >= 0 and sel_shape < edit_shapes.size():
-            var s: Dictionary = edit_shapes[sel_shape]
-            var c := ruler_origin + Vector2(float(s["pos"][0]), float(s["pos"][1]))
-            var half := Vector2(float(s["size"][0]), float(s["size"][1])) * 0.5
-            draw_rect(Rect2(c - half, half * 2.0), Color(1.0, 1.0, 0.0, 0.9), false, 2.0)
-            var hs := 5.0
-            for hxi in 3:
-                for hyi in 3:
-                    var hx: float = float(hxi) - 1.0
-                    var hy: float = float(hyi) - 1.0
-                    if hx == 0.0 and hy == 0.0:
-                        continue
-                    var hp := c + Vector2(half.x * hx, half.y * hy)
-                    draw_rect(Rect2(hp - Vector2(hs, hs), Vector2(hs * 2.0, hs * 2.0)), Color(1.0, 1.0, 0.0, 0.95))
-        if edit_proj.has("offset"):
-            var po: Array = edit_proj["offset"] as Array
-            var pp := ruler_origin + Vector2(float(po[0]), float(po[1]))
-            draw_circle(pp, 6.0, Color(0.2, 1.0, 0.4, 0.9))
-        if sprite_handle != Vector2.INF:
-            draw_rect(Rect2(sprite_handle - Vector2(6, 6), Vector2(12, 12)), Color(0.3, 0.85, 1.0, 0.95))
 
     # Régua de pixels centrada na origem da entidade: ticks a cada 10px, marcas
     # maiores + rótulo a cada 50px. Os números são em GAME-PX (= o valor que vai
@@ -1477,6 +1472,56 @@ class _HitboxOverlay extends Node2D:
                 draw_rect(Rect2(pos + Vector2(-4.0, -6.0), Vector2(42.0, 12.0)), color, false, 2.0)
             "fire_bolt", "fire_glob", "fire_spit", "heat_mortar_shell":
                 _draw_proj_sprite(variant, pos, traj_angle)
+            "fire_beam":
+                # Beam vertical (frame 9 = posição inicial do sweep).
+                var _depth := maxf(8.0, ground_y - pos.y)
+                var _beam_end := Vector2(pos.x, ground_y)
+                var _beam_angle := Vector2(0.0, 1.0).angle()
+                var _beam_w := 40.0  # BEAM_HALF_WIDTH * 2 = 20 * 2
+                var _beam_dir := Vector2(0.0, 1.0)
+                var _half_w := _beam_w * 0.5  # = 20
+                # Calcula cap_scale (igual a fire_beam.gd: maxf(0.35, half_w*2.4/frame_h)).
+                var _etex: Texture2D = _PROJ_TEX.get("fire_beam_end")
+                var _esc := 0.35 * 2.0  # end_cap_scale = cap_scale * 2.0
+                var _efw := 0.0
+                var _efh := 0.0
+                if _etex != null:
+                    _efw = float(_etex.get_width()) * 0.5
+                    _efh = float(_etex.get_height()) * 0.5
+                    _esc = maxf(0.35, _half_w * 2.4 / _efh) * 2.0
+                # Corpo termina no centro do sprite de ponta.
+                var _cap_half := _esc * _efh * 0.5
+                var _body_end := _beam_end - _beam_dir * _cap_half
+                var _btex: Texture2D = _PROJ_TEX.get("fire_beam_body")
+                if _btex != null:
+                    var _bfw := float(_btex.get_width()) * 0.5
+                    var _bfh := float(_btex.get_height()) * 0.5
+                    var _bsc := _beam_w / _bfh          # escala (largura)
+                    var _body_len := maxf(1.0, _depth - _cap_half)
+                    var _body_sx := _body_len / _bfw    # escala (comprimento)
+                    draw_set_transform(pos, _beam_angle, Vector2(_body_sx, _bsc))
+                    draw_texture_rect_region(_btex, Rect2(0.0, -_bfh * 0.5, _bfw, _bfh), Rect2(0.0, 0.0, _bfw, _bfh), Color(1.0, 0.0, 0.5, 0.85))
+                    draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+                # Origem (swirl na boca).
+                var _otex: Texture2D = _PROJ_TEX.get("fire_beam_origin")
+                if _otex != null:
+                    var _ofw := float(_otex.get_width()) * 0.5
+                    var _ofh := float(_otex.get_height()) * 0.5
+                    var _osc := maxf(0.35, _half_w * 2.4 / _ofh)
+                    draw_set_transform(pos, _beam_angle, Vector2(_osc, _osc))
+                    draw_texture_rect_region(_otex, Rect2(-_ofw * 0.5, -_ofh * 0.5, _ofw, _ofh), Rect2(0.0, 0.0, _ofw, _ofh))
+                    draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+                # Impacto: centro do sprite alinha com _body_end (cobre o fim da linha).
+                if _etex != null:
+                    draw_set_transform(_body_end, _beam_angle, Vector2(_esc, _esc))
+                    draw_texture_rect_region(_etex, Rect2(-_efw * 0.5, -_efh * 0.5, _efw, _efh), Rect2(0.0, 0.0, _efw, _efh), Color(0.0, 1.0, 0.0, 1.0))
+                    draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+                # Fallback se texturas não carregaram.
+                if _btex == null:
+                    draw_line(pos, _beam_end, Color(1.0, 0.9, 0.3, 0.9), 6.0)
+                    draw_line(pos, _beam_end, Color(1.0, 0.35, 0.05, 0.45), 14.0)
+                    draw_circle(pos, 6.0, Color(1.0, 0.55, 0.1, 0.9))
+                    draw_circle(_beam_end, 10.0, Color(1.0, 0.45, 0.05, 0.35))
             _:
                 draw_circle(pos, 9.0, Color(0.55, 0.92, 1.0, 0.35))
                 draw_arc(pos, 9.0, 0.0, TAU, 32, color, 2.0)
@@ -1526,6 +1571,8 @@ class _HitboxView extends Control:
         "Heat Mortar": {"label": "Heat Mortar Shell", "variant": "heat_mortar_shell", "release_frame": 4, "offset": Vector2(17.0, -40.0), "parabolic": true},
         "Magma Turret": {"label": "Fire Glob", "variant": "fire_glob", "release_frame": 2, "offset": Vector2(-38.0, -5.0), "parabolic": false},
         "Lava Serpent": {"label": "Fire Spit", "variant": "fire_spit", "release_frame": 9, "offset": Vector2(50.0, -20.0), "parabolic": false},
+        # Bosses
+        "Ignarath": {"label": "Firebreath (boca)", "variant": "fire_beam", "release_frame": 8, "offset": Vector2(-38.5, -35.0), "parabolic": false, "anim": "Firebreath"},
     }
 
     var _current_index: int = 0
@@ -1553,24 +1600,14 @@ class _HitboxView extends Control:
     var _type_opt: OptionButton = null
     var _stage_opt: OptionButton = null
     var _entity_opt: OptionButton = null
+    var _anim_row: HBoxContainer = null
+    var _anim_opt: OptionButton = null
     var _frame_row: HBoxContainer = null
     var _frame_lbl: Label = null
     var _projectile_row: HBoxContainer = null
     var _projectile_label: Label = null
     var _current_projectile_info: Dictionary = {}
-    # ── Editor por mouse ──────────────────────────────────────────────────────
     var _viewport_container: SubViewportContainer = null
-    var _edit: Dictionary = {}
-    var _edit_id: String = ""
-    var _sel_shape: int = -1
-    var _edit_target: String = "body"
-    var _edit_this_frame: bool = false
-    var _drag_mode: String = ""          # "", move_shape, resize_<e>, move_sprite, scale_sprite, move_proj
-    var _drag_last_world: Vector2 = Vector2.ZERO
-    var _edit_toolbar: HBoxContainer = null
-    var _edit_toggle_btn: Button = null
-    var _frame_scope_btn: Button = null
-    var _target_opt: OptionButton = null
 
     func _ready() -> void:
         _build()
@@ -1588,6 +1625,8 @@ class _HitboxView extends Control:
         root.add_child(sel_row)
 
         _type_opt = OptionButton.new()
+        _type_opt.add_theme_font_size_override("font_size", 26)
+        _type_opt.get_popup().add_theme_font_size_override("font_size", 26)
         for g in ["Todos", "Personagens", "Inimigos", "Bosses", "Projeteis"]:
             _type_opt.add_item(g)
         _type_opt.item_selected.connect(func(i): _set_filter(_type_opt.get_item_text(i)))
@@ -1595,14 +1634,29 @@ class _HitboxView extends Control:
         sel_row.add_child(_type_opt)
 
         _stage_opt = OptionButton.new()
+        _stage_opt.add_theme_font_size_override("font_size", 26)
+        _stage_opt.get_popup().add_theme_font_size_override("font_size", 26)
         _stage_opt.item_selected.connect(func(i): _set_stage(_stage_opt.get_item_text(i)))
         sel_row.add_child(_make_label("Stage:"))
         sel_row.add_child(_stage_opt)
 
         _entity_opt = OptionButton.new()
+        _entity_opt.add_theme_font_size_override("font_size", 26)
+        _entity_opt.get_popup().add_theme_font_size_override("font_size", 26)
         _entity_opt.item_selected.connect(func(_i): _select_index(int(_entity_opt.get_selected_metadata())))
         sel_row.add_child(_make_label("Entidade:"))
         sel_row.add_child(_entity_opt)
+
+        _anim_row = HBoxContainer.new()
+        _anim_row.add_theme_constant_override("separation", 10)
+        _anim_row.visible = false
+        root.add_child(_anim_row)
+        _anim_row.add_child(_make_label("Anim:"))
+        _anim_opt = OptionButton.new()
+        _anim_opt.add_theme_font_size_override("font_size", 26)
+        _anim_opt.get_popup().add_theme_font_size_override("font_size", 26)
+        _anim_opt.item_selected.connect(func(i): _apply_anim_opt(i))
+        _anim_row.add_child(_anim_opt)
 
         _frame_row = HBoxContainer.new()
         _frame_row.add_theme_constant_override("separation", 6)
@@ -1624,7 +1678,7 @@ class _HitboxView extends Control:
         # Nome da entidade compacto na toolbar (o painel de descrição foi removido p/
         # dar toda a largura ao viewport de hitbox).
         _name_label = Label.new()
-        _name_label.add_theme_font_size_override("font_size", 18)
+        _name_label.add_theme_font_size_override("font_size", 24)
         _name_label.add_theme_color_override("font_color", Color(0.9, 0.9, 0.3))
         _name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
         _name_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
@@ -1680,40 +1734,6 @@ class _HitboxView extends Control:
         _scene_root.add_child(_shape_overlay)
         _overlay = _floor_overlay
 
-        # ── Toolbar do editor por mouse ──────────────────────────────────────
-        _edit_toolbar = HBoxContainer.new()
-        _edit_toolbar.add_theme_constant_override("separation", 6)
-        root.add_child(_edit_toolbar)
-
-        _edit_toggle_btn = _make_button("Editar OFF", _on_toggle_edit)
-        _edit_toolbar.add_child(_edit_toggle_btn)
-
-        var add_btn := _make_button("+ Hitbox", _on_add_shape)
-        _edit_toolbar.add_child(add_btn)
-
-        var del_btn := _make_button("Deletar", _on_delete_shape)
-        _edit_toolbar.add_child(del_btn)
-
-        var tgt_lbl := _make_label("Alvo:")
-        _edit_toolbar.add_child(tgt_lbl)
-
-        _target_opt = OptionButton.new()
-        _target_opt.add_item("body")
-        _target_opt.add_item("contact")
-        _target_opt.add_theme_font_size_override("font_size", 20)
-        _target_opt.item_selected.connect(func(i): _edit_target = _target_opt.get_item_text(i))
-        _edit_toolbar.add_child(_target_opt)
-
-        _frame_scope_btn = _make_button("Frame: Todos", _on_toggle_frame_scope)
-        _edit_toolbar.add_child(_frame_scope_btn)
-
-        var save_btn := _make_button("Salvar", _on_save)
-        _edit_toolbar.add_child(save_btn)
-
-        # gui_input do container de viewport (sem stretch → coords diretas ao viewport)
-        viewport_container.gui_input.connect(_on_viewport_gui_input)
-        viewport_container.mouse_filter = Control.MOUSE_FILTER_STOP
-
         # Painel de descrição removido: o viewport de hitbox usa a linha inteira.
         # _meta_label fica null (os usos em _set_meta já têm null-guard).
         _refresh_hierarchy_rows()
@@ -1762,9 +1782,48 @@ class _HitboxView extends Control:
             _shape_overlay.ruler_origin = _current_instance.global_position
             _shape_overlay.queue_redraw()
         _set_meta(entry, _shape_infos)
+        _refresh_anim_row(entry)
         _refresh_frame_row()
         _refresh_projectile_row()
-        _load_edit_state()
+
+    func _refresh_anim_row(entry: Dictionary) -> void:
+        if _anim_row == null or _anim_opt == null:
+            return
+        var anims: Array = entry.get("anims", [])
+        if anims.is_empty():
+            _anim_row.visible = false
+            _anim_opt.clear()
+            return
+        _anim_row.visible = true
+        _anim_opt.clear()
+        for anim: Dictionary in anims:
+            _anim_opt.add_item(String(anim.label))
+        _anim_opt.select(0)
+        _apply_anim(anims[0])
+
+    func _apply_anim_opt(idx: int) -> void:
+        var entry: Dictionary = ImgDebug._HITBOX_ENTITIES[_current_index]
+        var anims: Array = entry.get("anims", [])
+        if idx >= 0 and idx < anims.size():
+            _apply_anim(anims[idx])
+
+    func _apply_anim(anim: Dictionary) -> void:
+        if _current_instance == null:
+            return
+        var sprite := _find_sprite2d(_current_instance)
+        if sprite == null:
+            return
+        var tex: Texture2D = load(String(anim.path))
+        if tex == null:
+            return
+        sprite.texture = tex
+        sprite.hframes = int(anim.frames)
+        sprite.vframes = 1
+        sprite.frame   = 0
+        _selected_frame = 0
+        _frame_count    = int(anim.frames)
+        _refresh_frame_row()
+        _refresh_projectile_row()
 
     func _clear_current() -> void:
         _shape_infos.clear()
@@ -1812,12 +1871,13 @@ class _HitboxView extends Control:
             _current_instance.position.y += _overlay.ground_y - bottom
 
     func _collision_shape_bottom(cs: CollisionShape2D) -> float:
+        var sy := absf(cs.get_global_transform().get_scale().y)
         if cs.shape is RectangleShape2D:
-            return cs.global_position.y + (cs.shape as RectangleShape2D).size.y * 0.5
+            return cs.global_position.y + (cs.shape as RectangleShape2D).size.y * 0.5 * sy
         if cs.shape is CircleShape2D:
-            return cs.global_position.y + (cs.shape as CircleShape2D).radius
+            return cs.global_position.y + (cs.shape as CircleShape2D).radius * sy
         if cs.shape is CapsuleShape2D:
-            return cs.global_position.y + (cs.shape as CapsuleShape2D).height * 0.5
+            return cs.global_position.y + (cs.shape as CapsuleShape2D).height * 0.5 * sy
         return cs.global_position.y
 
     func _freeze_node_tree(node: Node) -> void:
@@ -1853,7 +1913,7 @@ class _HitboxView extends Control:
     func _make_button(text: String, callback: Callable) -> Button:
         var btn := Button.new()
         btn.text = text
-        btn.add_theme_font_size_override("font_size", 22)
+        btn.add_theme_font_size_override("font_size", 28)
         btn.pressed.connect(callback)
         return btn
 
@@ -1861,6 +1921,7 @@ class _HitboxView extends Control:
         var l := Label.new()
         l.text = txt
         l.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+        l.add_theme_font_size_override("font_size", 26)
         return l
 
     func _clear_container(container: Container) -> void:
@@ -1958,10 +2019,10 @@ class _HitboxView extends Control:
             _frame_row.visible = false
             return
         _frame_row.visible = true
-        _frame_row.add_child(_make_button("◀", func(): _select_frame(wrapi(_selected_frame - 1, 0, _frame_count))))
+        _frame_row.add_child(_make_button("<", func(): _select_frame(wrapi(_selected_frame - 1, 0, _frame_count))))
         _frame_lbl = _make_label("Frame %d/%d" % [_selected_frame + 1, _frame_count])
         _frame_row.add_child(_frame_lbl)
-        _frame_row.add_child(_make_button("▶", func(): _select_frame(wrapi(_selected_frame + 1, 0, _frame_count))))
+        _frame_row.add_child(_make_button(">", func(): _select_frame(wrapi(_selected_frame + 1, 0, _frame_count))))
 
     func _detect_frame_count(node: Node) -> int:
         var sprite := _find_sprite2d(node)
@@ -2028,6 +2089,14 @@ class _HitboxView extends Control:
                 _projectile_row.visible = false
             return
         var projectile_def := (def_value as Dictionary).duplicate()
+        # Se o def restringe a uma animação específica, só mostrar nessa anim.
+        var anim_filter := String(projectile_def.get("anim", ""))
+        if anim_filter != "" and _anim_opt != null and _anim_opt.item_count > 0:
+            var cur_anim := _anim_opt.get_item_text(_anim_opt.selected)
+            if cur_anim != anim_filter:
+                if _projectile_row != null:
+                    _projectile_row.visible = false
+                return
         var release_frame := int(projectile_def.release_frame)
         var is_release := _selected_frame == release_frame
         projectile_def["visible"] = is_release
@@ -2037,7 +2106,7 @@ class _HitboxView extends Control:
             _projectile_row.visible = true
             var title := Label.new()
             title.text = "Projetil:"
-            title.add_theme_font_size_override("font_size", 18)
+            title.add_theme_font_size_override("font_size", 24)
             _projectile_row.add_child(title)
             _projectile_label = Label.new()
             _projectile_label.text = "%s no Frame %d%s" % [
@@ -2045,7 +2114,7 @@ class _HitboxView extends Control:
                 release_frame + 1,
                 " (visivel)" if is_release else "",
             ]
-            _projectile_label.add_theme_font_size_override("font_size", 18)
+            _projectile_label.add_theme_font_size_override("font_size", 24)
             _projectile_label.add_theme_color_override("font_color", Color(1.0, 0.72, 0.32) if is_release else Color(0.82, 0.82, 0.86))
             _projectile_row.add_child(_projectile_label)
         if _shape_overlay != null:
@@ -2056,279 +2125,6 @@ class _HitboxView extends Control:
         if _current_instance == null:
             return _ENTITY_POS + offset
         return _current_instance.global_position + offset
-
-    # ── Editor por mouse: estado / helpers ────────────────────────────────────
-
-    func _entity_hitbox_id() -> String:
-        if _current_instance == null:
-            return ""
-        var scr := _current_instance.get_script() as Script
-        return scr.resource_path.get_file().get_basename() if scr != null else ""
-
-    func _load_edit_state() -> void:
-        _edit_id = _entity_hitbox_id()
-        _edit = HitboxData.entry(_edit_id).duplicate(true)
-        if not _edit.has("shapes"):
-            _edit["shapes"] = []
-        _sel_shape = (_edit["shapes"].size() - 1) if _edit["shapes"].size() > 0 else -1
-        _push_overlay_edit()
-
-    func _sprite_node() -> Sprite2D:
-        return _current_instance.get_node_or_null("Sprite2D") as Sprite2D if _current_instance != null else null
-
-    func _sprite_center_world() -> Vector2:
-        var sp := _sprite_node()
-        if sp == null: return _origin_world()
-        return _origin_world() + sp.position
-
-    func _sprite_half_frame() -> Vector2:
-        var sp := _sprite_node()
-        if sp == null or sp.texture == null: return Vector2(32, 32)
-        var fw := sp.texture.get_width() / maxi(1, sp.hframes)
-        var fh := sp.texture.get_height() / maxi(1, sp.vframes)
-        return Vector2(fw, fh) * 0.5
-
-    func _sprite_scale_handle_world() -> Vector2:
-        var sp := _sprite_node()
-        var sc := sp.scale if sp != null else Vector2.ONE
-        return _sprite_center_world() + Vector2(_sprite_half_frame().x * sc.x, -_sprite_half_frame().y * sc.y)
-
-    func _push_overlay_edit() -> void:
-        if _shape_overlay == null:
-            return
-        _shape_overlay.edit_shapes = _edit.get("shapes", [])
-        _shape_overlay.sel_shape = _sel_shape
-        _shape_overlay.edit_proj = _edit.get("projectile", {})
-        _shape_overlay.sprite_handle = _sprite_scale_handle_world() if _shape_overlay.editing else Vector2.INF
-        _shape_overlay.queue_redraw()
-
-    func _frame_scope() -> Variant:
-        return [_selected_frame] if _edit_this_frame else "all"
-
-    # ── Coordenadas tela → mundo ──────────────────────────────────────────────
-
-    func _screen_to_world(p: Vector2) -> Vector2:
-        # p é relativo ao canto superior esquerdo do SubViewportContainer
-        # sem stretch: 1 px container = 1 px viewport
-        # câmera zoom 2.0: 1 world-px = 2 viewport-px
-        var vp_center := Vector2(_viewport.size) * 0.5
-        return _camera.global_position + (p - vp_center) / _camera.zoom
-
-    func _origin_world() -> Vector2:
-        return _current_instance.global_position if _current_instance != null else _ENTITY_POS
-
-    # ── Drag: hittest e processamento ─────────────────────────────────────────
-
-    func _handle_radius() -> float:
-        return 8.0 / _camera.zoom.x   # 8 px tela → world-px
-
-    func _on_viewport_gui_input(event: InputEvent) -> void:
-        if _current_instance == null:
-            return
-        if not _shape_overlay.editing:
-            return
-        if event is InputEventMouseButton:
-            var mb := event as InputEventMouseButton
-            if mb.button_index == MOUSE_BUTTON_LEFT:
-                if mb.pressed:
-                    _start_drag(mb.position)
-                else:
-                    _drag_mode = ""
-        elif event is InputEventMouseMotion:
-            if _drag_mode != "":
-                _continue_drag((event as InputEventMouseMotion).position)
-
-    func _start_drag(screen_pos: Vector2) -> void:
-        var world := _screen_to_world(screen_pos)
-        var origin := _origin_world()
-        var local := world - origin      # coords relativas à entidade
-        var hr := _handle_radius()
-
-        # Testa projétil primeiro
-        if _edit.has("projectile") and _edit["projectile"].has("offset"):
-            var po: Array = _edit["projectile"]["offset"] as Array
-            var pp := Vector2(float(po[0]), float(po[1]))
-            if local.distance_to(pp) <= hr * 1.5:
-                _drag_mode = "move_proj"
-                _drag_last_world = world
-                return
-
-        # Testa handles do shape selecionado
-        if _sel_shape >= 0 and _sel_shape < _edit["shapes"].size():
-            var s: Dictionary = _edit["shapes"][_sel_shape]
-            var sp := Vector2(float(s["pos"][0]), float(s["pos"][1]))
-            var half := Vector2(float(s["size"][0]), float(s["size"][1])) * 0.5
-            for hxi in 3:
-                for hyi in 3:
-                    var hx: float = float(hxi) - 1.0
-                    var hy: float = float(hyi) - 1.0
-                    if hx == 0.0 and hy == 0.0:
-                        continue
-                    var hp := sp + Vector2(half.x * hx, half.y * hy)
-                    if local.distance_to(hp) <= hr:
-                        var dir := ""
-                        if hy < 0.0: dir += "t"
-                        elif hy > 0.0: dir += "b"
-                        if hx < 0.0: dir += "l"
-                        elif hx > 0.0: dir += "r"
-                        _drag_mode = "resize_" + dir
-                        _drag_last_world = world
-                        return
-
-        # Testa corpo de cada shape (hit-test → seleciona e inicia move)
-        for si in _edit["shapes"].size():
-            var s: Dictionary = _edit["shapes"][si]
-            var sp := Vector2(float(s["pos"][0]), float(s["pos"][1]))
-            var half := Vector2(float(s["size"][0]), float(s["size"][1])) * 0.5
-            var rect := Rect2(sp - half, half * 2.0)
-            if rect.has_point(local):
-                _sel_shape = si
-                _drag_mode = "move_shape"
-                _drag_last_world = world
-                _push_overlay_edit()
-                return
-
-        # Sem hit → testa alça de escala do sprite (canto superior-direito)
-        if world.distance_to(_sprite_scale_handle_world()) <= 10.0:
-            _drag_mode = "scale_sprite"
-            _drag_last_world = world
-            return
-
-        # Sem hit → tenta mover sprite
-        _drag_mode = "move_sprite"
-        _drag_last_world = world
-
-    func _continue_drag(screen_pos: Vector2) -> void:
-        var world := _screen_to_world(screen_pos)
-
-        # scale_sprite usa posição absoluta (não delta); tratado antes do snap guard
-        if _drag_mode == "scale_sprite":
-            var half := _sprite_half_frame()
-            if half.x > 0.0:
-                var s: float = maxf(0.1, absf(world.x - _sprite_center_world().x) / half.x)
-                s = snappedf(s, 0.05)
-                if not _edit.has("sprite"): _edit["sprite"] = {}
-                _edit["sprite"]["scale"] = [s, s]
-                _apply_edit_to_instance()
-            return
-
-        var raw_delta := world - _drag_last_world
-        # Snap a 1 game-px inteiro
-        var delta := Vector2(roundi(raw_delta.x), roundi(raw_delta.y))
-        if delta == Vector2.ZERO:
-            return
-        _drag_last_world += delta   # acumula apenas o snap consumido
-
-        if _drag_mode == "move_shape" and _sel_shape >= 0 and _sel_shape < _edit["shapes"].size():
-            var s: Dictionary = _edit["shapes"][_sel_shape]
-            s["pos"] = [int(s["pos"][0]) + int(delta.x), int(s["pos"][1]) + int(delta.y)]
-            _edit["shapes"][_sel_shape] = s
-            _apply_edit_to_instance()
-        elif _drag_mode == "move_proj":
-            if not _edit.has("projectile"):
-                _edit["projectile"] = {}
-            var cur_off: Array = (_edit["projectile"].get("offset", [0, 0])) as Array
-            _edit["projectile"]["offset"] = [int(cur_off[0]) + int(delta.x), int(cur_off[1]) + int(delta.y)]
-            _apply_edit_to_instance()
-        elif _drag_mode == "move_sprite":
-            if not _edit.has("sprite"):
-                _edit["sprite"] = {"pos": [0, 0], "scale": [1.0, 1.0]}
-            var sp: Array = (_edit["sprite"].get("pos", [0, 0])) as Array
-            _edit["sprite"]["pos"] = [int(sp[0]) + int(delta.x), int(sp[1]) + int(delta.y)]
-            _apply_edit_to_instance()
-        elif _drag_mode.begins_with("resize_") and _sel_shape >= 0 and _sel_shape < _edit["shapes"].size():
-            _apply_resize(delta)
-
-    func _apply_resize(delta: Vector2) -> void:
-        if _sel_shape < 0 or _sel_shape >= _edit["shapes"].size():
-            return
-        var s: Dictionary = _edit["shapes"][_sel_shape]
-        var pos := Vector2(float(s["pos"][0]), float(s["pos"][1]))
-        var sz  := Vector2(float(s["size"][0]), float(s["size"][1]))
-        var dir := _drag_mode.substr(7)   # after "resize_"
-        var min_sz := 4.0
-        if dir.contains("l"):
-            var new_w := maxf(min_sz, sz.x - delta.x)
-            pos.x += (sz.x - new_w) * 0.5
-            sz.x = new_w
-        if dir.contains("r"):
-            var new_w := maxf(min_sz, sz.x + delta.x)
-            pos.x += (new_w - sz.x) * 0.5
-            sz.x = new_w
-        if dir.contains("t"):
-            var new_h := maxf(min_sz, sz.y - delta.y)
-            pos.y += (sz.y - new_h) * 0.5
-            sz.y = new_h
-        if dir.contains("b"):
-            var new_h := maxf(min_sz, sz.y + delta.y)
-            pos.y += (new_h - sz.y) * 0.5
-            sz.y = new_h
-        s["pos"] = [roundi(pos.x), roundi(pos.y)]
-        s["size"] = [roundi(sz.x), roundi(sz.y)]
-        _edit["shapes"][_sel_shape] = s
-        _apply_edit_to_instance()
-
-    func _apply_edit_to_instance() -> void:
-        if _current_instance == null:
-            return
-        if _edit_id != "":
-            HitboxData._data[_edit_id] = _edit
-        if _current_instance.has_method("_apply_hitbox_data"):
-            _current_instance._apply_hitbox_data()
-        _push_overlay_edit()
-
-    # ── CRUD toolbar ──────────────────────────────────────────────────────────
-
-    func _on_toggle_edit() -> void:
-        if _shape_overlay == null:
-            return
-        _shape_overlay.editing = not _shape_overlay.editing
-        if _edit_toggle_btn != null:
-            _edit_toggle_btn.text = "Editar ON" if _shape_overlay.editing else "Editar OFF"
-        _shape_overlay.queue_redraw()
-
-    func _on_add_shape() -> void:
-        if not _edit.has("shapes"):
-            _edit["shapes"] = []
-        _edit["shapes"].append({
-            "target": _edit_target,
-            "kind": "rect",
-            "pos": [0, 0],
-            "size": [40, 40],
-            "frames": _frame_scope()
-        })
-        _sel_shape = _edit["shapes"].size() - 1
-        _apply_edit_to_instance()
-
-    func _on_delete_shape() -> void:
-        if _sel_shape < 0 or not _edit.has("shapes"):
-            return
-        if _sel_shape >= _edit["shapes"].size():
-            return
-        _edit["shapes"].remove_at(_sel_shape)
-        _sel_shape = clampi(_sel_shape, 0, _edit["shapes"].size() - 1)
-        if _edit["shapes"].is_empty():
-            _sel_shape = -1
-        _apply_edit_to_instance()
-
-    func _on_toggle_frame_scope() -> void:
-        _edit_this_frame = not _edit_this_frame
-        if _frame_scope_btn != null:
-            _frame_scope_btn.text = "Frame: Este" if _edit_this_frame else "Frame: Todos"
-
-    # ── Save (POST para o servidor de hitbox) ─────────────────────────────────
-
-    func _on_save() -> void:
-        if _edit_id.is_empty():
-            return
-        var req := HTTPRequest.new()
-        add_child(req)
-        req.request_completed.connect(func(_r, _c, _h, _b): req.queue_free())
-        var payload := JSON.stringify({"id": _edit_id, "data": _edit})
-        req.request("/save-hitbox",
-            PackedStringArray(["Content-Type: application/json"]),
-            HTTPClient.METHOD_POST,
-            payload)
 
     func _find_sprite2d(node: Node) -> Sprite2D:
         if node is Sprite2D:
@@ -2868,7 +2664,7 @@ func _rebuild_anim_tabs() -> void:
     for i in char_sprites.size():
         var btn := Button.new()
         btn.text = char_sprites[i].anim
-        btn.add_theme_font_size_override("font_size", 26)
+        btn.add_theme_font_size_override("font_size", 34)
         btn.pressed.connect(_select_anim.bind(i))
         _anim_tabs_box.add_child(btn)
         _anim_btns.append(btn)
@@ -2965,7 +2761,7 @@ func _build_ui() -> void:
 
     var title_lbl := Label.new()
     title_lbl.text = "ImgDebug"
-    title_lbl.add_theme_font_size_override("font_size", 30)
+    title_lbl.add_theme_font_size_override("font_size", 40)
     title_lbl.add_theme_color_override("font_color", Color(0.8, 0.75, 1.0))
     title_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
     header.add_child(title_lbl)
@@ -2973,13 +2769,13 @@ func _build_ui() -> void:
     if OS.get_name() == "Web":
         var reload_btn := Button.new()
         reload_btn.text = "Hard Refresh"
-        reload_btn.add_theme_font_size_override("font_size", 28)
+        reload_btn.add_theme_font_size_override("font_size", 36)
         reload_btn.pressed.connect(func(): JavaScriptBridge.eval("location.reload(true)"))
         header.add_child(reload_btn)
 
     var close_btn := Button.new()
     close_btn.text = "X Fechar"
-    close_btn.add_theme_font_size_override("font_size", 28)
+    close_btn.add_theme_font_size_override("font_size", 36)
     close_btn.pressed.connect(queue_free)
     header.add_child(close_btn)
 
@@ -2991,28 +2787,28 @@ func _build_ui() -> void:
     for s in ["SPRITES", "TILES"]:
         var btn := Button.new()
         btn.text = s
-        btn.add_theme_font_size_override("font_size", 28)
+        btn.add_theme_font_size_override("font_size", 36)
         btn.pressed.connect(_show_section.bind(s))
         section_row.add_child(btn)
         _section_btns[s] = btn
 
     var mov_btn := Button.new()
     mov_btn.text = "MOVIMENTOS"
-    mov_btn.add_theme_font_size_override("font_size", 28)
+    mov_btn.add_theme_font_size_override("font_size", 36)
     mov_btn.pressed.connect(_show_section.bind("MOVIMENTOS"))
     section_row.add_child(mov_btn)
     _section_btns["MOVIMENTOS"] = mov_btn
 
     var hitbox_btn := Button.new()
     hitbox_btn.text = "HITBOXES"
-    hitbox_btn.add_theme_font_size_override("font_size", 28)
+    hitbox_btn.add_theme_font_size_override("font_size", 36)
     hitbox_btn.pressed.connect(_show_section.bind("HITBOXES"))
     section_row.add_child(hitbox_btn)
     _section_btns["HITBOXES"] = hitbox_btn
 
     var battle_btn := Button.new()
     battle_btn.text = "BATALHA"
-    battle_btn.add_theme_font_size_override("font_size", 28)
+    battle_btn.add_theme_font_size_override("font_size", 36)
     battle_btn.pressed.connect(_show_section.bind("BATALHA"))
     section_row.add_child(battle_btn)
     _section_btns["BATALHA"] = battle_btn
@@ -3029,7 +2825,7 @@ func _build_ui() -> void:
     for c in ["ZAEL", "KAWAGAEL", "ZARA", "MINIBOSS"]:
         var btn := Button.new()
         btn.text = c
-        btn.add_theme_font_size_override("font_size", 28)
+        btn.add_theme_font_size_override("font_size", 36)
         btn.pressed.connect(_select_char.bind(c))
         char_row.add_child(btn)
         _char_btns[c] = btn
@@ -3055,7 +2851,7 @@ func _build_ui() -> void:
     preview_row.add_child(right_col)
 
     _info_label = Label.new()
-    _info_label.add_theme_font_size_override("font_size", 20)
+    _info_label.add_theme_font_size_override("font_size", 26)
     _info_label.add_theme_color_override("font_color", Color(0.85, 0.85, 0.85))
     right_col.add_child(_info_label)
 
@@ -3065,7 +2861,7 @@ func _build_ui() -> void:
 
     var hint_lbl := Label.new()
     hint_lbl.text = "strip: clicar pausa  ·  preview: clicar retoma"
-    hint_lbl.add_theme_font_size_override("font_size", 16)
+    hint_lbl.add_theme_font_size_override("font_size", 21)
     hint_lbl.add_theme_color_override("font_color", Color(0.45, 0.45, 0.45))
     right_col.add_child(hint_lbl)
 
@@ -3126,19 +2922,19 @@ func _build_moves_box() -> void:
     # ── Seletor de personagem do player (Zael / Kawagael) ──
     var player_lbl := Label.new()
     player_lbl.text = "Player:"
-    player_lbl.add_theme_font_size_override("font_size", 24)
+    player_lbl.add_theme_font_size_override("font_size", 32)
     player_lbl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
     top_bar.add_child(player_lbl)
 
     var btn_pprev := Button.new()
     btn_pprev.text = "<"
-    btn_pprev.add_theme_font_size_override("font_size", 24)
+    btn_pprev.add_theme_font_size_override("font_size", 32)
     btn_pprev.pressed.connect(mview.on_player_prev)
     top_bar.add_child(btn_pprev)
 
     var lbl_pname := Label.new()
     lbl_pname.custom_minimum_size.x = 120.0
-    lbl_pname.add_theme_font_size_override("font_size", 24)
+    lbl_pname.add_theme_font_size_override("font_size", 32)
     lbl_pname.add_theme_color_override("font_color", Color(0.4, 1.0, 0.6))
     lbl_pname.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
     lbl_pname.vertical_alignment   = VERTICAL_ALIGNMENT_CENTER
@@ -3148,13 +2944,13 @@ func _build_moves_box() -> void:
 
     var btn_pnext := Button.new()
     btn_pnext.text = ">"
-    btn_pnext.add_theme_font_size_override("font_size", 24)
+    btn_pnext.add_theme_font_size_override("font_size", 32)
     btn_pnext.pressed.connect(mview.on_player_next)
     top_bar.add_child(btn_pnext)
 
     var hint := Label.new()
     hint.text = "A/D: mover - Z: pular - X: dash - J: atirar"
-    hint.add_theme_font_size_override("font_size", 18)
+    hint.add_theme_font_size_override("font_size", 24)
     hint.add_theme_color_override("font_color", Color(0.5, 0.5, 0.5))
     hint.size_flags_horizontal = Control.SIZE_EXPAND_FILL
     hint.vertical_alignment    = VERTICAL_ALIGNMENT_CENTER
@@ -3162,19 +2958,19 @@ func _build_moves_box() -> void:
 
     var enemy_lbl := Label.new()
     enemy_lbl.text = "Inimigo:"
-    enemy_lbl.add_theme_font_size_override("font_size", 24)
+    enemy_lbl.add_theme_font_size_override("font_size", 32)
     enemy_lbl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
     top_bar.add_child(enemy_lbl)
 
     var btn_prev := Button.new()
     btn_prev.text = "<"
-    btn_prev.add_theme_font_size_override("font_size", 24)
+    btn_prev.add_theme_font_size_override("font_size", 32)
     btn_prev.pressed.connect(mview.on_prev)
     top_bar.add_child(btn_prev)
 
     var lbl_name := Label.new()
     lbl_name.custom_minimum_size.x = 80.0
-    lbl_name.add_theme_font_size_override("font_size", 24)
+    lbl_name.add_theme_font_size_override("font_size", 32)
     lbl_name.add_theme_color_override("font_color", Color(0.9, 0.9, 0.3))
     lbl_name.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
     lbl_name.vertical_alignment   = VERTICAL_ALIGNMENT_CENTER
@@ -3183,13 +2979,13 @@ func _build_moves_box() -> void:
 
     var btn_next := Button.new()
     btn_next.text = ">"
-    btn_next.add_theme_font_size_override("font_size", 24)
+    btn_next.add_theme_font_size_override("font_size", 32)
     btn_next.pressed.connect(mview.on_next)
     top_bar.add_child(btn_next)
 
     var btn_move := Button.new()
     btn_move.text = "Mover"
-    btn_move.add_theme_font_size_override("font_size", 24)
+    btn_move.add_theme_font_size_override("font_size", 32)
     btn_move.pressed.connect(mview.on_toggle_movement)
     top_bar.add_child(btn_move)
 
@@ -3197,7 +2993,7 @@ func _build_moves_box() -> void:
     mview.label_move_btn = btn_move
 
     var state_lbl := Label.new()
-    state_lbl.add_theme_font_size_override("font_size", 16)
+    state_lbl.add_theme_font_size_override("font_size", 21)
     state_lbl.add_theme_color_override("font_color", Color(0.5, 0.5, 0.5))
     state_lbl.text = "No chão"
     mov_panel.add_child(state_lbl)
@@ -3211,7 +3007,7 @@ func _build_moves_box() -> void:
 
     var atk_lbl := Label.new()
     atk_lbl.text = "Estado:"
-    atk_lbl.add_theme_font_size_override("font_size", 18)
+    atk_lbl.add_theme_font_size_override("font_size", 24)
     atk_lbl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
     atk_row.add_child(atk_lbl)
 
@@ -3225,7 +3021,7 @@ func _build_moves_box() -> void:
     ]:
         var abtn := Button.new()
         abtn.text = atk[0]
-        abtn.add_theme_font_size_override("font_size", 24)
+        abtn.add_theme_font_size_override("font_size", 32)
         abtn.modulate = atk[2]
         var mname: String = atk[1]
         abtn.pressed.connect(mview.on_attack.bind(mname))
@@ -3240,7 +3036,7 @@ func _build_moves_box() -> void:
 
     var boss_atk_lbl := Label.new()
     boss_atk_lbl.text = "Ataques:"
-    boss_atk_lbl.add_theme_font_size_override("font_size", 18)
+    boss_atk_lbl.add_theme_font_size_override("font_size", 24)
     boss_atk_lbl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
     boss_atk_row.add_child(boss_atk_lbl)
 
@@ -3254,7 +3050,7 @@ func _build_moves_box() -> void:
     ]:
         var babtn := Button.new()
         babtn.text = batk[0]
-        babtn.add_theme_font_size_override("font_size", 24)
+        babtn.add_theme_font_size_override("font_size", 32)
         babtn.modulate = batk[2]
         var bname: String = batk[1]
         babtn.pressed.connect(mview.on_attack.bind(bname))
@@ -3274,26 +3070,26 @@ func _build_moves_box() -> void:
 
     var fc_hint := Label.new()
     fc_hint.text = "A/D: mover  ·  Z: pular sob os fills — verifica se é bloqueado"
-    fc_hint.add_theme_font_size_override("font_size", 17)
+    fc_hint.add_theme_font_size_override("font_size", 22)
     fc_hint.add_theme_color_override("font_color", Color(0.5, 0.5, 0.5))
     fc_hint.size_flags_horizontal = Control.SIZE_EXPAND_FILL
     fc_bar.add_child(fc_hint)
 
     var fc_toggle := Button.new()
     fc_toggle.text = "Alternar Modo"
-    fc_toggle.add_theme_font_size_override("font_size", 24)
+    fc_toggle.add_theme_font_size_override("font_size", 32)
     fc_toggle.pressed.connect(fcview.toggle_mode)
     fc_bar.add_child(fc_toggle)
 
     var fc_mode_lbl := Label.new()
-    fc_mode_lbl.add_theme_font_size_override("font_size", 16)
+    fc_mode_lbl.add_theme_font_size_override("font_size", 21)
     fc_mode_lbl.text = "✗ Atual — só Body1 (2 tiles, 12 fills sem colisão)"
     fc_mode_lbl.add_theme_color_override("font_color", Color(1.0, 0.4, 0.4))
     fill_ceil_panel.add_child(fc_mode_lbl)
     fcview.lbl_mode = fc_mode_lbl
 
     var fc_state_lbl := Label.new()
-    fc_state_lbl.add_theme_font_size_override("font_size", 16)
+    fc_state_lbl.add_theme_font_size_override("font_size", 21)
     fc_state_lbl.add_theme_color_override("font_color", Color(0.5, 0.5, 0.5))
     fc_state_lbl.text = "No chão"
     fill_ceil_panel.add_child(fc_state_lbl)
@@ -3307,13 +3103,13 @@ func _build_moves_box() -> void:
 
     var btn_mov_tab := Button.new()
     btn_mov_tab.text = "Movimentos"
-    btn_mov_tab.add_theme_font_size_override("font_size", 26)
+    btn_mov_tab.add_theme_font_size_override("font_size", 34)
     btn_mov_tab.modulate = Color(1.0, 1.0, 0.0)
     tab_row.add_child(btn_mov_tab)
 
     var btn_fill_tab := Button.new()
     btn_fill_tab.text = "Fill Teto"
-    btn_fill_tab.add_theme_font_size_override("font_size", 26)
+    btn_fill_tab.add_theme_font_size_override("font_size", 34)
     btn_fill_tab.modulate = Color(0.6, 0.6, 0.6)
     tab_row.add_child(btn_fill_tab)
 
@@ -3381,7 +3177,7 @@ func _refresh_tiles() -> void:
 
         var stage_btn := Button.new()
         stage_btn.text = sk.trim_prefix("Stage_")
-        stage_btn.add_theme_font_size_override("font_size", 26)
+        stage_btn.add_theme_font_size_override("font_size", 34)
         var _st: int = st_idx
         stage_btn.pressed.connect(func(): show_section.call(0, _st))
         stage_row.add_child(stage_btn)
@@ -3413,7 +3209,7 @@ func _refresh_tiles() -> void:
 
             var ts_btn := Button.new()
             ts_btn.text = short
-            ts_btn.add_theme_font_size_override("font_size", 24)
+            ts_btn.add_theme_font_size_override("font_size", 32)
             ts_btn.pressed.connect(show_ts.bind(ts_idx, ts_panels, ts_tab_row))
             ts_tab_row.add_child(ts_btn)
 
@@ -3425,7 +3221,7 @@ func _refresh_tiles() -> void:
 
             var info_lbl := Label.new()
             info_lbl.text = "clique num tile para zoom  ·  %dx%d, %dpx cada" % [ts_data.cols, ts_data.rows, ts_data.tile_size]
-            info_lbl.add_theme_font_size_override("font_size", 17)
+            info_lbl.add_theme_font_size_override("font_size", 22)
             info_lbl.add_theme_color_override("font_color", Color(0.5, 0.5, 0.5))
             panel.add_child(info_lbl)
 
@@ -3457,7 +3253,7 @@ func _refresh_tiles() -> void:
 
             var desc_lbl := Label.new()
             desc_lbl.text = ""
-            desc_lbl.add_theme_font_size_override("font_size", 18)
+            desc_lbl.add_theme_font_size_override("font_size", 24)
             desc_lbl.add_theme_color_override("font_color", Color(0.85, 0.85, 0.6))
             desc_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
             panel.add_child(desc_lbl)
@@ -3512,7 +3308,7 @@ func _refresh_tiles() -> void:
                     var is_blank: bool = _bdesc.begins_with("Transparente")
                     var coord_lbl := Label.new()
                     coord_lbl.text = "—" if is_blank else "%d,%d" % [col, row]
-                    coord_lbl.add_theme_font_size_override("font_size", 15)
+                    coord_lbl.add_theme_font_size_override("font_size", 20)
                     coord_lbl.add_theme_color_override(
                         "font_color",
                         Color(0.3, 0.3, 0.3) if is_blank else Color(0.6, 0.6, 0.6)
@@ -3527,7 +3323,7 @@ func _refresh_tiles() -> void:
 
     var col_tab_btn := Button.new()
     col_tab_btn.text = "Colisões"
-    col_tab_btn.add_theme_font_size_override("font_size", 26)
+    col_tab_btn.add_theme_font_size_override("font_size", 34)
     col_tab_btn.pressed.connect(func(): show_section.call(1, -1))
     stage_row.add_child(col_tab_btn)
 
@@ -3542,7 +3338,7 @@ func _refresh_tiles() -> void:
     col_panel.add_child(col_mode_row)
     var col_mode_lbl := Label.new()
     col_mode_lbl.text = "Modo:"
-    col_mode_lbl.add_theme_font_size_override("font_size", 18)
+    col_mode_lbl.add_theme_font_size_override("font_size", 24)
     col_mode_row.add_child(col_mode_lbl)
 
     var lateral_box := VBoxContainer.new()
@@ -3565,7 +3361,7 @@ func _refresh_tiles() -> void:
     var add_info := func(text: String, color: Color) -> void:
         var il := Label.new()
         il.text = text
-        il.add_theme_font_size_override("font_size", 18)
+        il.add_theme_font_size_override("font_size", 24)
         il.add_theme_color_override("font_color", color)
         col_info.add_child(il)
 
@@ -3594,12 +3390,12 @@ func _refresh_tiles() -> void:
     col_corner_row.visible = false
     var col_corner_lbl := Label.new()
     col_corner_lbl.text = "Canto:"
-    col_corner_lbl.add_theme_font_size_override("font_size", 18)
+    col_corner_lbl.add_theme_font_size_override("font_size", 24)
     col_corner_row.add_child(col_corner_lbl)
     for ci: Array in [["↗ topo-dir", 0], ["↖ topo-esq", 1], ["↘ base-dir", 2], ["↙ base-esq", 3]]:
         var cbtn := Button.new()
         cbtn.text = ci[0]
-        cbtn.add_theme_font_size_override("font_size", 24)
+        cbtn.add_theme_font_size_override("font_size", 32)
         var cidx: int = ci[1]
         cbtn.pressed.connect(func(): cview_col.corner = cidx; cview_col.queue_redraw())
         col_corner_row.add_child(cbtn)
@@ -3615,7 +3411,7 @@ func _refresh_tiles() -> void:
     for ml: Array in [["Lateral", false], ["Cantos", true]]:
         var mbtn := Button.new()
         mbtn.text = ml[0]
-        mbtn.add_theme_font_size_override("font_size", 24)
+        mbtn.add_theme_font_size_override("font_size", 32)
         var is_c: bool = ml[1]
         mbtn.pressed.connect(func(): _col_sw.call(is_c))
         col_mode_row.add_child(mbtn)
@@ -3628,7 +3424,7 @@ func _refresh_tiles() -> void:
 
     var glass_hdr := Label.new()
     glass_hdr.text = "Vidro (stage_00_glass.png)"
-    glass_hdr.add_theme_font_size_override("font_size", 20)
+    glass_hdr.add_theme_font_size_override("font_size", 26)
     glass_hdr.add_theme_color_override("font_color", Color(0.5, 0.9, 1.0))
     col_panel.add_child(glass_hdr)
 
@@ -3637,7 +3433,7 @@ func _refresh_tiles() -> void:
     col_panel.add_child(glass_mode_row)
     var glass_mode_lbl := Label.new()
     glass_mode_lbl.text = "Modo:"
-    glass_mode_lbl.add_theme_font_size_override("font_size", 18)
+    glass_mode_lbl.add_theme_font_size_override("font_size", 24)
     glass_mode_row.add_child(glass_mode_lbl)
 
     var gl_tex: Texture2D = null
@@ -3676,12 +3472,12 @@ func _refresh_tiles() -> void:
     gcor_btn_row.add_theme_constant_override("separation", 6)
     var gcor_lbl := Label.new()
     gcor_lbl.text = "Canto:"
-    gcor_lbl.add_theme_font_size_override("font_size", 18)
+    gcor_lbl.add_theme_font_size_override("font_size", 24)
     gcor_btn_row.add_child(gcor_lbl)
     for gci: Array in [["↗ topo-dir", 0], ["↖ topo-esq", 1], ["↘ base-dir", 2], ["↙ base-esq", 3]]:
         var gcbtn := Button.new()
         gcbtn.text = gci[0]
-        gcbtn.add_theme_font_size_override("font_size", 24)
+        gcbtn.add_theme_font_size_override("font_size", 32)
         var gcidx: int = gci[1]
         gcbtn.pressed.connect(func(): gcor.corner = gcidx; gcor.queue_redraw())
         gcor_btn_row.add_child(gcbtn)
@@ -3716,11 +3512,11 @@ func _refresh_tiles() -> void:
     gpan_row.add_theme_constant_override("separation", 6)
     var gpan_norm_btn := Button.new()
     gpan_norm_btn.text = "Normal"
-    gpan_norm_btn.add_theme_font_size_override("font_size", 22)
+    gpan_norm_btn.add_theme_font_size_override("font_size", 28)
     gpan_norm_btn.modulate = Color(1.0, 1.0, 0.0)
     var gpan_mirr_btn := Button.new()
     gpan_mirr_btn.text = "Espelho"
-    gpan_mirr_btn.add_theme_font_size_override("font_size", 22)
+    gpan_mirr_btn.add_theme_font_size_override("font_size", 28)
     gpan_mirr_btn.modulate = Color(0.6, 0.6, 0.6)
     gpan_norm_btn.pressed.connect(func():
         gpan.mirror = false; gpan.queue_redraw()
@@ -3760,7 +3556,7 @@ func _refresh_tiles() -> void:
     for gml: Array in [["Lateral", 0], ["Cantos", 1], ["Gap", 2], ["Comparação", 3], ["Painel", 4], ["Centro (2,1)", 5]]:
         var gmbtn := Button.new()
         gmbtn.text = gml[0]
-        gmbtn.add_theme_font_size_override("font_size", 24)
+        gmbtn.add_theme_font_size_override("font_size", 32)
         var gidx: int = gml[1]
         gmbtn.pressed.connect(func(): _glass_sw.call(gidx))
         glass_mode_row.add_child(gmbtn)
@@ -3770,7 +3566,7 @@ func _refresh_tiles() -> void:
     # Plataformas tab
     var plat_tab_btn := Button.new()
     plat_tab_btn.text = "Plataformas"
-    plat_tab_btn.add_theme_font_size_override("font_size", 26)
+    plat_tab_btn.add_theme_font_size_override("font_size", 34)
     plat_tab_btn.pressed.connect(func(): show_section.call(2, -1))
     stage_row.add_child(plat_tab_btn)
 
@@ -3790,13 +3586,13 @@ func _refresh_tiles() -> void:
 
     var plat_ts_lbl := Label.new()
     plat_ts_lbl.text = "Tileset:"
-    plat_ts_lbl.add_theme_font_size_override("font_size", 18)
+    plat_ts_lbl.add_theme_font_size_override("font_size", 24)
     plat_ts_row.add_child(plat_ts_lbl)
 
     for ts_data2 in _TILESETS:
         var ts_btn := Button.new()
         ts_btn.text = ts_data2.name.trim_suffix("T")
-        ts_btn.add_theme_font_size_override("font_size", 24)
+        ts_btn.add_theme_font_size_override("font_size", 32)
         var ts_path2: String = ts_data2.path
         ts_btn.pressed.connect(func():
             pview.tile_tex = load(ts_path2) as Texture2D
@@ -3810,7 +3606,7 @@ func _refresh_tiles() -> void:
 
     var mode_lbl := Label.new()
     mode_lbl.text = "Modo:"
-    mode_lbl.add_theme_font_size_override("font_size", 18)
+    mode_lbl.add_theme_font_size_override("font_size", 24)
     mode_row.add_child(mode_lbl)
 
     var ctrl_row := HBoxContainer.new()
@@ -3831,7 +3627,7 @@ func _refresh_tiles() -> void:
     for me: Array in [["Plataforma", "platform"], ["Sala", "room"], ["Piso+Plat", "floor_platform"], ["Piso+Abismo", "floor_platform_hole"], ["Buraco no Piso", "floor_hole"], ["Saliência", "foothold"], ["Teto", "ceil_flat"]]:
         var mbtn := Button.new()
         mbtn.text = me[0]
-        mbtn.add_theme_font_size_override("font_size", 24)
+        mbtn.add_theme_font_size_override("font_size", 32)
         var mk: String = me[1]
         var ml: String = me[0]
         mbtn.pressed.connect(func():
@@ -3849,7 +3645,7 @@ func _refresh_tiles() -> void:
     ceil_sub_row.visible = false
     var ceil_tipo_lbl := Label.new()
     ceil_tipo_lbl.text = "Tipo:"
-    ceil_tipo_lbl.add_theme_font_size_override("font_size", 18)
+    ceil_tipo_lbl.add_theme_font_size_override("font_size", 24)
     ceil_sub_row.add_child(ceil_tipo_lbl)
     var _sw_sub := func(sk: String, sl: String) -> void:
         _sw.call(sk, "Teto")
@@ -3858,7 +3654,7 @@ func _refresh_tiles() -> void:
     for sub: Array in [["Reto", "ceil_flat"], ["Escada", "ceil_step"], ["Buraco", "ceil_hole"], ["Plat", "ceil_platform"], ["Pit+Plat", "ceil_plat_pit"]]:
         var sbtn := Button.new()
         sbtn.text = sub[0]
-        sbtn.add_theme_font_size_override("font_size", 24)
+        sbtn.add_theme_font_size_override("font_size", 32)
         var sk: String = sub[1]; var sl: String = sub[0]
         sbtn.pressed.connect(func(): _sw_sub.call(sk, sl))
         ceil_sub_row.add_child(sbtn)
@@ -3871,20 +3667,20 @@ func _refresh_tiles() -> void:
 
     var cols_lbl := Label.new()
     cols_lbl.text = "Cols: 3"
-    cols_lbl.add_theme_font_size_override("font_size", 18)
+    cols_lbl.add_theme_font_size_override("font_size", 24)
     cols_lbl.custom_minimum_size = Vector2(80.0, 0.0)
     var cols_hb := HBoxContainer.new()
     cols_hb.add_theme_constant_override("separation", 4)
     var cols_m := Button.new()
     cols_m.text = "−"
-    cols_m.add_theme_font_size_override("font_size", 18)
+    cols_m.add_theme_font_size_override("font_size", 24)
     cols_m.pressed.connect(func():
         if pview.cols > 1:
             pview.set_dims(pview.rows, pview.cols - 1)
             cols_lbl.text = "Cols: %d" % pview.cols)
     var cols_p := Button.new()
     cols_p.text = "+"
-    cols_p.add_theme_font_size_override("font_size", 18)
+    cols_p.add_theme_font_size_override("font_size", 24)
     cols_p.pressed.connect(func():
         if pview.cols < 8:
             pview.set_dims(pview.rows, pview.cols + 1)
@@ -3896,20 +3692,20 @@ func _refresh_tiles() -> void:
 
     var rows_lbl := Label.new()
     rows_lbl.text = "Rows: 2"
-    rows_lbl.add_theme_font_size_override("font_size", 18)
+    rows_lbl.add_theme_font_size_override("font_size", 24)
     rows_lbl.custom_minimum_size = Vector2(80.0, 0.0)
     var rows_hb := HBoxContainer.new()
     rows_hb.add_theme_constant_override("separation", 4)
     var rows_m := Button.new()
     rows_m.text = "−"
-    rows_m.add_theme_font_size_override("font_size", 18)
+    rows_m.add_theme_font_size_override("font_size", 24)
     rows_m.pressed.connect(func():
         if pview.rows > 1:
             pview.set_dims(pview.rows - 1, pview.cols)
             rows_lbl.text = "Rows: %d" % pview.rows)
     var rows_p := Button.new()
     rows_p.text = "+"
-    rows_p.add_theme_font_size_override("font_size", 18)
+    rows_p.add_theme_font_size_override("font_size", 24)
     rows_p.pressed.connect(func():
         if pview.rows < 8:
             pview.set_dims(pview.rows + 1, pview.cols)
@@ -3921,7 +3717,7 @@ func _refresh_tiles() -> void:
 
     var mirror_btn := Button.new()
     mirror_btn.text = "Espelhar"
-    mirror_btn.add_theme_font_size_override("font_size", 18)
+    mirror_btn.add_theme_font_size_override("font_size", 24)
     mirror_btn.pressed.connect(func():
         pview.mirror_hole = not pview.mirror_hole
         pview.queue_redraw())
@@ -4103,7 +3899,7 @@ class _BossBattleView extends Control:
 
         var title := Label.new()
         title.text = "Escolha o boss  (ESC/Enter na sala = voltar aqui)"
-        title.add_theme_font_size_override("font_size", 26)
+        title.add_theme_font_size_override("font_size", 34)
         title.add_theme_color_override("font_color", Color(0.85, 0.8, 1.0))
         box.add_child(title)
 
@@ -4115,14 +3911,14 @@ class _BossBattleView extends Control:
         for i in ImgDebug._BOSS_BATTLE.size():
             var btn := Button.new()
             btn.text = ImgDebug._BOSS_BATTLE[i].name
-            btn.add_theme_font_size_override("font_size", 24)
+            btn.add_theme_font_size_override("font_size", 32)
             btn.custom_minimum_size = Vector2(240.0, 56.0)
             btn.pressed.connect(_enter_battle.bind(i))
             grid.add_child(btn)
 
         var exit_btn := Button.new()
         exit_btn.text = "Sair"
-        exit_btn.add_theme_font_size_override("font_size", 24)
+        exit_btn.add_theme_font_size_override("font_size", 32)
         exit_btn.custom_minimum_size = Vector2(160.0, 48.0)
         exit_btn.pressed.connect(func(): exit_requested.emit())
         box.add_child(exit_btn)
