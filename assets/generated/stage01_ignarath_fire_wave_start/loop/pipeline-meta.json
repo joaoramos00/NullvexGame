@@ -1,0 +1,155 @@
+{
+  "target": "asset",
+  "mode": "fx",
+  "prompt": "",
+  "role": "",
+  "input": "assets\\generated\\stage01_ignarath_fire_wave_start\\loop\\raw-sheet.png",
+  "threshold": 100,
+  "edge_threshold": 150,
+  "duration": 200,
+  "rows": 2,
+  "cols": 2,
+  "cell_size": 128,
+  "fit_scale": 0.82,
+  "trim_border": 4,
+  "edge_clean_depth": 3,
+  "align": "bottom",
+  "shared_scale": true,
+  "component_mode": "all",
+  "component_padding": 0,
+  "min_component_area": 1,
+  "edge_touch_margin": 0,
+  "frame_labels": [
+    "fire_wave_start-1",
+    "fire_wave_start-2",
+    "fire_wave_start-3",
+    "fire_wave_start-4"
+  ],
+  "frames": [
+    {
+      "grid": [
+        0,
+        0
+      ],
+      "source_box": [
+        0,
+        0,
+        512,
+        512
+      ],
+      "component_mode": "all",
+      "component_count": 31,
+      "selected_component_area": null,
+      "selected_component_bbox": null,
+      "crop_bbox": [
+        61,
+        366,
+        469,
+        471
+      ],
+      "edge_touch": false,
+      "output_size": [
+        103,
+        26
+      ],
+      "paste_position": [
+        12,
+        91
+      ]
+    },
+    {
+      "grid": [
+        0,
+        1
+      ],
+      "source_box": [
+        512,
+        0,
+        1024,
+        512
+      ],
+      "component_mode": "all",
+      "component_count": 21,
+      "selected_component_area": null,
+      "selected_component_bbox": null,
+      "crop_bbox": [
+        61,
+        359,
+        469,
+        471
+      ],
+      "edge_touch": false,
+      "output_size": [
+        103,
+        28
+      ],
+      "paste_position": [
+        12,
+        89
+      ]
+    },
+    {
+      "grid": [
+        1,
+        0
+      ],
+      "source_box": [
+        0,
+        512,
+        512,
+        1024
+      ],
+      "component_mode": "all",
+      "component_count": 23,
+      "selected_component_area": null,
+      "selected_component_bbox": null,
+      "crop_bbox": [
+        69,
+        339,
+        469,
+        450
+      ],
+      "edge_touch": false,
+      "output_size": [
+        101,
+        28
+      ],
+      "paste_position": [
+        13,
+        89
+      ]
+    },
+    {
+      "grid": [
+        1,
+        1
+      ],
+      "source_box": [
+        512,
+        512,
+        1024,
+        1024
+      ],
+      "component_mode": "all",
+      "component_count": 30,
+      "selected_component_area": null,
+      "selected_component_bbox": null,
+      "crop_bbox": [
+        57,
+        321,
+        469,
+        450
+      ],
+      "edge_touch": false,
+      "output_size": [
+        104,
+        32
+      ],
+      "paste_position": [
+        12,
+        85
+      ]
+    }
+  ],
+  "edge_touch_frames": []
+}
