@@ -1479,16 +1479,16 @@ class _HitboxOverlay extends Node2D:
                 var _beam_angle := Vector2(0.0, 1.0).angle()
                 var _beam_w := 40.0  # BEAM_HALF_WIDTH * 2 = 20 * 2
                 var _beam_dir := Vector2(0.0, 1.0)
-                var _half_w := _beam_w * 0.5  # = 12
+                var _half_w := _beam_w * 0.5  # = 20
                 # Calcula cap_scale (igual a fire_beam.gd: maxf(0.35, half_w*2.4/frame_h)).
                 var _etex: Texture2D = _PROJ_TEX.get("fire_beam_end")
-                var _esc := 0.35
+                var _esc := 0.35 * 1.8  # end_cap_scale = cap_scale * 1.8
                 var _efw := 0.0
                 var _efh := 0.0
                 if _etex != null:
                     _efw = float(_etex.get_width()) * 0.5
                     _efh = float(_etex.get_height()) * 0.5
-                    _esc = maxf(0.35, _half_w * 2.4 / _efh)
+                    _esc = maxf(0.35, _half_w * 2.4 / _efh) * 1.8
                 # Corpo termina no centro do sprite de ponta.
                 var _cap_half := _esc * _efh * 0.5
                 var _body_end := _beam_end - _beam_dir * _cap_half
