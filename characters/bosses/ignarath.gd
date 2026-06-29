@@ -25,7 +25,9 @@ const BEAM_MAX_ANGLE       := 90.0   # graus a partir da vertical (começa horiz
 const BEAM_HALF_WIDTH      := 20.0
 const MOUTH_DX             := 38.5   # offset da boca (a partir da origem do boss)
 const MOUTH_DY             := 10.0
-const FIREBREATH_STATIC_FRAME := 8   # frame "cuspindo" travado durante a varredura
+const FIREBREATH_DOWN_FRAME   := 7   # frame 8 (1-idx): beam apontando para baixo
+const FIREBREATH_STATIC_FRAME := 8   # frame 9 (1-idx): beam varrendo
+const FIREBREATH_DOWN_TIME    := 0.1 # duração do frame 8 (1 frame a 10fps)
 const FIRE_WINDUP_P1       := 0.5    # telegraph antes de cuspir (tempo de ir pra parede)
 const FIRE_WINDUP_P2       := 0.35
 const CLAW_DAMAGE          := 18
@@ -145,11 +147,17 @@ func _do_firebreath() -> void:
 		return
 	_telegraph_timer = 0.0
 
-	# Sprite estático no frame de "cuspindo" + beam que varre.
+	# Fase 1 — frame 8: beam nasce apontando para baixo.
 	_static_anim = true
-	_anim_frame = FIREBREATH_STATIC_FRAME
+	_anim_frame = FIREBREATH_DOWN_FRAME
 	var sweep := BEAM_SWEEP_TIME_P2 if phase >= 2 else BEAM_SWEEP_TIME_P1
-	_spawn_fire_beam(sweep)
+	_spawn_fire_beam(sweep, FIREBREATH_DOWN_TIME)
+
+	await get_tree().create_timer(FIREBREATH_DOWN_TIME).timeout
+	if gen != _attack_gen or is_dead:
+		return
+	# Fase 2 — frame 9: beam varre 0° → 90°.
+	_anim_frame = FIREBREATH_STATIC_FRAME
 
 	await get_tree().create_timer(sweep).timeout
 	if gen != _attack_gen or is_dead:
@@ -157,7 +165,7 @@ func _do_firebreath() -> void:
 	_static_anim = false
 	_end_attack_anim()
 
-func _spawn_fire_beam(sweep_time: float) -> void:
+func _spawn_fire_beam(sweep_time: float, hold_time: float = 0.0) -> void:
 	var beam: Node2D = _FIRE_BEAM.new()
 	beam.set("player", player)
 	beam.set("origin", global_position + Vector2(_facing * MOUTH_DX, MOUTH_DY) * scale.x)
@@ -166,6 +174,7 @@ func _spawn_fire_beam(sweep_time: float) -> void:
 	beam.set("sweep_time", sweep_time)
 	beam.set("max_angle_deg", BEAM_MAX_ANGLE)
 	beam.set("half_width", BEAM_HALF_WIDTH)
+	beam.set("hold_time", hold_time)
 	beam.set("damage", FIRE_DAMAGE)
 	beam.set("source_id", "ignarath")
 	get_parent().add_child(beam)

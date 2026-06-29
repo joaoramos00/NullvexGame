@@ -1505,11 +1505,11 @@ class _HitboxOverlay extends Node2D:
             "fire_bolt", "fire_glob", "fire_spit", "heat_mortar_shell":
                 _draw_proj_sprite(variant, pos, traj_angle)
             "fire_beam":
-                # Beam a 45° (facing=-1 → baixo-esquerda) usando os sprites reais.
+                # Frame 8: beam nasce apontando PARA BAIXO (vertical).
                 var _depth := maxf(8.0, ground_y - pos.y)
-                var _beam_end := Vector2(pos.x - _depth, ground_y)
-                var _beam_len := _depth * sqrt(2.0)
-                var _beam_angle := Vector2(-1.0, 1.0).angle()
+                var _beam_end := Vector2(pos.x, ground_y)
+                var _beam_len := _depth
+                var _beam_angle := Vector2(0.0, 1.0).angle()
                 var _beam_w := 40.0   # largura do beam em px de jogo (half_width*2)
                 # Corpo tileado ao longo do beam.
                 var _btex: Texture2D = _PROJ_TEX.get("fire_beam_body")
@@ -1518,7 +1518,7 @@ class _HitboxOverlay extends Node2D:
                     var _bfh := float(_btex.get_height()) * 0.5
                     var _bsc := _beam_w / _bfh
                     var _tile_w := _bfw * _bsc
-                    var _bdir := Vector2(-1.0, 1.0).normalized()
+                    var _bdir := Vector2(0.0, 1.0)
                     var _n := maxi(1, int(ceil(_beam_len / _tile_w)))
                     for _i in range(_n):
                         var _tp := pos + _bdir * (_tile_w * (float(_i) + 0.5))
