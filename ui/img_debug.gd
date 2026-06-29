@@ -1599,7 +1599,7 @@ class _HitboxView extends Control:
         "Magma Turret": {"label": "Fire Glob", "variant": "fire_glob", "release_frame": 2, "offset": Vector2(-38.0, -5.0), "parabolic": false},
         "Lava Serpent": {"label": "Fire Spit", "variant": "fire_spit", "release_frame": 9, "offset": Vector2(50.0, -20.0), "parabolic": false},
         # Bosses
-        "Ignarath": {"label": "Firebreath (boca)", "variant": "fire_beam", "release_frame": 4, "offset": Vector2(-50.8, -32.0), "parabolic": false},
+        "Ignarath": {"label": "Firebreath (boca)", "variant": "fire_beam", "release_frame": 4, "offset": Vector2(-50.8, -32.0), "parabolic": false, "anim": "Firebreath"},
     }
 
     var _current_index: int = 0
@@ -2163,6 +2163,14 @@ class _HitboxView extends Control:
                 _projectile_row.visible = false
             return
         var projectile_def := (def_value as Dictionary).duplicate()
+        # Se o def restringe a uma animação específica, só mostrar nessa anim.
+        var anim_filter := String(projectile_def.get("anim", ""))
+        if anim_filter != "" and _anim_opt != null and _anim_opt.item_count > 0:
+            var cur_anim := _anim_opt.get_item_text(_anim_opt.selected)
+            if cur_anim != anim_filter:
+                if _projectile_row != null:
+                    _projectile_row.visible = false
+                return
         var release_frame := int(projectile_def.release_frame)
         var is_release := _selected_frame == release_frame
         projectile_def["visible"] = is_release
