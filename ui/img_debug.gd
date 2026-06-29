@@ -1523,7 +1523,7 @@ class _HitboxOverlay extends Node2D:
                     for _i in range(_n):
                         var _tp := pos + _bdir * (_tile_w * (float(_i) + 0.5))
                         draw_set_transform(_tp, _beam_angle, Vector2(_bsc, _bsc))
-                        draw_texture_rect_region(_btex, Rect2(-_bfw * 0.5, -_bfh * 0.5, _bfw, _bfh), Rect2(0.0, 0.0, _bfw, _bfh))
+                        draw_texture_rect_region(_btex, Rect2(-_bfw * 0.5, -_bfh * 0.5, _bfw, _bfh), Rect2(0.0, 0.0, _bfw, _bfh), Color(1.0, 0.0, 0.5, 0.85))
                     draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
                 # Origem (swirl na boca).
                 var _otex: Texture2D = _PROJ_TEX.get("fire_beam_origin")
@@ -1541,7 +1541,7 @@ class _HitboxOverlay extends Node2D:
                     var _efh := float(_etex.get_height()) * 0.5
                     var _esc := (_beam_w * 1.3) / _efh
                     draw_set_transform(_beam_end, _beam_angle, Vector2(_esc, _esc))
-                    draw_texture_rect_region(_etex, Rect2(-_efw * 0.5, -_efh * 0.5, _efw, _efh), Rect2(0.0, 0.0, _efw, _efh))
+                    draw_texture_rect_region(_etex, Rect2(-_efw * 0.5, -_efh * 0.5, _efw, _efh), Rect2(0.0, 0.0, _efw, _efh), Color(0.0, 1.0, 0.0, 1.0))
                     draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
                 # Fallback se texturas não carregaram.
                 if _btex == null:
