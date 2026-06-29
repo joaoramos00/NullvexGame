@@ -20,4 +20,4 @@ boss_color = Color(0.9, 0.3, 0.0, 1)
 shape = SubResource("CapsuleShape2D_ignarath")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
-position = Vector2(0, -40)
+position = Vector2(0, 10)
