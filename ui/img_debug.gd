@@ -1490,12 +1490,14 @@ class _HitboxOverlay extends Node2D:
                     draw_set_transform(pos, _beam_angle, Vector2(_bsx * _bsc, _bsc))
                     draw_texture_rect_region(_btex, Rect2(0.0, -_bfh * 0.5, _bfw, _bfh), Rect2(0.0, 0.0, _bfw, _bfh), Color(1.0, 0.0, 0.5, 0.85))
                     draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+                # cap_scale igual ao fire_beam.gd: maxf(0.75, half_width*2.4/frame_h)
+                var _half_w := _beam_w * 0.5
                 # Origem (swirl na boca).
                 var _otex: Texture2D = _PROJ_TEX.get("fire_beam_origin")
                 if _otex != null:
                     var _ofw := float(_otex.get_width()) * 0.5
                     var _ofh := float(_otex.get_height()) * 0.5
-                    var _osc := _beam_w / _ofh
+                    var _osc := maxf(0.75, _half_w * 2.4 / _ofh)
                     draw_set_transform(pos, _beam_angle, Vector2(_osc, _osc))
                     draw_texture_rect_region(_otex, Rect2(-_ofw * 0.5, -_ofh * 0.5, _ofw, _ofh), Rect2(0.0, 0.0, _ofw, _ofh))
                     draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
@@ -1504,7 +1506,7 @@ class _HitboxOverlay extends Node2D:
                 if _etex != null:
                     var _efw := float(_etex.get_width()) * 0.5
                     var _efh := float(_etex.get_height()) * 0.5
-                    var _esc := (_beam_w * 1.3) / _efh
+                    var _esc := maxf(0.75, _half_w * 2.4 / _efh)
                     var _e_pos := _beam_end - _beam_dir * (_esc * _efh * 0.5)
                     draw_set_transform(_e_pos, _beam_angle, Vector2(_esc, _esc))
                     draw_texture_rect_region(_etex, Rect2(-_efw * 0.5, -_efh * 0.5, _efw, _efh), Rect2(0.0, 0.0, _efw, _efh), Color(0.0, 1.0, 0.0, 1.0))
