@@ -1505,25 +1505,22 @@ class _HitboxOverlay extends Node2D:
             "fire_bolt", "fire_glob", "fire_spit", "heat_mortar_shell":
                 _draw_proj_sprite(variant, pos, traj_angle)
             "fire_beam":
-                # Frame 8: beam nasce apontando PARA BAIXO (vertical).
+                # Beam vertical (frame 9 = posição inicial do sweep).
                 var _depth := maxf(8.0, ground_y - pos.y)
                 var _beam_end := Vector2(pos.x, ground_y)
                 var _beam_len := _depth
                 var _beam_angle := Vector2(0.0, 1.0).angle()
-                var _beam_w := 80.0   # largura do beam em px de jogo (half_width*2)
-                # Corpo tileado ao longo do beam.
+                var _beam_w := 80.0
+                var _beam_dir := Vector2(0.0, 1.0)
+                # Corpo: sprite único esticado de pos até _beam_end (sem overshoot de tiles).
                 var _btex: Texture2D = _PROJ_TEX.get("fire_beam_body")
                 if _btex != null:
                     var _bfw := float(_btex.get_width()) * 0.5
                     var _bfh := float(_btex.get_height()) * 0.5
-                    var _bsc := _beam_w / _bfh
-                    var _tile_w := _bfw * _bsc
-                    var _bdir := Vector2(0.0, 1.0)
-                    var _n := maxi(1, int(ceil(_beam_len / _tile_w)))
-                    for _i in range(_n):
-                        var _tp := pos + _bdir * (_tile_w * (float(_i) + 0.5))
-                        draw_set_transform(_tp, _beam_angle, Vector2(_bsc, _bsc))
-                        draw_texture_rect_region(_btex, Rect2(-_bfw * 0.5, -_bfh * 0.5, _bfw, _bfh), Rect2(0.0, 0.0, _bfw, _bfh), Color(1.0, 0.0, 0.5, 0.85))
+                    var _bsc := _beam_w / _bfh          # escala uniforme (largura)
+                    var _bsx := _beam_len / _bfw         # escala X estica até _beam_end
+                    draw_set_transform(pos, _beam_angle, Vector2(_bsx * _bsc, _bsc))
+                    draw_texture_rect_region(_btex, Rect2(0.0, -_bfh * 0.5, _bfw, _bfh), Rect2(0.0, 0.0, _bfw, _bfh), Color(1.0, 0.0, 0.5, 0.85))
                     draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
                 # Origem (swirl na boca).
                 var _otex: Texture2D = _PROJ_TEX.get("fire_beam_origin")
@@ -1534,13 +1531,14 @@ class _HitboxOverlay extends Node2D:
                     draw_set_transform(pos, _beam_angle, Vector2(_osc, _osc))
                     draw_texture_rect_region(_otex, Rect2(-_ofw * 0.5, -_ofh * 0.5, _ofw, _ofh), Rect2(0.0, 0.0, _ofw, _ofh))
                     draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
-                # Impacto no chão.
+                # Impacto: borda dianteira do sprite alinha com _beam_end (sem passar o chão).
                 var _etex: Texture2D = _PROJ_TEX.get("fire_beam_end")
                 if _etex != null:
                     var _efw := float(_etex.get_width()) * 0.5
                     var _efh := float(_etex.get_height()) * 0.5
                     var _esc := (_beam_w * 1.3) / _efh
-                    draw_set_transform(_beam_end, _beam_angle, Vector2(_esc, _esc))
+                    var _e_pos := _beam_end - _beam_dir * (_esc * _efh * 0.5)
+                    draw_set_transform(_e_pos, _beam_angle, Vector2(_esc, _esc))
                     draw_texture_rect_region(_etex, Rect2(-_efw * 0.5, -_efh * 0.5, _efw, _efh), Rect2(0.0, 0.0, _efw, _efh), Color(0.0, 1.0, 0.0, 1.0))
                     draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
                 # Fallback se texturas não carregaram.
