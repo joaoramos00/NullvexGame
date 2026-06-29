@@ -32,17 +32,14 @@ func _ready() -> void:
 	z_index = 3
 	position = Vector2.ZERO               # desenho em coords de mundo
 	_build_visuals()
-	var depth: float = maxf(8.0, floor_y - origin.y)
-	_end = origin + Vector2(0.0, depth)   # começa vertical
+	_end = _compute_end(0.0)              # começa horizontal (sprites apontam pra frente)
 	_update_visuals()
 	queue_redraw()
 
 func _physics_process(delta: float) -> void:
 	_t += delta
 	var prog: float = clampf(_t / sweep_time, 0.0, 1.0)
-	var ang: float = deg_to_rad(max_angle_deg * prog)
-	var depth: float = maxf(8.0, floor_y - origin.y)
-	_end = origin + Vector2(facing * depth * tan(ang), depth)
+	_end = _compute_end(prog)
 	if is_instance_valid(player) and not player.is_dead:
 		if _point_seg_dist(player.global_position, origin, _end) < half_width + 24.0:
 			player.take_damage(damage, source_id)
@@ -50,6 +47,17 @@ func _physics_process(delta: float) -> void:
 	queue_redraw()
 	if _t >= sweep_time + 0.15:
 		queue_free()
+
+# Sweep horizontal → vertical: começa apontando para o lado (max_angle_deg da vertical)
+# e varre até apontar reto para o chão (0° da vertical). Usa sin/cos para suportar 90°.
+func _compute_end(prog: float) -> Vector2:
+	var depth := maxf(8.0, floor_y - origin.y)
+	var ang := deg_to_rad(max_angle_deg * (1.0 - prog))  # max_angle_deg → 0
+	var sin_a := sin(ang) * facing
+	var cos_a := cos(ang)
+	if cos_a < 0.06:   # dentro de ~3° da horizontal — evita distância infinita
+		return origin + Vector2(sin_a * depth * 15.0, cos_a * depth * 15.0)
+	return origin + (depth / cos_a) * Vector2(sin_a, cos_a)
 
 func _build_visuals() -> void:
 	_frame_w = float(_TEX_BODY.get_width()) / _SHEET_COLS
