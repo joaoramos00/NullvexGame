@@ -160,7 +160,10 @@ func _do_firebreath() -> void:
 func _spawn_fire_beam(sweep_time: float) -> void:
 	var beam: Node2D = _FIRE_BEAM.new()
 	beam.set("player", player)
-	beam.set("origin", global_position + Vector2(_facing * MOUTH_DX, MOUTH_DY) * scale.x)
+	var _mouth := HitboxData.proj_offset("ignarath", _facing)
+	if _mouth == Vector2.INF:
+		_mouth = Vector2(_facing * MOUTH_DX, MOUTH_DY) * scale.x
+	beam.set("origin", global_position + _mouth)
 	beam.set("facing", _facing)
 	beam.set("floor_y", arena_floor)
 	beam.set("sweep_time", sweep_time)
