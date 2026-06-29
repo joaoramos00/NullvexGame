@@ -4,6 +4,7 @@ extends Node2D
 # (distância ponto-a-segmento por frame). Autodestrói ao fim da varredura.
 
 const _TEX_ORIGIN   := preload("res://characters/bosses/ignarath/fire_beam_origin.png")
+const _TEX_BODY     := preload("res://characters/bosses/ignarath/fire_beam_body.png")
 const _TEX_END      := preload("res://characters/bosses/ignarath/fire_beam_end.png")
 const _SHEET_COLS   := 2
 const _SHEET_ROWS   := 2
@@ -21,9 +22,12 @@ var source_id: String = "ignarath"
 var _t: float = 0.0
 var _end: Vector2 = Vector2.ZERO
 var _origin_sprite: Sprite2D = null
-var _body_line: Line2D = null   # glow externo (sem textura — rota visivelmente com o sweep)
+var _body_line: Line2D = null
+var _body_atlas: AtlasTexture = null
 var _body_inner: Line2D = null  # núcleo amarelo
 var _end_sprite: Sprite2D = null
+var _frame_w: float = 0.0
+var _frame_h: float = 0.0
 
 func _ready() -> void:
 	z_index = 3
@@ -57,17 +61,22 @@ func _compute_end(prog: float) -> Vector2:
 	return origin + (depth / cos_a) * Vector2(sin_a, cos_a)
 
 func _build_visuals() -> void:
+	_frame_w = float(_TEX_BODY.get_width()) / _SHEET_COLS
+	_frame_h = float(_TEX_BODY.get_height()) / _SHEET_ROWS
+
 	_origin_sprite = Sprite2D.new()
 	_origin_sprite.name = "OriginSprite"
 	_configure_sheet_sprite(_origin_sprite, _TEX_ORIGIN)
 	_origin_sprite.z_index = 4
 	add_child(_origin_sprite)
 
-	# Corpo do beam: dois Line2D coloridos (glow externo + núcleo), sem textura.
-	# Linhas coloridas rotacionam claramente com o sweep (textura horizontal não rota bem).
+	_body_atlas = AtlasTexture.new()
+	_body_atlas.atlas = _TEX_BODY
+	_body_atlas.region = Rect2(0.0, 0.0, _frame_w, _frame_h)
 	_body_line = Line2D.new()
 	_body_line.name = "BodyLine"
-	_body_line.default_color = Color(1.0, 0.4, 0.05, 0.85)
+	_body_line.texture = _body_atlas
+	_body_line.texture_mode = Line2D.LINE_TEXTURE_TILE
 	_body_line.joint_mode = Line2D.LINE_JOINT_ROUND
 	_body_line.begin_cap_mode = Line2D.LINE_CAP_ROUND
 	_body_line.end_cap_mode = Line2D.LINE_CAP_ROUND
@@ -111,7 +120,14 @@ func _update_visuals() -> void:
 		_origin_sprite.rotation = beam_angle
 		_origin_sprite.modulate = Color(1.0, 0.9 + 0.1 * fl, 0.9 + 0.1 * fl, 1.0)
 
-	if _body_line != null:
+	if _body_line != null and _body_atlas != null:
+		var col := frame % _SHEET_COLS
+		var row := frame / _SHEET_COLS
+		_body_atlas.region = Rect2(float(col) * _frame_w, float(row) * _frame_h, _frame_w, _frame_h)
+		_body_line.points = PackedVector2Array([origin, _end])
+		_body_line.width = half_width * 2.0
+		_body_line.modulate = Color(1.0, 0.3 + 0.2 * fl, 0.05, 0.85)
+	elif _body_line != null:
 		_body_line.points = PackedVector2Array([origin, _end])
 		_body_line.width = half_width * 2.0
 		_body_line.default_color = Color(1.0, 0.3 + 0.2 * fl, 0.05, 0.85)
