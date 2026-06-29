@@ -56,9 +56,25 @@ func _compute_end(prog: float) -> Vector2:
 	var ang := deg_to_rad(max_angle_deg * prog)  # 0 → max_angle_deg
 	var sin_a := sin(ang) * facing
 	var cos_a := cos(ang)
+	var geom: Vector2
 	if cos_a < 0.06:   # perto de 90° (horizontal) — limita comprimento
-		return origin + Vector2(sin_a * depth * 15.0, cos_a * depth * 15.0)
-	return origin + (depth / cos_a) * Vector2(sin_a, cos_a)
+		geom = origin + Vector2(sin_a * depth * 15.0, cos_a * depth * 15.0)
+	else:
+		geom = origin + (depth / cos_a) * Vector2(sin_a, cos_a)
+	return _wall_clip(geom)
+
+func _wall_clip(geom: Vector2) -> Vector2:
+	if not is_inside_tree():
+		return geom
+	var space := get_world_2d().direct_space_state
+	if space == null:
+		return geom
+	var query := PhysicsRayQueryParameters2D.create(origin, geom)
+	query.collision_mask = 1  # layer 1 = world geometry (StaticBody2D)
+	var hit := space.intersect_ray(query)
+	if hit.is_empty():
+		return geom
+	return hit["position"]
 
 func _build_visuals() -> void:
 	_frame_w = float(_TEX_BODY.get_width()) / _SHEET_COLS
@@ -78,8 +94,8 @@ func _build_visuals() -> void:
 	_body_line.texture = _body_atlas
 	_body_line.texture_mode = Line2D.LINE_TEXTURE_TILE
 	_body_line.joint_mode = Line2D.LINE_JOINT_ROUND
-	_body_line.begin_cap_mode = Line2D.LINE_CAP_ROUND
-	_body_line.end_cap_mode = Line2D.LINE_CAP_ROUND
+	_body_line.begin_cap_mode = Line2D.LINE_CAP_NONE
+	_body_line.end_cap_mode = Line2D.LINE_CAP_NONE
 	_body_line.width = half_width * 2.0
 	_body_line.z_index = 3
 	add_child(_body_line)
@@ -111,10 +127,10 @@ func _update_visuals() -> void:
 	var beam_vec := _end - origin
 	var beam_angle := beam_vec.angle()
 	var beam_dir := beam_vec.normalized() if beam_vec.length_squared() > 0.0 else Vector2(0.0, 1.0)
-	var cap_scale := maxf(0.75, (half_width * 2.4) / _frame_h)
+	var cap_scale := maxf(0.35, (half_width * 2.4) / _frame_h)
 	var fl: float = 0.5 + 0.5 * sin(Time.get_ticks_msec() / 30.0)
-	# Corpo recua half_width para que o cap arredondado termine exatamente em _end.
-	var body_end := _end - beam_dir * half_width
+	# Corpo termina no centro do sprite de ponta; o sprite (z=5) cobre o fim da linha.
+	var body_end := _end - beam_dir * (cap_scale * _frame_h * 0.5)
 
 	if _origin_sprite != null:
 		_origin_sprite.position = origin
@@ -136,14 +152,13 @@ func _update_visuals() -> void:
 		_body_line.default_color = Color(1.0, 0.0, 0.5, 0.85)
 
 	if _body_inner != null:
-		var inner_hw := half_width * 0.35
-		_body_inner.points = PackedVector2Array([origin, _end - beam_dir * inner_hw])
+		_body_inner.points = PackedVector2Array([origin, body_end])
 		_body_inner.width = half_width * 0.7
 		_body_inner.default_color = Color(1.0, 0.4, 0.7, 0.9)
 
 	if _end_sprite != null:
-		# Borda dianteira do sprite alinha com _end, nunca passa o chão.
-		_end_sprite.position = _end - beam_dir * (cap_scale * _frame_h * 0.5)
+		# Centro do sprite alinha com body_end; sprite (z=5) cobre o fim da linha.
+		_end_sprite.position = body_end
 		_end_sprite.frame = frame
 		_end_sprite.scale = Vector2.ONE * cap_scale
 		_end_sprite.rotation = beam_angle
