@@ -1510,7 +1510,7 @@ class _HitboxOverlay extends Node2D:
                 var _beam_end := Vector2(pos.x, ground_y)
                 var _beam_len := _depth
                 var _beam_angle := Vector2(0.0, 1.0).angle()
-                var _beam_w := 40.0   # largura do beam em px de jogo (half_width*2)
+                var _beam_w := 80.0   # largura do beam em px de jogo (half_width*2)
                 # Corpo tileado ao longo do beam.
                 var _btex: Texture2D = _PROJ_TEX.get("fire_beam_body")
                 if _btex != null:
