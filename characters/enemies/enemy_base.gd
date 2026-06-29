@@ -10,7 +10,114 @@ const INVINCIBILITY_DURATION := 0.3
 const ANIM_FPS               := 5.0
 const WALK_FRAMES            := 6
 
-const _DEATH_EFFECT_SCENE := preload("res://effects/death_effect.tscn")
+const _DEATH_EFFECT_SCENE  := preload("res://effects/death_effect.tscn")
+const _DROP_PICKUP_SCENE   := preload("res://characters/pickups/drop_pickup.tscn")
+
+const _DROP_ARCH: Dictionary = {
+	"grunt":        {"chance": 0.25, "pool": {"hp_small": 45, "en_small": 50, "one_up": 5}},
+	"hopper":       {"chance": 0.25, "pool": {"hp_small": 55, "en_small": 40, "one_up": 5}},
+	"flyer":        {"chance": 0.20, "pool": {"hp_small": 25, "en_small": 70, "one_up": 5}},
+	"orbiter":      {"chance": 0.20, "pool": {"hp_small": 45, "en_small": 50, "one_up": 5}},
+	"ranged_light": {"chance": 0.30, "pool": {"hp_small": 25, "en_small": 70, "one_up": 5}},
+	"turret":       {"chance": 0.35, "pool": {"hp_small": 20, "en_small": 45, "en_large": 30, "one_up": 5}},
+	"heavy":        {"chance": 0.20, "pool": {"hp_small": 20, "hp_large": 35, "en_large": 40, "one_up": 5}},
+	"trap":         {"chance": 0.12, "pool": {"hp_small": 20, "en_small": 75, "one_up": 5}},
+	"elite":        {"chance": 0.20, "pool": {"hp_large": 45, "en_large": 45, "one_up": 10}},
+	"miniboss":     {"chance": 1.00, "pool": {"hp_large": 55, "en_large": 35, "one_up": 10}},
+}
+
+const _DROP_TABLE: Dictionary = {
+	# Stage 01 — Fogo
+	"enemy_magma_grunt":        "grunt",
+	"enemy_ash_hopper":         "hopper",
+	"enemy_flame_skimmer":      "grunt",
+	"enemy_cinder_flyer":       "flyer",
+	"enemy_ember_orbiter":      "orbiter",
+	"enemy_heat_mortar":        "turret",
+	"enemy_magma_turret":       "turret",
+	"enemy_lava_serpent":       "elite",
+	"enemy_molten_ram":         "heavy",
+	# Stage 02 — Gelo
+	"enemy_ice_grunt":          "grunt",
+	"enemy_ice_flyer":          "flyer",
+	"enemy_ice_wisp":           "orbiter",
+	"enemy_ice_archer":         "ranged_light",
+	"enemy_cryo_bomber":        "ranged_light",
+	"enemy_frost_turret":       "turret",
+	"enemy_glacier_shield":     "heavy",
+	"enemy_ice_miniboss":       "miniboss",
+	# Stage 03 — Raio
+	"enemy_rail_runner":        "grunt",
+	"enemy_volt_guard":         "grunt",
+	"enemy_arc_orbiter":        "orbiter",
+	"enemy_storm_kite":         "flyer",
+	"enemy_thunder_hawklet":    "flyer",
+	"enemy_arc_turret":         "turret",
+	"enemy_tesla_coil":         "turret",
+	"enemy_storm_relay":        "trap",
+	"enemy_static_interceptor": "trap",
+	# Stage 04 — Gravidade
+	"enemy_grav_guard":         "grunt",
+	"enemy_mass_brute":         "heavy",
+	"enemy_debris_orbiter":     "orbiter",
+	"enemy_void_drone":         "flyer",
+	"enemy_singularity_turret": "turret",
+	"enemy_crush_pylon":        "turret",
+	"enemy_orbit_mauler":       "elite",
+	"enemy_grav_well":          "trap",
+	"enemy_gravity_mine":       "trap",
+	# Stage 05 — Vento
+	"enemy_gale_runner":        "grunt",
+	"enemy_gale_grappler":      "heavy",
+	"enemy_feather_swarm":      "orbiter",
+	"enemy_sky_harrier":        "flyer",
+	"enemy_claw_glider":        "flyer",
+	"enemy_airfoil_lancer":     "ranged_light",
+	"enemy_gale_turret":        "turret",
+	"enemy_updraft_fan":        "trap",
+	"enemy_turbine_wisp":       "flyer",
+	# Stage 06 — Sombra
+	"enemy_shadow_stalker":     "grunt",
+	"enemy_eclipse_duelist":    "elite",
+	"enemy_night_pouncer":      "hopper",
+	"enemy_eclipse_turret":     "turret",
+	"enemy_dark_lantern":       "trap",
+	"enemy_umbra_bat":          "flyer",
+	"enemy_void_orbiter":       "orbiter",
+	"enemy_phase_mine":         "trap",
+	"enemy_shadow_snare":       "trap",
+	# Stage 07 — Luz
+	"enemy_lion_cub_runner":    "grunt",
+	"enemy_mirror_ram":         "heavy",
+	"enemy_solar_guard":        "grunt",
+	"enemy_beam_turret":        "turret",
+	"enemy_radiant_pylon":      "turret",
+	"enemy_glasswing_drone":    "flyer",
+	"enemy_mirror_moth":        "flyer",
+	"enemy_prism_orbiter":      "orbiter",
+	"enemy_sun_grabber":        "elite",
+	# Stage 08 — Terra
+	"enemy_terra_grunt":        "grunt",
+	"enemy_mossback_brute":     "heavy",
+	"enemy_drill_mole":         "grunt",
+	"enemy_ore_orbiter":        "orbiter",
+	"enemy_gem_wasp":           "flyer",
+	"enemy_stone_glider":       "flyer",
+	"enemy_boulder_turret":     "turret",
+	"enemy_fossil_totem":       "trap",
+	"enemy_root_snare":         "trap",
+	# Genéricos
+	"enemy_flyer":              "flyer",
+	"enemy_miniboss":           "miniboss",
+}
+
+const _DROP_POOL_TO_TYPE: Dictionary = {
+	"hp_small": DropPickup.Type.HP_SMALL,
+	"hp_large": DropPickup.Type.HP_LARGE,
+	"en_small": DropPickup.Type.EN_SMALL,
+	"en_large": DropPickup.Type.EN_LARGE,
+	"one_up":   DropPickup.Type.ONE_UP,
+}
 
 @export var max_hp:         int = 8
 @export var contact_damage: int = 8
@@ -207,6 +314,28 @@ func _draw() -> void:
 	draw_rect(bounds, Color(1.0, 0.25, 0.25, 0.25))
 	draw_rect(bounds, Color(1.0, 0.25, 0.25, 1.0), false, 2.0)
 
+func _try_drop() -> void:
+	var arch_name: String = _DROP_TABLE.get(_hitbox_id(), "grunt")
+	var arch: Dictionary  = _DROP_ARCH.get(arch_name, _DROP_ARCH["grunt"])
+	if randf() > float(arch["chance"]):
+		return
+	var pool: Dictionary = arch["pool"]
+	var total: int = 0
+	for w: int in pool.values():
+		total += w
+	var roll: int = randi() % total
+	var acc: int = 0
+	var chosen: String = pool.keys()[0]
+	for key: String in pool:
+		acc += int(pool[key])
+		if roll < acc:
+			chosen = key
+			break
+	var drop: DropPickup = _DROP_PICKUP_SCENE.instantiate()
+	drop.drop_type = _DROP_POOL_TO_TYPE[chosen]
+	drop.global_position = global_position
+	get_parent().add_child(drop)
+
 func _die() -> void:
 	is_dead = true
 	velocity = Vector2.ZERO
@@ -215,4 +344,5 @@ func _die() -> void:
 	var effect: Node2D = _DEATH_EFFECT_SCENE.instantiate()
 	effect.global_position = global_position
 	get_parent().add_child(effect)
+	_try_drop()
 	queue_free()
