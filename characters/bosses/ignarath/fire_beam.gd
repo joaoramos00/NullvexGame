@@ -111,7 +111,7 @@ func _update_visuals() -> void:
 	var beam_vec := _end - origin
 	var beam_angle := beam_vec.angle()
 	var beam_dir := beam_vec.normalized() if beam_vec.length_squared() > 0.0 else Vector2(0.0, 1.0)
-	var cap_scale := maxf(0.75, (half_width * 2.4) / 64.0)
+	var cap_scale := maxf(0.75, (half_width * 2.4) / _frame_h)
 	var fl: float = 0.5 + 0.5 * sin(Time.get_ticks_msec() / 30.0)
 	# Corpo recua half_width para que o cap arredondado termine exatamente em _end.
 	var body_end := _end - beam_dir * half_width
