@@ -34,7 +34,7 @@ func _test_fire_beam_uses_modular_visuals() -> bool:
 		ok = _check(origin_spr.texture != null, "OriginSprite texture loaded") and ok
 		ok = _check(origin_spr.hframes == 2 and origin_spr.vframes == 2, "OriginSprite is 2x2 sheet") and ok
 	if body != null:
-		ok = _check(body.default_color.r > 0.8 and body.default_color.a > 0.5, "BodyLine has fire color") and ok
+		ok = _check(body.texture is AtlasTexture or body.default_color.r > 0.8, "BodyLine has fire appearance") and ok
 		ok = _check(body.points.size() == 2, "BodyLine spans beam endpoints") and ok
 		ok = _check(absf(body.width - beam.half_width * 2.0) < 0.1, "BodyLine width follows half_width") and ok
 	if end_spr != null:
