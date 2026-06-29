@@ -46,40 +46,10 @@ func _ready() -> void:
 	body_entered.connect(_on_body_entered)
 
 func _build_visual() -> void:
-	_frame_w = float(_TEX_BODY.get_width()) / _SHEET_COLS
-	_frame_h = float(_TEX_BODY.get_height()) / _SHEET_ROWS
-
-	_start_sprite = Sprite2D.new()
-	_start_sprite.name = "WaveStartSprite"
-	_configure_sheet_sprite(_start_sprite, _TEX_START)
-	_start_sprite.z_index = 2
-	add_child(_start_sprite)
-
-	_body_atlas = AtlasTexture.new()
-	_body_atlas.atlas = _TEX_BODY
-	_body_atlas.region = Rect2(0.0, 0.0, _frame_w, _frame_h)
-	_body_line = Line2D.new()
-	_body_line.name = "WaveBodyLine"
-	_body_line.texture = _body_atlas
-	_body_line.texture_mode = Line2D.LINE_TEXTURE_TILE
-	_body_line.joint_mode = Line2D.LINE_JOINT_ROUND
-	_body_line.begin_cap_mode = Line2D.LINE_CAP_NONE
-	_body_line.end_cap_mode = Line2D.LINE_CAP_NONE
-	_body_line.width = wave_h
-	_body_line.z_index = 1
-	add_child(_body_line)
-
-	_end_sprite = Sprite2D.new()
-	_end_sprite.name = "WaveEndSprite"
-	_configure_sheet_sprite(_end_sprite, _TEX_END)
-	_end_sprite.z_index = 2
-	add_child(_end_sprite)
+	pass  # visual substituído por ground bursts — sprites antigos removidos
 
 func _draw() -> void:
-	if _body_line != null:
-		return
-	# fallback se a textura não carregar
-	draw_rect(Rect2(-wave_w * 0.5, -wave_h * 0.5, wave_w, wave_h), Color(0.95, 0.35, 0.0, 0.85))
+	pass
 
 func _physics_process(delta: float) -> void:
 	_t += delta
