@@ -23,9 +23,9 @@ const BEAM_SWEEP_TIME_P1   := 1.0
 const BEAM_SWEEP_TIME_P2   := 0.7
 const BEAM_MAX_ANGLE       := 90.0   # graus a partir da vertical (começa horizontal)
 const BEAM_HALF_WIDTH      := 20.0
-const MOUTH_DX             := 24.0   # offset da boca (a partir da origem do boss)
-const MOUTH_DY             := -40.0
-const FIREBREATH_STATIC_FRAME := 4   # frame "cuspindo" travado durante a varredura
+const MOUTH_DX             := 38.5   # offset da boca (a partir da origem do boss)
+const MOUTH_DY             := -15.0
+const FIREBREATH_STATIC_FRAME := 8   # frame 9 (1-idx): sprite travado durante a varredura
 const FIRE_WINDUP_P1       := 0.5    # telegraph antes de cuspir (tempo de ir pra parede)
 const FIRE_WINDUP_P2       := 0.35
 const CLAW_DAMAGE          := 18
@@ -40,6 +40,9 @@ const CLAW_WAVE_DAMAGE     := 12
 const RAGE_FLASH_DURATION  := 0.6
 const _FIRE_WAVE  := preload("res://characters/bosses/ignarath/fire_wave.gd")
 const _FIRE_BEAM  := preload("res://characters/bosses/ignarath/fire_beam.gd")
+const _TEX_CLAW_SLASH    := preload("res://characters/bosses/ignarath/fx_claw_slash.png")
+const _CLAW_SLASH_FRAMES := 9
+const _CLAW_SLASH_FPS    := 14.0
 
 # ── State ─────────────────────────────────────────────────────────────────────
 var _attack_phase   : int   = 0   # 0=firebreath 1=claw
@@ -68,7 +71,11 @@ func _ready() -> void:
 	attack_interval_p1 = 2.5
 	attack_interval_p2 = 1.6
 	super()
-	scale = Vector2(0.8, 0.8)   # 80% do tamanho (sprite + colisão)
+	scale = Vector2(0.8, 0.8)
+	_sprite.texture = _TEX_WALKING
+	_sprite.hframes = _WALKING_FRAMES
+	_sprite.vframes = 1
+	_sprite.frame   = 0
 
 # Remove o placeholder vermelho + barra de HP do BossBase._draw (o boss usa o
 # Sprite2D; o HP é mostrado pelo HUD via connect_to_boss).
@@ -141,7 +148,7 @@ func _do_firebreath() -> void:
 		return
 	_telegraph_timer = 0.0
 
-	# Sprite estático no frame de "cuspindo" + beam que varre.
+	# Sprite travado no último frame + beam que varre imediatamente.
 	_static_anim = true
 	_anim_frame = FIREBREATH_STATIC_FRAME
 	var sweep := BEAM_SWEEP_TIME_P2 if phase >= 2 else BEAM_SWEEP_TIME_P1
@@ -156,7 +163,10 @@ func _do_firebreath() -> void:
 func _spawn_fire_beam(sweep_time: float) -> void:
 	var beam: Node2D = _FIRE_BEAM.new()
 	beam.set("player", player)
-	beam.set("origin", global_position + Vector2(_facing * MOUTH_DX, MOUTH_DY) * scale.x)
+	var _mouth := HitboxData.proj_offset("ignarath", _facing)
+	if _mouth == Vector2.INF:
+		_mouth = Vector2(_facing * MOUTH_DX, MOUTH_DY) * scale.x
+	beam.set("origin", global_position + _mouth)
 	beam.set("facing", _facing)
 	beam.set("floor_y", arena_floor)
 	beam.set("sweep_time", sweep_time)
@@ -218,6 +228,27 @@ func _spawn_claw_wave() -> void:
 	wave.global_position = Vector2(global_position.x + _facing * 50.0, arena_floor - CLAW_WAVE_H * 0.5)
 	get_parent().add_child(wave)
 	AudioManager.play_sfx(AudioLibrary.sfx_ignarath_clawwave)
+	_spawn_claw_slash_fx()
+
+func _spawn_claw_slash_fx() -> void:
+	var sf := SpriteFrames.new()
+	sf.add_animation("slash")
+	sf.set_animation_loop("slash", false)
+	sf.set_animation_speed("slash", _CLAW_SLASH_FPS)
+	for i in _CLAW_SLASH_FRAMES:
+		var at := AtlasTexture.new()
+		at.atlas = _TEX_CLAW_SLASH
+		at.region = Rect2(i * 128.0, 0.0, 128.0, 128.0)
+		sf.add_frame("slash", at)
+	var sp := AnimatedSprite2D.new()
+	sp.sprite_frames = sf
+	sp.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	sp.z_index = 4
+	sp.scale = Vector2(_facing, 1.0)
+	sp.global_position = Vector2(global_position.x + _facing * 150.0, global_position.y - 60.0)
+	sp.animation_finished.connect(sp.queue_free)
+	get_parent().add_child(sp)
+	sp.play("slash")
 
 func _start_attack_anim(tex: Texture2D, frames: int, fps: float) -> void:
 	_attack_anim_tex    = tex

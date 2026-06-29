@@ -10,6 +10,10 @@ const _TEX_END      := preload("res://characters/bosses/ignarath/fire_wave_end.p
 const _SHEET_COLS   := 2
 const _SHEET_ROWS   := 2
 const _SHEET_FRAMES := 4
+const _TEX_GROUND_BURST  := preload("res://characters/bosses/ignarath/fx_ground_burst.png")
+const _BURST_FRAMES      := 9
+const _BURST_FPS         := 14.0
+const _BURST_SPACING     := 80.0
 
 var dir: float = 1.0           # +1 direita, -1 esquerda
 var speed: float = 300.0
@@ -20,6 +24,7 @@ var wave_w: float = 90.0
 var wave_h: float = 150.0
 var _life: float = 6.0
 var _t: float = 0.0
+var _dist_since_burst: float = 0.0
 var _start_sprite: Sprite2D = null
 var _body_line: Line2D = null
 var _body_atlas: AtlasTexture = null
@@ -78,7 +83,12 @@ func _draw() -> void:
 
 func _physics_process(delta: float) -> void:
 	_t += delta
-	global_position.x += dir * speed * delta
+	var moved: float = speed * delta
+	global_position.x += dir * moved
+	_dist_since_burst += moved
+	if _dist_since_burst >= _BURST_SPACING:
+		_dist_since_burst -= _BURST_SPACING
+		_spawn_ground_burst()
 	_update_visuals()
 	_life -= delta
 	if _life <= 0.0:
@@ -90,6 +100,25 @@ func _physics_process(delta: float) -> void:
 func _on_body_entered(body: Node) -> void:
 	if body.has_method("take_damage"):
 		body.take_damage(damage, source_id)
+
+func _spawn_ground_burst() -> void:
+	var sf := SpriteFrames.new()
+	sf.add_animation("burst")
+	sf.set_animation_loop("burst", false)
+	sf.set_animation_speed("burst", _BURST_FPS)
+	for i in _BURST_FRAMES:
+		var at := AtlasTexture.new()
+		at.atlas = _TEX_GROUND_BURST
+		at.region = Rect2(i * 64.0, 0.0, 64.0, 64.0)
+		sf.add_frame("burst", at)
+	var sp := AnimatedSprite2D.new()
+	sp.sprite_frames = sf
+	sp.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	sp.z_index = 3
+	sp.global_position = Vector2(global_position.x, global_position.y + wave_h * 0.5 - 32.0)
+	sp.animation_finished.connect(sp.queue_free)
+	get_parent().add_child(sp)
+	sp.play("burst")
 
 func _configure_sheet_sprite(sprite: Sprite2D, texture: Texture2D) -> void:
 	sprite.texture = texture
