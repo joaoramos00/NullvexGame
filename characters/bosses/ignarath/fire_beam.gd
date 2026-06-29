@@ -6,9 +6,17 @@ extends Node2D
 const _TEX_ORIGIN   := preload("res://characters/bosses/ignarath/fire_beam_origin.png")
 const _TEX_BODY     := preload("res://characters/bosses/ignarath/fire_beam_body.png")
 const _TEX_END      := preload("res://characters/bosses/ignarath/fire_beam_end.png")
+const _TEX_IMPACT   := preload("res://assets/generated/ignarath/beam_impact/beam_impact_sheet.png")
 const _SHEET_COLS   := 2
 const _SHEET_ROWS   := 2
 const _SHEET_FRAMES := 4
+const _IMPACT_FRAMES := 9
+const _IMPACT_FPS    := 12.0
+const _TEX_BEAM_BODY_FX  := preload("res://assets/generated/ignarath/beam_body/beam_body_sheet.png")
+const _BEAM_BODY_FRAMES  := 9
+const _BEAM_BODY_FPS     := 12.0
+const _BEAM_BODY_SPACING := 40.0
+const _MAX_BODY_SPRITES  := 14
 
 var player: CharacterBase = null
 var origin: Vector2 = Vector2.ZERO      # boca, em coords de mundo
@@ -26,6 +34,8 @@ var _body_line: Line2D = null
 var _body_atlas: AtlasTexture = null
 var _body_inner: Line2D = null  # núcleo amarelo
 var _end_sprite: Sprite2D = null
+var _impact_fx: AnimatedSprite2D = null
+var _body_sprites: Array = []
 var _frame_w: float = 0.0
 var _frame_h: float = 0.0
 
@@ -116,6 +126,44 @@ func _build_visuals() -> void:
 	_end_sprite.z_index = 5
 	add_child(_end_sprite)
 
+	var impact_sf := SpriteFrames.new()
+	impact_sf.add_animation("burn")
+	impact_sf.set_animation_loop("burn", true)
+	impact_sf.set_animation_speed("burn", _IMPACT_FPS)
+	for i in _IMPACT_FRAMES:
+		var at := AtlasTexture.new()
+		at.atlas = _TEX_IMPACT
+		at.region = Rect2(i * 64.0, 0.0, 64.0, 64.0)
+		impact_sf.add_frame("burn", at)
+	_impact_fx = AnimatedSprite2D.new()
+	_impact_fx.name = "ImpactFX"
+	_impact_fx.sprite_frames = impact_sf
+	_impact_fx.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	_impact_fx.z_index = 6
+	_impact_fx.scale = Vector2.ONE * 1.5
+	add_child(_impact_fx)
+	_impact_fx.play("burn")
+
+	var body_sf := SpriteFrames.new()
+	body_sf.add_animation("fire")
+	body_sf.set_animation_loop("fire", true)
+	body_sf.set_animation_speed("fire", _BEAM_BODY_FPS)
+	for i in _BEAM_BODY_FRAMES:
+		var bat := AtlasTexture.new()
+		bat.atlas = _TEX_BEAM_BODY_FX
+		bat.region = Rect2(i * 64.0, 0.0, 64.0, 64.0)
+		body_sf.add_frame("fire", bat)
+	for _i in _MAX_BODY_SPRITES:
+		var bsp := AnimatedSprite2D.new()
+		bsp.sprite_frames = body_sf
+		bsp.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		bsp.z_index = 3
+		bsp.visible = false
+		add_child(bsp)
+		bsp.play("fire")
+		_body_sprites.append(bsp)
+	_body_line.visible = false
+
 func _configure_sheet_sprite(sprite: Sprite2D, texture: Texture2D) -> void:
 	sprite.texture = texture
 	sprite.hframes = _SHEET_COLS
@@ -146,16 +194,16 @@ func _update_visuals() -> void:
 		_body_atlas.region = Rect2(float(col) * _frame_w, float(row) * _frame_h, _frame_w, _frame_h)
 		_body_line.points = PackedVector2Array([origin, body_end])
 		_body_line.width = half_width * 2.0
-		_body_line.modulate = Color(1.0, 0.0, 0.5, 0.85)
+		_body_line.modulate = Color(1.0, 0.35, 0.05, 0.85)
 	elif _body_line != null:
 		_body_line.points = PackedVector2Array([origin, body_end])
 		_body_line.width = half_width * 2.0
-		_body_line.default_color = Color(1.0, 0.0, 0.5, 0.85)
+		_body_line.default_color = Color(1.0, 0.35, 0.05, 0.85)
 
 	if _body_inner != null:
 		_body_inner.points = PackedVector2Array([origin, body_end])
 		_body_inner.width = half_width * 0.7
-		_body_inner.default_color = Color(1.0, 0.4, 0.7, 0.9)
+		_body_inner.default_color = Color(1.0, 0.92, 0.5, 0.9)
 
 	if _end_sprite != null:
 		# Centro do sprite alinha com body_end; sprite (z=5) cobre o fim da linha.
@@ -163,7 +211,22 @@ func _update_visuals() -> void:
 		_end_sprite.frame = frame
 		_end_sprite.scale = Vector2.ONE * end_cap_scale
 		_end_sprite.rotation = beam_angle
-		_end_sprite.modulate = Color(0.0, 1.0, 0.0, 1.0)
+		_end_sprite.modulate = Color(1.0, 1.0, 1.0, 1.0)
+
+	if _impact_fx != null:
+		_impact_fx.position = _end
+		_impact_fx.rotation = 0.0  # embers sempre sobem, independente do ângulo do beam
+
+	var beam_len := (body_end - origin).length()
+	var n_spr := mini(int(beam_len / _BEAM_BODY_SPACING) + 1, _MAX_BODY_SPRITES)
+	for i in _MAX_BODY_SPRITES:
+		var bsp: AnimatedSprite2D = _body_sprites[i]
+		if i < n_spr:
+			var t := (float(i) + 0.5) / float(maxi(n_spr, 1))
+			bsp.position = origin.lerp(body_end, t)
+			bsp.visible = true
+		else:
+			bsp.visible = false
 
 func _draw() -> void:
 	if _body_line != null:

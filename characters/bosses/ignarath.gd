@@ -40,6 +40,9 @@ const CLAW_WAVE_DAMAGE     := 12
 const RAGE_FLASH_DURATION  := 0.6
 const _FIRE_WAVE  := preload("res://characters/bosses/ignarath/fire_wave.gd")
 const _FIRE_BEAM  := preload("res://characters/bosses/ignarath/fire_beam.gd")
+const _TEX_CLAW_SLASH    := preload("res://assets/generated/ignarath/claw_slash/claw_slash_sheet.png")
+const _CLAW_SLASH_FRAMES := 9
+const _CLAW_SLASH_FPS    := 14.0
 
 # ── State ─────────────────────────────────────────────────────────────────────
 var _attack_phase   : int   = 0   # 0=firebreath 1=claw
@@ -225,6 +228,27 @@ func _spawn_claw_wave() -> void:
 	wave.global_position = Vector2(global_position.x + _facing * 50.0, arena_floor - CLAW_WAVE_H * 0.5)
 	get_parent().add_child(wave)
 	AudioManager.play_sfx(AudioLibrary.sfx_ignarath_clawwave)
+	_spawn_claw_slash_fx()
+
+func _spawn_claw_slash_fx() -> void:
+	var sf := SpriteFrames.new()
+	sf.add_animation("slash")
+	sf.set_animation_loop("slash", false)
+	sf.set_animation_speed("slash", _CLAW_SLASH_FPS)
+	for i in _CLAW_SLASH_FRAMES:
+		var at := AtlasTexture.new()
+		at.atlas = _TEX_CLAW_SLASH
+		at.region = Rect2(i * 128.0, 0.0, 128.0, 128.0)
+		sf.add_frame("slash", at)
+	var sp := AnimatedSprite2D.new()
+	sp.sprite_frames = sf
+	sp.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	sp.z_index = 4
+	sp.scale = Vector2(_facing, 1.0)
+	sp.global_position = Vector2(global_position.x + _facing * 150.0, global_position.y - 60.0)
+	sp.animation_finished.connect(sp.queue_free)
+	get_parent().add_child(sp)
+	sp.play("slash")
 
 func _start_attack_anim(tex: Texture2D, frames: int, fps: float) -> void:
 	_attack_anim_tex    = tex
