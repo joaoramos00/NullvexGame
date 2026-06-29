@@ -6,13 +6,13 @@ extends Node2D
 const _TEX_ORIGIN   := preload("res://characters/bosses/ignarath/fire_beam_origin.png")
 const _TEX_BODY     := preload("res://characters/bosses/ignarath/fire_beam_body.png")
 const _TEX_END      := preload("res://characters/bosses/ignarath/fire_beam_end.png")
-const _TEX_IMPACT   := preload("res://assets/generated/ignarath/beam_impact/beam_impact_sheet.png")
+const _TEX_IMPACT   := preload("res://characters/bosses/ignarath/fx_beam_impact.png")
 const _SHEET_COLS   := 2
 const _SHEET_ROWS   := 2
 const _SHEET_FRAMES := 4
 const _IMPACT_FRAMES := 9
 const _IMPACT_FPS    := 12.0
-const _TEX_BEAM_BODY_FX  := preload("res://assets/generated/ignarath/beam_body/beam_body_sheet.png")
+const _TEX_BEAM_BODY_FX  := preload("res://characters/bosses/ignarath/fx_beam_body.png")
 const _BEAM_BODY_FRAMES  := 9
 const _BEAM_BODY_FPS     := 12.0
 const _BEAM_BODY_SPACING := 40.0
