@@ -144,25 +144,7 @@ func _build_visuals() -> void:
 	add_child(_impact_fx)
 	_impact_fx.play("burn")
 
-	var body_sf := SpriteFrames.new()
-	body_sf.add_animation("fire")
-	body_sf.set_animation_loop("fire", true)
-	body_sf.set_animation_speed("fire", _BEAM_BODY_FPS)
-	for i in _BEAM_BODY_FRAMES:
-		var bat := AtlasTexture.new()
-		bat.atlas = _TEX_BEAM_BODY_FX
-		bat.region = Rect2(i * 64.0, 0.0, 64.0, 64.0)
-		body_sf.add_frame("fire", bat)
-	for _i in _MAX_BODY_SPRITES:
-		var bsp := AnimatedSprite2D.new()
-		bsp.sprite_frames = body_sf
-		bsp.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-		bsp.z_index = 3
-		bsp.visible = false
-		add_child(bsp)
-		bsp.play("fire")
-		_body_sprites.append(bsp)
-	_body_line.visible = false
+	# _body_line já está visível por padrão — corpo contínuo via Line2D
 
 func _configure_sheet_sprite(sprite: Sprite2D, texture: Texture2D) -> void:
 	sprite.texture = texture
@@ -217,16 +199,6 @@ func _update_visuals() -> void:
 		_impact_fx.position = _end
 		_impact_fx.rotation = beam_angle + PI  # aponta contrário ao beam → perpendicular à superfície
 
-	var beam_len := (body_end - origin).length()
-	var n_spr := mini(int(beam_len / _BEAM_BODY_SPACING) + 1, _MAX_BODY_SPRITES)
-	for i in _MAX_BODY_SPRITES:
-		var bsp: AnimatedSprite2D = _body_sprites[i]
-		if i < n_spr:
-			var t := (float(i) + 0.5) / float(maxi(n_spr, 1))
-			bsp.position = origin.lerp(body_end, t)
-			bsp.visible = true
-		else:
-			bsp.visible = false
 
 func _draw() -> void:
 	if _body_line != null:
