@@ -1944,12 +1944,13 @@ class _HitboxView extends Control:
             _current_instance.position.y += _overlay.ground_y - bottom
 
     func _collision_shape_bottom(cs: CollisionShape2D) -> float:
+        var sy := absf(cs.get_global_transform().get_scale().y)
         if cs.shape is RectangleShape2D:
-            return cs.global_position.y + (cs.shape as RectangleShape2D).size.y * 0.5
+            return cs.global_position.y + (cs.shape as RectangleShape2D).size.y * 0.5 * sy
         if cs.shape is CircleShape2D:
-            return cs.global_position.y + (cs.shape as CircleShape2D).radius
+            return cs.global_position.y + (cs.shape as CircleShape2D).radius * sy
         if cs.shape is CapsuleShape2D:
-            return cs.global_position.y + (cs.shape as CapsuleShape2D).height * 0.5
+            return cs.global_position.y + (cs.shape as CapsuleShape2D).height * 0.5 * sy
         return cs.global_position.y
 
     func _freeze_node_tree(node: Node) -> void:
