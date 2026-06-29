@@ -129,17 +129,17 @@ func _update_visuals() -> void:
 		_body_atlas.region = Rect2(float(col) * _frame_w, float(row) * _frame_h, _frame_w, _frame_h)
 		_body_line.points = PackedVector2Array([origin, body_end])
 		_body_line.width = half_width * 2.0
-		_body_line.modulate = Color(1.0, 0.3 + 0.2 * fl, 0.05, 0.85)
+		_body_line.modulate = Color(1.0, 0.0, 0.5, 0.85)
 	elif _body_line != null:
 		_body_line.points = PackedVector2Array([origin, body_end])
 		_body_line.width = half_width * 2.0
-		_body_line.default_color = Color(1.0, 0.3 + 0.2 * fl, 0.05, 0.85)
+		_body_line.default_color = Color(1.0, 0.0, 0.5, 0.85)
 
 	if _body_inner != null:
 		var inner_hw := half_width * 0.35
 		_body_inner.points = PackedVector2Array([origin, _end - beam_dir * inner_hw])
 		_body_inner.width = half_width * 0.7
-		_body_inner.default_color = Color(1.0, 0.88 + 0.1 * fl, 0.4, 0.9)
+		_body_inner.default_color = Color(1.0, 0.4, 0.7, 0.9)
 
 	if _end_sprite != null:
 		# Borda dianteira do sprite alinha com _end, nunca passa o chão.
@@ -147,7 +147,7 @@ func _update_visuals() -> void:
 		_end_sprite.frame = frame
 		_end_sprite.scale = Vector2.ONE * cap_scale
 		_end_sprite.rotation = beam_angle
-		_end_sprite.modulate = Color(1.0, 0.9 + 0.1 * fl, 0.9 + 0.1 * fl, 1.0)
+		_end_sprite.modulate = Color(0.0, 1.0, 0.0, 1.0)
 
 func _draw() -> void:
 	if _body_line != null:
