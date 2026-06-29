@@ -87,10 +87,15 @@ func _rebuild_shapes(target: String, shapes: Array) -> void:
 			continue
 		var cs := CollisionShape2D.new()
 		cs.position = Vector2(s["pos"][0], s["pos"][1])
-		if String(s.get("kind", "rect")) == "capsule":
+		var _kind := String(s.get("kind", "rect"))
+		if _kind == "capsule":
 			var cap := CapsuleShape2D.new()
 			cap.radius = float(s["size"][0]); cap.height = float(s["size"][1])
 			cs.shape = cap
+		elif _kind == "circle":
+			var circ := CircleShape2D.new()
+			circ.radius = float(s["size"][0])
+			cs.shape = circ
 		else:
 			var r := RectangleShape2D.new()
 			r.size = Vector2(s["size"][0], s["size"][1])
