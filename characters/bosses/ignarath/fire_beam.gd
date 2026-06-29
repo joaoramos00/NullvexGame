@@ -110,8 +110,11 @@ func _update_visuals() -> void:
 	var frame := int(_t * 12.0) % _SHEET_FRAMES
 	var beam_vec := _end - origin
 	var beam_angle := beam_vec.angle()
+	var beam_dir := beam_vec.normalized() if beam_vec.length_squared() > 0.0 else Vector2(0.0, 1.0)
 	var cap_scale := maxf(0.75, (half_width * 2.4) / 64.0)
 	var fl: float = 0.5 + 0.5 * sin(Time.get_ticks_msec() / 30.0)
+	# Corpo recua half_width para que o cap arredondado termine exatamente em _end.
+	var body_end := _end - beam_dir * half_width
 
 	if _origin_sprite != null:
 		_origin_sprite.position = origin
@@ -124,21 +127,23 @@ func _update_visuals() -> void:
 		var col := frame % _SHEET_COLS
 		var row := frame / _SHEET_COLS
 		_body_atlas.region = Rect2(float(col) * _frame_w, float(row) * _frame_h, _frame_w, _frame_h)
-		_body_line.points = PackedVector2Array([origin, _end])
+		_body_line.points = PackedVector2Array([origin, body_end])
 		_body_line.width = half_width * 2.0
 		_body_line.modulate = Color(1.0, 0.3 + 0.2 * fl, 0.05, 0.85)
 	elif _body_line != null:
-		_body_line.points = PackedVector2Array([origin, _end])
+		_body_line.points = PackedVector2Array([origin, body_end])
 		_body_line.width = half_width * 2.0
 		_body_line.default_color = Color(1.0, 0.3 + 0.2 * fl, 0.05, 0.85)
 
 	if _body_inner != null:
-		_body_inner.points = PackedVector2Array([origin, _end])
+		var inner_hw := half_width * 0.35
+		_body_inner.points = PackedVector2Array([origin, _end - beam_dir * inner_hw])
 		_body_inner.width = half_width * 0.7
 		_body_inner.default_color = Color(1.0, 0.88 + 0.1 * fl, 0.4, 0.9)
 
 	if _end_sprite != null:
-		_end_sprite.position = _end
+		# Borda dianteira do sprite alinha com _end, nunca passa o chão.
+		_end_sprite.position = _end - beam_dir * (cap_scale * _frame_h * 0.5)
 		_end_sprite.frame = frame
 		_end_sprite.scale = Vector2.ONE * cap_scale
 		_end_sprite.rotation = beam_angle
