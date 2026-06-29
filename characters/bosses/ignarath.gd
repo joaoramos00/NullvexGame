@@ -68,7 +68,11 @@ func _ready() -> void:
 	attack_interval_p1 = 2.5
 	attack_interval_p2 = 1.6
 	super()
-	scale = Vector2(0.8, 0.8)   # 80% do tamanho (sprite + colisão)
+	scale = Vector2(0.8, 0.8)
+	_sprite.texture = _TEX_WALKING
+	_sprite.hframes = _WALKING_FRAMES
+	_sprite.vframes = 1
+	_sprite.frame   = 0
 
 # Remove o placeholder vermelho + barra de HP do BossBase._draw (o boss usa o
 # Sprite2D; o HP é mostrado pelo HUD via connect_to_boss).
