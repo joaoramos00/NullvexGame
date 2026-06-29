@@ -1476,47 +1476,52 @@ class _HitboxOverlay extends Node2D:
                 # Beam vertical (frame 9 = posição inicial do sweep).
                 var _depth := maxf(8.0, ground_y - pos.y)
                 var _beam_end := Vector2(pos.x, ground_y)
-                var _beam_len := _depth
                 var _beam_angle := Vector2(0.0, 1.0).angle()
-                var _beam_w := 80.0
+                var _beam_w := 24.0  # BEAM_HALF_WIDTH * 2 = 12 * 2
                 var _beam_dir := Vector2(0.0, 1.0)
-                # Corpo: sprite único esticado de pos até _beam_end (sem overshoot de tiles).
+                var _half_w := _beam_w * 0.5  # = 12
+                # Calcula cap_scale (igual a fire_beam.gd: maxf(0.35, half_w*2.4/frame_h)).
+                var _etex: Texture2D = _PROJ_TEX.get("fire_beam_end")
+                var _esc := 0.35
+                var _efw := 0.0
+                var _efh := 0.0
+                if _etex != null:
+                    _efw = float(_etex.get_width()) * 0.5
+                    _efh = float(_etex.get_height()) * 0.5
+                    _esc = maxf(0.35, _half_w * 2.4 / _efh)
+                # Corpo termina no centro do sprite de ponta.
+                var _cap_half := _esc * _efh * 0.5
+                var _body_end := _beam_end - _beam_dir * _cap_half
                 var _btex: Texture2D = _PROJ_TEX.get("fire_beam_body")
                 if _btex != null:
                     var _bfw := float(_btex.get_width()) * 0.5
                     var _bfh := float(_btex.get_height()) * 0.5
-                    var _bsc := _beam_w / _bfh          # escala uniforme (largura)
-                    var _bsx := _beam_len / _bfw         # escala X estica até _beam_end
-                    draw_set_transform(pos, _beam_angle, Vector2(_bsx * _bsc, _bsc))
+                    var _bsc := _beam_w / _bfh          # escala (largura)
+                    var _body_len := maxf(1.0, _depth - _cap_half)
+                    var _body_sx := _body_len / _bfw    # escala (comprimento)
+                    draw_set_transform(pos, _beam_angle, Vector2(_body_sx, _bsc))
                     draw_texture_rect_region(_btex, Rect2(0.0, -_bfh * 0.5, _bfw, _bfh), Rect2(0.0, 0.0, _bfw, _bfh), Color(1.0, 0.0, 0.5, 0.85))
                     draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
-                # cap_scale igual ao fire_beam.gd: maxf(0.75, half_width*2.4/frame_h)
-                var _half_w := _beam_w * 0.5
                 # Origem (swirl na boca).
                 var _otex: Texture2D = _PROJ_TEX.get("fire_beam_origin")
                 if _otex != null:
                     var _ofw := float(_otex.get_width()) * 0.5
                     var _ofh := float(_otex.get_height()) * 0.5
-                    var _osc := maxf(0.75, _half_w * 2.4 / _ofh)
+                    var _osc := maxf(0.35, _half_w * 2.4 / _ofh)
                     draw_set_transform(pos, _beam_angle, Vector2(_osc, _osc))
                     draw_texture_rect_region(_otex, Rect2(-_ofw * 0.5, -_ofh * 0.5, _ofw, _ofh), Rect2(0.0, 0.0, _ofw, _ofh))
                     draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
-                # Impacto: borda dianteira do sprite alinha com _beam_end (sem passar o chão).
-                var _etex: Texture2D = _PROJ_TEX.get("fire_beam_end")
+                # Impacto: centro do sprite alinha com _body_end (cobre o fim da linha).
                 if _etex != null:
-                    var _efw := float(_etex.get_width()) * 0.5
-                    var _efh := float(_etex.get_height()) * 0.5
-                    var _esc := maxf(0.75, _half_w * 2.4 / _efh)
-                    var _e_pos := _beam_end - _beam_dir * (_esc * _efh * 0.5)
-                    draw_set_transform(_e_pos, _beam_angle, Vector2(_esc, _esc))
+                    draw_set_transform(_body_end, _beam_angle, Vector2(_esc, _esc))
                     draw_texture_rect_region(_etex, Rect2(-_efw * 0.5, -_efh * 0.5, _efw, _efh), Rect2(0.0, 0.0, _efw, _efh), Color(0.0, 1.0, 0.0, 1.0))
                     draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
                 # Fallback se texturas não carregaram.
                 if _btex == null:
-                    draw_line(pos, _beam_end, Color(1.0, 0.9, 0.3, 0.9), 10.0)
-                    draw_line(pos, _beam_end, Color(1.0, 0.35, 0.05, 0.45), 36.0)
-                    draw_circle(pos, 10.0, Color(1.0, 0.55, 0.1, 0.9))
-                    draw_circle(_beam_end, 18.0, Color(1.0, 0.45, 0.05, 0.35))
+                    draw_line(pos, _beam_end, Color(1.0, 0.9, 0.3, 0.9), 6.0)
+                    draw_line(pos, _beam_end, Color(1.0, 0.35, 0.05, 0.45), 14.0)
+                    draw_circle(pos, 6.0, Color(1.0, 0.55, 0.1, 0.9))
+                    draw_circle(_beam_end, 10.0, Color(1.0, 0.45, 0.05, 0.35))
             _:
                 draw_circle(pos, 9.0, Color(0.55, 0.92, 1.0, 0.35))
                 draw_arc(pos, 9.0, 0.0, TAU, 32, color, 2.0)
