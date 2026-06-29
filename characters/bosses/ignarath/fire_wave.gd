@@ -4,11 +4,11 @@ extends Area2D
 # atual é baixa (~56px) → dá pra PULAR por cima. Some ao chegar na parede
 # (despawn_x) ou no fim do lifetime.
 
-const _START_TEX_PATH := "res://characters/bosses/ignarath/fire_wave_start.png"
-const _BODY_TEX_PATH := "res://characters/bosses/ignarath/fire_wave_body.png"
-const _END_TEX_PATH := "res://characters/bosses/ignarath/fire_wave_end.png"
-const _SHEET_COLS := 2
-const _SHEET_ROWS := 2
+const _TEX_START    := preload("res://characters/bosses/ignarath/fire_wave_start.png")
+const _TEX_BODY     := preload("res://characters/bosses/ignarath/fire_wave_body.png")
+const _TEX_END      := preload("res://characters/bosses/ignarath/fire_wave_end.png")
+const _SHEET_COLS   := 2
+const _SHEET_ROWS   := 2
 const _SHEET_FRAMES := 4
 
 var dir: float = 1.0           # +1 direita, -1 esquerda
@@ -22,7 +22,10 @@ var _life: float = 6.0
 var _t: float = 0.0
 var _start_sprite: Sprite2D = null
 var _body_line: Line2D = null
+var _body_atlas: AtlasTexture = null
 var _end_sprite: Sprite2D = null
+var _frame_w: float = 0.0
+var _frame_h: float = 0.0
 
 func _ready() -> void:
 	collision_layer = 0
@@ -38,38 +41,34 @@ func _ready() -> void:
 	body_entered.connect(_on_body_entered)
 
 func _build_visual() -> void:
-	var start_tex := _load_texture(_START_TEX_PATH)
-	var body_tex := _load_texture(_BODY_TEX_PATH)
-	var end_tex := _load_texture(_END_TEX_PATH)
+	_frame_w = float(_TEX_BODY.get_width()) / _SHEET_COLS
+	_frame_h = float(_TEX_BODY.get_height()) / _SHEET_ROWS
 
-	if start_tex != null:
-		_start_sprite = Sprite2D.new()
-		_start_sprite.name = "WaveStartSprite"
-		_configure_sheet_sprite(_start_sprite, start_tex)
-		_start_sprite.z_index = 2
-		add_child(_start_sprite)
+	_start_sprite = Sprite2D.new()
+	_start_sprite.name = "WaveStartSprite"
+	_configure_sheet_sprite(_start_sprite, _TEX_START)
+	_start_sprite.z_index = 2
+	add_child(_start_sprite)
 
-	if body_tex != null:
-		_body_line = Line2D.new()
-		_body_line.name = "WaveBodyLine"
-		_body_line.texture = body_tex
-		_body_line.texture_mode = Line2D.LINE_TEXTURE_TILE
-		_body_line.joint_mode = Line2D.LINE_JOINT_ROUND
-		_body_line.begin_cap_mode = Line2D.LINE_CAP_NONE
-		_body_line.end_cap_mode = Line2D.LINE_CAP_NONE
-		_body_line.width = wave_h
-		_body_line.z_index = 1
-		add_child(_body_line)
+	_body_atlas = AtlasTexture.new()
+	_body_atlas.atlas = _TEX_BODY
+	_body_atlas.region = Rect2(0.0, 0.0, _frame_w, _frame_h)
+	_body_line = Line2D.new()
+	_body_line.name = "WaveBodyLine"
+	_body_line.texture = _body_atlas
+	_body_line.texture_mode = Line2D.LINE_TEXTURE_TILE
+	_body_line.joint_mode = Line2D.LINE_JOINT_ROUND
+	_body_line.begin_cap_mode = Line2D.LINE_CAP_NONE
+	_body_line.end_cap_mode = Line2D.LINE_CAP_NONE
+	_body_line.width = wave_h
+	_body_line.z_index = 1
+	add_child(_body_line)
 
-	if end_tex != null:
-		_end_sprite = Sprite2D.new()
-		_end_sprite.name = "WaveEndSprite"
-		_configure_sheet_sprite(_end_sprite, end_tex)
-		_end_sprite.z_index = 2
-		add_child(_end_sprite)
-
-	if _body_line == null:
-		queue_redraw()             # fallback _draw
+	_end_sprite = Sprite2D.new()
+	_end_sprite.name = "WaveEndSprite"
+	_configure_sheet_sprite(_end_sprite, _TEX_END)
+	_end_sprite.z_index = 2
+	add_child(_end_sprite)
 
 func _draw() -> void:
 	if _body_line != null:
@@ -100,6 +99,8 @@ func _configure_sheet_sprite(sprite: Sprite2D, texture: Texture2D) -> void:
 
 func _update_visuals() -> void:
 	var frame := int(_t * 12.0) % _SHEET_FRAMES
+	var col := frame % _SHEET_COLS
+	var row := frame / _SHEET_COLS
 	var travel_dir := 1.0 if dir >= 0.0 else -1.0
 	var cap := minf(wave_h * 0.55, wave_w * 0.35)
 	var start_x := -travel_dir * wave_w * 0.5
@@ -116,7 +117,8 @@ func _update_visuals() -> void:
 		_start_sprite.scale = Vector2(cap_scale * travel_dir, cap_scale)
 		_start_sprite.modulate = tint
 
-	if _body_line != null:
+	if _body_line != null and _body_atlas != null:
+		_body_atlas.region = Rect2(float(col) * _frame_w, float(row) * _frame_h, _frame_w, _frame_h)
 		_body_line.points = PackedVector2Array([Vector2(body_start, 0.0), Vector2(body_end, 0.0)])
 		_body_line.width = wave_h
 		_body_line.modulate = tint
@@ -126,12 +128,3 @@ func _update_visuals() -> void:
 		_end_sprite.frame = frame
 		_end_sprite.scale = Vector2(cap_scale * travel_dir, cap_scale)
 		_end_sprite.modulate = tint
-
-func _load_texture(path: String) -> Texture2D:
-	var tex := load(path) as Texture2D
-	if tex != null:
-		return tex
-	var img := Image.load_from_file(path)
-	if img == null or img.is_empty():
-		return null
-	return ImageTexture.create_from_image(img)
