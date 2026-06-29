@@ -1,4 +1,7 @@
 {
+  "ignarath": {
+    "projectile": { "offset": [38.5, -15.0] }
+  },
   "enemy_magma_grunt": {
     "sprite": { "scale": [0.7, 0.7] },
     "shapes": [
