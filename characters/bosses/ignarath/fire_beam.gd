@@ -128,7 +128,7 @@ func _update_visuals() -> void:
 	var beam_angle := beam_vec.angle()
 	var beam_dir := beam_vec.normalized() if beam_vec.length_squared() > 0.0 else Vector2(0.0, 1.0)
 	var cap_scale := maxf(0.35, (half_width * 2.4) / _frame_h)
-	var end_cap_scale := cap_scale * 1.8   # ponta maior que a origem
+	var end_cap_scale := cap_scale * 2.0   # ponta maior que a origem
 	var fl: float = 0.5 + 0.5 * sin(Time.get_ticks_msec() / 30.0)
 	# Corpo termina no centro do sprite de ponta; o sprite (z=5) cobre o fim da linha.
 	var body_end := _end - beam_dir * (end_cap_scale * _frame_h * 0.5)
