@@ -29,7 +29,7 @@ func _ready() -> void:
 	z_index = 3
 	position = Vector2.ZERO               # desenho em coords de mundo
 	_build_visuals()
-	_end = _compute_end(0.0)              # começa horizontal
+	_end = _compute_end(0.0)              # começa vertical (apontando para o chão)
 	_update_visuals()
 	queue_redraw()
 
@@ -45,15 +45,15 @@ func _physics_process(delta: float) -> void:
 	if _t >= sweep_time + 0.15:
 		queue_free()
 
-# Sweep horizontal → vertical: ang parte de max_angle_deg (ex: 90° = horizontal)
-# e converge para 0° (vertical, apontando para o chão). Usa sin/cos para suportar 90°.
+# Sweep vertical → horizontal: ang parte de 0° (vertical, chão) e cresce até
+# max_angle_deg (ex: 90° = horizontal). Usa sin/cos para suportar 90° sem tan(∞).
 func _compute_end(prog: float) -> Vector2:
 	var depth := maxf(8.0, floor_y - origin.y)
-	var ang := deg_to_rad(max_angle_deg * (1.0 - prog))  # max_angle_deg → 0
+	var ang := deg_to_rad(max_angle_deg * prog)  # 0 → max_angle_deg
 	var sin_a := sin(ang) * facing
 	var cos_a := cos(ang)
-	if cos_a < 0.06:   # perto da horizontal — limita comprimento para não ir ao infinito
-		return origin + Vector2(sin_a * depth * 8.0, cos_a * depth * 8.0)
+	if cos_a < 0.06:   # perto de 90° (horizontal) — limita comprimento
+		return origin + Vector2(sin_a * depth * 15.0, cos_a * depth * 15.0)
 	return origin + (depth / cos_a) * Vector2(sin_a, cos_a)
 
 func _build_visuals() -> void:
