@@ -1624,7 +1624,7 @@ class _HitboxView extends Control:
         # Nome da entidade compacto na toolbar (o painel de descrição foi removido p/
         # dar toda a largura ao viewport de hitbox).
         _name_label = Label.new()
-        _name_label.add_theme_font_size_override("font_size", 18)
+        _name_label.add_theme_font_size_override("font_size", 24)
         _name_label.add_theme_color_override("font_color", Color(0.9, 0.9, 0.3))
         _name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
         _name_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
@@ -1700,7 +1700,7 @@ class _HitboxView extends Control:
         _target_opt = OptionButton.new()
         _target_opt.add_item("body")
         _target_opt.add_item("contact")
-        _target_opt.add_theme_font_size_override("font_size", 20)
+        _target_opt.add_theme_font_size_override("font_size", 26)
         _target_opt.item_selected.connect(func(i): _edit_target = _target_opt.get_item_text(i))
         _edit_toolbar.add_child(_target_opt)
 
@@ -1853,7 +1853,7 @@ class _HitboxView extends Control:
     func _make_button(text: String, callback: Callable) -> Button:
         var btn := Button.new()
         btn.text = text
-        btn.add_theme_font_size_override("font_size", 22)
+        btn.add_theme_font_size_override("font_size", 28)
         btn.pressed.connect(callback)
         return btn
 
@@ -2037,7 +2037,7 @@ class _HitboxView extends Control:
             _projectile_row.visible = true
             var title := Label.new()
             title.text = "Projetil:"
-            title.add_theme_font_size_override("font_size", 18)
+            title.add_theme_font_size_override("font_size", 24)
             _projectile_row.add_child(title)
             _projectile_label = Label.new()
             _projectile_label.text = "%s no Frame %d%s" % [
@@ -2045,7 +2045,7 @@ class _HitboxView extends Control:
                 release_frame + 1,
                 " (visivel)" if is_release else "",
             ]
-            _projectile_label.add_theme_font_size_override("font_size", 18)
+            _projectile_label.add_theme_font_size_override("font_size", 24)
             _projectile_label.add_theme_color_override("font_color", Color(1.0, 0.72, 0.32) if is_release else Color(0.82, 0.82, 0.86))
             _projectile_row.add_child(_projectile_label)
         if _shape_overlay != null:
@@ -2868,7 +2868,7 @@ func _rebuild_anim_tabs() -> void:
     for i in char_sprites.size():
         var btn := Button.new()
         btn.text = char_sprites[i].anim
-        btn.add_theme_font_size_override("font_size", 26)
+        btn.add_theme_font_size_override("font_size", 34)
         btn.pressed.connect(_select_anim.bind(i))
         _anim_tabs_box.add_child(btn)
         _anim_btns.append(btn)
@@ -2965,7 +2965,7 @@ func _build_ui() -> void:
 
     var title_lbl := Label.new()
     title_lbl.text = "ImgDebug"
-    title_lbl.add_theme_font_size_override("font_size", 30)
+    title_lbl.add_theme_font_size_override("font_size", 40)
     title_lbl.add_theme_color_override("font_color", Color(0.8, 0.75, 1.0))
     title_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
     header.add_child(title_lbl)
@@ -2973,13 +2973,13 @@ func _build_ui() -> void:
     if OS.get_name() == "Web":
         var reload_btn := Button.new()
         reload_btn.text = "Hard Refresh"
-        reload_btn.add_theme_font_size_override("font_size", 28)
+        reload_btn.add_theme_font_size_override("font_size", 36)
         reload_btn.pressed.connect(func(): JavaScriptBridge.eval("location.reload(true)"))
         header.add_child(reload_btn)
 
     var close_btn := Button.new()
     close_btn.text = "X Fechar"
-    close_btn.add_theme_font_size_override("font_size", 28)
+    close_btn.add_theme_font_size_override("font_size", 36)
     close_btn.pressed.connect(queue_free)
     header.add_child(close_btn)
 
@@ -2991,28 +2991,28 @@ func _build_ui() -> void:
     for s in ["SPRITES", "TILES"]:
         var btn := Button.new()
         btn.text = s
-        btn.add_theme_font_size_override("font_size", 28)
+        btn.add_theme_font_size_override("font_size", 36)
         btn.pressed.connect(_show_section.bind(s))
         section_row.add_child(btn)
         _section_btns[s] = btn
 
     var mov_btn := Button.new()
     mov_btn.text = "MOVIMENTOS"
-    mov_btn.add_theme_font_size_override("font_size", 28)
+    mov_btn.add_theme_font_size_override("font_size", 36)
     mov_btn.pressed.connect(_show_section.bind("MOVIMENTOS"))
     section_row.add_child(mov_btn)
     _section_btns["MOVIMENTOS"] = mov_btn
 
     var hitbox_btn := Button.new()
     hitbox_btn.text = "HITBOXES"
-    hitbox_btn.add_theme_font_size_override("font_size", 28)
+    hitbox_btn.add_theme_font_size_override("font_size", 36)
     hitbox_btn.pressed.connect(_show_section.bind("HITBOXES"))
     section_row.add_child(hitbox_btn)
     _section_btns["HITBOXES"] = hitbox_btn
 
     var battle_btn := Button.new()
     battle_btn.text = "BATALHA"
-    battle_btn.add_theme_font_size_override("font_size", 28)
+    battle_btn.add_theme_font_size_override("font_size", 36)
     battle_btn.pressed.connect(_show_section.bind("BATALHA"))
     section_row.add_child(battle_btn)
     _section_btns["BATALHA"] = battle_btn
@@ -3029,7 +3029,7 @@ func _build_ui() -> void:
     for c in ["ZAEL", "KAWAGAEL", "ZARA", "MINIBOSS"]:
         var btn := Button.new()
         btn.text = c
-        btn.add_theme_font_size_override("font_size", 28)
+        btn.add_theme_font_size_override("font_size", 36)
         btn.pressed.connect(_select_char.bind(c))
         char_row.add_child(btn)
         _char_btns[c] = btn
@@ -3055,7 +3055,7 @@ func _build_ui() -> void:
     preview_row.add_child(right_col)
 
     _info_label = Label.new()
-    _info_label.add_theme_font_size_override("font_size", 20)
+    _info_label.add_theme_font_size_override("font_size", 26)
     _info_label.add_theme_color_override("font_color", Color(0.85, 0.85, 0.85))
     right_col.add_child(_info_label)
 
@@ -3065,7 +3065,7 @@ func _build_ui() -> void:
 
     var hint_lbl := Label.new()
     hint_lbl.text = "strip: clicar pausa  ·  preview: clicar retoma"
-    hint_lbl.add_theme_font_size_override("font_size", 16)
+    hint_lbl.add_theme_font_size_override("font_size", 21)
     hint_lbl.add_theme_color_override("font_color", Color(0.45, 0.45, 0.45))
     right_col.add_child(hint_lbl)
 
@@ -3126,19 +3126,19 @@ func _build_moves_box() -> void:
     # ── Seletor de personagem do player (Zael / Kawagael) ──
     var player_lbl := Label.new()
     player_lbl.text = "Player:"
-    player_lbl.add_theme_font_size_override("font_size", 24)
+    player_lbl.add_theme_font_size_override("font_size", 32)
     player_lbl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
     top_bar.add_child(player_lbl)
 
     var btn_pprev := Button.new()
     btn_pprev.text = "<"
-    btn_pprev.add_theme_font_size_override("font_size", 24)
+    btn_pprev.add_theme_font_size_override("font_size", 32)
     btn_pprev.pressed.connect(mview.on_player_prev)
     top_bar.add_child(btn_pprev)
 
     var lbl_pname := Label.new()
     lbl_pname.custom_minimum_size.x = 120.0
-    lbl_pname.add_theme_font_size_override("font_size", 24)
+    lbl_pname.add_theme_font_size_override("font_size", 32)
     lbl_pname.add_theme_color_override("font_color", Color(0.4, 1.0, 0.6))
     lbl_pname.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
     lbl_pname.vertical_alignment   = VERTICAL_ALIGNMENT_CENTER
@@ -3148,13 +3148,13 @@ func _build_moves_box() -> void:
 
     var btn_pnext := Button.new()
     btn_pnext.text = ">"
-    btn_pnext.add_theme_font_size_override("font_size", 24)
+    btn_pnext.add_theme_font_size_override("font_size", 32)
     btn_pnext.pressed.connect(mview.on_player_next)
     top_bar.add_child(btn_pnext)
 
     var hint := Label.new()
     hint.text = "A/D: mover - Z: pular - X: dash - J: atirar"
-    hint.add_theme_font_size_override("font_size", 18)
+    hint.add_theme_font_size_override("font_size", 24)
     hint.add_theme_color_override("font_color", Color(0.5, 0.5, 0.5))
     hint.size_flags_horizontal = Control.SIZE_EXPAND_FILL
     hint.vertical_alignment    = VERTICAL_ALIGNMENT_CENTER
@@ -3162,19 +3162,19 @@ func _build_moves_box() -> void:
 
     var enemy_lbl := Label.new()
     enemy_lbl.text = "Inimigo:"
-    enemy_lbl.add_theme_font_size_override("font_size", 24)
+    enemy_lbl.add_theme_font_size_override("font_size", 32)
     enemy_lbl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
     top_bar.add_child(enemy_lbl)
 
     var btn_prev := Button.new()
     btn_prev.text = "<"
-    btn_prev.add_theme_font_size_override("font_size", 24)
+    btn_prev.add_theme_font_size_override("font_size", 32)
     btn_prev.pressed.connect(mview.on_prev)
     top_bar.add_child(btn_prev)
 
     var lbl_name := Label.new()
     lbl_name.custom_minimum_size.x = 80.0
-    lbl_name.add_theme_font_size_override("font_size", 24)
+    lbl_name.add_theme_font_size_override("font_size", 32)
     lbl_name.add_theme_color_override("font_color", Color(0.9, 0.9, 0.3))
     lbl_name.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
     lbl_name.vertical_alignment   = VERTICAL_ALIGNMENT_CENTER
@@ -3183,13 +3183,13 @@ func _build_moves_box() -> void:
 
     var btn_next := Button.new()
     btn_next.text = ">"
-    btn_next.add_theme_font_size_override("font_size", 24)
+    btn_next.add_theme_font_size_override("font_size", 32)
     btn_next.pressed.connect(mview.on_next)
     top_bar.add_child(btn_next)
 
     var btn_move := Button.new()
     btn_move.text = "Mover"
-    btn_move.add_theme_font_size_override("font_size", 24)
+    btn_move.add_theme_font_size_override("font_size", 32)
     btn_move.pressed.connect(mview.on_toggle_movement)
     top_bar.add_child(btn_move)
 
@@ -3197,7 +3197,7 @@ func _build_moves_box() -> void:
     mview.label_move_btn = btn_move
 
     var state_lbl := Label.new()
-    state_lbl.add_theme_font_size_override("font_size", 16)
+    state_lbl.add_theme_font_size_override("font_size", 21)
     state_lbl.add_theme_color_override("font_color", Color(0.5, 0.5, 0.5))
     state_lbl.text = "No chão"
     mov_panel.add_child(state_lbl)
@@ -3211,7 +3211,7 @@ func _build_moves_box() -> void:
 
     var atk_lbl := Label.new()
     atk_lbl.text = "Estado:"
-    atk_lbl.add_theme_font_size_override("font_size", 18)
+    atk_lbl.add_theme_font_size_override("font_size", 24)
     atk_lbl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
     atk_row.add_child(atk_lbl)
 
@@ -3225,7 +3225,7 @@ func _build_moves_box() -> void:
     ]:
         var abtn := Button.new()
         abtn.text = atk[0]
-        abtn.add_theme_font_size_override("font_size", 24)
+        abtn.add_theme_font_size_override("font_size", 32)
         abtn.modulate = atk[2]
         var mname: String = atk[1]
         abtn.pressed.connect(mview.on_attack.bind(mname))
@@ -3240,7 +3240,7 @@ func _build_moves_box() -> void:
 
     var boss_atk_lbl := Label.new()
     boss_atk_lbl.text = "Ataques:"
-    boss_atk_lbl.add_theme_font_size_override("font_size", 18)
+    boss_atk_lbl.add_theme_font_size_override("font_size", 24)
     boss_atk_lbl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
     boss_atk_row.add_child(boss_atk_lbl)
 
@@ -3254,7 +3254,7 @@ func _build_moves_box() -> void:
     ]:
         var babtn := Button.new()
         babtn.text = batk[0]
-        babtn.add_theme_font_size_override("font_size", 24)
+        babtn.add_theme_font_size_override("font_size", 32)
         babtn.modulate = batk[2]
         var bname: String = batk[1]
         babtn.pressed.connect(mview.on_attack.bind(bname))
@@ -3274,26 +3274,26 @@ func _build_moves_box() -> void:
 
     var fc_hint := Label.new()
     fc_hint.text = "A/D: mover  ·  Z: pular sob os fills — verifica se é bloqueado"
-    fc_hint.add_theme_font_size_override("font_size", 17)
+    fc_hint.add_theme_font_size_override("font_size", 22)
     fc_hint.add_theme_color_override("font_color", Color(0.5, 0.5, 0.5))
     fc_hint.size_flags_horizontal = Control.SIZE_EXPAND_FILL
     fc_bar.add_child(fc_hint)
 
     var fc_toggle := Button.new()
     fc_toggle.text = "Alternar Modo"
-    fc_toggle.add_theme_font_size_override("font_size", 24)
+    fc_toggle.add_theme_font_size_override("font_size", 32)
     fc_toggle.pressed.connect(fcview.toggle_mode)
     fc_bar.add_child(fc_toggle)
 
     var fc_mode_lbl := Label.new()
-    fc_mode_lbl.add_theme_font_size_override("font_size", 16)
+    fc_mode_lbl.add_theme_font_size_override("font_size", 21)
     fc_mode_lbl.text = "✗ Atual — só Body1 (2 tiles, 12 fills sem colisão)"
     fc_mode_lbl.add_theme_color_override("font_color", Color(1.0, 0.4, 0.4))
     fill_ceil_panel.add_child(fc_mode_lbl)
     fcview.lbl_mode = fc_mode_lbl
 
     var fc_state_lbl := Label.new()
-    fc_state_lbl.add_theme_font_size_override("font_size", 16)
+    fc_state_lbl.add_theme_font_size_override("font_size", 21)
     fc_state_lbl.add_theme_color_override("font_color", Color(0.5, 0.5, 0.5))
     fc_state_lbl.text = "No chão"
     fill_ceil_panel.add_child(fc_state_lbl)
@@ -3307,13 +3307,13 @@ func _build_moves_box() -> void:
 
     var btn_mov_tab := Button.new()
     btn_mov_tab.text = "Movimentos"
-    btn_mov_tab.add_theme_font_size_override("font_size", 26)
+    btn_mov_tab.add_theme_font_size_override("font_size", 34)
     btn_mov_tab.modulate = Color(1.0, 1.0, 0.0)
     tab_row.add_child(btn_mov_tab)
 
     var btn_fill_tab := Button.new()
     btn_fill_tab.text = "Fill Teto"
-    btn_fill_tab.add_theme_font_size_override("font_size", 26)
+    btn_fill_tab.add_theme_font_size_override("font_size", 34)
     btn_fill_tab.modulate = Color(0.6, 0.6, 0.6)
     tab_row.add_child(btn_fill_tab)
 
@@ -3381,7 +3381,7 @@ func _refresh_tiles() -> void:
 
         var stage_btn := Button.new()
         stage_btn.text = sk.trim_prefix("Stage_")
-        stage_btn.add_theme_font_size_override("font_size", 26)
+        stage_btn.add_theme_font_size_override("font_size", 34)
         var _st: int = st_idx
         stage_btn.pressed.connect(func(): show_section.call(0, _st))
         stage_row.add_child(stage_btn)
@@ -3413,7 +3413,7 @@ func _refresh_tiles() -> void:
 
             var ts_btn := Button.new()
             ts_btn.text = short
-            ts_btn.add_theme_font_size_override("font_size", 24)
+            ts_btn.add_theme_font_size_override("font_size", 32)
             ts_btn.pressed.connect(show_ts.bind(ts_idx, ts_panels, ts_tab_row))
             ts_tab_row.add_child(ts_btn)
 
@@ -3425,7 +3425,7 @@ func _refresh_tiles() -> void:
 
             var info_lbl := Label.new()
             info_lbl.text = "clique num tile para zoom  ·  %dx%d, %dpx cada" % [ts_data.cols, ts_data.rows, ts_data.tile_size]
-            info_lbl.add_theme_font_size_override("font_size", 17)
+            info_lbl.add_theme_font_size_override("font_size", 22)
             info_lbl.add_theme_color_override("font_color", Color(0.5, 0.5, 0.5))
             panel.add_child(info_lbl)
 
@@ -3457,7 +3457,7 @@ func _refresh_tiles() -> void:
 
             var desc_lbl := Label.new()
             desc_lbl.text = ""
-            desc_lbl.add_theme_font_size_override("font_size", 18)
+            desc_lbl.add_theme_font_size_override("font_size", 24)
             desc_lbl.add_theme_color_override("font_color", Color(0.85, 0.85, 0.6))
             desc_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
             panel.add_child(desc_lbl)
@@ -3512,7 +3512,7 @@ func _refresh_tiles() -> void:
                     var is_blank: bool = _bdesc.begins_with("Transparente")
                     var coord_lbl := Label.new()
                     coord_lbl.text = "—" if is_blank else "%d,%d" % [col, row]
-                    coord_lbl.add_theme_font_size_override("font_size", 15)
+                    coord_lbl.add_theme_font_size_override("font_size", 20)
                     coord_lbl.add_theme_color_override(
                         "font_color",
                         Color(0.3, 0.3, 0.3) if is_blank else Color(0.6, 0.6, 0.6)
@@ -3527,7 +3527,7 @@ func _refresh_tiles() -> void:
 
     var col_tab_btn := Button.new()
     col_tab_btn.text = "Colisões"
-    col_tab_btn.add_theme_font_size_override("font_size", 26)
+    col_tab_btn.add_theme_font_size_override("font_size", 34)
     col_tab_btn.pressed.connect(func(): show_section.call(1, -1))
     stage_row.add_child(col_tab_btn)
 
@@ -3542,7 +3542,7 @@ func _refresh_tiles() -> void:
     col_panel.add_child(col_mode_row)
     var col_mode_lbl := Label.new()
     col_mode_lbl.text = "Modo:"
-    col_mode_lbl.add_theme_font_size_override("font_size", 18)
+    col_mode_lbl.add_theme_font_size_override("font_size", 24)
     col_mode_row.add_child(col_mode_lbl)
 
     var lateral_box := VBoxContainer.new()
@@ -3565,7 +3565,7 @@ func _refresh_tiles() -> void:
     var add_info := func(text: String, color: Color) -> void:
         var il := Label.new()
         il.text = text
-        il.add_theme_font_size_override("font_size", 18)
+        il.add_theme_font_size_override("font_size", 24)
         il.add_theme_color_override("font_color", color)
         col_info.add_child(il)
 
@@ -3594,12 +3594,12 @@ func _refresh_tiles() -> void:
     col_corner_row.visible = false
     var col_corner_lbl := Label.new()
     col_corner_lbl.text = "Canto:"
-    col_corner_lbl.add_theme_font_size_override("font_size", 18)
+    col_corner_lbl.add_theme_font_size_override("font_size", 24)
     col_corner_row.add_child(col_corner_lbl)
     for ci: Array in [["↗ topo-dir", 0], ["↖ topo-esq", 1], ["↘ base-dir", 2], ["↙ base-esq", 3]]:
         var cbtn := Button.new()
         cbtn.text = ci[0]
-        cbtn.add_theme_font_size_override("font_size", 24)
+        cbtn.add_theme_font_size_override("font_size", 32)
         var cidx: int = ci[1]
         cbtn.pressed.connect(func(): cview_col.corner = cidx; cview_col.queue_redraw())
         col_corner_row.add_child(cbtn)
@@ -3615,7 +3615,7 @@ func _refresh_tiles() -> void:
     for ml: Array in [["Lateral", false], ["Cantos", true]]:
         var mbtn := Button.new()
         mbtn.text = ml[0]
-        mbtn.add_theme_font_size_override("font_size", 24)
+        mbtn.add_theme_font_size_override("font_size", 32)
         var is_c: bool = ml[1]
         mbtn.pressed.connect(func(): _col_sw.call(is_c))
         col_mode_row.add_child(mbtn)
@@ -3628,7 +3628,7 @@ func _refresh_tiles() -> void:
 
     var glass_hdr := Label.new()
     glass_hdr.text = "Vidro (stage_00_glass.png)"
-    glass_hdr.add_theme_font_size_override("font_size", 20)
+    glass_hdr.add_theme_font_size_override("font_size", 26)
     glass_hdr.add_theme_color_override("font_color", Color(0.5, 0.9, 1.0))
     col_panel.add_child(glass_hdr)
 
@@ -3637,7 +3637,7 @@ func _refresh_tiles() -> void:
     col_panel.add_child(glass_mode_row)
     var glass_mode_lbl := Label.new()
     glass_mode_lbl.text = "Modo:"
-    glass_mode_lbl.add_theme_font_size_override("font_size", 18)
+    glass_mode_lbl.add_theme_font_size_override("font_size", 24)
     glass_mode_row.add_child(glass_mode_lbl)
 
     var gl_tex: Texture2D = null
@@ -3676,12 +3676,12 @@ func _refresh_tiles() -> void:
     gcor_btn_row.add_theme_constant_override("separation", 6)
     var gcor_lbl := Label.new()
     gcor_lbl.text = "Canto:"
-    gcor_lbl.add_theme_font_size_override("font_size", 18)
+    gcor_lbl.add_theme_font_size_override("font_size", 24)
     gcor_btn_row.add_child(gcor_lbl)
     for gci: Array in [["↗ topo-dir", 0], ["↖ topo-esq", 1], ["↘ base-dir", 2], ["↙ base-esq", 3]]:
         var gcbtn := Button.new()
         gcbtn.text = gci[0]
-        gcbtn.add_theme_font_size_override("font_size", 24)
+        gcbtn.add_theme_font_size_override("font_size", 32)
         var gcidx: int = gci[1]
         gcbtn.pressed.connect(func(): gcor.corner = gcidx; gcor.queue_redraw())
         gcor_btn_row.add_child(gcbtn)
@@ -3716,11 +3716,11 @@ func _refresh_tiles() -> void:
     gpan_row.add_theme_constant_override("separation", 6)
     var gpan_norm_btn := Button.new()
     gpan_norm_btn.text = "Normal"
-    gpan_norm_btn.add_theme_font_size_override("font_size", 22)
+    gpan_norm_btn.add_theme_font_size_override("font_size", 28)
     gpan_norm_btn.modulate = Color(1.0, 1.0, 0.0)
     var gpan_mirr_btn := Button.new()
     gpan_mirr_btn.text = "Espelho"
-    gpan_mirr_btn.add_theme_font_size_override("font_size", 22)
+    gpan_mirr_btn.add_theme_font_size_override("font_size", 28)
     gpan_mirr_btn.modulate = Color(0.6, 0.6, 0.6)
     gpan_norm_btn.pressed.connect(func():
         gpan.mirror = false; gpan.queue_redraw()
@@ -3760,7 +3760,7 @@ func _refresh_tiles() -> void:
     for gml: Array in [["Lateral", 0], ["Cantos", 1], ["Gap", 2], ["Comparação", 3], ["Painel", 4], ["Centro (2,1)", 5]]:
         var gmbtn := Button.new()
         gmbtn.text = gml[0]
-        gmbtn.add_theme_font_size_override("font_size", 24)
+        gmbtn.add_theme_font_size_override("font_size", 32)
         var gidx: int = gml[1]
         gmbtn.pressed.connect(func(): _glass_sw.call(gidx))
         glass_mode_row.add_child(gmbtn)
@@ -3770,7 +3770,7 @@ func _refresh_tiles() -> void:
     # Plataformas tab
     var plat_tab_btn := Button.new()
     plat_tab_btn.text = "Plataformas"
-    plat_tab_btn.add_theme_font_size_override("font_size", 26)
+    plat_tab_btn.add_theme_font_size_override("font_size", 34)
     plat_tab_btn.pressed.connect(func(): show_section.call(2, -1))
     stage_row.add_child(plat_tab_btn)
 
@@ -3790,13 +3790,13 @@ func _refresh_tiles() -> void:
 
     var plat_ts_lbl := Label.new()
     plat_ts_lbl.text = "Tileset:"
-    plat_ts_lbl.add_theme_font_size_override("font_size", 18)
+    plat_ts_lbl.add_theme_font_size_override("font_size", 24)
     plat_ts_row.add_child(plat_ts_lbl)
 
     for ts_data2 in _TILESETS:
         var ts_btn := Button.new()
         ts_btn.text = ts_data2.name.trim_suffix("T")
-        ts_btn.add_theme_font_size_override("font_size", 24)
+        ts_btn.add_theme_font_size_override("font_size", 32)
         var ts_path2: String = ts_data2.path
         ts_btn.pressed.connect(func():
             pview.tile_tex = load(ts_path2) as Texture2D
@@ -3810,7 +3810,7 @@ func _refresh_tiles() -> void:
 
     var mode_lbl := Label.new()
     mode_lbl.text = "Modo:"
-    mode_lbl.add_theme_font_size_override("font_size", 18)
+    mode_lbl.add_theme_font_size_override("font_size", 24)
     mode_row.add_child(mode_lbl)
 
     var ctrl_row := HBoxContainer.new()
@@ -3831,7 +3831,7 @@ func _refresh_tiles() -> void:
     for me: Array in [["Plataforma", "platform"], ["Sala", "room"], ["Piso+Plat", "floor_platform"], ["Piso+Abismo", "floor_platform_hole"], ["Buraco no Piso", "floor_hole"], ["Saliência", "foothold"], ["Teto", "ceil_flat"]]:
         var mbtn := Button.new()
         mbtn.text = me[0]
-        mbtn.add_theme_font_size_override("font_size", 24)
+        mbtn.add_theme_font_size_override("font_size", 32)
         var mk: String = me[1]
         var ml: String = me[0]
         mbtn.pressed.connect(func():
@@ -3849,7 +3849,7 @@ func _refresh_tiles() -> void:
     ceil_sub_row.visible = false
     var ceil_tipo_lbl := Label.new()
     ceil_tipo_lbl.text = "Tipo:"
-    ceil_tipo_lbl.add_theme_font_size_override("font_size", 18)
+    ceil_tipo_lbl.add_theme_font_size_override("font_size", 24)
     ceil_sub_row.add_child(ceil_tipo_lbl)
     var _sw_sub := func(sk: String, sl: String) -> void:
         _sw.call(sk, "Teto")
@@ -3858,7 +3858,7 @@ func _refresh_tiles() -> void:
     for sub: Array in [["Reto", "ceil_flat"], ["Escada", "ceil_step"], ["Buraco", "ceil_hole"], ["Plat", "ceil_platform"], ["Pit+Plat", "ceil_plat_pit"]]:
         var sbtn := Button.new()
         sbtn.text = sub[0]
-        sbtn.add_theme_font_size_override("font_size", 24)
+        sbtn.add_theme_font_size_override("font_size", 32)
         var sk: String = sub[1]; var sl: String = sub[0]
         sbtn.pressed.connect(func(): _sw_sub.call(sk, sl))
         ceil_sub_row.add_child(sbtn)
@@ -3871,20 +3871,20 @@ func _refresh_tiles() -> void:
 
     var cols_lbl := Label.new()
     cols_lbl.text = "Cols: 3"
-    cols_lbl.add_theme_font_size_override("font_size", 18)
+    cols_lbl.add_theme_font_size_override("font_size", 24)
     cols_lbl.custom_minimum_size = Vector2(80.0, 0.0)
     var cols_hb := HBoxContainer.new()
     cols_hb.add_theme_constant_override("separation", 4)
     var cols_m := Button.new()
     cols_m.text = "−"
-    cols_m.add_theme_font_size_override("font_size", 18)
+    cols_m.add_theme_font_size_override("font_size", 24)
     cols_m.pressed.connect(func():
         if pview.cols > 1:
             pview.set_dims(pview.rows, pview.cols - 1)
             cols_lbl.text = "Cols: %d" % pview.cols)
     var cols_p := Button.new()
     cols_p.text = "+"
-    cols_p.add_theme_font_size_override("font_size", 18)
+    cols_p.add_theme_font_size_override("font_size", 24)
     cols_p.pressed.connect(func():
         if pview.cols < 8:
             pview.set_dims(pview.rows, pview.cols + 1)
@@ -3896,20 +3896,20 @@ func _refresh_tiles() -> void:
 
     var rows_lbl := Label.new()
     rows_lbl.text = "Rows: 2"
-    rows_lbl.add_theme_font_size_override("font_size", 18)
+    rows_lbl.add_theme_font_size_override("font_size", 24)
     rows_lbl.custom_minimum_size = Vector2(80.0, 0.0)
     var rows_hb := HBoxContainer.new()
     rows_hb.add_theme_constant_override("separation", 4)
     var rows_m := Button.new()
     rows_m.text = "−"
-    rows_m.add_theme_font_size_override("font_size", 18)
+    rows_m.add_theme_font_size_override("font_size", 24)
     rows_m.pressed.connect(func():
         if pview.rows > 1:
             pview.set_dims(pview.rows - 1, pview.cols)
             rows_lbl.text = "Rows: %d" % pview.rows)
     var rows_p := Button.new()
     rows_p.text = "+"
-    rows_p.add_theme_font_size_override("font_size", 18)
+    rows_p.add_theme_font_size_override("font_size", 24)
     rows_p.pressed.connect(func():
         if pview.rows < 8:
             pview.set_dims(pview.rows + 1, pview.cols)
@@ -3921,7 +3921,7 @@ func _refresh_tiles() -> void:
 
     var mirror_btn := Button.new()
     mirror_btn.text = "Espelhar"
-    mirror_btn.add_theme_font_size_override("font_size", 18)
+    mirror_btn.add_theme_font_size_override("font_size", 24)
     mirror_btn.pressed.connect(func():
         pview.mirror_hole = not pview.mirror_hole
         pview.queue_redraw())
@@ -4103,7 +4103,7 @@ class _BossBattleView extends Control:
 
         var title := Label.new()
         title.text = "Escolha o boss  (ESC/Enter na sala = voltar aqui)"
-        title.add_theme_font_size_override("font_size", 26)
+        title.add_theme_font_size_override("font_size", 34)
         title.add_theme_color_override("font_color", Color(0.85, 0.8, 1.0))
         box.add_child(title)
 
@@ -4115,14 +4115,14 @@ class _BossBattleView extends Control:
         for i in ImgDebug._BOSS_BATTLE.size():
             var btn := Button.new()
             btn.text = ImgDebug._BOSS_BATTLE[i].name
-            btn.add_theme_font_size_override("font_size", 24)
+            btn.add_theme_font_size_override("font_size", 32)
             btn.custom_minimum_size = Vector2(240.0, 56.0)
             btn.pressed.connect(_enter_battle.bind(i))
             grid.add_child(btn)
 
         var exit_btn := Button.new()
         exit_btn.text = "Sair"
-        exit_btn.add_theme_font_size_override("font_size", 24)
+        exit_btn.add_theme_font_size_override("font_size", 32)
         exit_btn.custom_minimum_size = Vector2(160.0, 48.0)
         exit_btn.pressed.connect(func(): exit_requested.emit())
         box.add_child(exit_btn)
