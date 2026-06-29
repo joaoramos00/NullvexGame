@@ -28,8 +28,20 @@ const _HITBOX_ENTITIES: Array = [
     {"name": "Zara", "path": "res://characters/melee/zara.tscn", "group": "Personagens", "kind": "Personagens", "stage": ""},
     {"name": "Enemy Base", "path": "res://characters/enemies/enemy_base.tscn", "group": "Inimigos", "kind": "Inimigos", "stage": "Stage 00"},
     {"name": "Enemy Flyer", "path": "res://characters/enemies/enemy_flyer.tscn", "group": "Inimigos", "kind": "Inimigos", "stage": "Stage 00"},
-    {"name": "Enemy Miniboss", "path": "res://characters/enemies/enemy_miniboss.tscn", "group": "Bosses", "kind": "Inimigos", "stage": "Stage 00"},
-    {"name": "Intro Boss", "path": "res://characters/bosses/intro_boss.tscn", "group": "Bosses", "kind": "Inimigos", "stage": "Stage 00"},
+    {"name": "Enemy Miniboss", "path": "res://characters/enemies/enemy_miniboss.tscn", "group": "Bosses", "kind": "Inimigos", "stage": "Stage 00", "anims": [
+        {"label": "Walk",   "path": "res://characters/enemies/miniboss/stage_00/miniboss_walk.png",   "frames": 6},
+        {"label": "Idle",   "path": "res://characters/enemies/miniboss/stage_00/miniboss_idle.png",   "frames": 4},
+        {"label": "Punch",  "path": "res://characters/enemies/miniboss/stage_00/miniboss_punch.png",  "frames": 9},
+        {"label": "Stomp",  "path": "res://characters/enemies/miniboss/stage_00/miniboss_stomp.png",  "frames": 9},
+        {"label": "Charge", "path": "res://characters/enemies/miniboss/stage_00/miniboss_charge.png", "frames": 9},
+    ]},
+    {"name": "Intro Boss", "path": "res://characters/bosses/intro_boss.tscn", "group": "Bosses", "kind": "Inimigos", "stage": "Stage 00", "anims": [
+        {"label": "Entry", "path": "res://characters/bosses/intro_boss/intro_boss_entry.png", "frames": 9},
+        {"label": "Idle",  "path": "res://characters/bosses/intro_boss/intro_boss_idle.png",  "frames": 8},
+        {"label": "Walk",  "path": "res://characters/bosses/intro_boss/intro_boss_walk.png",  "frames": 6},
+        {"label": "Dash",  "path": "res://characters/bosses/intro_boss/intro_boss_dash.png",  "frames": 7},
+        {"label": "Shoot", "path": "res://characters/bosses/intro_boss/intro_boss_shoot.png", "frames": 7},
+    ]},
     {"name": "Ice Grunt", "path": "res://characters/enemies/stage_02/enemy_ice_grunt.tscn", "group": "Inimigos", "kind": "Inimigos", "stage": "Stage 02"},
     {"name": "Ice Flyer", "path": "res://characters/enemies/stage_02/enemy_ice_flyer.tscn", "group": "Inimigos", "kind": "Inimigos", "stage": "Stage 02"},
     {"name": "Ice Archer", "path": "res://characters/enemies/stage_02/enemy_ice_archer.tscn", "group": "Inimigos", "kind": "Inimigos", "stage": "Stage 02"},
@@ -49,11 +61,23 @@ const _HITBOX_ENTITIES: Array = [
     {"name": "Magma Turret", "path": "res://characters/enemies/stage_01/enemy_magma_turret.tscn", "group": "Inimigos", "kind": "Inimigos", "stage": "Stage 01"},
     {"name": "Lava Serpent", "path": "res://characters/enemies/stage_01/enemy_lava_serpent.tscn", "group": "Inimigos", "kind": "Inimigos", "stage": "Stage 01"},
     {"name": "Boss Base", "path": "res://characters/bosses/boss_base.tscn", "group": "Bosses", "kind": "Bosses", "stage": ""},
-    {"name": "Intro Boss", "path": "res://characters/bosses/intro_boss.tscn", "group": "Bosses", "kind": "Bosses", "stage": "Stage 00"},
+    {"name": "Intro Boss", "path": "res://characters/bosses/intro_boss.tscn", "group": "Bosses", "kind": "Bosses", "stage": "Stage 00", "anims": [
+        {"label": "Entry", "path": "res://characters/bosses/intro_boss/intro_boss_entry.png", "frames": 9},
+        {"label": "Idle",  "path": "res://characters/bosses/intro_boss/intro_boss_idle.png",  "frames": 8},
+        {"label": "Walk",  "path": "res://characters/bosses/intro_boss/intro_boss_walk.png",  "frames": 6},
+        {"label": "Dash",  "path": "res://characters/bosses/intro_boss/intro_boss_dash.png",  "frames": 7},
+        {"label": "Shoot", "path": "res://characters/bosses/intro_boss/intro_boss_shoot.png", "frames": 7},
+    ]},
     {"name": "Cryovex", "path": "res://characters/bosses/cryovex.tscn", "group": "Bosses", "kind": "Bosses", "stage": "Stage 02"},
     {"name": "Galerix", "path": "res://characters/bosses/galerix.tscn", "group": "Bosses", "kind": "Bosses", "stage": ""},
     {"name": "Gravitus", "path": "res://characters/bosses/gravitus.tscn", "group": "Bosses", "kind": "Bosses", "stage": ""},
-    {"name": "Ignarath", "path": "res://characters/bosses/ignarath.tscn", "group": "Bosses", "kind": "Bosses", "stage": ""},
+    {"name": "Ignarath", "path": "res://characters/bosses/ignarath.tscn", "group": "Bosses", "kind": "Bosses", "stage": "", "anims": [
+        {"label": "Walk",       "path": "res://characters/bosses/ignarath/ignarath_walking.png",   "frames": 9},
+        {"label": "Enter",      "path": "res://characters/bosses/ignarath/ignarath_enter.png",      "frames": 9},
+        {"label": "Firebreath", "path": "res://characters/bosses/ignarath/ignarath_firebreath.png", "frames": 9},
+        {"label": "Claw",       "path": "res://characters/bosses/ignarath/ignarath_claw.png",       "frames": 9},
+        {"label": "TakingHit",  "path": "res://characters/bosses/ignarath/ignarath_takinghit.png",  "frames": 9},
+    ]},
     {"name": "Luxar", "path": "res://characters/bosses/luxar.tscn", "group": "Bosses", "kind": "Bosses", "stage": ""},
     {"name": "Nullvex", "path": "res://characters/bosses/nullvex.tscn", "group": "Bosses", "kind": "Bosses", "stage": ""},
     {"name": "Terragor", "path": "res://characters/bosses/terragor.tscn", "group": "Bosses", "kind": "Bosses", "stage": ""},
@@ -1553,6 +1577,8 @@ class _HitboxView extends Control:
     var _type_opt: OptionButton = null
     var _stage_opt: OptionButton = null
     var _entity_opt: OptionButton = null
+    var _anim_row: HBoxContainer = null
+    var _anim_opt: OptionButton = null
     var _frame_row: HBoxContainer = null
     var _frame_lbl: Label = null
     var _projectile_row: HBoxContainer = null
@@ -1609,6 +1635,17 @@ class _HitboxView extends Control:
         _entity_opt.item_selected.connect(func(_i): _select_index(int(_entity_opt.get_selected_metadata())))
         sel_row.add_child(_make_label("Entidade:"))
         sel_row.add_child(_entity_opt)
+
+        _anim_row = HBoxContainer.new()
+        _anim_row.add_theme_constant_override("separation", 10)
+        _anim_row.visible = false
+        root.add_child(_anim_row)
+        _anim_row.add_child(_make_label("Anim:"))
+        _anim_opt = OptionButton.new()
+        _anim_opt.add_theme_font_size_override("font_size", 26)
+        _anim_opt.get_popup().add_theme_font_size_override("font_size", 26)
+        _anim_opt.item_selected.connect(func(i): _apply_anim_opt(i))
+        _anim_row.add_child(_anim_opt)
 
         _frame_row = HBoxContainer.new()
         _frame_row.add_theme_constant_override("separation", 6)
@@ -1769,9 +1806,48 @@ class _HitboxView extends Control:
             _shape_overlay.ruler_origin = _current_instance.global_position
             _shape_overlay.queue_redraw()
         _set_meta(entry, _shape_infos)
+        _refresh_anim_row(entry)
         _refresh_frame_row()
         _refresh_projectile_row()
         _load_edit_state()
+
+    func _refresh_anim_row(entry: Dictionary) -> void:
+        if _anim_row == null or _anim_opt == null:
+            return
+        var anims: Array = entry.get("anims", [])
+        if anims.is_empty():
+            _anim_row.visible = false
+            _anim_opt.clear()
+            return
+        _anim_row.visible = true
+        _anim_opt.clear()
+        for anim: Dictionary in anims:
+            _anim_opt.add_item(String(anim.label))
+        _anim_opt.select(0)
+        _apply_anim(anims[0])
+
+    func _apply_anim_opt(idx: int) -> void:
+        var entry: Dictionary = ImgDebug._HITBOX_ENTITIES[_current_index]
+        var anims: Array = entry.get("anims", [])
+        if idx >= 0 and idx < anims.size():
+            _apply_anim(anims[idx])
+
+    func _apply_anim(anim: Dictionary) -> void:
+        if _current_instance == null:
+            return
+        var sprite := _find_sprite2d(_current_instance)
+        if sprite == null:
+            return
+        var tex: Texture2D = load(String(anim.path))
+        if tex == null:
+            return
+        sprite.texture = tex
+        sprite.hframes = int(anim.frames)
+        sprite.vframes = 1
+        sprite.frame   = 0
+        _selected_frame = 0
+        _frame_count    = int(anim.frames)
+        _refresh_frame_row()
 
     func _clear_current() -> void:
         _shape_infos.clear()
