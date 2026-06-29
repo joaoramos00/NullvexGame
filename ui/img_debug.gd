@@ -1343,13 +1343,6 @@ class _HitboxOverlay extends Node2D:
     var show_hitboxes: bool = true
     var show_ruler: bool = false
     var ruler_origin: Vector2 = Vector2.ZERO
-    # Editor por mouse
-    var edit_shapes: Array = []
-    var sel_shape: int = -1
-    var edit_proj: Dictionary = {}
-    var editing: bool = false
-    var sprite_handle: Vector2 = Vector2.INF
-
     func _draw() -> void:
         if show_floor:
             _draw_floor()
@@ -1367,31 +1360,6 @@ class _HitboxOverlay extends Node2D:
             if show_labels:
                 draw_string(ThemeDB.fallback_font, cs.global_position + Vector2(8.0, -8.0), String(info.path), HORIZONTAL_ALIGNMENT_LEFT, -1.0, 13.0, color)
         _draw_projectile_preview()
-        _draw_edit_handles()
-
-    func _draw_edit_handles() -> void:
-        if not editing:
-            return
-        if sel_shape >= 0 and sel_shape < edit_shapes.size():
-            var s: Dictionary = edit_shapes[sel_shape]
-            var c := ruler_origin + Vector2(float(s["pos"][0]), float(s["pos"][1]))
-            var half := Vector2(float(s["size"][0]), float(s["size"][1])) * 0.5
-            draw_rect(Rect2(c - half, half * 2.0), Color(1.0, 1.0, 0.0, 0.9), false, 2.0)
-            var hs := 5.0
-            for hxi in 3:
-                for hyi in 3:
-                    var hx: float = float(hxi) - 1.0
-                    var hy: float = float(hyi) - 1.0
-                    if hx == 0.0 and hy == 0.0:
-                        continue
-                    var hp := c + Vector2(half.x * hx, half.y * hy)
-                    draw_rect(Rect2(hp - Vector2(hs, hs), Vector2(hs * 2.0, hs * 2.0)), Color(1.0, 1.0, 0.0, 0.95))
-        if edit_proj.has("offset"):
-            var po: Array = edit_proj["offset"] as Array
-            var pp := ruler_origin + Vector2(float(po[0]), float(po[1]))
-            draw_circle(pp, 6.0, Color(0.2, 1.0, 0.4, 0.9))
-        if sprite_handle != Vector2.INF:
-            draw_rect(Rect2(sprite_handle - Vector2(6, 6), Vector2(12, 12)), Color(0.3, 0.85, 1.0, 0.95))
 
     # Régua de pixels centrada na origem da entidade: ticks a cada 10px, marcas
     # maiores + rótulo a cada 50px. Os números são em GAME-PX (= o valor que vai
@@ -1632,19 +1600,7 @@ class _HitboxView extends Control:
     var _projectile_row: HBoxContainer = null
     var _projectile_label: Label = null
     var _current_projectile_info: Dictionary = {}
-    # ── Editor por mouse ──────────────────────────────────────────────────────
     var _viewport_container: SubViewportContainer = null
-    var _edit: Dictionary = {}
-    var _edit_id: String = ""
-    var _sel_shape: int = -1
-    var _edit_target: String = "body"
-    var _edit_this_frame: bool = false
-    var _drag_mode: String = ""          # "", move_shape, resize_<e>, move_sprite, scale_sprite, move_proj
-    var _drag_last_world: Vector2 = Vector2.ZERO
-    var _edit_toolbar: HBoxContainer = null
-    var _edit_toggle_btn: Button = null
-    var _frame_scope_btn: Button = null
-    var _target_opt: OptionButton = null
 
     func _ready() -> void:
         _build()
@@ -1771,41 +1727,6 @@ class _HitboxView extends Control:
         _scene_root.add_child(_shape_overlay)
         _overlay = _floor_overlay
 
-        # ── Toolbar do editor por mouse ──────────────────────────────────────
-        _edit_toolbar = HBoxContainer.new()
-        _edit_toolbar.add_theme_constant_override("separation", 6)
-        root.add_child(_edit_toolbar)
-
-        _edit_toggle_btn = _make_button("Editar OFF", _on_toggle_edit)
-        _edit_toolbar.add_child(_edit_toggle_btn)
-
-        var add_btn := _make_button("+ Hitbox", _on_add_shape)
-        _edit_toolbar.add_child(add_btn)
-
-        var del_btn := _make_button("Deletar", _on_delete_shape)
-        _edit_toolbar.add_child(del_btn)
-
-        var tgt_lbl := _make_label("Alvo:")
-        _edit_toolbar.add_child(tgt_lbl)
-
-        _target_opt = OptionButton.new()
-        _target_opt.add_item("body")
-        _target_opt.add_item("contact")
-        _target_opt.add_theme_font_size_override("font_size", 26)
-        _target_opt.get_popup().add_theme_font_size_override("font_size", 26)
-        _target_opt.item_selected.connect(func(i): _edit_target = _target_opt.get_item_text(i))
-        _edit_toolbar.add_child(_target_opt)
-
-        _frame_scope_btn = _make_button("Frame: Todos", _on_toggle_frame_scope)
-        _edit_toolbar.add_child(_frame_scope_btn)
-
-        var save_btn := _make_button("Salvar", _on_save)
-        _edit_toolbar.add_child(save_btn)
-
-        # gui_input do container de viewport (sem stretch → coords diretas ao viewport)
-        viewport_container.gui_input.connect(_on_viewport_gui_input)
-        viewport_container.mouse_filter = Control.MOUSE_FILTER_STOP
-
         # Painel de descrição removido: o viewport de hitbox usa a linha inteira.
         # _meta_label fica null (os usos em _set_meta já têm null-guard).
         _refresh_hierarchy_rows()
@@ -1857,7 +1778,6 @@ class _HitboxView extends Control:
         _refresh_anim_row(entry)
         _refresh_frame_row()
         _refresh_projectile_row()
-        _load_edit_state()
 
     func _refresh_anim_row(entry: Dictionary) -> void:
         if _anim_row == null or _anim_opt == null:
@@ -2198,279 +2118,6 @@ class _HitboxView extends Control:
         if _current_instance == null:
             return _ENTITY_POS + offset
         return _current_instance.global_position + offset
-
-    # ── Editor por mouse: estado / helpers ────────────────────────────────────
-
-    func _entity_hitbox_id() -> String:
-        if _current_instance == null:
-            return ""
-        var scr := _current_instance.get_script() as Script
-        return scr.resource_path.get_file().get_basename() if scr != null else ""
-
-    func _load_edit_state() -> void:
-        _edit_id = _entity_hitbox_id()
-        _edit = HitboxData.entry(_edit_id).duplicate(true)
-        if not _edit.has("shapes"):
-            _edit["shapes"] = []
-        _sel_shape = (_edit["shapes"].size() - 1) if _edit["shapes"].size() > 0 else -1
-        _push_overlay_edit()
-
-    func _sprite_node() -> Sprite2D:
-        return _current_instance.get_node_or_null("Sprite2D") as Sprite2D if _current_instance != null else null
-
-    func _sprite_center_world() -> Vector2:
-        var sp := _sprite_node()
-        if sp == null: return _origin_world()
-        return _origin_world() + sp.position
-
-    func _sprite_half_frame() -> Vector2:
-        var sp := _sprite_node()
-        if sp == null or sp.texture == null: return Vector2(32, 32)
-        var fw := sp.texture.get_width() / maxi(1, sp.hframes)
-        var fh := sp.texture.get_height() / maxi(1, sp.vframes)
-        return Vector2(fw, fh) * 0.5
-
-    func _sprite_scale_handle_world() -> Vector2:
-        var sp := _sprite_node()
-        var sc := sp.scale if sp != null else Vector2.ONE
-        return _sprite_center_world() + Vector2(_sprite_half_frame().x * sc.x, -_sprite_half_frame().y * sc.y)
-
-    func _push_overlay_edit() -> void:
-        if _shape_overlay == null:
-            return
-        _shape_overlay.edit_shapes = _edit.get("shapes", [])
-        _shape_overlay.sel_shape = _sel_shape
-        _shape_overlay.edit_proj = _edit.get("projectile", {})
-        _shape_overlay.sprite_handle = _sprite_scale_handle_world() if _shape_overlay.editing else Vector2.INF
-        _shape_overlay.queue_redraw()
-
-    func _frame_scope() -> Variant:
-        return [_selected_frame] if _edit_this_frame else "all"
-
-    # ── Coordenadas tela → mundo ──────────────────────────────────────────────
-
-    func _screen_to_world(p: Vector2) -> Vector2:
-        # p é relativo ao canto superior esquerdo do SubViewportContainer
-        # sem stretch: 1 px container = 1 px viewport
-        # câmera zoom 2.0: 1 world-px = 2 viewport-px
-        var vp_center := Vector2(_viewport.size) * 0.5
-        return _camera.global_position + (p - vp_center) / _camera.zoom
-
-    func _origin_world() -> Vector2:
-        return _current_instance.global_position if _current_instance != null else _ENTITY_POS
-
-    # ── Drag: hittest e processamento ─────────────────────────────────────────
-
-    func _handle_radius() -> float:
-        return 8.0 / _camera.zoom.x   # 8 px tela → world-px
-
-    func _on_viewport_gui_input(event: InputEvent) -> void:
-        if _current_instance == null:
-            return
-        if not _shape_overlay.editing:
-            return
-        if event is InputEventMouseButton:
-            var mb := event as InputEventMouseButton
-            if mb.button_index == MOUSE_BUTTON_LEFT:
-                if mb.pressed:
-                    _start_drag(mb.position)
-                else:
-                    _drag_mode = ""
-        elif event is InputEventMouseMotion:
-            if _drag_mode != "":
-                _continue_drag((event as InputEventMouseMotion).position)
-
-    func _start_drag(screen_pos: Vector2) -> void:
-        var world := _screen_to_world(screen_pos)
-        var origin := _origin_world()
-        var local := world - origin      # coords relativas à entidade
-        var hr := _handle_radius()
-
-        # Testa projétil primeiro
-        if _edit.has("projectile") and _edit["projectile"].has("offset"):
-            var po: Array = _edit["projectile"]["offset"] as Array
-            var pp := Vector2(float(po[0]), float(po[1]))
-            if local.distance_to(pp) <= hr * 1.5:
-                _drag_mode = "move_proj"
-                _drag_last_world = world
-                return
-
-        # Testa handles do shape selecionado
-        if _sel_shape >= 0 and _sel_shape < _edit["shapes"].size():
-            var s: Dictionary = _edit["shapes"][_sel_shape]
-            var sp := Vector2(float(s["pos"][0]), float(s["pos"][1]))
-            var half := Vector2(float(s["size"][0]), float(s["size"][1])) * 0.5
-            for hxi in 3:
-                for hyi in 3:
-                    var hx: float = float(hxi) - 1.0
-                    var hy: float = float(hyi) - 1.0
-                    if hx == 0.0 and hy == 0.0:
-                        continue
-                    var hp := sp + Vector2(half.x * hx, half.y * hy)
-                    if local.distance_to(hp) <= hr:
-                        var dir := ""
-                        if hy < 0.0: dir += "t"
-                        elif hy > 0.0: dir += "b"
-                        if hx < 0.0: dir += "l"
-                        elif hx > 0.0: dir += "r"
-                        _drag_mode = "resize_" + dir
-                        _drag_last_world = world
-                        return
-
-        # Testa corpo de cada shape (hit-test → seleciona e inicia move)
-        for si in _edit["shapes"].size():
-            var s: Dictionary = _edit["shapes"][si]
-            var sp := Vector2(float(s["pos"][0]), float(s["pos"][1]))
-            var half := Vector2(float(s["size"][0]), float(s["size"][1])) * 0.5
-            var rect := Rect2(sp - half, half * 2.0)
-            if rect.has_point(local):
-                _sel_shape = si
-                _drag_mode = "move_shape"
-                _drag_last_world = world
-                _push_overlay_edit()
-                return
-
-        # Sem hit → testa alça de escala do sprite (canto superior-direito)
-        if world.distance_to(_sprite_scale_handle_world()) <= 10.0:
-            _drag_mode = "scale_sprite"
-            _drag_last_world = world
-            return
-
-        # Sem hit → tenta mover sprite
-        _drag_mode = "move_sprite"
-        _drag_last_world = world
-
-    func _continue_drag(screen_pos: Vector2) -> void:
-        var world := _screen_to_world(screen_pos)
-
-        # scale_sprite usa posição absoluta (não delta); tratado antes do snap guard
-        if _drag_mode == "scale_sprite":
-            var half := _sprite_half_frame()
-            if half.x > 0.0:
-                var s: float = maxf(0.1, absf(world.x - _sprite_center_world().x) / half.x)
-                s = snappedf(s, 0.05)
-                if not _edit.has("sprite"): _edit["sprite"] = {}
-                _edit["sprite"]["scale"] = [s, s]
-                _apply_edit_to_instance()
-            return
-
-        var raw_delta := world - _drag_last_world
-        # Snap a 1 game-px inteiro
-        var delta := Vector2(roundi(raw_delta.x), roundi(raw_delta.y))
-        if delta == Vector2.ZERO:
-            return
-        _drag_last_world += delta   # acumula apenas o snap consumido
-
-        if _drag_mode == "move_shape" and _sel_shape >= 0 and _sel_shape < _edit["shapes"].size():
-            var s: Dictionary = _edit["shapes"][_sel_shape]
-            s["pos"] = [int(s["pos"][0]) + int(delta.x), int(s["pos"][1]) + int(delta.y)]
-            _edit["shapes"][_sel_shape] = s
-            _apply_edit_to_instance()
-        elif _drag_mode == "move_proj":
-            if not _edit.has("projectile"):
-                _edit["projectile"] = {}
-            var cur_off: Array = (_edit["projectile"].get("offset", [0, 0])) as Array
-            _edit["projectile"]["offset"] = [int(cur_off[0]) + int(delta.x), int(cur_off[1]) + int(delta.y)]
-            _apply_edit_to_instance()
-        elif _drag_mode == "move_sprite":
-            if not _edit.has("sprite"):
-                _edit["sprite"] = {"pos": [0, 0], "scale": [1.0, 1.0]}
-            var sp: Array = (_edit["sprite"].get("pos", [0, 0])) as Array
-            _edit["sprite"]["pos"] = [int(sp[0]) + int(delta.x), int(sp[1]) + int(delta.y)]
-            _apply_edit_to_instance()
-        elif _drag_mode.begins_with("resize_") and _sel_shape >= 0 and _sel_shape < _edit["shapes"].size():
-            _apply_resize(delta)
-
-    func _apply_resize(delta: Vector2) -> void:
-        if _sel_shape < 0 or _sel_shape >= _edit["shapes"].size():
-            return
-        var s: Dictionary = _edit["shapes"][_sel_shape]
-        var pos := Vector2(float(s["pos"][0]), float(s["pos"][1]))
-        var sz  := Vector2(float(s["size"][0]), float(s["size"][1]))
-        var dir := _drag_mode.substr(7)   # after "resize_"
-        var min_sz := 4.0
-        if dir.contains("l"):
-            var new_w := maxf(min_sz, sz.x - delta.x)
-            pos.x += (sz.x - new_w) * 0.5
-            sz.x = new_w
-        if dir.contains("r"):
-            var new_w := maxf(min_sz, sz.x + delta.x)
-            pos.x += (new_w - sz.x) * 0.5
-            sz.x = new_w
-        if dir.contains("t"):
-            var new_h := maxf(min_sz, sz.y - delta.y)
-            pos.y += (sz.y - new_h) * 0.5
-            sz.y = new_h
-        if dir.contains("b"):
-            var new_h := maxf(min_sz, sz.y + delta.y)
-            pos.y += (new_h - sz.y) * 0.5
-            sz.y = new_h
-        s["pos"] = [roundi(pos.x), roundi(pos.y)]
-        s["size"] = [roundi(sz.x), roundi(sz.y)]
-        _edit["shapes"][_sel_shape] = s
-        _apply_edit_to_instance()
-
-    func _apply_edit_to_instance() -> void:
-        if _current_instance == null:
-            return
-        if _edit_id != "":
-            HitboxData._data[_edit_id] = _edit
-        if _current_instance.has_method("_apply_hitbox_data"):
-            _current_instance._apply_hitbox_data()
-        _push_overlay_edit()
-
-    # ── CRUD toolbar ──────────────────────────────────────────────────────────
-
-    func _on_toggle_edit() -> void:
-        if _shape_overlay == null:
-            return
-        _shape_overlay.editing = not _shape_overlay.editing
-        if _edit_toggle_btn != null:
-            _edit_toggle_btn.text = "Editar ON" if _shape_overlay.editing else "Editar OFF"
-        _shape_overlay.queue_redraw()
-
-    func _on_add_shape() -> void:
-        if not _edit.has("shapes"):
-            _edit["shapes"] = []
-        _edit["shapes"].append({
-            "target": _edit_target,
-            "kind": "rect",
-            "pos": [0, 0],
-            "size": [40, 40],
-            "frames": _frame_scope()
-        })
-        _sel_shape = _edit["shapes"].size() - 1
-        _apply_edit_to_instance()
-
-    func _on_delete_shape() -> void:
-        if _sel_shape < 0 or not _edit.has("shapes"):
-            return
-        if _sel_shape >= _edit["shapes"].size():
-            return
-        _edit["shapes"].remove_at(_sel_shape)
-        _sel_shape = clampi(_sel_shape, 0, _edit["shapes"].size() - 1)
-        if _edit["shapes"].is_empty():
-            _sel_shape = -1
-        _apply_edit_to_instance()
-
-    func _on_toggle_frame_scope() -> void:
-        _edit_this_frame = not _edit_this_frame
-        if _frame_scope_btn != null:
-            _frame_scope_btn.text = "Frame: Este" if _edit_this_frame else "Frame: Todos"
-
-    # ── Save (POST para o servidor de hitbox) ─────────────────────────────────
-
-    func _on_save() -> void:
-        if _edit_id.is_empty():
-            return
-        var req := HTTPRequest.new()
-        add_child(req)
-        req.request_completed.connect(func(_r, _c, _h, _b): req.queue_free())
-        var payload := JSON.stringify({"id": _edit_id, "data": _edit})
-        req.request("/save-hitbox",
-            PackedStringArray(["Content-Type: application/json"]),
-            HTTPClient.METHOD_POST,
-            payload)
 
     func _find_sprite2d(node: Node) -> Sprite2D:
         if node is Sprite2D:
