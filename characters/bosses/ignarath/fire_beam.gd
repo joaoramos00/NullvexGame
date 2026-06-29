@@ -215,7 +215,7 @@ func _update_visuals() -> void:
 
 	if _impact_fx != null:
 		_impact_fx.position = _end
-		_impact_fx.rotation = 0.0  # embers sempre sobem, independente do ângulo do beam
+		_impact_fx.rotation = beam_angle + PI  # aponta contrário ao beam → perpendicular à superfície
 
 	var beam_len := (body_end - origin).length()
 	var n_spr := mini(int(beam_len / _BEAM_BODY_SPACING) + 1, _MAX_BODY_SPRITES)
