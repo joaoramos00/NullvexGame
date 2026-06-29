@@ -41,7 +41,7 @@ const RAGE_FLASH_DURATION  := 0.6
 const _FIRE_WAVE  := preload("res://characters/bosses/ignarath/fire_wave.gd")
 const _FIRE_BEAM  := preload("res://characters/bosses/ignarath/fire_beam.gd")
 const _TEX_CLAW_SLASH    := preload("res://characters/bosses/ignarath/fx_claw_slash.png")
-const _CLAW_SLASH_FRAMES := 9
+const _CLAW_SLASH_FRAMES := 7
 const _CLAW_SLASH_FPS    := 14.0
 
 # ── State ─────────────────────────────────────────────────────────────────────
