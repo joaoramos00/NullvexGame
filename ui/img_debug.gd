@@ -1966,10 +1966,10 @@ class _HitboxView extends Control:
             _frame_row.visible = false
             return
         _frame_row.visible = true
-        _frame_row.add_child(_make_button("◀", func(): _select_frame(wrapi(_selected_frame - 1, 0, _frame_count))))
+        _frame_row.add_child(_make_button("<", func(): _select_frame(wrapi(_selected_frame - 1, 0, _frame_count))))
         _frame_lbl = _make_label("Frame %d/%d" % [_selected_frame + 1, _frame_count])
         _frame_row.add_child(_frame_lbl)
-        _frame_row.add_child(_make_button("▶", func(): _select_frame(wrapi(_selected_frame + 1, 0, _frame_count))))
+        _frame_row.add_child(_make_button(">", func(): _select_frame(wrapi(_selected_frame + 1, 0, _frame_count))))
 
     func _detect_frame_count(node: Node) -> int:
         var sprite := _find_sprite2d(node)
