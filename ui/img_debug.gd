@@ -1477,7 +1477,7 @@ class _HitboxOverlay extends Node2D:
                 var _depth := maxf(8.0, ground_y - pos.y)
                 var _beam_end := Vector2(pos.x, ground_y)
                 var _beam_angle := Vector2(0.0, 1.0).angle()
-                var _beam_w := 24.0  # BEAM_HALF_WIDTH * 2 = 12 * 2
+                var _beam_w := 40.0  # BEAM_HALF_WIDTH * 2 = 20 * 2
                 var _beam_dir := Vector2(0.0, 1.0)
                 var _half_w := _beam_w * 0.5  # = 12
                 # Calcula cap_scale (igual a fire_beam.gd: maxf(0.35, half_w*2.4/frame_h)).
