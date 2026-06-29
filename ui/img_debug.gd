@@ -1327,6 +1327,9 @@ class _HitboxOverlay extends Node2D:
         "fire_glob": preload("res://characters/enemies/stage_01/fire_glob.png"),
         "fire_spit": preload("res://characters/enemies/stage_01/fire_spit.png"),
         "heat_mortar_shell": preload("res://characters/enemies/stage_01/heat_mortar_shell.png"),
+        "fire_beam_body":   preload("res://characters/bosses/ignarath/fire_beam_body.png"),
+        "fire_beam_origin": preload("res://characters/bosses/ignarath/fire_beam_origin.png"),
+        "fire_beam_end":    preload("res://characters/bosses/ignarath/fire_beam_end.png"),
     }
     const _PROJ_TEX_SCALE := 0.35
 
@@ -1502,19 +1505,50 @@ class _HitboxOverlay extends Node2D:
             "fire_bolt", "fire_glob", "fire_spit", "heat_mortar_shell":
                 _draw_proj_sprite(variant, pos, traj_angle)
             "fire_beam":
-                # Beam a 45° varrendo em direção ao chão (facing=-1 → esquerda).
+                # Beam a 45° (facing=-1 → baixo-esquerda) usando os sprites reais.
                 var _depth := maxf(8.0, ground_y - pos.y)
-                var _beam_end := pos + Vector2(-_depth, _depth)  # 45°: dx=dy
-                # Núcleo interno amarelo (mais fino, mais brilhante).
-                draw_line(pos, _beam_end, Color(1.0, 0.9, 0.3, 0.9), 10.0)
-                # Glow laranja externo (mais largo, semi-transparente).
-                draw_line(pos, _beam_end, Color(1.0, 0.35, 0.05, 0.45), 36.0)
-                # Marca de impacto no chão (círculo expansivo).
-                draw_circle(_beam_end, 18.0, Color(1.0, 0.45, 0.05, 0.35))
-                draw_arc(_beam_end, 18.0, 0.0, TAU, 32, Color(1.0, 0.6, 0.1, 0.9), 2.0)
+                var _beam_end := Vector2(pos.x - _depth, ground_y)
+                var _beam_len := _depth * sqrt(2.0)
+                var _beam_angle := Vector2(-1.0, 1.0).angle()
+                var _beam_w := 40.0   # largura do beam em px de jogo (half_width*2)
+                # Corpo tileado ao longo do beam.
+                var _btex: Texture2D = _PROJ_TEX.get("fire_beam_body")
+                if _btex != null:
+                    var _bfw := float(_btex.get_width()) * 0.5
+                    var _bfh := float(_btex.get_height()) * 0.5
+                    var _bsc := _beam_w / _bfh
+                    var _tile_w := _bfw * _bsc
+                    var _bdir := Vector2(-1.0, 1.0).normalized()
+                    var _n := maxi(1, int(ceil(_beam_len / _tile_w)))
+                    for _i in range(_n):
+                        var _tp := pos + _bdir * (_tile_w * (float(_i) + 0.5))
+                        draw_set_transform(_tp, _beam_angle, Vector2(_bsc, _bsc))
+                        draw_texture_rect_region(_btex, Rect2(-_bfw * 0.5, -_bfh * 0.5, _bfw, _bfh), Rect2(0.0, 0.0, _bfw, _bfh))
+                    draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
                 # Origem (swirl na boca).
-                draw_circle(pos, 10.0, Color(1.0, 0.55, 0.1, 0.9))
-                draw_arc(pos, 10.0, 0.0, TAU, 32, Color(1.0, 0.85, 0.3, 0.95), 2.0)
+                var _otex: Texture2D = _PROJ_TEX.get("fire_beam_origin")
+                if _otex != null:
+                    var _ofw := float(_otex.get_width()) * 0.5
+                    var _ofh := float(_otex.get_height()) * 0.5
+                    var _osc := _beam_w / _ofh
+                    draw_set_transform(pos, _beam_angle, Vector2(_osc, _osc))
+                    draw_texture_rect_region(_otex, Rect2(-_ofw * 0.5, -_ofh * 0.5, _ofw, _ofh), Rect2(0.0, 0.0, _ofw, _ofh))
+                    draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+                # Impacto no chão.
+                var _etex: Texture2D = _PROJ_TEX.get("fire_beam_end")
+                if _etex != null:
+                    var _efw := float(_etex.get_width()) * 0.5
+                    var _efh := float(_etex.get_height()) * 0.5
+                    var _esc := (_beam_w * 1.3) / _efh
+                    draw_set_transform(_beam_end, _beam_angle, Vector2(_esc, _esc))
+                    draw_texture_rect_region(_etex, Rect2(-_efw * 0.5, -_efh * 0.5, _efw, _efh), Rect2(0.0, 0.0, _efw, _efh))
+                    draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+                # Fallback se texturas não carregaram.
+                if _btex == null:
+                    draw_line(pos, _beam_end, Color(1.0, 0.9, 0.3, 0.9), 10.0)
+                    draw_line(pos, _beam_end, Color(1.0, 0.35, 0.05, 0.45), 36.0)
+                    draw_circle(pos, 10.0, Color(1.0, 0.55, 0.1, 0.9))
+                    draw_circle(_beam_end, 18.0, Color(1.0, 0.45, 0.05, 0.35))
             _:
                 draw_circle(pos, 9.0, Color(0.55, 0.92, 1.0, 0.35))
                 draw_arc(pos, 9.0, 0.0, TAU, 32, color, 2.0)
@@ -1565,7 +1599,7 @@ class _HitboxView extends Control:
         "Magma Turret": {"label": "Fire Glob", "variant": "fire_glob", "release_frame": 2, "offset": Vector2(-38.0, -5.0), "parabolic": false},
         "Lava Serpent": {"label": "Fire Spit", "variant": "fire_spit", "release_frame": 9, "offset": Vector2(50.0, -20.0), "parabolic": false},
         # Bosses
-        "Ignarath": {"label": "Firebreath (boca)", "variant": "fire_beam", "release_frame": 4, "offset": Vector2(-30.8, -12.0), "parabolic": false},
+        "Ignarath": {"label": "Firebreath (boca)", "variant": "fire_beam", "release_frame": 4, "offset": Vector2(-50.8, -32.0), "parabolic": false},
     }
 
     var _current_index: int = 0
