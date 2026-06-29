@@ -16,7 +16,6 @@ var facing: float = 1.0                  # +1 direita, -1 esquerda
 var floor_y: float = 0.0
 var sweep_time: float = 1.0
 var max_angle_deg: float = 70.0          # ângulo de início a partir da vertical (90 = horizontal)
-var hold_time: float = 0.0   # segundos apontando para baixo antes de varrer
 var half_width: float = 20.0
 var damage: int = 12
 var source_id: String = "ignarath"
@@ -40,15 +39,14 @@ func _ready() -> void:
 
 func _physics_process(delta: float) -> void:
 	_t += delta
-	var t_sweep := maxf(0.0, _t - hold_time)
-	var prog: float = clampf(t_sweep / sweep_time, 0.0, 1.0)
+	var prog: float = clampf(_t / sweep_time, 0.0, 1.0)
 	_end = _compute_end(prog)
 	if is_instance_valid(player) and not player.is_dead:
 		if _point_seg_dist(player.global_position, origin, _end) < half_width + 24.0:
 			player.take_damage(damage, source_id)
 	_update_visuals()
 	queue_redraw()
-	if _t >= hold_time + sweep_time + 0.15:
+	if _t >= sweep_time + 0.15:
 		queue_free()
 
 # Sweep vertical → horizontal: ang parte de 0° (vertical, chão) e cresce até
