@@ -1589,6 +1589,7 @@ class _HitboxView extends Control:
 
         _type_opt = OptionButton.new()
         _type_opt.add_theme_font_size_override("font_size", 26)
+        _type_opt.get_popup().add_theme_font_size_override("font_size", 26)
         for g in ["Todos", "Personagens", "Inimigos", "Bosses", "Projeteis"]:
             _type_opt.add_item(g)
         _type_opt.item_selected.connect(func(i): _set_filter(_type_opt.get_item_text(i)))
@@ -1597,12 +1598,14 @@ class _HitboxView extends Control:
 
         _stage_opt = OptionButton.new()
         _stage_opt.add_theme_font_size_override("font_size", 26)
+        _stage_opt.get_popup().add_theme_font_size_override("font_size", 26)
         _stage_opt.item_selected.connect(func(i): _set_stage(_stage_opt.get_item_text(i)))
         sel_row.add_child(_make_label("Stage:"))
         sel_row.add_child(_stage_opt)
 
         _entity_opt = OptionButton.new()
         _entity_opt.add_theme_font_size_override("font_size", 26)
+        _entity_opt.get_popup().add_theme_font_size_override("font_size", 26)
         _entity_opt.item_selected.connect(func(_i): _select_index(int(_entity_opt.get_selected_metadata())))
         sel_row.add_child(_make_label("Entidade:"))
         sel_row.add_child(_entity_opt)
@@ -1704,6 +1707,7 @@ class _HitboxView extends Control:
         _target_opt.add_item("body")
         _target_opt.add_item("contact")
         _target_opt.add_theme_font_size_override("font_size", 26)
+        _target_opt.get_popup().add_theme_font_size_override("font_size", 26)
         _target_opt.item_selected.connect(func(i): _edit_target = _target_opt.get_item_text(i))
         _edit_toolbar.add_child(_target_opt)
 
