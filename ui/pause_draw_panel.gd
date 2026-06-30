@@ -21,8 +21,8 @@ const _SH: float = 1080.0
 
 const _COLS: int   = 3
 const _ROWS: int   = 3
-const _CW: float   = 380.0
-const _CH: float   = 200.0
+const _CW: float   = 480.0
+const _CH: float   = 270.0
 const _CGAP: float = 22.0
 
 const _GRID_W: float = _COLS * _CW + (_COLS - 1) * _CGAP
@@ -56,16 +56,12 @@ var sel_idx: int = 0   # index in _get_nav_list() from pause_menu
 # Cached textures — never load inside _draw() (breaks web export)
 var _placeholder_tex: Texture2D = null
 var _bg_tex: Texture2D = null
-var _card_frames: Array[Texture2D] = []  # [chip_v1, chip_v2, pipes] — uma por linha
+var _card_frame_tex: Texture2D = null
 
 func _ready() -> void:
 	_placeholder_tex = load("res://assets/buster/buster_L1.png")
 	_bg_tex = load("res://assets/ui/pause_bg.png")
-	_card_frames = [
-		load("res://assets/ui/pause_card_chip.png"),
-		load("res://assets/ui/pause_card_chip_v2.png"),
-		load("res://assets/ui/pause_card_pipes.png"),
-	]
+	_card_frame_tex = load("res://assets/ui/pause_card_pipes.png")
 
 func _draw() -> void:
 	var fnt: Font = ThemeDB.fallback_font
@@ -123,10 +119,9 @@ func _draw_power_grid(fnt: Font) -> void:
 		var is_sel: bool = bid == selected
 
 		if is_unlocked:
-			var frame_tex: Texture2D = _card_frames[row] if row < _card_frames.size() else null
-			if frame_tex != null:
+			if _card_frame_tex != null:
 				var alpha := 1.0 if is_sel else 0.80
-				draw_texture_rect(frame_tex, Rect2(cx, cy, _CW, _CH), false,
+				draw_texture_rect(_card_frame_tex, Rect2(cx, cy, _CW, _CH), false,
 						Color(1.0, 1.0, 1.0, alpha))
 			else:
 				var bg_mul: float = 0.28 if is_sel else 0.16
@@ -134,13 +129,15 @@ func _draw_power_grid(fnt: Font) -> void:
 						Color(bc.r * bg_mul, bc.g * bg_mul, bc.b * bg_mul, 1.0))
 				draw_rect(Rect2(cx, cy, _CW, _CH), bc, false, 3.0 if is_sel else 2.0)
 
-			# Layout: left text zone [0..155], right sprite+ammo zone [155..280]
-			const _SPLIT: float = 150.0
-			const _SPR: float   = 72.0   # sprite size
-			const _SPR_X: float = _SPLIT + (_CW - _SPLIT - _SPR) * 0.5  # ~179
-			const _SPR_Y: float = 10.0
+			# Padding interno para respeitar a borda dos tubos
+			const _PAD: float   = 40.0
+			const _SPLIT: float = 120.0  # largura da zona de texto (a partir do _PAD)
+			const _SPR: float   = 48.0   # sprite menor
+			var _spr_zone_w: float = _CW - _PAD - _SPLIT - _PAD
+			var _SPR_X: float = _PAD + _SPLIT + (_spr_zone_w - _SPR) * 0.5
+			const _SPR_Y: float = _PAD
 
-			# Sprite — top-right quadrant
+			# Sprite
 			if _placeholder_tex != null:
 				var pivot := Vector2(cx + _SPR_X + _SPR * 0.5, cy + _SPR_Y + _SPR * 0.5)
 				draw_set_transform(pivot, -PI * 0.5, Vector2.ONE)
@@ -149,38 +146,37 @@ func _draw_power_grid(fnt: Font) -> void:
 						Rect2(0, 0, 32, 32))
 				draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 
-			# Ammo counter below sprite — boss ability slots only
+			# Ammo counter
 			if bid != "":
 				var ammo: int       = GameManager.get_ability_ammo(bid)
 				var max_ammo: int   = GameManager.ABILITY_MAX_AMMO
 				var ammo_ratio: float = float(ammo) / float(max_ammo)
 				var ammo_col: Color = bc.lerp(Color(1.0, 0.25, 0.25), 1.0 - ammo_ratio)
 				var ammo_str: String = "%d / %d" % [ammo, max_ammo]
-				# Dark pill background
-				var pill_x: float = cx + _SPLIT + 4.0
-				var pill_w: float = _CW - _SPLIT - 8.0
+				var pill_x: float = cx + _PAD + _SPLIT + 4.0
+				var pill_w: float = _spr_zone_w - 4.0
 				var pill_y: float = cy + _SPR_Y + _SPR + 6.0
-				draw_rect(Rect2(pill_x, pill_y, pill_w, 26.0), Color(0.0, 0.0, 0.0, 0.55))
-				draw_string(fnt, Vector2(pill_x + 4.0, pill_y + 19.0),
-						ammo_str, HORIZONTAL_ALIGNMENT_LEFT, pill_w - 8.0, 16, ammo_col)
+				draw_rect(Rect2(pill_x, pill_y, pill_w, 20.0), Color(0.0, 0.0, 0.0, 0.55))
+				draw_string(fnt, Vector2(pill_x + 4.0, pill_y + 14.0),
+						ammo_str, HORIZONTAL_ALIGNMENT_LEFT, pill_w - 8.0, 12, ammo_col)
 
-			# Boss name — top-left
-			draw_string(fnt, Vector2(cx + 10.0, cy + 24.0),
+			# Boss name
+			draw_string(fnt, Vector2(cx + _PAD, cy + _PAD + 14.0),
 					slot["label"] as String,
-					HORIZONTAL_ALIGNMENT_LEFT, _SPLIT - 10.0, 14,
+					HORIZONTAL_ALIGNMENT_LEFT, _SPLIT, 11,
 					Color(bc.r, bc.g, bc.b, 0.80))
 
-			# Element / primary label — bottom-left, large
+			# Elemento / primário
 			var elem: String = slot["elem"] as String
 			var elem_label: String = elem if elem != "" else \
 					("BUSTER" if GameManager.active_character == "zael" else "ESPADA")
-			draw_string(fnt, Vector2(cx + 10.0, cy + _CH - 14.0),
-					elem_label, HORIZONTAL_ALIGNMENT_LEFT, _SPLIT - 10.0, 28, bc)
+			draw_string(fnt, Vector2(cx + _PAD, cy + _CH - _PAD - 4.0),
+					elem_label, HORIZONTAL_ALIGNMENT_LEFT, _SPLIT, 20, bc)
 
 			# "ATIVO" badge
 			if is_sel:
-				draw_string(fnt, Vector2(cx + 10.0, cy + _CH - 40.0),
-						"▶ ATIVO", HORIZONTAL_ALIGNMENT_LEFT, -1, 11,
+				draw_string(fnt, Vector2(cx + _PAD, cy + _CH - _PAD - 28.0),
+						"▶ ATIVO", HORIZONTAL_ALIGNMENT_LEFT, -1, 10,
 						Color(bc.r, bc.g, bc.b, 0.70))
 		else:
 			draw_rect(Rect2(cx, cy, _CW, _CH), _C_LOCKED)
