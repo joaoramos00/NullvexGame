@@ -143,7 +143,7 @@ func _build_visuals() -> void:
 		sp.sprite_frames = impact_sf
 		sp.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 		sp.z_index = 6
-		sp.scale = Vector2.ONE * 0.45
+		sp.scale = Vector2.ONE * 0.495
 		add_child(sp)
 		sp.play("burn")
 		sp.frame = (idx * 3) % _IMPACT_FRAMES  # defasagem inicial
