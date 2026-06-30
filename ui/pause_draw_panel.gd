@@ -21,8 +21,8 @@ const _SH: float = 1080.0
 
 const _COLS: int   = 3
 const _ROWS: int   = 3
-const _CW: float   = 280.0
-const _CH: float   = 148.0
+const _CW: float   = 380.0
+const _CH: float   = 200.0
 const _CGAP: float = 22.0
 
 const _GRID_W: float = _COLS * _CW + (_COLS - 1) * _CGAP
@@ -56,12 +56,16 @@ var sel_idx: int = 0   # index in _get_nav_list() from pause_menu
 # Cached textures — never load inside _draw() (breaks web export)
 var _placeholder_tex: Texture2D = null
 var _bg_tex: Texture2D = null
-var _card_frame_tex: Texture2D = null
+var _card_frames: Array[Texture2D] = []  # [chip_v1, chip_v2, pipes] — uma por linha
 
 func _ready() -> void:
 	_placeholder_tex = load("res://assets/buster/buster_L1.png")
 	_bg_tex = load("res://assets/ui/pause_bg.png")
-	_card_frame_tex = load("res://assets/ui/pause_card_chip_v2.png")
+	_card_frames = [
+		load("res://assets/ui/pause_card_chip.png"),
+		load("res://assets/ui/pause_card_chip_v2.png"),
+		load("res://assets/ui/pause_card_pipes.png"),
+	]
 
 func _draw() -> void:
 	var fnt: Font = ThemeDB.fallback_font
@@ -119,11 +123,11 @@ func _draw_power_grid(fnt: Font) -> void:
 		var is_sel: bool = bid == selected
 
 		if is_unlocked:
-			# Chip como fundo — texto/sprite ficam por cima do centro branco
-			if _card_frame_tex != null:
-				var chip_alpha := 1.0 if is_sel else 0.80
-				draw_texture_rect(_card_frame_tex, Rect2(cx, cy, _CW, _CH), false,
-						Color(1.0, 1.0, 1.0, chip_alpha))
+			var frame_tex: Texture2D = _card_frames[row] if row < _card_frames.size() else null
+			if frame_tex != null:
+				var alpha := 1.0 if is_sel else 0.80
+				draw_texture_rect(frame_tex, Rect2(cx, cy, _CW, _CH), false,
+						Color(1.0, 1.0, 1.0, alpha))
 			else:
 				var bg_mul: float = 0.28 if is_sel else 0.16
 				draw_rect(Rect2(cx, cy, _CW, _CH),
