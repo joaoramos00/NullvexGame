@@ -54,6 +54,7 @@ var current_player: Node = null
 var sel_idx: int = 0       # index na nav list (compatibilidade pause_menu)
 var sel_grid: int = 0      # slot 0-8 na grade 3x3
 var _hover_grid: int = -1  # card sob o cursor (-1 = nenhum)
+var _sel_flash: float = 0.0  # 1.0 → 0.0 ao selecionar novo slot
 
 # Cached textures — never load inside _draw() (breaks web export)
 var _placeholder_tex: Texture2D = null
@@ -73,7 +74,13 @@ func _select_grid(i: int) -> void:
 	GameManager.selected_boss_ability = bid
 	var nav: Array = _build_nav()
 	sel_idx = max(0, nav.find(bid))
+	_sel_flash = 1.0
 	queue_redraw()
+
+func _process(delta: float) -> void:
+	if _sel_flash > 0.0:
+		_sel_flash = maxf(_sel_flash - delta * 4.0, 0.0)
+		queue_redraw()
 
 func move_grid(dx: int, dy: int) -> void:
 	var col: int = (sel_grid % _COLS + dx + _COLS) % _COLS
@@ -179,6 +186,10 @@ func _draw_power_grid(fnt: Font) -> void:
 			if is_hover:
 				draw_rect(Rect2(cx + 3.0, cy + 3.0, _CW - 6.0, _CH - 6.0),
 						Color(1.0, 1.0, 1.0, 0.06))
+			# Flash de seleção — clareia o interior brevemente ao mudar de slot
+			if is_sel and _sel_flash > 0.0:
+				draw_rect(Rect2(cx + 3.0, cy + 3.0, _CW - 6.0, _CH - 6.0),
+						Color(1.0, 1.0, 1.0, _sel_flash * 0.30))
 			# Borda rosa externa
 			var pink_alpha := 1.0 if is_sel else (0.75 if is_hover else 0.45)
 			draw_rect(Rect2(cx - 3.0, cy - 3.0, _CW + 6.0, _CH + 6.0),
