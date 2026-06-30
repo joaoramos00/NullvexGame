@@ -36,6 +36,7 @@ var _body_inner: Line2D = null  # núcleo amarelo
 var _end_sprite: Sprite2D = null
 var _impact_fxs: Array[AnimatedSprite2D] = []
 var _body_sprites: Array = []
+var _hit_normal: Vector2 = Vector2(0.0, -1.0)  # normal da superfície do último raycast
 var _frame_w: float = 0.0
 var _frame_h: float = 0.0
 
@@ -84,6 +85,7 @@ func _wall_clip(geom: Vector2) -> Vector2:
 	var hit := space.intersect_ray(query)
 	if hit.is_empty():
 		return geom
+	_hit_normal = hit["normal"]  # salva normal real da superfície atingida
 	return hit["position"]
 
 func _build_visuals() -> void:
@@ -201,23 +203,20 @@ func _update_visuals() -> void:
 		_end_sprite.modulate = Color(1.0, 1.0, 1.0, 1.0)
 
 	if _impact_fxs.size() > 0:
-		# snap: piso (beam mais vertical) ou parede (beam mais horizontal)
-		var is_wall := absf(beam_dir.x) > absf(beam_dir.y)
-		var normal   : Vector2
+		# usa a normal real do raycast: piso=(0,-1), parede=(±1,0)
+		var is_wall := absf(_hit_normal.x) > absf(_hit_normal.y)
 		var tangent  : Vector2
 		var fx_rot   : float
 		if is_wall:
-			normal  = Vector2(-signf(beam_dir.x), 0.0)
 			tangent = Vector2(0.0, 1.0)
 			fx_rot  = PI * 0.5
 		else:
-			normal  = Vector2(0.0, -1.0)
 			tangent = Vector2(1.0, 0.0)
 			fx_rot  = 0.0
 		var offsets := [-22.0, 0.0, 22.0]
 		for idx in _impact_fxs.size():
 			var sp := _impact_fxs[idx]
-			sp.position = _end + normal * 1.0 + tangent * offsets[idx]
+			sp.position = _end + _hit_normal * 1.0 + tangent * offsets[idx]
 			sp.rotation = fx_rot
 
 
