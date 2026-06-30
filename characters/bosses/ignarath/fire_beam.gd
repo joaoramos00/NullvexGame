@@ -201,16 +201,11 @@ func _update_visuals() -> void:
 		_end_sprite.modulate = Color(1.0, 1.0, 1.0, 1.0)
 
 	if _impact_fxs.size() > 0:
-		# normal da superfície (direção contrária ao beam = saindo do piso/parede)
-		var normal := -beam_dir
-		var tangent := beam_dir.rotated(PI * 0.5)
-		# desloca o centro do sprite 16px para fora da superfície → base alinhada com o piso/parede
-		var surface_offset := normal * 16.0
 		var offsets := [-22.0, 0.0, 22.0]
 		for idx in _impact_fxs.size():
 			var sp := _impact_fxs[idx]
-			sp.position = _end + surface_offset + tangent * offsets[idx]
-			sp.rotation = beam_angle + PI
+			sp.position = _end + Vector2(offsets[idx], -16.0)
+			sp.rotation = 0.0
 
 
 func _draw() -> void:
