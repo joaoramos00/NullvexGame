@@ -87,6 +87,7 @@ func _process(delta: float) -> void:
 func move_grid(dx: int, dy: int) -> void:
 	var col: int = (sel_grid % _COLS + dx + _COLS) % _COLS
 	var row: int = (sel_grid / _COLS + dy + _ROWS) % _ROWS
+	print("[draw_panel] move_grid dx=%d dy=%d  %d→%d" % [dx, dy, sel_grid, row * _COLS + col])
 	_select_grid(row * _COLS + col)
 
 func _build_nav() -> Array:
