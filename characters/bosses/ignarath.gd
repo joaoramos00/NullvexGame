@@ -222,33 +222,39 @@ func _spawn_claw_wave() -> void:
 	_run_claw_wave_sequence()
 
 func _run_claw_wave_sequence() -> void:
-	var speed  := CLAW_WAVE_SPEED_P2 if phase >= 2 else CLAW_WAVE_SPEED_P1
-	var gen    := _attack_gen
-	var wall_x := (arena_right + 64.0) if _facing > 0.0 else (arena_left - 64.0)
+	var speed   := CLAW_WAVE_SPEED_P2 if phase >= 2 else CLAW_WAVE_SPEED_P1
+	var gen     := _attack_gen
+	var wall_x  := (arena_right + 64.0) if _facing > 0.0 else (arena_left - 64.0)
 	var b_angle := -PI * 0.5 if _facing > 0.0 else PI * 0.5
-
-	# tempo que a primeira onda leva para chegar à parede
-	var start_x     := global_position.x + _facing * 50.0
+	var start_x := global_position.x + _facing * 50.0
 	var travel_time := absf(wall_x - start_x) / speed
+	const FLOOR_N := 3
+	const TOTAL_N := 10
+	var spawned   := 0
 
-	# 3 ondas no chão (stagger 0.10s)
-	for i in 3:
+	# 3 ondas no chão
+	for i in FLOOR_N:
 		if i > 0:
 			await get_tree().create_timer(0.10).timeout
 		if is_dead or gen != _attack_gen:
 			return
 		_do_floor_wave(speed)
+		spawned += 1
 
-	# espera a primeira onda bater na parede, então lança 7 fires pela parede
-	var remaining := travel_time - 0.20  # já passaram 0.20s nos 3 fires
+	# espera a primeira onda chegar à parede
+	var elapsed   := float(FLOOR_N - 1) * 0.10
+	var remaining := travel_time - elapsed
 	if remaining > 0.0:
 		await get_tree().create_timer(remaining).timeout
-	for i in 7:
-		if i > 0:
-			await get_tree().create_timer(0.12).timeout
+
+	# fires na parede até completar 10
+	while spawned < TOTAL_N:
 		if is_dead or gen != _attack_gen:
 			return
 		_do_wall_wave(wall_x, speed, b_angle)
+		spawned += 1
+		if spawned < TOTAL_N:
+			await get_tree().create_timer(0.12).timeout
 
 func _do_floor_wave(speed: float) -> void:
 	var wave: Area2D = _FIRE_WAVE.new()
@@ -271,6 +277,7 @@ func _do_wall_wave(wall_x: float, speed: float, b_angle: float = 0.0) -> void:
 	wave.set("wave_h", CLAW_WAVE_H)
 	wave.set("vertical", true)
 	wave.set("burst_angle", b_angle)
+	wave.set("despawn_y", arena_top)
 	wave.global_position = Vector2(wall_x, arena_floor - CLAW_WAVE_H * 0.5)
 	get_parent().add_child(wave)
 

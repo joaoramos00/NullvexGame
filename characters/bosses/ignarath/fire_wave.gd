@@ -24,6 +24,7 @@ var wave_w: float = 90.0
 var wave_h: float = 150.0
 var vertical: bool = false     # true = sobe pela parede
 var burst_angle: float = 0.0   # rotação dos bursts (PI/2 para parede esq, -PI/2 para dir)
+var despawn_y: float = -99999.0  # teto de despawn para modo vertical
 var _life: float = 6.0
 var _t: float = 0.0
 var _dist_since_burst: float = 0.0
@@ -57,7 +58,10 @@ func _physics_process(delta: float) -> void:
 	_t += delta
 	var moved: float = speed * delta
 	if vertical:
-		global_position.y -= moved  # sobe pela parede
+		global_position.y -= moved
+		if global_position.y <= despawn_y:
+			queue_free()
+			return
 	else:
 		global_position.x += dir * moved
 	_dist_since_burst += moved
