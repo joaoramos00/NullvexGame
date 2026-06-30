@@ -57,7 +57,7 @@ var sel_idx: int = 0   # index in _get_nav_list() from pause_menu
 var _placeholder_tex: Texture2D = null
 
 func _ready() -> void:
-	_placeholder_tex = load("res://assets/buster/buster_L3.png")
+	_placeholder_tex = load("res://assets/buster/buster_L1.png")
 
 func _draw() -> void:
 	var fnt: Font = ThemeDB.fallback_font
@@ -101,9 +101,12 @@ func _draw_power_grid(fnt: Font) -> void:
 			# Sprite — top-right quadrant
 			if _placeholder_tex != null:
 				var tint: Color = Color(bc.r, bc.g, bc.b, 0.80)
+				var pivot := Vector2(cx + _SPR_X + _SPR * 0.5, cy + _SPR_Y + _SPR * 0.5)
+				draw_set_transform(pivot, -PI * 0.5, Vector2.ONE)
 				draw_texture_rect_region(_placeholder_tex,
-						Rect2(cx + _SPR_X, cy + _SPR_Y, _SPR, _SPR),
+						Rect2(-_SPR * 0.5, -_SPR * 0.5, _SPR, _SPR),
 						Rect2(0, 0, 32, 32), tint)
+				draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 
 			# Ammo counter below sprite — boss ability slots only
 			if bid != "":
