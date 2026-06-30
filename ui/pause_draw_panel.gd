@@ -55,9 +55,11 @@ var sel_idx: int = 0   # index in _get_nav_list() from pause_menu
 
 # Cached textures — never load inside _draw() (breaks web export)
 var _placeholder_tex: Texture2D = null
+var _bg_tex: Texture2D = null
 
 func _ready() -> void:
 	_placeholder_tex = load("res://assets/buster/buster_L1.png")
+	_bg_tex = load("res://assets/ui/pause_bg.png")
 
 func _draw() -> void:
 	var fnt: Font = ThemeDB.fallback_font
@@ -73,6 +75,9 @@ func _draw() -> void:
 func _draw_background() -> void:
 	# Base — dark navy
 	draw_rect(Rect2(0.0, 0.0, _SW, _SH), Color(0.02, 0.03, 0.09, 1.00))
+	# Imagem gerada (esticada para preencher a tela)
+	if _bg_tex != null:
+		draw_texture_rect(_bg_tex, Rect2(0.0, 0.0, _SW, _SH), false)
 	# Scanlines — linha escura a cada 4px
 	var scan_c := Color(0.0, 0.0, 0.0, 0.22)
 	var y := 0.0
