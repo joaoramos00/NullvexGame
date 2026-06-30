@@ -29,7 +29,8 @@ func _input(event: InputEvent) -> void:
 	if is_toggle:
 		toggle_pause()
 		get_viewport().set_input_as_handled()
-		return
+
+func _unhandled_input(event: InputEvent) -> void:
 	if not _is_paused:
 		return
 	if event.is_action_just_pressed("ability_prev") or event.is_action_just_pressed("ui_left"):

@@ -67,6 +67,8 @@ func _ready() -> void:
 	_card_frame_tex = load("res://assets/ui/pause_card_pipes.png")
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_STOP
+	focus_mode = Control.FOCUS_NONE
+	process_mode = Node.PROCESS_MODE_ALWAYS
 
 func _select_grid(i: int) -> void:
 	sel_grid = clampi(i, 0, 8)
