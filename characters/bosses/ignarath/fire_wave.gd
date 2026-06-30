@@ -22,6 +22,7 @@ var source_id: String = "ignarath"
 var despawn_x: float = 0.0
 var wave_w: float = 90.0
 var wave_h: float = 150.0
+var vertical: bool = false     # true = sobe pela parede
 var _life: float = 6.0
 var _t: float = 0.0
 var _dist_since_burst: float = 0.0
@@ -54,7 +55,10 @@ func _draw() -> void:
 func _physics_process(delta: float) -> void:
 	_t += delta
 	var moved: float = speed * delta
-	global_position.x += dir * moved
+	if vertical:
+		global_position.y -= moved  # sobe pela parede
+	else:
+		global_position.x += dir * moved
 	_dist_since_burst += moved
 	if _dist_since_burst >= _BURST_SPACING:
 		_dist_since_burst -= _BURST_SPACING
@@ -64,8 +68,9 @@ func _physics_process(delta: float) -> void:
 	if _life <= 0.0:
 		queue_free()
 		return
-	if (dir > 0.0 and global_position.x >= despawn_x) or (dir < 0.0 and global_position.x <= despawn_x):
-		queue_free()
+	if not vertical:
+		if (dir > 0.0 and global_position.x >= despawn_x) or (dir < 0.0 and global_position.x <= despawn_x):
+			queue_free()
 
 func _on_body_entered(body: Node) -> void:
 	if body.has_method("take_damage"):
@@ -85,7 +90,11 @@ func _spawn_ground_burst() -> void:
 	sp.sprite_frames = sf
 	sp.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	sp.z_index = 3
-	sp.global_position = Vector2(global_position.x, global_position.y + wave_h * 0.5 - 32.0)
+	if vertical:
+		# borda superior (frente da subida)
+		sp.global_position = Vector2(global_position.x, global_position.y - wave_h * 0.5 + 32.0)
+	else:
+		sp.global_position = Vector2(global_position.x, global_position.y + wave_h * 0.5 - 32.0)
 	sp.animation_finished.connect(sp.queue_free)
 	get_parent().add_child(sp)
 	sp.play("burst")
