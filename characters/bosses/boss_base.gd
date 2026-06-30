@@ -35,6 +35,7 @@ const HIT_FLASH_DURATION := 0.12
 @export var arena_left: float = 100.0
 @export var arena_right: float = 1820.0
 @export var arena_floor: float = 500.0
+@export var arena_top: float = -200.0
 # Quando true (padrão), o boss aciona a luta sozinho ao player entrar em AGGRO_RANGE.
 # Quando false, a luta só começa via aggro() externo (ex.: gatilho de entrada na sala).
 @export var auto_aggro: bool = true
