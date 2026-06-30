@@ -318,7 +318,7 @@ func _try_drop() -> void:
 	print("[DROP] _try_drop id=", _hitbox_id(), " parent=", get_parent())
 	var arch_name: String = _DROP_TABLE.get(_hitbox_id(), "grunt")
 	var arch: Dictionary  = _DROP_ARCH.get(arch_name, _DROP_ARCH["grunt"])
-	if randf() > float(arch["chance"]):
+	if randf() > 1.0: # DEBUG: força 100%
 		print("[DROP] chance failed")
 		return
 	var pool: Dictionary = arch["pool"]
