@@ -232,7 +232,7 @@ func _run_claw_wave_sequence() -> void:
 			return
 		_do_floor_wave(speed)
 	# 6 fires na parede do lado que o Ignarath está indo
-	var wall_x    := (arena_right - CLAW_WAVE_H * 0.5) if _facing > 0.0 else (arena_left + CLAW_WAVE_H * 0.5)
+	var wall_x    := arena_right if _facing > 0.0 else arena_left
 	var b_angle   := -PI * 0.5 if _facing > 0.0 else PI * 0.5  # burst aponta para dentro da arena
 	await get_tree().create_timer(0.08).timeout
 	for i in 6:
