@@ -62,6 +62,34 @@ func _ready() -> void:
 	_placeholder_tex = load("res://assets/buster/buster_L1.png")
 	_bg_tex = load("res://assets/ui/pause_bg.png")
 	_card_frame_tex = load("res://assets/ui/pause_card_pipes.png")
+	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	mouse_filter = Control.MOUSE_FILTER_STOP
+
+func _gui_input(event: InputEvent) -> void:
+	if not (event is InputEventMouseButton):
+		return
+	var mb := event as InputEventMouseButton
+	if not (mb.pressed and mb.button_index == MOUSE_BUTTON_LEFT):
+		return
+	var pos := mb.position
+	for i: int in 9:
+		var col: int  = i % _COLS
+		var row: int  = i / _COLS
+		var cx: float = _GX + float(col) * (_CW + _CGAP)
+		var cy: float = _GY + float(row) * (_CH + _CGAP)
+		if Rect2(cx, cy, _CW, _CH).has_point(pos):
+			var bid: String = _SLOTS[i]["boss_id"] as String
+			GameManager.selected_boss_ability = bid
+			var nav: Array = [""]
+			for b: String in [
+				"ignarath","cryovex","voltrix","gravitus",
+				"galerix","umbraex","luxar","terragor"
+			]:
+				if GameManager.boss_abilities_unlocked.has(b):
+					nav.append(b)
+			sel_idx = max(0, nav.find(bid))
+			queue_redraw()
+			break
 
 func _draw() -> void:
 	var fnt: Font = ThemeDB.fallback_font
@@ -154,8 +182,8 @@ func _draw_power_grid(fnt: Font) -> void:
 			var elem: String = slot["elem"] as String
 			var elem_label: String = elem if elem != "" else \
 					("BUSTER" if GameManager.active_character == "zael" else "ESPADA")
-			draw_string(fnt, Vector2(cx + _PADH, cy + _PADV + 22.0),
-					elem_label, HORIZONTAL_ALIGNMENT_LEFT, _SPLIT, 22,
+			draw_string(fnt, Vector2(cx + _PADH, cy + _PADV + 28.0),
+					elem_label, HORIZONTAL_ALIGNMENT_LEFT, _SPLIT, 28,
 					Color(bc.r, bc.g, bc.b, 0.90))
 
 			# "ATIVO" badge
@@ -172,7 +200,7 @@ func _draw_power_grid(fnt: Font) -> void:
 				var bar_x: float = cx + _PADH
 				var bar_y: float = cy + _CH - _PADV - 20.0
 				var bar_w: float = _CW - _PADH * 2.0
-				var bar_h: float = 14.0
+				var bar_h: float = 9.0
 				var fill_c: Color
 				if ammo_ratio > 0.5:
 					fill_c = Color(0.20, 0.95, 0.40)
