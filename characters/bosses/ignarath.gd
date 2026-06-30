@@ -231,15 +231,16 @@ func _run_claw_wave_sequence() -> void:
 		if is_dead or gen != _attack_gen:
 			return
 		_do_floor_wave(speed)
-	# 3 pares nas paredes (esq + dir simultâneos)
+	# 6 fires na parede do lado que o Ignarath está indo
+	var wall_x    := (arena_right - CLAW_WAVE_H * 0.5) if _facing > 0.0 else (arena_left + CLAW_WAVE_H * 0.5)
+	var b_angle   := -PI * 0.5 if _facing > 0.0 else PI * 0.5  # burst aponta para dentro da arena
 	await get_tree().create_timer(0.08).timeout
-	for i in 3:
+	for i in 6:
 		if i > 0:
-			await get_tree().create_timer(0.15).timeout
+			await get_tree().create_timer(0.12).timeout
 		if is_dead or gen != _attack_gen:
 			return
-		_do_wall_wave(arena_left  + CLAW_WAVE_H * 0.5, speed)
-		_do_wall_wave(arena_right - CLAW_WAVE_H * 0.5, speed)
+		_do_wall_wave(wall_x, speed, b_angle)
 
 func _do_floor_wave(speed: float) -> void:
 	var wave: Area2D = _FIRE_WAVE.new()
@@ -253,14 +254,15 @@ func _do_floor_wave(speed: float) -> void:
 	wave.global_position = Vector2(global_position.x + _facing * 50.0, arena_floor - CLAW_WAVE_H * 0.5)
 	get_parent().add_child(wave)
 
-func _do_wall_wave(wall_x: float, speed: float) -> void:
+func _do_wall_wave(wall_x: float, speed: float, b_angle: float = 0.0) -> void:
 	var wave: Area2D = _FIRE_WAVE.new()
 	wave.set("speed", speed)
 	wave.set("damage", CLAW_WAVE_DAMAGE)
 	wave.set("source_id", "ignarath")
-	wave.set("wave_w", CLAW_WAVE_H)   # profundidade horizontal na parede
+	wave.set("wave_w", CLAW_WAVE_H)
 	wave.set("wave_h", CLAW_WAVE_H)
 	wave.set("vertical", true)
+	wave.set("burst_angle", b_angle)
 	wave.global_position = Vector2(wall_x, arena_floor - CLAW_WAVE_H * 0.5)
 	get_parent().add_child(wave)
 

@@ -23,6 +23,7 @@ var despawn_x: float = 0.0
 var wave_w: float = 90.0
 var wave_h: float = 150.0
 var vertical: bool = false     # true = sobe pela parede
+var burst_angle: float = 0.0   # rotação dos bursts (PI/2 para parede esq, -PI/2 para dir)
 var _life: float = 6.0
 var _t: float = 0.0
 var _dist_since_burst: float = 0.0
@@ -95,6 +96,7 @@ func _spawn_ground_burst() -> void:
 		sp.global_position = Vector2(global_position.x, global_position.y - wave_h * 0.5 + 32.0)
 	else:
 		sp.global_position = Vector2(global_position.x, global_position.y + wave_h * 0.5 - 32.0)
+	sp.rotation = burst_angle
 	sp.animation_finished.connect(sp.queue_free)
 	get_parent().add_child(sp)
 	sp.play("burst")
