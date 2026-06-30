@@ -133,8 +133,8 @@ func _draw_power_grid(fnt: Font) -> void:
 			draw_rect(Rect2(cx - 3.0, cy - 3.0, _CW + 6.0, _CH + 6.0),
 					Color(1.0, 0.30, 0.65, pink_alpha), false, 3.0)
 
-			const _PADH: float  = 82.0   # distância lateral
-			const _PADV: float  = 62.0   # distância vertical
+			const _PADH: float  = 108.0  # distância lateral
+			const _PADV: float  = 72.0   # distância vertical
 			const _SPLIT: float = 160.0
 			const _SPR: float   = 80.0
 			var _spr_zone_w: float = _CW - _PADH - _SPLIT - _PADH
