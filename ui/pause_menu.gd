@@ -32,10 +32,18 @@ func _input(event: InputEvent) -> void:
 		return
 	if not _is_paused:
 		return
-	if event.is_action_just_pressed("ability_prev"):
-		_change_selection(-1)
-	if event.is_action_just_pressed("ability_next"):
-		_change_selection(1)
+	if event.is_action_just_pressed("ability_prev") or event.is_action_just_pressed("ui_left"):
+		_draw_panel.move_grid(-1, 0)
+		get_viewport().set_input_as_handled()
+	elif event.is_action_just_pressed("ability_next") or event.is_action_just_pressed("ui_right"):
+		_draw_panel.move_grid(1, 0)
+		get_viewport().set_input_as_handled()
+	elif event.is_action_just_pressed("ui_up"):
+		_draw_panel.move_grid(0, -1)
+		get_viewport().set_input_as_handled()
+	elif event.is_action_just_pressed("ui_down"):
+		_draw_panel.move_grid(0, 1)
+		get_viewport().set_input_as_handled()
 
 func toggle_pause() -> void:
 	_is_paused = not _is_paused
@@ -52,6 +60,11 @@ func _sync_state() -> void:
 	var nav: Array = _get_nav_list()
 	var cur: String = GameManager.selected_boss_ability
 	_draw_panel.sel_idx = max(0, nav.find(cur))
+	# Sync sel_grid from current boss ability
+	for i: int in 9:
+		if (_draw_panel._SLOTS[i]["boss_id"] as String) == cur:
+			_draw_panel.sel_grid = i
+			break
 	var players: Array = get_tree().get_nodes_in_group("player")
 	_draw_panel.current_player = players[0] if not players.is_empty() else null
 

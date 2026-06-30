@@ -51,7 +51,9 @@ const _C_LIFE:     Color = Color(1.00, 0.25, 0.35, 1.00)
 const _C_TANK:     Color = Color(0.25, 0.62, 1.00, 1.00)
 
 var current_player: Node = null
-var sel_idx: int = 0   # index in _get_nav_list() from pause_menu
+var sel_idx: int = 0       # index na nav list (compatibilidade pause_menu)
+var sel_grid: int = 0      # slot 0-8 na grade 3x3
+var _hover_grid: int = -1  # card sob o cursor (-1 = nenhum)
 
 # Cached textures — never load inside _draw() (breaks web export)
 var _placeholder_tex: Texture2D = null
@@ -65,31 +67,47 @@ func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_STOP
 
-func _gui_input(event: InputEvent) -> void:
-	if not (event is InputEventMouseButton):
-		return
-	var mb := event as InputEventMouseButton
-	if not (mb.pressed and mb.button_index == MOUSE_BUTTON_LEFT):
-		return
-	var pos := mb.position
+func _select_grid(i: int) -> void:
+	sel_grid = clampi(i, 0, 8)
+	var bid: String = _SLOTS[sel_grid]["boss_id"] as String
+	GameManager.selected_boss_ability = bid
+	var nav: Array = _build_nav()
+	sel_idx = max(0, nav.find(bid))
+	queue_redraw()
+
+func move_grid(dx: int, dy: int) -> void:
+	var col: int = (sel_grid % _COLS + dx + _COLS) % _COLS
+	var row: int = (sel_grid / _COLS + dy + _ROWS) % _ROWS
+	_select_grid(row * _COLS + col)
+
+func _build_nav() -> Array:
+	var nav: Array = [""]
+	for b: String in ["ignarath","cryovex","voltrix","gravitus","galerix","umbraex","luxar","terragor"]:
+		if GameManager.boss_abilities_unlocked.has(b):
+			nav.append(b)
+	return nav
+
+func _card_at(pos: Vector2) -> int:
 	for i: int in 9:
-		var col: int  = i % _COLS
-		var row: int  = i / _COLS
-		var cx: float = _GX + float(col) * (_CW + _CGAP)
-		var cy: float = _GY + float(row) * (_CH + _CGAP)
+		var cx: float = _GX + float(i % _COLS) * (_CW + _CGAP)
+		var cy: float = _GY + float(i / _COLS) * (_CH + _CGAP)
 		if Rect2(cx, cy, _CW, _CH).has_point(pos):
-			var bid: String = _SLOTS[i]["boss_id"] as String
-			GameManager.selected_boss_ability = bid
-			var nav: Array = [""]
-			for b: String in [
-				"ignarath","cryovex","voltrix","gravitus",
-				"galerix","umbraex","luxar","terragor"
-			]:
-				if GameManager.boss_abilities_unlocked.has(b):
-					nav.append(b)
-			sel_idx = max(0, nav.find(bid))
+			return i
+	return -1
+
+func _gui_input(event: InputEvent) -> void:
+	if event is InputEventMouseMotion:
+		var h: int = _card_at((event as InputEventMouseMotion).position)
+		if h != _hover_grid:
+			_hover_grid = h
 			queue_redraw()
-			break
+		return
+	if event is InputEventMouseButton:
+		var mb := event as InputEventMouseButton
+		if mb.pressed and mb.button_index == MOUSE_BUTTON_LEFT:
+			var idx: int = _card_at(mb.position)
+			if idx >= 0:
+				_select_grid(idx)
 
 func _draw() -> void:
 	var fnt: Font = ThemeDB.fallback_font
@@ -144,11 +162,12 @@ func _draw_power_grid(fnt: Font) -> void:
 		var bc: Color   = slot["color"] as Color
 
 		var is_unlocked: bool = true # DEBUG: mostrar todos ativos
-		var is_sel: bool = bid == selected
+		var is_sel: bool = i == sel_grid
+		var is_hover: bool = i == _hover_grid and not is_sel
 
 		if is_unlocked:
 			if _card_frame_tex != null:
-				var alpha := 1.0 if is_sel else 0.80
+				var alpha := 1.0 if is_sel else (0.90 if is_hover else 0.80)
 				draw_texture_rect(_card_frame_tex, Rect2(cx, cy, _CW, _CH), false,
 						Color(1.0, 1.0, 1.0, alpha))
 			else:
@@ -156,8 +175,12 @@ func _draw_power_grid(fnt: Font) -> void:
 				draw_rect(Rect2(cx, cy, _CW, _CH),
 						Color(bc.r * bg_mul, bc.g * bg_mul, bc.b * bg_mul, 1.0))
 				draw_rect(Rect2(cx, cy, _CW, _CH), bc, false, 3.0 if is_sel else 2.0)
+			# Highlight hover no interior do card
+			if is_hover:
+				draw_rect(Rect2(cx + 3.0, cy + 3.0, _CW - 6.0, _CH - 6.0),
+						Color(1.0, 1.0, 1.0, 0.06))
 			# Borda rosa externa
-			var pink_alpha := 1.0 if is_sel else 0.55
+			var pink_alpha := 1.0 if is_sel else (0.75 if is_hover else 0.45)
 			draw_rect(Rect2(cx - 3.0, cy - 3.0, _CW + 6.0, _CH + 6.0),
 					Color(1.0, 0.30, 0.65, pink_alpha), false, 3.0)
 
