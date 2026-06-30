@@ -321,8 +321,8 @@ func _try_drop() -> void:
 		return
 	var pool: Dictionary = arch["pool"]
 	var total: int = 0
-	for w: int in pool.values():
-		total += w
+	for w in pool.values():
+		total += int(w)
 	var roll: int = randi() % total
 	var acc: int = 0
 	var chosen: String = pool.keys()[0]
