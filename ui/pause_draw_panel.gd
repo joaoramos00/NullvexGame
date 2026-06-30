@@ -101,8 +101,9 @@ func _draw_power_grid(fnt: Font) -> void:
 			# Sprite — top-right quadrant
 			if _placeholder_tex != null:
 				var tint: Color = Color(bc.r, bc.g, bc.b, 0.80)
-				draw_texture_rect(_placeholder_tex,
-						Rect2(cx + _SPR_X, cy + _SPR_Y, _SPR, _SPR), false, tint)
+				draw_texture_rect_region(_placeholder_tex,
+						Rect2(cx + _SPR_X, cy + _SPR_Y, _SPR, _SPR),
+						Rect2(0, 0, 32, 32), tint)
 
 			# Ammo counter below sprite — boss ability slots only
 			if bid != "":
