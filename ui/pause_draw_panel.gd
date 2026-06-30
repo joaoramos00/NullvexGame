@@ -21,8 +21,8 @@ const _SH: float = 1080.0
 
 const _COLS: int   = 3
 const _ROWS: int   = 3
-const _CW: float   = 480.0
-const _CH: float   = 270.0
+const _CW: float   = 360.0
+const _CH: float   = 200.0
 const _CGAP: float = 22.0
 
 const _GRID_W: float = _COLS * _CW + (_COLS - 1) * _CGAP
@@ -128,6 +128,10 @@ func _draw_power_grid(fnt: Font) -> void:
 				draw_rect(Rect2(cx, cy, _CW, _CH),
 						Color(bc.r * bg_mul, bc.g * bg_mul, bc.b * bg_mul, 1.0))
 				draw_rect(Rect2(cx, cy, _CW, _CH), bc, false, 3.0 if is_sel else 2.0)
+			# Borda rosa externa
+			var pink_alpha := 1.0 if is_sel else 0.55
+			draw_rect(Rect2(cx - 3.0, cy - 3.0, _CW + 6.0, _CH + 6.0),
+					Color(1.0, 0.30, 0.65, pink_alpha), false, 3.0)
 
 			# Padding interno para respeitar a borda dos tubos
 			const _PAD: float   = 40.0
