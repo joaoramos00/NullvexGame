@@ -56,10 +56,12 @@ var sel_idx: int = 0   # index in _get_nav_list() from pause_menu
 # Cached textures — never load inside _draw() (breaks web export)
 var _placeholder_tex: Texture2D = null
 var _bg_tex: Texture2D = null
+var _card_frame_tex: Texture2D = null
 
 func _ready() -> void:
 	_placeholder_tex = load("res://assets/buster/buster_L1.png")
 	_bg_tex = load("res://assets/ui/pause_bg.png")
+	_card_frame_tex = load("res://assets/ui/pause_card_frame.png")
 
 func _draw() -> void:
 	var fnt: Font = ThemeDB.fallback_font
@@ -120,7 +122,12 @@ func _draw_power_grid(fnt: Font) -> void:
 			var bg_mul: float = 0.28 if is_sel else 0.16
 			draw_rect(Rect2(cx, cy, _CW, _CH),
 					Color(bc.r * bg_mul, bc.g * bg_mul, bc.b * bg_mul, 1.0))
-			draw_rect(Rect2(cx, cy, _CW, _CH), bc, false, 3.0 if is_sel else 2.0)
+			# Frame sci-fi por cima do fundo colorido
+			if _card_frame_tex != null:
+				var frame_tint := Color(bc.r, bc.g, bc.b, 1.0 if is_sel else 0.70)
+				draw_texture_rect(_card_frame_tex, Rect2(cx, cy, _CW, _CH), false, frame_tint)
+			else:
+				draw_rect(Rect2(cx, cy, _CW, _CH), bc, false, 3.0 if is_sel else 2.0)
 
 			# Layout: left text zone [0..155], right sprite+ammo zone [155..280]
 			const _SPLIT: float = 150.0
