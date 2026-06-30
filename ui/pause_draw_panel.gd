@@ -150,38 +150,39 @@ func _draw_power_grid(fnt: Font) -> void:
 						Rect2(0, 0, 32, 32))
 				draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 
-			# Ammo counter
-			if bid != "":
-				var ammo: int         = GameManager.get_ability_ammo(bid)
-				var max_ammo: int     = GameManager.ABILITY_MAX_AMMO
-				var ammo_ratio: float = float(ammo) / float(max_ammo)
-				var ammo_col: Color   = bc.lerp(Color(1.0, 0.25, 0.25), 1.0 - ammo_ratio)
-				var ammo_str: String  = "%d / %d" % [ammo, max_ammo]
-				var pill_x: float = cx + _PADH + _SPLIT + 4.0
-				var pill_w: float = _spr_zone_w - 4.0
-				var pill_y: float = cy + _SPR_Y + _SPR + 8.0
-				draw_rect(Rect2(pill_x, pill_y, pill_w, 26.0), Color(0.0, 0.0, 0.0, 0.55))
-				draw_string(fnt, Vector2(pill_x + 4.0, pill_y + 18.0),
-						ammo_str, HORIZONTAL_ALIGNMENT_LEFT, pill_w - 8.0, 16, ammo_col)
-
-			# Boss name
-			draw_string(fnt, Vector2(cx + _PADH, cy + _PADV + 22.0),
-					slot["label"] as String,
-					HORIZONTAL_ALIGNMENT_LEFT, _SPLIT, 22,
-					Color(bc.r, bc.g, bc.b, 0.80))
-
-			# Elemento / primário
+			# Nome do ataque/elemento — topo do card
 			var elem: String = slot["elem"] as String
 			var elem_label: String = elem if elem != "" else \
 					("BUSTER" if GameManager.active_character == "zael" else "ESPADA")
-			draw_string(fnt, Vector2(cx + _PADH, cy + _CH - _PADV - 4.0),
-					elem_label, HORIZONTAL_ALIGNMENT_LEFT, _SPLIT, 28, bc)
+			draw_string(fnt, Vector2(cx + _PADH, cy + _PADV + 22.0),
+					elem_label, HORIZONTAL_ALIGNMENT_LEFT, _SPLIT, 22,
+					Color(bc.r, bc.g, bc.b, 0.90))
 
 			# "ATIVO" badge
 			if is_sel:
-				draw_string(fnt, Vector2(cx + _PADH, cy + _CH - _PADV - 36.0),
+				draw_string(fnt, Vector2(cx + _PADH, cy + _PADV + 42.0),
 						"▶ ATIVO", HORIZONTAL_ALIGNMENT_LEFT, -1, 13,
 						Color(bc.r, bc.g, bc.b, 0.70))
+
+			# Barra de energia horizontal — base interna do card
+			if bid != "":
+				var ammo: int         = GameManager.get_ability_ammo(bid)
+				var max_ammo: int     = GameManager.ABILITY_MAX_AMMO
+				var ammo_ratio: float = float(ammo) / float(max(max_ammo, 1))
+				var bar_x: float = cx + _PADH
+				var bar_y: float = cy + _CH - _PADV - 20.0
+				var bar_w: float = _CW - _PADH * 2.0
+				var bar_h: float = 14.0
+				var fill_c: Color
+				if ammo_ratio > 0.5:
+					fill_c = Color(0.20, 0.95, 0.40)
+				elif ammo_ratio > 0.2:
+					fill_c = Color(0.95, 0.80, 0.10)
+				else:
+					fill_c = Color(0.95, 0.20, 0.20)
+				draw_rect(Rect2(bar_x, bar_y, bar_w, bar_h), Color(0.0, 0.0, 0.0, 0.60))
+				draw_rect(Rect2(bar_x, bar_y, bar_w * ammo_ratio, bar_h), fill_c)
+				draw_rect(Rect2(bar_x, bar_y, bar_w, bar_h), fill_c, false, 1.0)
 		else:
 			draw_rect(Rect2(cx, cy, _CW, _CH), _C_LOCKED)
 			draw_rect(Rect2(cx, cy, _CW, _CH),
