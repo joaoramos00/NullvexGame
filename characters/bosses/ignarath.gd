@@ -246,6 +246,8 @@ func _run_claw_wave_sequence() -> void:
 	var remaining := travel_time - elapsed
 	if remaining > 0.0:
 		await get_tree().create_timer(remaining).timeout
+	if is_dead or gen != _attack_gen:
+		return
 
 	# fires na parede até completar 10
 	while spawned < TOTAL_N:
