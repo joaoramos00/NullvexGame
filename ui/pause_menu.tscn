@@ -1,49 +1,173 @@
 [gd_scene format=3 uid="uid://pause_menu"]
 
 [ext_resource type="Script" path="res://ui/pause_menu.gd" id="1_script"]
+[ext_resource type="Script" path="res://ui/pause_draw_panel.gd" id="2_draw"]
+
+[sub_resource type="StyleBoxFlat" id="BtnResume"]
+bg_color = Color(0.06, 0.22, 0.10, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.28, 1.00, 0.48, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="BtnResumeHover"]
+bg_color = Color(0.10, 0.38, 0.18, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.40, 1.00, 0.60, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="BtnStage"]
+bg_color = Color(0.06, 0.14, 0.30, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.30, 0.65, 1.00, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="BtnStageHover"]
+bg_color = Color(0.10, 0.22, 0.46, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.45, 0.80, 1.00, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="BtnMenu"]
+bg_color = Color(0.20, 0.06, 0.08, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.80, 0.28, 0.32, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="BtnMenuHover"]
+bg_color = Color(0.34, 0.10, 0.12, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(1.00, 0.42, 0.46, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="BtnPause"]
+bg_color = Color(0.04, 0.05, 0.18, 0.82)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.50, 0.80, 1.00, 0.80)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[sub_resource type="StyleBoxFlat" id="BtnPauseHover"]
+bg_color = Color(0.10, 0.18, 0.40, 0.92)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.70, 0.92, 1.00, 1.00)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
 
 [node name="PauseMenu" type="CanvasLayer"]
 layer = 10
-process_mode = 4
+process_mode = 3
 script = ExtResource("1_script")
 
-[node name="Overlay" type="ColorRect" parent="."]
+[node name="PauseButton" type="Button" parent="."]
+process_mode = 3
+anchor_left = 1.0
+anchor_top = 0.0
 anchor_right = 1.0
-anchor_bottom = 1.0
-color = Color(0, 0, 0, 0.6)
-
-[node name="Panel" type="Panel" parent="."]
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -120.0
-offset_top = -110.0
-offset_right = 120.0
-offset_bottom = 110.0
-
-[node name="VBox" type="VBoxContainer" parent="Panel"]
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = 12.0
+anchor_bottom = 0.0
+offset_left = -84.0
 offset_top = 12.0
 offset_right = -12.0
-offset_bottom = -12.0
-theme_override_constants/separation = 10
+offset_bottom = 84.0
+text = "⏸"
+theme_override_font_sizes/font_size = 32
+theme_override_colors/font_color = Color(0.85, 0.94, 1.00, 1)
+theme_override_styles/normal = SubResource("BtnPause")
+theme_override_styles/hover = SubResource("BtnPauseHover")
+theme_override_styles/pressed = SubResource("BtnPause")
+theme_override_styles/focus = SubResource("BtnPauseHover")
 
-[node name="TitleLabel" type="Label" parent="Panel/VBox"]
-layout_mode = 2
-text = "PAUSED"
-horizontal_alignment = 1
+[node name="DrawPanel" type="Control" parent="."]
+process_mode = 3
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource("2_draw")
 
-[node name="ResumeButton" type="Button" parent="Panel/VBox"]
-layout_mode = 2
-text = "Resume"
+[node name="ButtonBar" type="HBoxContainer" parent="."]
+process_mode = 3
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -420.0
+offset_top = 978.0
+offset_right = 420.0
+offset_bottom = 1030.0
+alignment = 1
+theme_override_constants/separation = 24
 
-[node name="StageSelectButton" type="Button" parent="Panel/VBox"]
+[node name="ResumeButton" type="Button" parent="ButtonBar"]
 layout_mode = 2
-text = "Stage Select"
+custom_minimum_size = Vector2(240, 48)
+text = "CONTINUAR"
+theme_override_font_sizes/font_size = 22
+theme_override_colors/font_color = Color(0.80, 1.00, 0.86, 1)
+theme_override_styles/normal = SubResource("BtnResume")
+theme_override_styles/hover = SubResource("BtnResumeHover")
+theme_override_styles/pressed = SubResource("BtnResume")
+theme_override_styles/focus = SubResource("BtnResumeHover")
 
-[node name="MainMenuButton" type="Button" parent="Panel/VBox"]
+[node name="StageSelectButton" type="Button" parent="ButtonBar"]
 layout_mode = 2
-text = "Main Menu"
+custom_minimum_size = Vector2(240, 48)
+text = "STAGE SELECT"
+theme_override_font_sizes/font_size = 22
+theme_override_colors/font_color = Color(0.82, 0.92, 1.00, 1)
+theme_override_styles/normal = SubResource("BtnStage")
+theme_override_styles/hover = SubResource("BtnStageHover")
+theme_override_styles/pressed = SubResource("BtnStage")
+theme_override_styles/focus = SubResource("BtnStageHover")
+
+[node name="MainMenuButton" type="Button" parent="ButtonBar"]
+layout_mode = 2
+custom_minimum_size = Vector2(240, 48)
+text = "MENU PRINCIPAL"
+theme_override_font_sizes/font_size = 22
+theme_override_colors/font_color = Color(1.00, 0.80, 0.82, 1)
+theme_override_styles/normal = SubResource("BtnMenu")
+theme_override_styles/hover = SubResource("BtnMenuHover")
+theme_override_styles/pressed = SubResource("BtnMenu")
+theme_override_styles/focus = SubResource("BtnMenuHover")

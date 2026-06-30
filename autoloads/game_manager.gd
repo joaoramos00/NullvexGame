@@ -19,7 +19,10 @@ var completed_stages: Array[int] = []
 var collected_hearts: Array[int] = []
 var collected_subtanks: Array[int] = []
 var subtank_charges: Array[float] = [0.0, 0.0, 0.0, 0.0]
+const ABILITY_MAX_AMMO: int = 15
 var boss_abilities_unlocked: Array[String] = []
+var selected_boss_ability: String = ""
+var boss_ability_ammo: Dictionary = {}   # boss_id -> int
 var zael_armor: Dictionary = {"helmet": false, "torso": false, "arms": false, "legs": false}
 var zara_armor: Dictionary = {"helmet": false, "torso": false, "arms": false, "legs": false}
 var zael_shot_types: Array[String] = ["single"]
@@ -45,6 +48,8 @@ func reset() -> void:
     collected_subtanks.clear()
     subtank_charges = [0.0, 0.0, 0.0, 0.0]
     boss_abilities_unlocked.clear()
+    selected_boss_ability = ""
+    boss_ability_ammo.clear()
     zael_armor = {"helmet": false, "torso": false, "arms": false, "legs": false}
     zara_armor = {"helmet": false, "torso": false, "arms": false, "legs": false}
     zael_shot_types = ["single"]
@@ -87,7 +92,21 @@ func complete_stage(stage_id: int) -> void:
 func unlock_ability(ability_id: String) -> void:
     if not boss_abilities_unlocked.has(ability_id):
         boss_abilities_unlocked.append(ability_id)
+        boss_ability_ammo[ability_id] = ABILITY_MAX_AMMO
         ability_unlocked.emit(ability_id)
+
+func get_ability_ammo(ability_id: String) -> int:
+    return int(boss_ability_ammo.get(ability_id, ABILITY_MAX_AMMO))
+
+func use_ability_ammo(ability_id: String, amount: int = 1) -> bool:
+    var cur: int = get_ability_ammo(ability_id)
+    if cur <= 0:
+        return false
+    boss_ability_ammo[ability_id] = cur - amount
+    return true
+
+func refill_ability_ammo(ability_id: String) -> void:
+    boss_ability_ammo[ability_id] = ABILITY_MAX_AMMO
 
 func unlock_zael_shot(shot_type: String) -> void:
     if not zael_shot_types.has(shot_type):
@@ -138,6 +157,8 @@ func save_game() -> void:
         "collected_subtanks": Array(collected_subtanks),
         "subtank_charges": Array(subtank_charges),
         "boss_abilities_unlocked": Array(boss_abilities_unlocked),
+        "selected_boss_ability": selected_boss_ability,
+        "boss_ability_ammo": boss_ability_ammo.duplicate(),
         "zael_armor": zael_armor.duplicate(),
         "zara_armor": zara_armor.duplicate(),
         "zael_shot_types": Array(zael_shot_types),
@@ -166,6 +187,8 @@ func load_game() -> bool:
     collected_subtanks = _to_int_array(data.get("collected_subtanks", []))
     subtank_charges = _to_float_array(data.get("subtank_charges", [0.0, 0.0, 0.0, 0.0]))
     boss_abilities_unlocked = _to_string_array(data.get("boss_abilities_unlocked", []))
+    selected_boss_ability = data.get("selected_boss_ability", "")
+    boss_ability_ammo = data.get("boss_ability_ammo", {})
     zael_armor = data.get("zael_armor", {"helmet": false, "torso": false, "arms": false, "legs": false})
     zara_armor = data.get("zara_armor", {"helmet": false, "torso": false, "arms": false, "legs": false})
     zael_shot_types = _to_string_array(data.get("zael_shot_types", ["single"]))
