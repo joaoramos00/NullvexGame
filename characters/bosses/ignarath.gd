@@ -245,7 +245,7 @@ func _spawn_claw_slash_fx() -> void:
 	sp.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	sp.z_index = 4
 	sp.scale = Vector2(_facing, 1.0)
-	sp.global_position = Vector2(global_position.x + _facing * 150.0, global_position.y - 60.0)
+	sp.global_position = Vector2(global_position.x + _facing * 130.0, global_position.y - 60.0)
 	sp.animation_finished.connect(sp.queue_free)
 	get_parent().add_child(sp)
 	sp.play("slash")
