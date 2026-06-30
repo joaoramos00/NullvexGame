@@ -222,20 +222,28 @@ func _spawn_claw_wave() -> void:
 	_run_claw_wave_sequence()
 
 func _run_claw_wave_sequence() -> void:
-	var speed := CLAW_WAVE_SPEED_P2 if phase >= 2 else CLAW_WAVE_SPEED_P1
-	var gen   := _attack_gen
-	# 4 ondas no chão
-	for i in 4:
+	var speed  := CLAW_WAVE_SPEED_P2 if phase >= 2 else CLAW_WAVE_SPEED_P1
+	var gen    := _attack_gen
+	var wall_x := (arena_right + 64.0) if _facing > 0.0 else (arena_left - 64.0)
+	var b_angle := -PI * 0.5 if _facing > 0.0 else PI * 0.5
+
+	# tempo que a primeira onda leva para chegar à parede
+	var start_x     := global_position.x + _facing * 50.0
+	var travel_time := absf(wall_x - start_x) / speed
+
+	# 3 ondas no chão (stagger 0.10s)
+	for i in 3:
 		if i > 0:
 			await get_tree().create_timer(0.10).timeout
 		if is_dead or gen != _attack_gen:
 			return
 		_do_floor_wave(speed)
-	# 6 fires na parede do lado que o Ignarath está indo
-	var wall_x    := (arena_right + 64.0) if _facing > 0.0 else (arena_left - 64.0)
-	var b_angle   := -PI * 0.5 if _facing > 0.0 else PI * 0.5  # burst aponta para dentro da arena
-	await get_tree().create_timer(0.08).timeout
-	for i in 6:
+
+	# espera a primeira onda bater na parede, então lança 7 fires pela parede
+	var remaining := travel_time - 0.20  # já passaram 0.20s nos 3 fires
+	if remaining > 0.0:
+		await get_tree().create_timer(remaining).timeout
+	for i in 7:
 		if i > 0:
 			await get_tree().create_timer(0.12).timeout
 		if is_dead or gen != _attack_gen:
