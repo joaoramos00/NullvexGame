@@ -133,13 +133,12 @@ func _draw_power_grid(fnt: Font) -> void:
 			draw_rect(Rect2(cx - 3.0, cy - 3.0, _CW + 6.0, _CH + 6.0),
 					Color(1.0, 0.30, 0.65, pink_alpha), false, 3.0)
 
-			# Padding interno — tubos têm borda ~45px em 512px original → ~46% do card
-			const _PAD: float   = 46.0
-			const _SPLIT: float = 140.0  # zona de texto
-			const _SPR: float   = 56.0   # sprite
+			const _PAD: float   = 62.0
+			const _SPLIT: float = 160.0
+			const _SPR: float   = 80.0
 			var _spr_zone_w: float = _CW - _PAD - _SPLIT - _PAD
 			var _SPR_X: float = _PAD + _SPLIT + (_spr_zone_w - _SPR) * 0.5
-			const _SPR_Y: float = 46.0
+			const _SPR_Y: float = 62.0
 
 			# Sprite
 			if _placeholder_tex != null:
@@ -152,22 +151,22 @@ func _draw_power_grid(fnt: Font) -> void:
 
 			# Ammo counter
 			if bid != "":
-				var ammo: int       = GameManager.get_ability_ammo(bid)
-				var max_ammo: int   = GameManager.ABILITY_MAX_AMMO
+				var ammo: int         = GameManager.get_ability_ammo(bid)
+				var max_ammo: int     = GameManager.ABILITY_MAX_AMMO
 				var ammo_ratio: float = float(ammo) / float(max_ammo)
-				var ammo_col: Color = bc.lerp(Color(1.0, 0.25, 0.25), 1.0 - ammo_ratio)
-				var ammo_str: String = "%d / %d" % [ammo, max_ammo]
+				var ammo_col: Color   = bc.lerp(Color(1.0, 0.25, 0.25), 1.0 - ammo_ratio)
+				var ammo_str: String  = "%d / %d" % [ammo, max_ammo]
 				var pill_x: float = cx + _PAD + _SPLIT + 4.0
 				var pill_w: float = _spr_zone_w - 4.0
-				var pill_y: float = cy + _SPR_Y + _SPR + 6.0
-				draw_rect(Rect2(pill_x, pill_y, pill_w, 20.0), Color(0.0, 0.0, 0.0, 0.55))
-				draw_string(fnt, Vector2(pill_x + 4.0, pill_y + 14.0),
-						ammo_str, HORIZONTAL_ALIGNMENT_LEFT, pill_w - 8.0, 12, ammo_col)
+				var pill_y: float = cy + _SPR_Y + _SPR + 8.0
+				draw_rect(Rect2(pill_x, pill_y, pill_w, 26.0), Color(0.0, 0.0, 0.0, 0.55))
+				draw_string(fnt, Vector2(pill_x + 4.0, pill_y + 18.0),
+						ammo_str, HORIZONTAL_ALIGNMENT_LEFT, pill_w - 8.0, 16, ammo_col)
 
 			# Boss name
-			draw_string(fnt, Vector2(cx + _PAD, cy + _PAD + 14.0),
+			draw_string(fnt, Vector2(cx + _PAD, cy + _PAD + 18.0),
 					slot["label"] as String,
-					HORIZONTAL_ALIGNMENT_LEFT, _SPLIT, 11,
+					HORIZONTAL_ALIGNMENT_LEFT, _SPLIT, 16,
 					Color(bc.r, bc.g, bc.b, 0.80))
 
 			# Elemento / primário
@@ -175,12 +174,12 @@ func _draw_power_grid(fnt: Font) -> void:
 			var elem_label: String = elem if elem != "" else \
 					("BUSTER" if GameManager.active_character == "zael" else "ESPADA")
 			draw_string(fnt, Vector2(cx + _PAD, cy + _CH - _PAD - 4.0),
-					elem_label, HORIZONTAL_ALIGNMENT_LEFT, _SPLIT, 20, bc)
+					elem_label, HORIZONTAL_ALIGNMENT_LEFT, _SPLIT, 28, bc)
 
 			# "ATIVO" badge
 			if is_sel:
-				draw_string(fnt, Vector2(cx + _PAD, cy + _CH - _PAD - 28.0),
-						"▶ ATIVO", HORIZONTAL_ALIGNMENT_LEFT, -1, 10,
+				draw_string(fnt, Vector2(cx + _PAD, cy + _CH - _PAD - 36.0),
+						"▶ ATIVO", HORIZONTAL_ALIGNMENT_LEFT, -1, 13,
 						Color(bc.r, bc.g, bc.b, 0.70))
 		else:
 			draw_rect(Rect2(cx, cy, _CW, _CH), _C_LOCKED)
