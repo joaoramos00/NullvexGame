@@ -31,18 +31,25 @@ func _input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 
 func _unhandled_input(event: InputEvent) -> void:
+	if event is InputEventKey and (event as InputEventKey).pressed:
+		print("[pause_menu] _unhandled_input key=%s paused=%s" % [
+			OS.get_keycode_string((event as InputEventKey).keycode), _is_paused])
 	if not _is_paused:
 		return
 	if event.is_action_just_pressed("ability_prev") or event.is_action_just_pressed("ui_left"):
+		print("[pause_menu] move LEFT")
 		_draw_panel.move_grid(-1, 0)
 		get_viewport().set_input_as_handled()
 	elif event.is_action_just_pressed("ability_next") or event.is_action_just_pressed("ui_right"):
+		print("[pause_menu] move RIGHT")
 		_draw_panel.move_grid(1, 0)
 		get_viewport().set_input_as_handled()
 	elif event.is_action_just_pressed("ui_up"):
+		print("[pause_menu] move UP")
 		_draw_panel.move_grid(0, -1)
 		get_viewport().set_input_as_handled()
 	elif event.is_action_just_pressed("ui_down"):
+		print("[pause_menu] move DOWN")
 		_draw_panel.move_grid(0, 1)
 		get_viewport().set_input_as_handled()
 
