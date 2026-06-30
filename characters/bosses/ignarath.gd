@@ -217,9 +217,34 @@ func _do_claw() -> void:
 	_end_attack_anim()
 
 func _spawn_claw_wave() -> void:
+	AudioManager.play_sfx(AudioLibrary.sfx_ignarath_clawwave)
+	_spawn_claw_slash_fx()
+	_run_claw_wave_sequence()
+
+func _run_claw_wave_sequence() -> void:
+	var speed := CLAW_WAVE_SPEED_P2 if phase >= 2 else CLAW_WAVE_SPEED_P1
+	var gen   := _attack_gen
+	# 4 ondas no chão
+	for i in 4:
+		if i > 0:
+			await get_tree().create_timer(0.10).timeout
+		if is_dead or gen != _attack_gen:
+			return
+		_do_floor_wave(speed)
+	# 3 pares nas paredes (esq + dir simultâneos)
+	await get_tree().create_timer(0.08).timeout
+	for i in 3:
+		if i > 0:
+			await get_tree().create_timer(0.15).timeout
+		if is_dead or gen != _attack_gen:
+			return
+		_do_wall_wave(arena_left  + CLAW_WAVE_H * 0.5, speed)
+		_do_wall_wave(arena_right - CLAW_WAVE_H * 0.5, speed)
+
+func _do_floor_wave(speed: float) -> void:
 	var wave: Area2D = _FIRE_WAVE.new()
 	wave.set("dir", _facing)
-	wave.set("speed", CLAW_WAVE_SPEED_P2 if phase >= 2 else CLAW_WAVE_SPEED_P1)
+	wave.set("speed", speed)
 	wave.set("damage", CLAW_WAVE_DAMAGE)
 	wave.set("source_id", "ignarath")
 	wave.set("wave_w", CLAW_WAVE_W)
@@ -227,8 +252,17 @@ func _spawn_claw_wave() -> void:
 	wave.set("despawn_x", (arena_right + 120.0) if _facing > 0.0 else (arena_left - 120.0))
 	wave.global_position = Vector2(global_position.x + _facing * 50.0, arena_floor - CLAW_WAVE_H * 0.5)
 	get_parent().add_child(wave)
-	AudioManager.play_sfx(AudioLibrary.sfx_ignarath_clawwave)
-	_spawn_claw_slash_fx()
+
+func _do_wall_wave(wall_x: float, speed: float) -> void:
+	var wave: Area2D = _FIRE_WAVE.new()
+	wave.set("speed", speed)
+	wave.set("damage", CLAW_WAVE_DAMAGE)
+	wave.set("source_id", "ignarath")
+	wave.set("wave_w", CLAW_WAVE_H)   # profundidade horizontal na parede
+	wave.set("wave_h", CLAW_WAVE_H)
+	wave.set("vertical", true)
+	wave.global_position = Vector2(wall_x, arena_floor - CLAW_WAVE_H * 0.5)
+	get_parent().add_child(wave)
 
 func _spawn_claw_slash_fx() -> void:
 	var sf := SpriteFrames.new()
