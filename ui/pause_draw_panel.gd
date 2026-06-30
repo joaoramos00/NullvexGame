@@ -61,7 +61,7 @@ func _ready() -> void:
 
 func _draw() -> void:
 	var fnt: Font = ThemeDB.fallback_font
-	draw_rect(Rect2(0.0, 0.0, _SW, _SH), _C_BG)
+	_draw_background()
 	draw_rect(Rect2(0.0, 0.0, _SW, 88.0), _C_TITLE_BG)
 	draw_line(Vector2(0.0, 88.0), Vector2(_SW, 88.0), _C_BORDER, 2.0)
 	draw_string(fnt, Vector2(0.0, 58.0), "— PAUSA —",
@@ -69,6 +69,31 @@ func _draw() -> void:
 	_draw_power_grid(fnt)
 	_draw_status(fnt)
 	_draw_subtanks(fnt)
+
+func _draw_background() -> void:
+	# Base — dark navy
+	draw_rect(Rect2(0.0, 0.0, _SW, _SH), Color(0.02, 0.03, 0.09, 1.00))
+	# Scanlines — linha escura a cada 4px
+	var scan_c := Color(0.0, 0.0, 0.0, 0.22)
+	var y := 0.0
+	while y < _SH:
+		draw_line(Vector2(0.0, y), Vector2(_SW, y), scan_c, 2.0)
+		y += 4.0
+	# Dot grid — pontos azulados a cada 48px
+	var dot_c := Color(0.25, 0.50, 0.90, 0.12)
+	var gx := 24.0
+	while gx < _SW:
+		var gy := 24.0
+		while gy < _SH:
+			draw_rect(Rect2(gx - 1.0, gy - 1.0, 2.0, 2.0), dot_c)
+			gy += 48.0
+		gx += 48.0
+	# Vinheta lateral — escurece as bordas esquerda e direita
+	for i: int in 6:
+		var a := (1.0 - float(i) / 6.0) * 0.30
+		var w := float(6 - i) * 48.0
+		draw_rect(Rect2(0.0, 0.0, w, _SH), Color(0.0, 0.0, 0.0, a))
+		draw_rect(Rect2(_SW - w, 0.0, w, _SH), Color(0.0, 0.0, 0.0, a))
 
 func _draw_power_grid(fnt: Font) -> void:
 	var unlocked: Array = GameManager.boss_abilities_unlocked
