@@ -34,8 +34,9 @@ var _body_line: Line2D = null
 var _body_atlas: AtlasTexture = null
 var _body_inner: Line2D = null  # núcleo amarelo
 var _end_sprite: Sprite2D = null
-var _impact_fx: AnimatedSprite2D = null
+var _impact_fxs: Array[AnimatedSprite2D] = []
 var _body_sprites: Array = []
+var _hit_normal: Vector2 = Vector2(0.0, -1.0)  # normal da superfície do último raycast
 var _frame_w: float = 0.0
 var _frame_h: float = 0.0
 
@@ -84,6 +85,7 @@ func _wall_clip(geom: Vector2) -> Vector2:
 	var hit := space.intersect_ray(query)
 	if hit.is_empty():
 		return geom
+	_hit_normal = hit["normal"]  # salva normal real da superfície atingida
 	return hit["position"]
 
 func _build_visuals() -> void:
@@ -135,14 +137,19 @@ func _build_visuals() -> void:
 		at.atlas = _TEX_IMPACT
 		at.region = Rect2(i * 64.0, 0.0, 64.0, 64.0)
 		impact_sf.add_frame("burn", at)
-	_impact_fx = AnimatedSprite2D.new()
-	_impact_fx.name = "ImpactFX"
-	_impact_fx.sprite_frames = impact_sf
-	_impact_fx.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	_impact_fx.z_index = 6
-	_impact_fx.scale = Vector2.ONE * 1.5
-	add_child(_impact_fx)
-	_impact_fx.play("burn")
+	# 3 nuvens de poeira: escala 0.45 (–70%), defasadas para não sincronizar
+	var offsets := [-22.0, 0.0, 22.0]
+	for idx in 3:
+		var sp := AnimatedSprite2D.new()
+		sp.name = "ImpactFX%d" % idx
+		sp.sprite_frames = impact_sf
+		sp.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		sp.z_index = 6
+		sp.scale = Vector2.ONE * 0.495
+		add_child(sp)
+		sp.play("burn")
+		sp.frame = (idx * 3) % _IMPACT_FRAMES  # defasagem inicial
+		_impact_fxs.append(sp)
 
 	# _body_line já está visível por padrão — corpo contínuo via Line2D
 
@@ -195,9 +202,22 @@ func _update_visuals() -> void:
 		_end_sprite.rotation = beam_angle
 		_end_sprite.modulate = Color(1.0, 1.0, 1.0, 1.0)
 
-	if _impact_fx != null:
-		_impact_fx.position = _end
-		_impact_fx.rotation = beam_angle + PI  # aponta contrário ao beam → perpendicular à superfície
+	if _impact_fxs.size() > 0:
+		# usa a normal real do raycast: piso=(0,-1), parede=(±1,0)
+		var is_wall := absf(_hit_normal.x) > absf(_hit_normal.y)
+		var tangent  : Vector2
+		var fx_rot   : float
+		if is_wall:
+			tangent = Vector2(0.0, 1.0)
+			fx_rot  = PI * 0.5
+		else:
+			tangent = Vector2(1.0, 0.0)
+			fx_rot  = 0.0
+		var offsets := [-22.0, 0.0, 22.0]
+		for idx in _impact_fxs.size():
+			var sp := _impact_fxs[idx]
+			sp.position = _end + _hit_normal * 1.0 + tangent * offsets[idx]
+			sp.rotation = fx_rot
 
 
 func _draw() -> void:
