@@ -21,9 +21,9 @@ const _SH: float = 1080.0
 
 const _COLS: int   = 3
 const _ROWS: int   = 3
-const _CW: float   = 360.0
-const _CH: float   = 200.0
-const _CGAP: float = 22.0
+const _CW: float   = 520.0
+const _CH: float   = 290.0
+const _CGAP: float = 14.0
 
 const _GRID_W: float = _COLS * _CW + (_COLS - 1) * _CGAP
 const _GRID_H: float = _ROWS * _CH + (_ROWS - 1) * _CGAP
@@ -133,13 +133,13 @@ func _draw_power_grid(fnt: Font) -> void:
 			draw_rect(Rect2(cx - 3.0, cy - 3.0, _CW + 6.0, _CH + 6.0),
 					Color(1.0, 0.30, 0.65, pink_alpha), false, 3.0)
 
-			# Padding interno para respeitar a borda dos tubos
-			const _PAD: float   = 40.0
-			const _SPLIT: float = 120.0  # largura da zona de texto (a partir do _PAD)
-			const _SPR: float   = 48.0   # sprite menor
+			# Padding interno — tubos têm borda ~45px em 512px original → ~46% do card
+			const _PAD: float   = 46.0
+			const _SPLIT: float = 140.0  # zona de texto
+			const _SPR: float   = 56.0   # sprite
 			var _spr_zone_w: float = _CW - _PAD - _SPLIT - _PAD
 			var _SPR_X: float = _PAD + _SPLIT + (_spr_zone_w - _SPR) * 0.5
-			const _SPR_Y: float = _PAD
+			const _SPR_Y: float = 46.0
 
 			# Sprite
 			if _placeholder_tex != null:
