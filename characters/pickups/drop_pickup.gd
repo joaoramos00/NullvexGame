@@ -35,7 +35,7 @@ var _sprite: Sprite2D
 func _ready() -> void:
 	_land_y = position.y
 	_sprite = Sprite2D.new()
-	_sprite.texture = _TEX[drop_type]
+	_sprite.texture = _TEX.get(int(drop_type))
 	_sprite.hframes = 2
 	_sprite.vframes = 2
 	_sprite.scale = Vector2(0.25, 0.25)
