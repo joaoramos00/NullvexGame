@@ -201,13 +201,24 @@ func _update_visuals() -> void:
 		_end_sprite.modulate = Color(1.0, 1.0, 1.0, 1.0)
 
 	if _impact_fxs.size() > 0:
-		var normal  := -beam_dir                  # sai da superfície
-		var tangent := beam_dir.rotated(PI * 0.5) # ao longo da superfície
+		# snap: piso (beam mais vertical) ou parede (beam mais horizontal)
+		var is_wall := absf(beam_dir.x) > absf(beam_dir.y)
+		var normal   : Vector2
+		var tangent  : Vector2
+		var fx_rot   : float
+		if is_wall:
+			normal  = Vector2(-signf(beam_dir.x), 0.0)
+			tangent = Vector2(0.0, 1.0)
+			fx_rot  = PI * 0.5
+		else:
+			normal  = Vector2(0.0, -1.0)
+			tangent = Vector2(1.0, 0.0)
+			fx_rot  = 0.0
 		var offsets := [-22.0, 0.0, 22.0]
 		for idx in _impact_fxs.size():
 			var sp := _impact_fxs[idx]
-			sp.position = _end + normal * 6.0 + tangent * offsets[idx]
-			sp.rotation = beam_angle - PI * 0.5  # ereto no piso, tombado na parede
+			sp.position = _end + normal * 1.0 + tangent * offsets[idx]
+			sp.rotation = fx_rot
 
 
 func _draw() -> void:
