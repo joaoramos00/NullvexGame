@@ -315,11 +315,9 @@ func _draw() -> void:
 	draw_rect(bounds, Color(1.0, 0.25, 0.25, 1.0), false, 2.0)
 
 func _try_drop() -> void:
-	print("[DROP] _try_drop id=", _hitbox_id(), " parent=", get_parent())
 	var arch_name: String = _DROP_TABLE.get(_hitbox_id(), "grunt")
 	var arch: Dictionary  = _DROP_ARCH.get(arch_name, _DROP_ARCH["grunt"])
-	if randf() > 1.0: # DEBUG: força 100%
-		print("[DROP] chance failed")
+	if randf() > float(arch["chance"]):
 		return
 	var pool: Dictionary = arch["pool"]
 	var total: int = 0
@@ -333,13 +331,10 @@ func _try_drop() -> void:
 		if roll < acc:
 			chosen = key
 			break
-	print("[DROP] chosen=", chosen, " pos=", global_position)
 	var drop: DropPickup = _DROP_PICKUP_SCENE.instantiate()
 	drop.drop_type = _DROP_POOL_TO_TYPE[chosen]
-	print("[DROP] drop_type set to=", drop.drop_type)
 	drop.global_position = global_position
 	get_parent().add_child(drop)
-	print("[DROP] add_child done")
 
 func _die() -> void:
 	is_dead = true

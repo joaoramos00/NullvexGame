@@ -33,20 +33,14 @@ var _bob_time: float   = 0.0
 var _sprite: Sprite2D
 
 func _ready() -> void:
-	print("[DROP] _ready drop_type=", drop_type, " pos=", position)
 	_land_y = position.y
 	_sprite = Sprite2D.new()
-	var tex = _TEX.get(int(drop_type))
-	print("[DROP] tex lookup int(", int(drop_type), ")=", tex)
-	_sprite.texture = tex
+	_sprite.texture = _TEX.get(int(drop_type))
 	_sprite.hframes = 2
 	_sprite.vframes = 2
 	_sprite.scale = Vector2(0.25, 0.25)
 	add_child(_sprite)
 	body_entered.connect(_on_body_entered)
-
-func _draw() -> void:
-	draw_circle(Vector2.ZERO, 16.0, Color.CYAN)
 
 func _process(delta: float) -> void:
 	if not _landed:
@@ -59,7 +53,6 @@ func _process(delta: float) -> void:
 		_bob_time += delta
 		position.y = _land_y + sin(_bob_time * _BOB_SPEED) * _BOB_AMP
 
-	queue_redraw()
 	_anim_timer += delta
 	if _anim_timer >= 1.0 / _ANIM_FPS:
 		_anim_timer -= 1.0 / _ANIM_FPS
