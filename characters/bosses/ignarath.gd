@@ -217,9 +217,51 @@ func _do_claw() -> void:
 	_end_attack_anim()
 
 func _spawn_claw_wave() -> void:
+	AudioManager.play_sfx(AudioLibrary.sfx_ignarath_clawwave)
+	_spawn_claw_slash_fx()
+	_run_claw_wave_sequence()
+
+func _run_claw_wave_sequence() -> void:
+	var speed   := CLAW_WAVE_SPEED_P2 if phase >= 2 else CLAW_WAVE_SPEED_P1
+	var gen     := _attack_gen
+	var wall_x  := (arena_right + 64.0) if _facing > 0.0 else (arena_left - 64.0)
+	var b_angle := -PI * 0.5 if _facing > 0.0 else PI * 0.5
+	var start_x := global_position.x + _facing * 50.0
+	var travel_time := absf(wall_x - start_x) / speed
+	const FLOOR_N := 3
+	const TOTAL_N := 10
+	var spawned   := 0
+
+	# 3 ondas no chão
+	for i in FLOOR_N:
+		if i > 0:
+			await get_tree().create_timer(0.10).timeout
+		if is_dead or gen != _attack_gen:
+			return
+		_do_floor_wave(speed)
+		spawned += 1
+
+	# espera a primeira onda chegar à parede
+	var elapsed   := float(FLOOR_N - 1) * 0.10
+	var remaining := travel_time - elapsed
+	if remaining > 0.0:
+		await get_tree().create_timer(remaining).timeout
+	if is_dead or gen != _attack_gen:
+		return
+
+	# fires na parede até completar 10
+	while spawned < TOTAL_N:
+		if is_dead or gen != _attack_gen:
+			return
+		_do_wall_wave(wall_x, speed, b_angle)
+		spawned += 1
+		if spawned < TOTAL_N:
+			await get_tree().create_timer(0.12).timeout
+
+func _do_floor_wave(speed: float) -> void:
 	var wave: Area2D = _FIRE_WAVE.new()
 	wave.set("dir", _facing)
-	wave.set("speed", CLAW_WAVE_SPEED_P2 if phase >= 2 else CLAW_WAVE_SPEED_P1)
+	wave.set("speed", speed)
 	wave.set("damage", CLAW_WAVE_DAMAGE)
 	wave.set("source_id", "ignarath")
 	wave.set("wave_w", CLAW_WAVE_W)
@@ -227,8 +269,19 @@ func _spawn_claw_wave() -> void:
 	wave.set("despawn_x", (arena_right + 120.0) if _facing > 0.0 else (arena_left - 120.0))
 	wave.global_position = Vector2(global_position.x + _facing * 50.0, arena_floor - CLAW_WAVE_H * 0.5)
 	get_parent().add_child(wave)
-	AudioManager.play_sfx(AudioLibrary.sfx_ignarath_clawwave)
-	_spawn_claw_slash_fx()
+
+func _do_wall_wave(wall_x: float, speed: float, b_angle: float = 0.0) -> void:
+	var wave: Area2D = _FIRE_WAVE.new()
+	wave.set("speed", speed)
+	wave.set("damage", CLAW_WAVE_DAMAGE)
+	wave.set("source_id", "ignarath")
+	wave.set("wave_w", CLAW_WAVE_H)
+	wave.set("wave_h", CLAW_WAVE_H)
+	wave.set("vertical", true)
+	wave.set("burst_angle", b_angle)
+	wave.set("despawn_y", arena_top)
+	wave.global_position = Vector2(wall_x, arena_floor - CLAW_WAVE_H * 0.5)
+	get_parent().add_child(wave)
 
 func _spawn_claw_slash_fx() -> void:
 	var sf := SpriteFrames.new()
@@ -245,7 +298,7 @@ func _spawn_claw_slash_fx() -> void:
 	sp.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	sp.z_index = 4
 	sp.scale = Vector2(_facing, 1.0)
-	sp.global_position = Vector2(global_position.x + _facing * 150.0, global_position.y - 60.0)
+	sp.global_position = Vector2(global_position.x + _facing * 110.0, global_position.y - 60.0)
 	sp.animation_finished.connect(sp.queue_free)
 	get_parent().add_child(sp)
 	sp.play("slash")

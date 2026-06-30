@@ -3837,6 +3837,7 @@ class _BossBattleWorld extends Node2D:
         boss.arena_left  = _WALL_L + _MARGIN
         boss.arena_right = _WALL_R - _MARGIN
         boss.arena_floor = _FLOOR_Y
+        boss.arena_top   = _TS          # face interna do teto: impede fires de passar o teto
         boss.max_hp      = 99999
         boss.current_hp  = 99999
         boss.state       = BossBase.State.COMBAT
