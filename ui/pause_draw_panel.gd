@@ -61,7 +61,7 @@ var _card_frame_tex: Texture2D = null
 func _ready() -> void:
 	_placeholder_tex = load("res://assets/buster/buster_L1.png")
 	_bg_tex = load("res://assets/ui/pause_bg.png")
-	_card_frame_tex = load("res://assets/ui/pause_card_chip.png")
+	_card_frame_tex = load("res://assets/ui/pause_card_chip_v2.png")
 
 func _draw() -> void:
 	var fnt: Font = ThemeDB.fallback_font
