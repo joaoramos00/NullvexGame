@@ -310,7 +310,10 @@ func _handle_shooting(delta: float) -> void:
         return
     if GameManager.selected_boss_ability != "" \
             and Input.is_action_just_pressed("attack"):
-        _use_special_ability()
+        if _use_special_ability():
+            _is_shooting = true
+            _shoot_timer = _SHOOT_DURATIONS[0]
+            _sprite.play("shoot_1")
         return
     if Input.is_action_just_pressed("attack"):
         _is_charging = true
@@ -443,15 +446,14 @@ static func get_charge_level(timer: float) -> int:
         return 2
     return 1
 
-func _use_special_ability() -> void:
+func _use_special_ability() -> bool:
     var bid: String = GameManager.selected_boss_ability
     if bid == "ignarath" and GameManager.use_ability_ammo("ignarath"):
         _fire_walk()
+        return true
+    return false
 
 func _fire_walk() -> void:
-    _is_shooting = true
-    _shoot_timer = _SHOOT_DURATIONS[0]
-    _sprite.play("shoot_1")
     var dir_f: float = 1.0 if facing_right else -1.0
     var wave_h: float = 56.0
     var floor_y: float = global_position.y + 20.0
