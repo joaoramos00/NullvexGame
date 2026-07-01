@@ -177,17 +177,18 @@ func _draw_power_grid(fnt: Font) -> void:
 
 		var is_unlocked: bool = true # DEBUG: mostrar todos ativos
 		var is_sel: bool    = i == sel_grid
-		var is_cursor: bool = i == cursor_grid and not is_sel
-		var is_hover: bool  = i == _hover_grid and not is_sel and not is_cursor
+		var is_cursor: bool = i == cursor_grid
+		var is_hover: bool  = i == _hover_grid and not is_cursor
 
 		if is_unlocked:
 			if _card_frame_tex != null:
 				var alpha := 1.0 if is_sel else (0.90 if is_hover else 0.80)
 				draw_texture_rect(_card_frame_tex, Rect2(cx, cy, _CW, _CH), false,
 						Color(1.0, 1.0, 1.0, alpha))
-				# Tint branca sobre a imagem dos tubos quando cursor está aqui
+				# Tint branca só nos pixels da textura dos tubos (segundo draw sobre mesma área)
 				if is_cursor:
-					draw_rect(Rect2(cx, cy, _CW, _CH), Color(1.0, 1.0, 1.0, 0.35))
+					draw_texture_rect(_card_frame_tex, Rect2(cx, cy, _CW, _CH), false,
+							Color(1.0, 1.0, 1.0, 0.45))
 			else:
 				var bg_mul: float = 0.28 if is_sel else 0.16
 				draw_rect(Rect2(cx, cy, _CW, _CH),
