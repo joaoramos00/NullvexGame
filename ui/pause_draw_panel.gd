@@ -198,10 +198,6 @@ func _draw_power_grid(fnt: Font) -> void:
 			if is_hover:
 				draw_rect(Rect2(cx + 3.0, cy + 3.0, _CW - 6.0, _CH - 6.0),
 						Color(1.0, 1.0, 1.0, 0.06))
-			# Cursor de navegação — borda branca
-			if is_cursor:
-				draw_rect(Rect2(cx - 3.0, cy - 3.0, _CW + 6.0, _CH + 6.0),
-						Color(1.0, 1.0, 1.0, 0.90), false, 3.0)
 			# Flash de confirmação — clareia o interior brevemente ao confirmar
 			if is_sel and _sel_flash > 0.0:
 				draw_rect(Rect2(cx + 3.0, cy + 3.0, _CW - 6.0, _CH - 6.0),
