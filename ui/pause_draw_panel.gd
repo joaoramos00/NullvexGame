@@ -214,11 +214,12 @@ func _draw_power_grid(fnt: Font) -> void:
 
 			# Sprite
 			if _placeholder_tex != null:
+				var spr_tint := Color(0.40, 0.62, 0.22, 1.0) if is_cursor else Color(1.0, 1.0, 1.0, 1.0)
 				var pivot := Vector2(cx + _SPR_X + _SPR * 0.5, cy + _SPR_Y + _SPR * 0.5)
 				draw_set_transform(pivot, -PI * 0.5, Vector2.ONE)
 				draw_texture_rect_region(_placeholder_tex,
 						Rect2(-_SPR * 0.5, -_SPR * 0.5, _SPR, _SPR),
-						Rect2(0, 0, 32, 32))
+						Rect2(0, 0, 32, 32), spr_tint)
 				draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 
 			# Nome do ataque/elemento — topo do card
