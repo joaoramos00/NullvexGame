@@ -185,6 +185,9 @@ func _draw_power_grid(fnt: Font) -> void:
 				var alpha := 1.0 if is_sel else (0.90 if is_hover else 0.80)
 				draw_texture_rect(_card_frame_tex, Rect2(cx, cy, _CW, _CH), false,
 						Color(1.0, 1.0, 1.0, alpha))
+				# Tint branca sobre a imagem dos tubos quando cursor está aqui
+				if is_cursor:
+					draw_rect(Rect2(cx, cy, _CW, _CH), Color(1.0, 1.0, 1.0, 0.35))
 			else:
 				var bg_mul: float = 0.28 if is_sel else 0.16
 				draw_rect(Rect2(cx, cy, _CW, _CH),
@@ -194,10 +197,8 @@ func _draw_power_grid(fnt: Font) -> void:
 			if is_hover:
 				draw_rect(Rect2(cx + 3.0, cy + 3.0, _CW - 6.0, _CH - 6.0),
 						Color(1.0, 1.0, 1.0, 0.06))
-			# Cursor de navegação — fundo branco suave + borda branca
+			# Cursor de navegação — borda branca
 			if is_cursor:
-				draw_rect(Rect2(cx + 3.0, cy + 3.0, _CW - 6.0, _CH - 6.0),
-						Color(1.0, 1.0, 1.0, 0.14))
 				draw_rect(Rect2(cx - 3.0, cy - 3.0, _CW + 6.0, _CH + 6.0),
 						Color(1.0, 1.0, 1.0, 0.90), false, 3.0)
 			# Flash de confirmação — clareia o interior brevemente ao confirmar
