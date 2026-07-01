@@ -308,8 +308,10 @@ func _physics_process(delta: float) -> void:
 func _handle_shooting(delta: float) -> void:
     if is_dead:
         return
-    if Input.is_action_just_pressed("special"):
+    if GameManager.selected_boss_ability != "" \
+            and Input.is_action_just_pressed("attack"):
         _use_special_ability()
+        return
     if Input.is_action_just_pressed("attack"):
         _is_charging = true
         _last_charge_level = 1
