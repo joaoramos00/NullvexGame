@@ -31,7 +31,6 @@ func _ready() -> void:
 	cs.shape = rect
 	add_child(cs)
 	body_entered.connect(_on_body_entered)
-	_spawn_burst()  # burst imediato ao spawnar
 
 	_ray_floor = RayCast2D.new()
 	_ray_floor.collision_mask = 1
@@ -42,6 +41,13 @@ func _ready() -> void:
 	_ray_wall.collision_mask = 1
 	_ray_wall.target_position = Vector2(dir * (_WAVE_W * 0.5 + 8.0), 0.0)
 	add_child(_ray_wall)
+
+	# Se já há parede à frente, iniciar direto no modo parede
+	_ray_wall.force_raycast_update()
+	if _ray_wall.is_colliding():
+		_switch_to_wall()
+
+	_spawn_burst()  # burst imediato (posição correta para o modo já definido)
 
 func _physics_process(delta: float) -> void:
 	var moved: float = speed * delta
