@@ -456,9 +456,9 @@ func _use_special_ability() -> bool:
 func _fire_walk() -> void:
     var dir_f: float = 1.0 if facing_right else -1.0
     var wave_h: float = 56.0
-    var floor_y: float = global_position.y + 20.0
+    var floor_y: float = global_position.y + 40.0  # bottom of Zael's capsule (height=80)
     var despawn_x: float = global_position.x + dir_f * 2048.0
-    for i: int in 4:
+    for i: int in 3:
         if i > 0:
             await get_tree().create_timer(0.10).timeout
         if is_dead:
@@ -472,7 +472,7 @@ func _fire_walk() -> void:
         wave.set("wave_w", 90.0)
         wave.set("wave_h", wave_h)
         wave.set("despawn_x", despawn_x)
-        wave.global_position = Vector2(global_position.x + dir_f * 50.0, floor_y)
+        wave.global_position = Vector2(global_position.x + dir_f * 50.0, floor_y - wave_h * 0.5)
         get_parent().add_child(wave)
 
 func _fire(level: int) -> void:
