@@ -52,8 +52,9 @@ const _C_TANK:     Color = Color(0.25, 0.62, 1.00, 1.00)
 
 var current_player: Node = null
 var sel_idx: int = 0       # index na nav list (compatibilidade pause_menu)
-var sel_grid: int = 0      # slot 0-8 na grade 3x3
-var _hover_grid: int = -1  # card sob o cursor (-1 = nenhum)
+var sel_grid: int = 0      # slot confirmado (GameManager.selected_boss_ability)
+var cursor_grid: int = 0   # slot sob o cursor de navegação (não confirmado)
+var _hover_grid: int = -1  # card sob o cursor do mouse (-1 = nenhum)
 var _sel_flash: float = 0.0  # 1.0 → 0.0 ao selecionar novo slot
 
 # Cached textures — never load inside _draw() (breaks web export)
@@ -84,11 +85,14 @@ func _process(delta: float) -> void:
 		_sel_flash = maxf(_sel_flash - delta * 4.0, 0.0)
 		queue_redraw()
 
-func move_grid(dx: int, dy: int) -> void:
-	var col: int = (sel_grid % _COLS + dx + _COLS) % _COLS
-	var row: int = (sel_grid / _COLS + dy + _ROWS) % _ROWS
-	print("[draw_panel] move_grid dx=%d dy=%d  %d→%d" % [dx, dy, sel_grid, row * _COLS + col])
-	_select_grid(row * _COLS + col)
+func move_cursor(dx: int, dy: int) -> void:
+	var col: int = (cursor_grid % _COLS + dx + _COLS) % _COLS
+	var row: int = (cursor_grid / _COLS + dy + _ROWS) % _ROWS
+	cursor_grid = row * _COLS + col
+	queue_redraw()
+
+func confirm_cursor() -> void:
+	_select_grid(cursor_grid)
 
 func _build_nav() -> Array:
 	var nav: Array = [""]
@@ -172,8 +176,9 @@ func _draw_power_grid(fnt: Font) -> void:
 		var bc: Color   = slot["color"] as Color
 
 		var is_unlocked: bool = true # DEBUG: mostrar todos ativos
-		var is_sel: bool = i == sel_grid
-		var is_hover: bool = i == _hover_grid and not is_sel
+		var is_sel: bool    = i == sel_grid
+		var is_cursor: bool = i == cursor_grid and not is_sel
+		var is_hover: bool  = i == _hover_grid and not is_sel and not is_cursor
 
 		if is_unlocked:
 			if _card_frame_tex != null:
@@ -189,14 +194,21 @@ func _draw_power_grid(fnt: Font) -> void:
 			if is_hover:
 				draw_rect(Rect2(cx + 3.0, cy + 3.0, _CW - 6.0, _CH - 6.0),
 						Color(1.0, 1.0, 1.0, 0.06))
-			# Flash de seleção — clareia o interior brevemente ao mudar de slot
+			# Cursor de navegação — fundo branco suave + borda branca
+			if is_cursor:
+				draw_rect(Rect2(cx + 3.0, cy + 3.0, _CW - 6.0, _CH - 6.0),
+						Color(1.0, 1.0, 1.0, 0.14))
+				draw_rect(Rect2(cx - 3.0, cy - 3.0, _CW + 6.0, _CH + 6.0),
+						Color(1.0, 1.0, 1.0, 0.90), false, 3.0)
+			# Flash de confirmação — clareia o interior brevemente ao confirmar
 			if is_sel and _sel_flash > 0.0:
 				draw_rect(Rect2(cx + 3.0, cy + 3.0, _CW - 6.0, _CH - 6.0),
 						Color(1.0, 1.0, 1.0, _sel_flash * 0.30))
-			# Borda rosa externa
-			var pink_alpha := 1.0 if is_sel else (0.75 if is_hover else 0.45)
-			draw_rect(Rect2(cx - 3.0, cy - 3.0, _CW + 6.0, _CH + 6.0),
-					Color(1.0, 0.30, 0.65, pink_alpha), false, 3.0)
+			# Borda rosa — só no slot confirmado
+			if not is_cursor:
+				var pink_alpha := 1.0 if is_sel else (0.75 if is_hover else 0.45)
+				draw_rect(Rect2(cx - 3.0, cy - 3.0, _CW + 6.0, _CH + 6.0),
+						Color(1.0, 0.30, 0.65, pink_alpha), false, 3.0)
 
 			const _PADH: float  = 108.0  # distância lateral
 			const _PADV: float  = 72.0   # distância vertical
@@ -261,7 +273,7 @@ func _draw_power_grid(fnt: Font) -> void:
 					Color(bc.r * 0.38, bc.g * 0.38, bc.b * 0.38, 1.0))
 
 	draw_string(fnt, Vector2(_GX, _GY + _GRID_H + 16.0),
-			"Q ◀  selecionar habilidade  ▶ E",
+			"Q ◀  navegar  ▶ E      Z = confirmar",
 			HORIZONTAL_ALIGNMENT_LEFT, _GRID_W, 14, _C_LABEL)
 
 func _draw_status(fnt: Font) -> void:
