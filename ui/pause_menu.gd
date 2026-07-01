@@ -38,16 +38,19 @@ func _unhandled_input(event: InputEvent) -> void:
 		return
 	match ke.keycode:
 		KEY_LEFT, KEY_Q:
-			_draw_panel.move_grid(-1, 0)
+			_draw_panel.move_cursor(-1, 0)
 			get_viewport().set_input_as_handled()
 		KEY_RIGHT, KEY_E:
-			_draw_panel.move_grid(1, 0)
+			_draw_panel.move_cursor(1, 0)
 			get_viewport().set_input_as_handled()
 		KEY_UP:
-			_draw_panel.move_grid(0, -1)
+			_draw_panel.move_cursor(0, -1)
 			get_viewport().set_input_as_handled()
 		KEY_DOWN:
-			_draw_panel.move_grid(0, 1)
+			_draw_panel.move_cursor(0, 1)
+			get_viewport().set_input_as_handled()
+		KEY_Z:
+			_draw_panel.confirm_cursor()
 			get_viewport().set_input_as_handled()
 
 func toggle_pause() -> void:
@@ -69,6 +72,7 @@ func _sync_state() -> void:
 	for i: int in 9:
 		if (_draw_panel._SLOTS[i]["boss_id"] as String) == cur:
 			_draw_panel.sel_grid = i
+			_draw_panel.cursor_grid = i
 			break
 	var players: Array = get_tree().get_nodes_in_group("player")
 	_draw_panel.current_player = players[0] if not players.is_empty() else null
