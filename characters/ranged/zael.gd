@@ -466,6 +466,7 @@ func _fire_walk() -> void:
     wave.set("wave_w", 90.0)
     wave.set("wave_h", wave_h)
     wave.set("max_bursts", 3)
+    wave.set("follow_floor", true)
     wave.set("despawn_x", global_position.x + dir_f * 2048.0)
     wave.global_position = Vector2(global_position.x + dir_f * 50.0, floor_y - wave_h * 0.5)
     get_parent().add_child(wave)
