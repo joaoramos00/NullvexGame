@@ -61,11 +61,13 @@ var _sel_flash: float = 0.0  # 1.0 → 0.0 ao selecionar novo slot
 var _placeholder_tex: Texture2D = null
 var _bg_tex: Texture2D = null
 var _card_frame_tex: Texture2D = null
+var _fire_wave_tex: Texture2D = null
 
 func _ready() -> void:
 	_placeholder_tex = load("res://assets/buster/buster_L1.png")
 	_bg_tex = load("res://assets/ui/pause_bg.png")
 	_card_frame_tex = load("res://assets/ui/pause_card_pipes.png")
+	_fire_wave_tex = load("res://characters/bosses/ignarath/fx_ground_burst.png")
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	focus_mode = Control.FOCUS_NONE
@@ -215,8 +217,11 @@ func _draw_power_grid(fnt: Font) -> void:
 			const _SPR_Y: float = _PADV
 
 			# Sprite
-			if _placeholder_tex != null:
-				var pivot := Vector2(cx + _SPR_X + _SPR * 0.5, cy + _SPR_Y + _SPR * 0.5)
+			var spr_dest := Rect2(cx + _SPR_X, cy + _SPR_Y, _SPR, _SPR)
+			if bid == "ignarath" and _fire_wave_tex != null:
+				draw_texture_rect_region(_fire_wave_tex, spr_dest, Rect2(0, 0, 64, 64))
+			elif _placeholder_tex != null:
+				var pivot := Vector2(spr_dest.get_center())
 				draw_set_transform(pivot, -PI * 0.5, Vector2.ONE)
 				draw_texture_rect_region(_placeholder_tex,
 						Rect2(-_SPR * 0.5, -_SPR * 0.5, _SPR, _SPR),
