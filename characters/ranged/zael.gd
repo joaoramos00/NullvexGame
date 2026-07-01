@@ -449,6 +449,9 @@ func _use_special_ability() -> void:
         _fire_walk()
 
 func _fire_walk() -> void:
+    _is_shooting = true
+    _shoot_timer = _SHOOT_DURATIONS[0]
+    _sprite.play("shoot_1")
     var dir_f: float = 1.0 if facing_right else -1.0
     var wave_h: float = 56.0
     var floor_y: float = global_position.y + 20.0
