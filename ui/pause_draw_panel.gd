@@ -188,7 +188,7 @@ func _draw_power_grid(fnt: Font) -> void:
 				# Tint branca só nos pixels da textura dos tubos (segundo draw sobre mesma área)
 				if is_cursor:
 					draw_texture_rect(_card_frame_tex, Rect2(cx, cy, _CW, _CH), false,
-							Color(1.0, 1.0, 1.0, 0.45))
+							Color(1.0, 1.0, 1.0, 0.25))
 			else:
 				var bg_mul: float = 0.28 if is_sel else 0.16
 				draw_rect(Rect2(cx, cy, _CW, _CH),
