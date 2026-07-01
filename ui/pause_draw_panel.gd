@@ -23,7 +23,7 @@ const _COLS: int   = 3
 const _ROWS: int   = 3
 const _CW: float   = 520.0
 const _CH: float   = 290.0
-const _CGAP: float = 6.0
+const _CGAP: float = 2.0
 
 const _GRID_W: float = _COLS * _CW + (_COLS - 1) * _CGAP
 const _GRID_H: float = _ROWS * _CH + (_ROWS - 1) * _CGAP
