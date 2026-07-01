@@ -26,14 +26,9 @@ var wave_h: float = 150.0
 var vertical: bool = false     # true = sobe pela parede
 var burst_angle: float = 0.0   # rotação dos bursts (PI/2 para parede esq, -PI/2 para dir)
 var despawn_y: float = -99999.0  # teto de despawn para modo vertical
-var max_bursts: int = -1         # -1 = ilimitado; N = some após N bursts
-var follow_floor: bool = false   # segue o piso e transiciona para parede ao colidir
 var _life: float = 6.0
 var _t: float = 0.0
-var _burst_count: int = 0
 var _dist_since_burst: float = 0.0
-var _ray_floor: RayCast2D = null
-var _ray_wall: RayCast2D = null
 var _start_sprite: Sprite2D = null
 var _body_line: Line2D = null
 var _body_atlas: AtlasTexture = null
@@ -53,15 +48,6 @@ func _ready() -> void:
 	_build_visual()
 	_update_visuals()
 	body_entered.connect(_on_body_entered)
-	if follow_floor and not vertical:
-		_ray_floor = RayCast2D.new()
-		_ray_floor.collision_mask = 1  # world layer
-		_ray_floor.target_position = Vector2(0.0, wave_h * 0.5 + 16.0)
-		add_child(_ray_floor)
-		_ray_wall = RayCast2D.new()
-		_ray_wall.collision_mask = 1
-		_ray_wall.target_position = Vector2(dir * (wave_w * 0.5 + 8.0), 0.0)
-		add_child(_ray_wall)
 
 func _build_visual() -> void:
 	pass  # visual substituído por ground bursts — sprites antigos removidos
@@ -79,17 +65,6 @@ func _physics_process(delta: float) -> void:
 			return
 	else:
 		global_position.x += dir * moved
-		if _ray_floor != null and _ray_floor.is_colliding():
-			global_position.y = _ray_floor.get_collision_point().y - wave_h * 0.5
-		if _ray_wall != null and _ray_wall.is_colliding():
-			vertical = true
-			burst_angle = -dir * PI * 0.5
-			despawn_y = global_position.y - 9999.0
-			_ray_wall.queue_free()
-			_ray_wall = null
-			if _ray_floor != null:
-				_ray_floor.queue_free()
-				_ray_floor = null
 	_dist_since_burst += moved
 	if _dist_since_burst >= _BURST_SPACING:
 		_dist_since_burst -= _BURST_SPACING
@@ -108,10 +83,6 @@ func _on_body_entered(body: Node) -> void:
 		body.take_damage(damage, source_id)
 
 func _spawn_ground_burst() -> void:
-	_burst_count += 1
-	if max_bursts > 0 and _burst_count > max_bursts:
-		queue_free()
-		return
 	var sf := SpriteFrames.new()
 	sf.add_animation("burst")
 	sf.set_animation_loop("burst", false)

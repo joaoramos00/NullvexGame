@@ -13,7 +13,7 @@ const BULLET_SCALE := [
 ]
 
 const _BULLET_SCENE := preload("res://characters/ranged/zael_bullet.tscn")
-const _FIRE_WAVE    := preload("res://characters/bosses/ignarath/fire_wave.gd")
+const _FIRE_WAVE    := preload("res://characters/ranged/player_fire_wave.gd")
 
 const _FRAME_W := 68
 const _FRAME_H := 68
@@ -455,20 +455,12 @@ func _use_special_ability() -> bool:
 
 func _fire_walk() -> void:
     var dir_f: float = 1.0 if facing_right else -1.0
-    var wave_h: float = 56.0
-    var floor_y: float = global_position.y + 40.0  # bottom of Zael's capsule (height=80)
     var wave: Area2D = _FIRE_WAVE.new()
     wave.set("dir", dir_f)
-    wave.set("speed", 300.0)
-    wave.set("damage", 8)
-    wave.set("source_id", "ignarath")
-    wave.set("target_mask", 4)
-    wave.set("wave_w", 90.0)
-    wave.set("wave_h", wave_h)
-    wave.set("max_bursts", 3)
-    wave.set("follow_floor", true)
-    wave.set("despawn_x", global_position.x + dir_f * 2048.0)
-    wave.global_position = Vector2(global_position.x + dir_f * 50.0, floor_y - wave_h * 0.5)
+    # pés da cápsula (height=80) → centro da onda = pés - wave_h/2
+    wave.global_position = Vector2(
+        global_position.x + dir_f * 50.0,
+        global_position.y + 40.0 - 28.0)
     get_parent().add_child(wave)
 
 func _fire(level: int) -> void:
