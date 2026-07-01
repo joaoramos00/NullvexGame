@@ -460,7 +460,7 @@ func _fire_walk() -> void:
     # pés da cápsula (height=80) → centro da onda = pés - wave_h/2
     # shape offset 42 + capsule half-height 40 = pés em y+82; centro da onda = pés - wave_h/2
     wave.global_position = Vector2(
-        global_position.x + dir_f * 10.0,
+        global_position.x + dir_f * _SPAWN_OFFSET_X[1],
         global_position.y + 82.0 - 28.0)
     get_parent().add_child(wave)
 
