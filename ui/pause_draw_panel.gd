@@ -206,11 +206,6 @@ func _draw_power_grid(fnt: Font) -> void:
 			if is_sel and _sel_flash > 0.0:
 				draw_rect(Rect2(cx + 3.0, cy + 3.0, _CW - 6.0, _CH - 6.0),
 						Color(1.0, 1.0, 1.0, _sel_flash * 0.30))
-			# Borda rosa — só no slot confirmado
-			if not is_cursor:
-				var pink_alpha := 1.0 if is_sel else (0.75 if is_hover else 0.45)
-				draw_rect(Rect2(cx - 3.0, cy - 3.0, _CW + 6.0, _CH + 6.0),
-						Color(1.0, 0.30, 0.65, pink_alpha), false, 3.0)
 
 			const _PADH: float  = 108.0  # distância lateral
 			const _PADV: float  = 72.0   # distância vertical
