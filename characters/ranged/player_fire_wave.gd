@@ -1,6 +1,7 @@
 extends Area2D
-# Onda de fogo da habilidade Fire Walk do Zael: raspa o chão seguindo o piso,
-# sobe a parede ao colidir, e some após MAX_BURSTS explosões visuais.
+# Onda de fogo da habilidade Fire Walk do Zael.
+# Segue o chão, sobe a parede ao colidir, e volta ao chão quando a parede acaba.
+# Some após MAX_BURSTS explosões visuais.
 
 const _TEX_GROUND_BURST := preload("res://characters/bosses/ignarath/fx_ground_burst.png")
 const _BURST_FRAMES     := 9
@@ -30,10 +31,10 @@ func _ready() -> void:
 	cs.shape = rect
 	add_child(cs)
 	body_entered.connect(_on_body_entered)
-	_spawn_burst()  # burst imediato ao spawnar, sem esperar andar 80px
+	_spawn_burst()  # burst imediato ao spawnar
 
 	_ray_floor = RayCast2D.new()
-	_ray_floor.collision_mask = 1  # world layer
+	_ray_floor.collision_mask = 1
 	_ray_floor.target_position = Vector2(0.0, _WAVE_H * 0.5 + 64.0)
 	add_child(_ray_floor)
 
@@ -46,11 +47,14 @@ func _physics_process(delta: float) -> void:
 	var moved: float = speed * delta
 	if _vertical:
 		global_position.y -= moved
+		# Parede acabou → volta ao chão
+		if _ray_wall != null and not _ray_wall.is_colliding():
+			_switch_to_floor()
 	else:
 		global_position.x += dir * moved
-		if _ray_floor.is_colliding():
+		if _ray_floor != null and _ray_floor.is_colliding():
 			global_position.y = _ray_floor.get_collision_point().y - _WAVE_H * 0.5
-		if _ray_wall.is_colliding():
+		if _ray_wall != null and _ray_wall.is_colliding():
 			_switch_to_wall()
 	_dist_since_burst += moved
 	if _dist_since_burst >= _BURST_SPACING:
@@ -59,10 +63,19 @@ func _physics_process(delta: float) -> void:
 
 func _switch_to_wall() -> void:
 	_vertical = true
-	_ray_wall.queue_free()
-	_ray_wall = null
-	_ray_floor.queue_free()
-	_ray_floor = null
+	# Mantém _ray_wall para detectar quando a parede acaba
+	if _ray_floor != null:
+		_ray_floor.queue_free()
+		_ray_floor = null
+
+func _switch_to_floor() -> void:
+	_vertical = false
+	# Restaura floor following
+	_ray_floor = RayCast2D.new()
+	_ray_floor.collision_mask = 1
+	_ray_floor.target_position = Vector2(0.0, _WAVE_H * 0.5 + 64.0)
+	add_child(_ray_floor)
+	# _ray_wall já existe e agora detecta a próxima parede no nível do chão acima
 
 func _on_body_entered(body: Node) -> void:
 	if body.has_method("take_damage"):
