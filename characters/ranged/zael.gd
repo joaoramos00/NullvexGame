@@ -455,13 +455,28 @@ func _use_special_ability() -> bool:
 
 func _fire_walk() -> void:
     var dir_f: float = 1.0 if facing_right else -1.0
+    const WAVE_H_HALF := 28.0   # player_fire_wave._WAVE_H * 0.5
+    const WAVE_W_HALF := 45.0   # player_fire_wave._WAVE_W * 0.5
+    var wave_center_y: float = global_position.y + 82.0 - WAVE_H_HALF
+
+    # Raycast horizontal para não spawnar além de uma parede próxima
+    var space := get_world_2d().direct_space_state
+    var query := PhysicsRayQueryParameters2D.create(
+        Vector2(global_position.x, wave_center_y),
+        Vector2(global_position.x + dir_f * 120.0, wave_center_y),
+        1)  # world layer
+    var hit := space.intersect_ray(query)
+
+    var spawn_x: float
+    if hit:
+        # Coloca o centro da onda encostado na parede (frente da wave toca a parede)
+        spawn_x = hit.position.x - dir_f * (WAVE_W_HALF + 4.0)
+    else:
+        spawn_x = global_position.x + dir_f * _SPAWN_OFFSET_X[1]
+
     var wave: Area2D = _FIRE_WAVE.new()
     wave.set("dir", dir_f)
-    # pés da cápsula (height=80) → centro da onda = pés - wave_h/2
-    # shape offset 42 + capsule half-height 40 = pés em y+82; centro da onda = pés - wave_h/2
-    wave.global_position = Vector2(
-        global_position.x + dir_f * _SPAWN_OFFSET_X[1],
-        global_position.y + 82.0 - 28.0)
+    wave.global_position = Vector2(spawn_x, wave_center_y)
     get_parent().add_child(wave)
 
 func _fire(level: int) -> void:
