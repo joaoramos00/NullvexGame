@@ -182,11 +182,13 @@ func _draw_power_grid(fnt: Font) -> void:
 
 		if is_unlocked:
 			if _card_frame_tex != null:
+				var cursor_c: Color = Color(0.40, 0.62, 0.22, 1.0) if bid == "" \
+						else Color(bc.r, bc.g, bc.b, 1.0)
 				var tint: Color
 				if is_cursor:
-					tint = Color(bc.r, bc.g, bc.b, 1.0)
+					tint = cursor_c
 				elif is_sel:
-					tint = Color(bc.r * 0.50, bc.g * 0.50, bc.b * 0.50, 1.0)
+					tint = Color(cursor_c.r * 0.50, cursor_c.g * 0.50, cursor_c.b * 0.50, 1.0)
 				else:
 					tint = Color(1.0, 1.0, 1.0, 0.80)
 				draw_texture_rect(_card_frame_tex, Rect2(cx, cy, _CW, _CH), false, tint)
@@ -214,12 +216,11 @@ func _draw_power_grid(fnt: Font) -> void:
 
 			# Sprite
 			if _placeholder_tex != null:
-				var spr_tint := Color(0.40, 0.62, 0.22, 1.0) if is_cursor else Color(1.0, 1.0, 1.0, 1.0)
 				var pivot := Vector2(cx + _SPR_X + _SPR * 0.5, cy + _SPR_Y + _SPR * 0.5)
 				draw_set_transform(pivot, -PI * 0.5, Vector2.ONE)
 				draw_texture_rect_region(_placeholder_tex,
 						Rect2(-_SPR * 0.5, -_SPR * 0.5, _SPR, _SPR),
-						Rect2(0, 0, 32, 32), spr_tint)
+						Rect2(0, 0, 32, 32))
 				draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 
 			# Nome do ataque/elemento — topo do card
