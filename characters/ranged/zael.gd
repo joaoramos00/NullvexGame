@@ -13,6 +13,7 @@ const BULLET_SCALE := [
 ]
 
 const _BULLET_SCENE := preload("res://characters/ranged/zael_bullet.tscn")
+const _FIRE_WAVE    := preload("res://characters/bosses/ignarath/fire_wave.gd")
 
 const _FRAME_W := 68
 const _FRAME_H := 68
@@ -307,6 +308,8 @@ func _physics_process(delta: float) -> void:
 func _handle_shooting(delta: float) -> void:
     if is_dead:
         return
+    if Input.is_action_just_pressed("special"):
+        _use_special_ability()
     if Input.is_action_just_pressed("attack"):
         _is_charging = true
         _last_charge_level = 1
@@ -437,6 +440,33 @@ static func get_charge_level(timer: float) -> int:
     if timer >= CHARGE_L2_THRESHOLD:
         return 2
     return 1
+
+func _use_special_ability() -> void:
+    var bid: String = GameManager.selected_boss_ability
+    if bid == "ignarath" and GameManager.use_ability_ammo("ignarath"):
+        _fire_walk()
+
+func _fire_walk() -> void:
+    var dir_f: float = 1.0 if facing_right else -1.0
+    var wave_h: float = 56.0
+    var floor_y: float = global_position.y + 20.0
+    var despawn_x: float = global_position.x + dir_f * 2048.0
+    for i: int in 4:
+        if i > 0:
+            await get_tree().create_timer(0.10).timeout
+        if is_dead:
+            return
+        var wave: Area2D = _FIRE_WAVE.new()
+        wave.set("dir", dir_f)
+        wave.set("speed", 300.0)
+        wave.set("damage", 8)
+        wave.set("source_id", "ignarath")
+        wave.set("target_mask", 4)
+        wave.set("wave_w", 90.0)
+        wave.set("wave_h", wave_h)
+        wave.set("despawn_x", despawn_x)
+        wave.global_position = Vector2(global_position.x + dir_f * 50.0, floor_y)
+        get_parent().add_child(wave)
 
 func _fire(level: int) -> void:
     assert(level >= 1 and level <= 3, "charge level deve ser 1, 2 ou 3")

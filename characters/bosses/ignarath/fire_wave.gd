@@ -19,6 +19,7 @@ var dir: float = 1.0           # +1 direita, -1 esquerda
 var speed: float = 300.0
 var damage: int = 12
 var source_id: String = "ignarath"
+var target_mask: int = 2       # 2=player (Ignarath→player), 4=enemy (player ability→enemy)
 var despawn_x: float = 0.0
 var wave_w: float = 90.0
 var wave_h: float = 150.0
@@ -37,7 +38,7 @@ var _frame_h: float = 0.0
 
 func _ready() -> void:
 	collision_layer = 0
-	collision_mask = 2             # só detecta o player (layer 2)
+	collision_mask = target_mask
 	var cs := CollisionShape2D.new()
 	cs.name = "CollisionShape2D"
 	var rect := RectangleShape2D.new()
