@@ -26,8 +26,10 @@ var wave_h: float = 150.0
 var vertical: bool = false     # true = sobe pela parede
 var burst_angle: float = 0.0   # rotação dos bursts (PI/2 para parede esq, -PI/2 para dir)
 var despawn_y: float = -99999.0  # teto de despawn para modo vertical
+var max_bursts: int = -1         # -1 = ilimitado; N = some após N bursts
 var _life: float = 6.0
 var _t: float = 0.0
+var _burst_count: int = 0
 var _dist_since_burst: float = 0.0
 var _start_sprite: Sprite2D = null
 var _body_line: Line2D = null
@@ -83,6 +85,10 @@ func _on_body_entered(body: Node) -> void:
 		body.take_damage(damage, source_id)
 
 func _spawn_ground_burst() -> void:
+	_burst_count += 1
+	if max_bursts > 0 and _burst_count > max_bursts:
+		queue_free()
+		return
 	var sf := SpriteFrames.new()
 	sf.add_animation("burst")
 	sf.set_animation_loop("burst", false)
