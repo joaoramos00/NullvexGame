@@ -20,6 +20,7 @@ func _ready() -> void:
 	$ButtonBar/StageSelectButton.pressed.connect(_on_stage_select_pressed)
 	$ButtonBar/MainMenuButton.pressed.connect(_on_main_menu_pressed)
 	_pause_btn.pressed.connect(toggle_pause)
+	_pause_btn.focus_mode = Control.FOCUS_NONE
 
 func _input(event: InputEvent) -> void:
 	var is_toggle: bool = event.is_action_just_pressed("pause")
@@ -62,7 +63,6 @@ func toggle_pause() -> void:
 	if _is_paused:
 		_sync_state()
 		_draw_panel.queue_redraw()
-		_pause_btn.grab_focus()
 
 func _sync_state() -> void:
 	var nav: Array = _get_nav_list()
