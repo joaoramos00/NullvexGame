@@ -5,7 +5,7 @@ extends Control
 # "" = primary slot (always unlocked)
 const _SLOTS: Array = [
 	{"boss_id": "",          "label": "PRIMARY",  "elem": "",       "color": Color(0.85, 0.90, 1.00)},
-	{"boss_id": "ignarath",  "label": "IGNARATH", "elem": "FOGO",   "color": Color(1.00, 0.35, 0.10)},
+	{"boss_id": "ignarath",  "label": "IGNARATH", "elem": "FIRE WALK", "color": Color(1.00, 0.35, 0.10)},
 	{"boss_id": "cryovex",   "label": "CRYOVEX",  "elem": "GELO",   "color": Color(0.30, 0.85, 1.00)},
 	{"boss_id": "voltrix",   "label": "VOLTRIX",  "elem": "RAIO",   "color": Color(1.00, 1.00, 0.20)},
 	{"boss_id": "gravitus",  "label": "GRAVITUS", "elem": "GRAV.",  "color": Color(0.75, 0.30, 1.00)},
