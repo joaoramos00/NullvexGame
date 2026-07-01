@@ -33,7 +33,7 @@ func _ready() -> void:
 
 	_ray_floor = RayCast2D.new()
 	_ray_floor.collision_mask = 1  # world layer
-	_ray_floor.target_position = Vector2(0.0, _WAVE_H * 0.5 + 16.0)
+	_ray_floor.target_position = Vector2(0.0, _WAVE_H * 0.5 + 64.0)
 	add_child(_ray_floor)
 
 	_ray_wall = RayCast2D.new()
