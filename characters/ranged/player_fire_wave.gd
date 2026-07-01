@@ -30,6 +30,7 @@ func _ready() -> void:
 	cs.shape = rect
 	add_child(cs)
 	body_entered.connect(_on_body_entered)
+	_spawn_burst()  # burst imediato ao spawnar, sem esperar andar 80px
 
 	_ray_floor = RayCast2D.new()
 	_ray_floor.collision_mask = 1  # world layer
