@@ -183,6 +183,61 @@ func _draw() -> void:
 	super._draw()       # terreno/lava/plataformas (pula o perímetro do boss via skip_base_draw)
 	_draw_boss_room()
 	_draw_stage01_ceilings()
+	_draw_z4_footholds()
+
+# Saliências do shaft: nub de 1 tile projetando da parede, desenhado num grid de
+# MEIA-célula (32 world px = 16 src px, mesma escala 2x do resto). A arte dos tiles
+# fica em quadrantes/metades ((0,0) sólido no quadrante inf-esq, faces sólidas em
+# meia-largura etc. — medido no PNG), então compomos quadrantes: coluna da parede =
+# borda reta (topo/fill/fundo), coluna exposta = cantos convexos arredondados + face.
+func _draw_z4_footholds() -> void:
+	var tex := _cached_override_tex(_Z1_TILE_PATH)
+	if tex == null:
+		return
+	for f in _Z4_FOOTHOLDS:
+		var side: String = f[3]
+		var wall_x: float = f[1]
+		var cy: float = f[2]
+		var h: float = f[4]
+		var x: float = wall_x if side == "L" else wall_x - 64.0
+		_draw_foothold_tiles(Rect2(x, cy - h * 0.5, 64.0, h), tex, side)
+
+func _draw_foothold_tiles(rect: Rect2, tex: Texture2D, side: String) -> void:
+	var hs := 32.0   # meia-célula no mundo
+	var q  := 16.0   # quadrante no src (metade de _SRC_TS)
+	var rows := int(round(rect.size.y / hs))
+	# Offsets (px no tileset) do quadrante de cada papel. Cantos convexos: (0,0) quad
+	# inf-esq, (1,3) quad inf-dir, (0,2) quad sup-dir, (3,3) quad sup-esq. Faces:
+	# (3,2) metade esq (borda à dir), (1,0) metade dir (borda à esq). Retas: (3,0)
+	# metade inferior (crosta no topo), (1,2) metade superior (borda embaixo).
+	var s_fill := Vector2(2 * 32 + 8, 1 * 32 + 8)   # miolo do fill (2,1)
+	var s_top_w: Vector2; var s_top_c: Vector2; var s_face: Vector2
+	var s_bot_w: Vector2; var s_bot_c: Vector2
+	if side == "L":
+		s_top_w = Vector2(3 * 32,      16)            # topo reto: (3,0) quad inf-esq
+		s_top_c = Vector2(0,           16)            # canto sup-dir: (0,0) quad inf-esq
+		s_face  = Vector2(3 * 32,      2 * 32 + 8)    # face dir: (3,2) metade esq
+		s_bot_w = Vector2(1 * 32,      2 * 32)        # fundo reto: (1,2) quad sup-esq
+		s_bot_c = Vector2(3 * 32,      3 * 32)        # canto inf-dir: (3,3) quad sup-esq
+	else:
+		s_top_w = Vector2(3 * 32 + 16, 16)            # topo reto: (3,0) quad inf-dir
+		s_top_c = Vector2(1 * 32 + 16, 3 * 32 + 16)   # canto sup-esq: (1,3) quad inf-dir
+		s_face  = Vector2(1 * 32 + 16, 8)             # face esq: (1,0) metade dir
+		s_bot_w = Vector2(1 * 32 + 16, 2 * 32)        # fundo reto: (1,2) quad sup-dir
+		s_bot_c = Vector2(16,          2 * 32)        # canto inf-esq: (0,2) quad sup-dir
+	var wall_col := 0 if side == "L" else 1
+	for r in rows:
+		for c in 2:
+			var src: Vector2
+			if r == 0:
+				src = s_top_w if c == wall_col else s_top_c
+			elif r == rows - 1:
+				src = s_bot_w if c == wall_col else s_bot_c
+			else:
+				src = s_fill if c == wall_col else s_face
+			draw_texture_rect_region(tex,
+				Rect2(rect.position.x + c * hs, rect.position.y + r * hs, hs, hs),
+				Rect2(src, Vector2(q, q)))
 
 # Tetos das zonas 1-3 e da área secreta: tile (1,2) via room-tiles.
 func _draw_stage01_ceilings() -> void:
@@ -552,7 +607,10 @@ func _z4_foothold(n: String, wall_x: float, cy: float, side: String, h: float = 
 	const DEPTH := 64.0
 	var cx: float = wall_x + DEPTH * 0.5 if side == "L" else wall_x - DEPTH * 0.5
 	var b := _z2_static(n, Vector2(cx, cy), Vector2(DEPTH, h))
-	b.set_meta("lava_override", _Z1_TILE_PATH)   # rocha da zona 1 (só visual)
+	# skip_base_draw: desenho próprio com cantos convexos em _draw_z4_footholds().
+	# O modo "lava" genérico desenhava topo+fill sem cantos e, pelo mínimo de 7
+	# linhas, transbordava ~350px de tile abaixo da saliência.
+	b.set_meta("skip_base_draw", true)
 	return b
 
 func _build_z4_shaft() -> void:
@@ -618,7 +676,9 @@ func _build_z4_shaft() -> void:
 		if _old_p:
 			_old_p.free()   # free imediato: queue_free é deferido e causaria rename silencioso (cf. _z4_spawn_flyer)
 		var pb := _z3_static_floor(p[0], Vector2(p[1], p[2] + p[4] * 0.5), Vector2(p[3], p[4]))
-		pb.set_meta("lava_override", _Z1_TILE_PATH)   # rocha da zona 1 (só visual)
+		# Modo PLATFORM com a rocha z1: bordas de ponta (0,0)/(1,3) nas extremidades.
+		# (lava_override desenhava a faixa de topo reta, sem cantos nas pontas.)
+		pb.set_meta("platform_override", _Z1_TILE_PATH)
 	# Rests do terço superior DESMORONAM (crumbling_ledge: cai 0.5s após o pouso,
 	# respawn 1.2s): meio do zigue-zague do seg3 e limite seg3/seg4.
 	_z4_crumble("Z4Crumble3", Vector2(17648.0, 122.0), Vector2(128.0, 32.0))
@@ -628,7 +688,10 @@ func _build_z4_shaft() -> void:
 # sobrepostos + visual girado da textura da zona 2.
 # side "R" = parede direita, espinhos apontam pra esquerda; "L" = esquerda, apontam direita.
 func _z4_spike_face(n: String, cx: float, cy: float, w: float, h: float, side: String = "R") -> void:
-	_z4_wall(n, cx, cy, w, h, true)   # parede no_grab
+	# skip_base_draw: o bloco de colisão NÃO desenha tiles — o visual do espinho é só
+	# o PNG (fundo transparente). Sem isso o modo "lava" desenhava um bloco de rocha
+	# atrás dos espinhos e, pelo mínimo de 7 linhas, transbordava ~250px pra baixo.
+	_z4_wall(n, cx, cy, w, h, true).set_meta("skip_base_draw", true)
 	var hurt := Area2D.new()
 	hurt.name = n + "Hurt"
 	hurt.set_script(_LAVA)
@@ -639,8 +702,8 @@ func _z4_spike_face(n: String, cx: float, cy: float, w: float, h: float, side: S
 	hurt.add_child(_z2_shape(Vector2(w, h)))
 	add_child(hurt)
 	# Visual: mesma textura dos espinhos da zona 2 (spikes.png, tips apontando UP).
-	# Rotação +PI/2 (90° horário) → tips apontam ESQUERDA (parede "R").
-	# Rotação -PI/2 (90° anti-horário) → tips apontam DIREITA (parede "L").
+	# Em Godot 2D rotação POSITIVA é horária (y pra baixo): +PI/2 vira tips pra
+	# DIREITA (parede "L") e -PI/2 vira tips pra ESQUERDA (parede "R").
 	# region_rect: h*0.5 px de largura (= h px na escala 2) ao longo da parede,
 	#              32 px de altura (= 64 px na escala 2) = profundidade do espinho.
 	var spr := Sprite2D.new()
@@ -651,7 +714,7 @@ func _z4_spike_face(n: String, cx: float, cy: float, w: float, h: float, side: S
 	spr.region_enabled = true
 	spr.region_rect = Rect2(0.0, 0.0, h * 0.5, 32.0)
 	spr.scale = Vector2(2.0, 2.0)
-	spr.rotation = PI * 0.5 if side == "R" else -PI * 0.5
+	spr.rotation = -PI * 0.5 if side == "R" else PI * 0.5
 	spr.position = Vector2(cx, cy)
 	spr.z_index = 5
 	add_child(spr)
@@ -664,6 +727,9 @@ func _z4_crumble(n: String, center: Vector2, size: Vector2) -> void:
 	body.collision_layer = 1
 	body.collision_mask = 0
 	body.position = center
+	# Mesmo desenho das plataformas de descanso (rocha z1 com pontas); o script
+	# alterna skip_base_draw junto com a colisão p/ o tile sumir quando desmorona.
+	body.set_meta("platform_override", _Z1_TILE_PATH)
 	body.add_child(_z2_shape(size))
 	var det := Area2D.new()
 	det.name = "LandDetector"
