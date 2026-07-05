@@ -6,6 +6,7 @@ var _failed := 0
 func _ready() -> void:
 	test_wall_slide_flag_set_when_on_wall()
 	test_wall_jump_velocity_applied()
+	test_dash_wall_jump()
 	test_no_wall_slide_on_floor()
 	print("Wall Jump Tests: %d passed, %d failed" % [_passed, _failed])
 	get_tree().quit(0 if _failed == 0 else 1)
@@ -34,6 +35,8 @@ func test_wall_slide_flag_set_when_on_wall() -> void:
 	_assert(c.WALL_SLIDE_SPEED == 60.0, "WALL_SLIDE_SPEED == 60.0")
 	_assert(c.WALL_JUMP_H == 300.0, "WALL_JUMP_H == 300.0")
 	_assert(c.WALL_JUMP_V == -500.0, "WALL_JUMP_V == -500.0")
+	_assert(c.WALL_JUMP_H_DASH == 460.0, "WALL_JUMP_H_DASH == 460.0")
+	_assert(c.WALL_GRAB_MAX_RISE == 160.0, "WALL_GRAB_MAX_RISE == 160.0 (agarre subindo p/ parede→parede)")
 	c.queue_free()
 
 func test_wall_jump_velocity_applied() -> void:
@@ -49,6 +52,22 @@ func test_wall_jump_velocity_applied() -> void:
 	_assert(c.velocity.y == -500.0, "Wall jump: velocidade vertical = -500")
 	_assert(c._is_wall_sliding == false, "Wall jump: _is_wall_sliding resetado")
 	_assert(c._wall_jump_lock_timer == c.WALL_JUMP_LOCK, "Wall jump: lockout do air-control ativado (arco diagonal)")
+	_assert(c._wall_jump_dash_speed == 0.0, "Wall jump sem dash: sem boost de air-control")
+	c.queue_free()
+
+func test_dash_wall_jump() -> void:
+	var char_scene := load("res://characters/ranged/zael.tscn") as PackedScene
+	var c := char_scene.instantiate()
+	add_child(c)
+	c._is_wall_sliding = true
+	c._wall_normal = Vector2(1.0, 0.0)
+	Input.action_press("dash")
+	c._apply_wall_jump()
+	Input.action_release("dash")
+	_assert(c.velocity.x == 460.0, "Dash wall jump: velocidade horizontal = 460 (salto mais longo)")
+	_assert(c.velocity.y == -500.0, "Dash wall jump: velocidade vertical = -500 (mesma altura)")
+	_assert(c._wall_jump_lock_timer == c.WALL_JUMP_LOCK_DASH, "Dash wall jump: lockout estendido")
+	_assert(c._wall_jump_dash_speed == 460.0, "Dash wall jump: air-control mantém 460 até pousar/agarrar")
 	c.queue_free()
 
 func test_no_wall_slide_on_floor() -> void:
