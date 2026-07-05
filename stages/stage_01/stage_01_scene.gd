@@ -55,13 +55,16 @@ func _ready() -> void:
 		if node:
 			node.queue_free()
 	# Tetos desenhados com room-tiles (face (1,2)) em _draw_stage01_ceilings()
-	for ceil_n in ["Z1Ceil", "Z2Ceil", "SecretArmorCeil", "Z3Ceil"]:
+	# Só o teto da sala da armadura segue como faixa reta (room-tiles); os tetos
+	# das zonas 1-3 viraram massa que segue o terreno (_build_zone_ceilings).
+	for ceil_n in ["SecretArmorCeil"]:
 		var cn := get_node_or_null(ceil_n)
 		if cn:
 			cn.set_meta("skip_base_draw", true)
 	_build_zone2()
 	_build_zone3()
 	_build_zone4()
+	_build_zone_ceilings()
 	for corr in get_children():
 		if corr is CorridorSection and not corr.is_queued_for_deletion():
 			corr.setup(_player)
@@ -71,6 +74,20 @@ func _ready() -> void:
 	if shaft_area:
 		shaft_area.body_entered.connect(_on_shaft_body_entered)
 		shaft_area.body_exited.connect(_on_shaft_body_exited)
+	# Segredo da armadura (capacete Zael): sala x1632–2944 selada pela CrackedWall
+	# no lado do corredor de descida — coberta de rocha até a parede quebrar,
+	# mesmo padrão do segredo da Z4 (cobre também o coletável e os inimigos de lá).
+	var acover: Node2D = preload("res://stages/secret_cover.gd").new()
+	acover.name = "ArmorSecretCover"
+	acover.tex = _cached_override_tex(_Z1_TILE_PATH)
+	acover.z_index = 7
+	acover.rects = [Rect2(1632.0, 2208.0, 1312.0, 416.0)]
+	add_child(acover)
+	var cw := get_node_or_null("CrackedWall")
+	if cw:
+		cw.connect("wall_destroyed", func():
+			if is_instance_valid(acover):
+				acover.queue_free())
 
 # Arena do boss deslocada -1622 em Y p/ acompanhar o topo do shaft reduzido (y-1026).
 # X inalterado. (tscn y=832 − 1622 = −790.)
@@ -81,64 +98,91 @@ const _BOSS_CEIL_TOP   := -1286.0
 const _BOSS_DOOR_LO    := -1094.0
 const _BOSS_DOOR_HI    := -986.0
 
+# Shaft Z4 — zigue-zague por BAFFLES (pisos de switchback alternados) num envelope
+# CONSTANTE: corpo único de 448px de interior + boca estreita no topo.
+#   Face esquerda fixa x17424 = Z4SecretWR (sela o segredo E é parede de escalada;
+#   a parede #1 quebrável do segredo fica na base — NÃO mover a face).
+#   Face direita fixa x17872 = Z4ShaftWR (corpo); boca x17424–17520 (Z4MouthWR).
+# O zigue-zague geométrico vem dos _Z4_BAFFLES: pisos de 256px presos alternadamente
+# nas paredes, deixando vão de 192px (= alcance de pulo) no lado oposto — o player
+# sobe em S. Envelope constante ⇒ lava única da largura do interior, sem vazamento.
+# Qualquer ±32px em elemento deve ser revalidado com test_z4_shaft_dims (o gate
+# cobre baffles, tiras de espinho sob baffle, saliências e espinhos de parede).
 const _SHAFT_SEGS := [
 	# y_top, y_bot, x_l, x_r  (interior = x_r - x_l)
-	# seg0: parede esq é a #1 quebrável do segredo (face 17424, NÃO mover); sem
-	# projeção no centro, então 192 basta. Demais segs alargados p/ caber saliências
-	# (≥256) e saliência+espinho opostos (≥320). Coluna centrada ~x17520.
-	# ATENÇÃO: espinho+saliência opostos deixam vão livre mínimo de 240px (alcance de
-	# pulo ~196px). Qualquer ±32px num espinho ou foothold deve ser revalidado com
-	# test_z4_shaft_dims antes do commit (o gate cobre as faixas de y com projeção).
-	# TRIPLICADO em ambos os eixos: altura ×3 ancorada no fundo y2208 (shaft cresce p/
-	# cima até y-3336; bloco boss/pré-boss/segredo-topo deslocado -3696 p/ acompanhar),
-	# largura ×3 estendendo a face DIREITA (lado aberto). seg5 (topo) fica estreito:
-	# é a boca de saída p/ a sala pré-boss (x17424–17616).
-	# Face ESQUERDA fixa em 17424 (a parede esq do shaft é o Z4SecretWR do segredo, que
-	# já sela e serve de wall-jump). NÃO há mais Z4ShaftWL (eram redundantes e invadiam
-	# o segredo — as "barras laranja" duplicadas). Direita estendida = folga lateral.
-	[1284.0,  2208.0, 17424.0, 17712.0],   # entrada (tamanho original restaurado)
-	[ 804.0,  1284.0, 17424.0, 17872.0],   # saliência+espinho opostos
-	[ 324.0,   804.0, 17424.0, 17792.0],   # saliência (R)
-	[-156.0,   324.0, 17424.0, 17872.0],   # saliência+espinho opostos
-	[-636.0,  -156.0, 17424.0, 17792.0],   # saliência (R)
-	[-1026.0, -636.0, 17424.0, 17520.0],   # topo (boca pré-boss, estreito)
+	[ -636.0,  2208.0, 17424.0, 17872.0],   # corpo do shaft (448 de interior)
+	[-1026.0,  -636.0, 17424.0, 17520.0],   # boca de saída p/ a sala pré-boss (96)
 ]
 
-# Saliências agarráveis (verde na referência) — wall-grab/jump padrão. Cada uma fica
-# no lado SEGURO do seg, oposta ao espinho que nega a outra parede — a subida vira um
-# zigue-zague: espinho expulsa de uma parede, saliência+rest acolhem na outra.
+# Parede+plataformas do zigue-zague: [nome, side ("L"/"R"), top_y, espinhos embaixo?]
+# Piso pisável de _Z4_WALL_PLAT_DEPTH×32 preso à parede `side` (elemento
+# "Parede+Plat" da skill new-wall-element). Cadência ~480px = rests principais
+# da subida (o primeiro a 448px da entrada — o trecho morto acabou).
+# Espinhos embaixo (1, 2 e 4 = composto "Espinhos Plat"): tira de 128px pendurada
+# na parte INTERNA da base — pune abraçar a parede por baixo do rest; os 128px
+# junto à parede ficam limpos (zona de montaria).
+# Topos SEMPRE ≡ 32 (mod 64): células de junção caem exatas no grid da parede.
+const _Z4_WALL_PLAT_DEPTH := 256.0
+const _Z4_WALL_PLATS := [
+	["Z4WallPlat1", "L", 1760.0, true],    # composto já na 1ª: ensina o espinho embaixo à vista da entrada
+	["Z4WallPlat2", "R", 1312.0, true],
+	["Z4WallPlat3", "L",  800.0, false],
+	["Z4WallPlat4", "R",  352.0, true],
+	["Z4WallPlat5", "L", -160.0, false],
+]
+
+# Saliências agarráveis — apoios de respiro fora dos baffles.
 # [nome, wall_x (face real de _SHAFT_SEGS), cy, side ("L"/"R"), h]
+# Alturas em grid global de 64px (topo ≡32 mod 64): junção e face caem exatos.
+# Foot3/4/5 = topo dos COMPOSTOS das wall plats 2/3/4 (plat → espinho de 1 tile
+# a 2 tiles do topo → saliência flush acima do espinho): o espinho nega o grab
+# da parede logo acima do rest; a saliência é o ponto de regrab após o wall-kick.
 const _Z4_FOOTHOLDS := [
-	["Z4Foot1", 17872.0, 1044.0, "R", 96.0],    # seg1 dir — oposta ao 1º espinho (esq)
-	["Z4Foot2", 17424.0,  564.0, "L", 96.0],    # seg2 esq — espinho nega a direita
-	["Z4Foot3", 17872.0,  164.0, "R", 96.0],    # seg3 dir — apoio do zigue-zague interno
-	["Z4Foot4", 17424.0, -560.0, "L", 96.0],    # seg4 esq — lançamento p/ a boca (seg5)
+	["Z4Foot1", 17872.0, 1984.0, "R", 64.0],   # trecho de entrada (antes do WallPlat1); topo 1952
+	["Z4Foot2", 17872.0, -320.0, "R", 64.0],   # respiro da reta final; topo -352
+	["Z4Foot3", 17872.0, 1088.0, "R", 64.0],   # composto WallPlat2 (topo 1056)
+	["Z4Foot4", 17424.0,  576.0, "L", 64.0],   # composto WallPlat3 (topo 544)
+	["Z4Foot5", 17872.0,  128.0, "R", 64.0],   # composto WallPlat4 (topo 96)
 ]
 
-# Espinhos instant-kill (vermelho na referência) — projetam da face da parede e negam
-# o wall-grab dela. Progressão: 1 por seg com lados alternados (segs 1-2, ensino) →
-# 2 por seg escalonados (seg3) → 2 por seg com banda de y SOBREPOSTA (seg4: y-430..-400
-# nega as duas paredes ao mesmo tempo; passa-se saltando pelo vão central de 240px).
-# [nome, wall_x (face real), cy, side, h]
+# Espinhos instant-kill nas FACES das paredes — negam a parede errada em cada
+# trecho ("a parede certa é a oposta à parede+plat de onde você saiu"). O 1º
+# perigo da subida é a tira sob o WallPlat1 (composto), não um espinho de parede.
+# Clímax na reta final: L4 nega a esquerda (y-280..-480) e R4 a direita
+# (y-476..-636) em bandas escalonadas → troca obrigatória pivotando no Z4Crumble2.
+# [nome, wall_x (face real; o helper converte pro centro), cy, side, h]
 const _Z4_SPIKES := [
-	["Z4SpikeL1", 17424.0, 1044.0, "L", 200.0],   # seg1 esq — nega o "elevador" da parede esq
-	["Z4SpikeR2", 17792.0,  604.0, "R", 200.0],   # seg2 dir — alterna o lado
-	["Z4SpikeL3", 17424.0,  260.0, "L", 200.0],   # seg3 esq ┐ zigue-zague dentro do seg
-	["Z4SpikeR3", 17872.0,  -60.0, "R", 200.0],   # seg3 dir ┘ (escalonados)
-	["Z4SpikeL4", 17424.0, -330.0, "L", 200.0],   # seg4 esq ┐ banda y-430..-400 sobreposta
-	["Z4SpikeR4", 17792.0, -500.0, "R", 200.0],   # seg4 dir ┘ (salto pelo meio)
+	# Espinhos de 1 tile dos COMPOSTOS (junto à plat, 2 tiles acima do topo =
+	# 128px de folga p/ ficar em pé; saliência Foot3/4/5 flush acima de cada um):
+	["Z4SpikeR2", 17872.0, 1152.0, "R", 64.0],    # composto WallPlat2 (banda 1120-1184)
+	["Z4SpikeL3", 17424.0,  640.0, "L", 64.0],    # composto WallPlat3 (banda 608-672)
+	["Z4SpikeR3", 17872.0,  192.0, "R", 64.0],    # composto WallPlat4 (banda 160-224)
+	# Reta final (clímax): bandas escalonadas → troca de parede no Z4Crumble2.
+	["Z4SpikeL4", 17424.0, -380.0, "L", 200.0],   # reta final ┐
+	["Z4SpikeR4", 17872.0, -556.0, "R", 160.0],   # reta final ┘ (flush no teto -636)
 ]
 
-# Plataformas andáveis (amarelo na referência) — rests no lado SEGURO do seg (oposto
-# ao espinho dele). No terço superior os rests sólidos dão lugar aos crumbles
-# Z4Crumble3/4 (criados em _build_z4_shaft; desmoronam 0.5s após o pouso, respawn 1.2s).
+# Plataformas sólidas avulsas: só o apoio da boca (os demais rests viraram baffles).
 # [nome, cx, cy(topo), w, h]
 const _Z4_PLATFORMS := [
-	["Z4Plat1", 17792.0,  924.0, 160.0, 32.0],    # seg1, encostada à dir (lado seguro)
-	["Z4Plat2", 17504.0,  444.0, 160.0, 32.0],    # seg2, encostada à esq (lado seguro)
-	["Z4Plat4", 17504.0, -496.0, 160.0, 32.0],    # seg4, encostada à esq, sob a Z4Foot4
-	["Z4Plat5", 17472.0, -846.0,  64.0, 32.0],    # seg5 topo (estreita, 64px p/ caber em 96px)
+	["Z4Plat5", 17472.0, -846.0, 64.0, 32.0],   # boca (estreita, 64px p/ caber em 96px)
 ]
+
+# Crumbles (desmoronam 0.5s após o pouso, respawn 1.2s) — pousos transitórios:
+# 1 = estreia isolada da mecânica (ANTES da aceleração da lava, uma novidade por
+# vez); 2 = pivô da troca de parede no clímax (entre as bandas L4/R4).
+# [nome, cx, top_y, w]
+const _Z4_CRUMBLES := [
+	["Z4Crumble1", 17560.0,   60.0, 128.0],
+	["Z4Crumble2", 17648.0, -420.0, 128.0],
+]
+
+# Lava-chase: pressão constante; acelera só na reta final (topo do WallPlat5),
+# DEPOIS da estreia dos crumbles em y60.
+const _Z4_LAVA_RISE_SPEED := 70.0
+const _Z4_LAVA_FAST_SPEED := 105.0
+const _Z4_LAVA_ACCEL_Y    := -160.0
+const _Z4_LAVA_CAP_Y      := -958.0
 
 # A luta do Ignarath só começa quando o player ENTRA na sala pela porta lateral,
 # não por proximidade — senão o boss ataca enquanto o player ainda está no corredor.
@@ -183,13 +227,98 @@ func _draw() -> void:
 	super._draw()       # terreno/lava/plataformas (pula o perímetro do boss via skip_base_draw)
 	_draw_boss_room()
 	_draw_stage01_ceilings()
+	_draw_zone_ceilings()
+	_draw_z4_shaft_walls()
 	_draw_z4_footholds()
+	_draw_z4_wall_plats()
 
 # Saliências do shaft: nub de 1 tile projetando da parede, desenhado num grid de
 # MEIA-célula (32 world px = 16 src px, mesma escala 2x do resto). A arte dos tiles
 # fica em quadrantes/metades ((0,0) sólido no quadrante inf-esq, faces sólidas em
 # meia-largura etc. — medido no PNG), então compomos quadrantes: coluna da parede =
 # borda reta (topo/fill/fundo), coluna exposta = cantos convexos arredondados + face.
+# Paredes do shaft com COLUNA DE FACE a cavalo da linha de colisão (metade rocha
+# dentro do corpo, metade transparente dentro do shaft): a rocha visível fica
+# exatamente na colisão E a junção dos elementos pode SUBSTITUIR o tile de face,
+# aplicando literalmente a tabela do grupo "Parede" do imgdebug (skill
+# new-wall-element). Face esq (3,2) / dir (1,0); miolo (2,1) atrás.
+# Extensões espelham os corpos criados em _build_z4_shaft/_build_z4_secret.
+func _draw_z4_shaft_walls() -> void:
+	var tex := _cached_override_tex(_Z1_TILE_PATH)
+	if tex == null:
+		return
+	# Lado de FORA do shaft: preenchimento com o miolo (2,1), desenhado ANTES
+	# das colunas de face. Direita da parede direita até x18192 (além do alcance
+	# da câmera travada; -668 = topo do Z4TopCap, sem cobrir a arte dele) e o
+	# bolsão morto à direita da boca (entre o teto e o piso da sala pré-boss).
+	# O lado esquerdo NÃO é preenchido: é o interior da passagem secreta.
+	_z4_fill_rect(tex, Rect2(17872.0, -668.0, 320.0, 3004.0))   # x17872-18192, y-668..2336
+	_z4_fill_rect(tex, Rect2(17584.0, -946.0, 608.0, 278.0))    # bolsão da boca, y-946..-668
+	# [face_x, y_top, y_bot, side ("L" = parede à esquerda do shaft)]
+	for w: Array in [
+		[17424.0, -1042.0, 1900.0, "L"],   # Z4SecretWR (corpo + boca, lado esq)
+		[17872.0,  -636.0, 2208.0, "R"],   # Z4ShaftWR  (corpo, lado dir)
+		[17520.0, -1026.0, -636.0, "R"],   # Z4MouthWR  (boca, lado dir)
+	]:
+		_z4_draw_wall_face(tex, w[0], w[1], w[2], w[3])
+
+# Retângulo de preenchimento com o miolo (2,1) — rocha sólida fora do shaft.
+func _z4_fill_rect(tex: Texture2D, rect: Rect2) -> void:
+	var ts := _TS
+	var sts := _SRC_TS
+	var y := rect.position.y
+	while y < rect.end.y:
+		var dh := minf(ts, rect.end.y - y)
+		var x := rect.position.x
+		while x < rect.end.x:
+			var dw := minf(ts, rect.end.x - x)
+			draw_texture_rect_region(tex, Rect2(x, y, dw, dh),
+				Rect2(2.0 * sts, 1.0 * sts, sts * dw / ts, sts * dh / ts))
+			x += ts
+		y += ts
+
+func _z4_draw_wall_face(tex: Texture2D, face_x: float, y0: float, y1: float, side: String) -> void:
+	var ts := _TS
+	var sts := _SRC_TS
+	var face_src := Rect2(3.0 * sts, 2.0 * sts, sts, sts) if side == "L" \
+			else Rect2(1.0 * sts, 0.0, sts, sts)
+	var fx: float = face_x - 32.0                                  # coluna de face a cavalo
+	var slice_x: float = face_x - ts if side == "L" else face_x + 32.0   # miolo restante (32px)
+	# Células no GRID GLOBAL de 64 (yc ≡ 0 mod 64), com clip nas pontas: as
+	# células de junção dos elementos (topos ≡ 32 mod 64) caem exatas na grade.
+	var yc: float = floorf(y0 / ts) * ts
+	while yc < y1:
+		var seg_top: float = maxf(yc, y0)
+		var seg_bot: float = minf(yc + ts, y1)
+		if seg_bot > seg_top:
+			var v0: float = (seg_top - yc) / ts * sts
+			var sh: float = (seg_bot - seg_top) / ts * sts
+			draw_texture_rect_region(tex, Rect2(fx, seg_top, ts, seg_bot - seg_top),
+				Rect2(face_src.position + Vector2(0.0, v0), Vector2(sts, sh)))
+			draw_texture_rect_region(tex, Rect2(slice_x, seg_top, 32.0, seg_bot - seg_top),
+				Rect2(2.0 * sts + 8.0, 1.0 * sts + v0, sts * 0.5, sh))   # fatia do miolo (2,1)
+		yc += ts
+
+# Junção côncava SUBSTITUINDO o tile de face na coluna a cavalo, na linha do
+# topo e da base do elemento (tabela da skill): esq (2,0)/(3,1); dir (1,1)/(2,2).
+# Células centradas nas superfícies (a linha de rocha dos tiles fica no meio da
+# célula, como a crosta (3,0) — todos da mesma fileira do tileset se alinham).
+func _z4_draw_wall_junction(tex: Texture2D, face_x: float, side: String,
+		top: float, bottom: float) -> void:
+	var ts := _TS
+	var sts := _SRC_TS
+	var fx: float = face_x - 32.0
+	if side == "L":
+		draw_texture_rect_region(tex, Rect2(fx, top - 32.0, ts, ts),
+			Rect2(2.0 * sts, 0.0, sts, sts))          # (2,0) topo
+		draw_texture_rect_region(tex, Rect2(fx, bottom - 32.0, ts, ts),
+			Rect2(3.0 * sts, 1.0 * sts, sts, sts))    # (3,1) base
+	else:
+		draw_texture_rect_region(tex, Rect2(fx, top - 32.0, ts, ts),
+			Rect2(1.0 * sts, 1.0 * sts, sts, sts))    # (1,1) topo
+		draw_texture_rect_region(tex, Rect2(fx, bottom - 32.0, ts, ts),
+			Rect2(2.0 * sts, 2.0 * sts, sts, sts))    # (2,2) base
+
 func _draw_z4_footholds() -> void:
 	var tex := _cached_override_tex(_Z1_TILE_PATH)
 	if tex == null:
@@ -200,7 +329,10 @@ func _draw_z4_footholds() -> void:
 		var cy: float = f[2]
 		var h: float = f[4]
 		var x: float = wall_x if side == "L" else wall_x - 64.0
-		_draw_foothold_tiles(Rect2(x, cy - h * 0.5, 64.0, h), tex, side)
+		var top: float = cy - h * 0.5
+		_draw_foothold_tiles(Rect2(x, top, 64.0, h), tex, side)
+		# Junção substituindo o tile de face na coluna a cavalo (regra da skill).
+		_z4_draw_wall_junction(tex, wall_x, side, top, top + h)
 
 func _draw_foothold_tiles(rect: Rect2, tex: Texture2D, side: String) -> void:
 	var hs := 32.0   # meia-célula no mundo
@@ -239,11 +371,167 @@ func _draw_foothold_tiles(rect: Rect2, tex: Texture2D, side: String) -> void:
 				Rect2(rect.position.x + c * hs, rect.position.y + r * hs, hs, hs),
 				Rect2(src, Vector2(q, q)))
 
-# Tetos das zonas 1-3 e da área secreta: tile (1,2) via room-tiles.
+# Parede+plats desenhadas como plataforma PRESA na parede (tabela da skill
+# new-wall-element / grupo "Parede" do imgdebug): fileira de crosta (3,0) com
+# ponta arredondada SÓ no lado externo (shim + canto, mesmo padrão do
+# _draw_platform_tiles); no lado da parede a crosta encosta reta na face e a
+# junção côncava vai na coluna de face — esq: (2,0) topo / (3,1) base;
+# dir: (1,1) topo / (2,2) base. Cada lado tem peças próprias, nunca flipar.
+func _draw_z4_wall_plats() -> void:
+	var tex := _cached_override_tex(_Z1_TILE_PATH)
+	if tex == null:
+		return
+	var ts := _TS
+	var sts := _SRC_TS
+	var xl: float = _SHAFT_SEGS[0][2]
+	var xr: float = _SHAFT_SEGS[0][3]
+	for bf in _Z4_WALL_PLATS:
+		var side: String = bf[1]
+		var top: float = bf[2]
+		var x0: float = xl if side == "L" else xr - _Z4_WALL_PLAT_DEPTH
+		var cols := int(_Z4_WALL_PLAT_DEPTH / ts)
+		# Duas fileiras de arte (tabela do usuário): A = [top-32, top+32] com
+		# crosta (3,0) e canto externo (0,0)/(1,3); B = [top+32, top+96] com
+		# fundo (1,2) e canto externo (3,3)/(0,2). Rocha visível [top, top+64]
+		# = colisão. Células no grid global de 64 (mesmo das paredes).
+		for row in 2:
+			var dy: float = top - sts + row * ts
+			var straight := Vector2(3.0 * sts, 0.0) if row == 0 else Vector2(1.0 * sts, 2.0 * sts)
+			var cap: Vector2
+			if side == "L":
+				cap = Vector2(0.0, 0.0) if row == 0 else Vector2(3.0 * sts, 3.0 * sts)
+			else:
+				cap = Vector2(1.0 * sts, 3.0 * sts) if row == 0 else Vector2(0.0, 2.0 * sts)
+			for c in cols:
+				var dx: float = x0 + c * ts
+				var outer: bool = (c == cols - 1) if side == "L" else (c == 0)
+				if not outer:
+					draw_texture_rect_region(tex, Rect2(dx, dy, ts, ts),
+						Rect2(straight, Vector2(sts, sts)))
+					continue
+				if side == "L":
+					# ponta à DIREITA: shim (metade dir da reta) + metade esq do canto
+					draw_texture_rect_region(tex, Rect2(dx, dy, ts * 0.5, ts),
+						Rect2(straight + Vector2(sts * 0.5, 0.0), Vector2(sts * 0.5, sts)))
+					draw_texture_rect_region(tex, Rect2(dx + ts * 0.5, dy, ts * 0.5, ts),
+						Rect2(cap, Vector2(sts * 0.5, sts)))
+				else:
+					# ponta à ESQUERDA: canto deslocado meia célula pra fora + shim
+					draw_texture_rect_region(tex, Rect2(dx - ts * 0.5, dy, ts, ts),
+						Rect2(cap, Vector2(sts, sts)))
+					draw_texture_rect_region(tex, Rect2(dx + ts * 0.5, dy, ts * 0.5, ts),
+						Rect2(straight, Vector2(sts * 0.5, sts)))
+		# Junção substituindo o tile de face na coluna a cavalo (regra da skill):
+		# topo em [top-32, top+32], base em [top+32, top+96] — mesmas células
+		# das fileiras A/B, encaixe exato no grid da parede.
+		_z4_draw_wall_junction(tex, xl if side == "L" else xr, side, top, top + 64.0)
+
+# ─── Tetos das zonas 1-3 no estilo stage 00 ─────────────────────────────────
+# Teto que ACOMPANHA o perfil do terreno a folga ~328px (arredondada: superfícies
+# em múltiplos de 64 = fim das fileiras da massa bate exato na colisão), com
+# aberturas nas transições. Colisão = um StaticBody2D por zona com SegmentShape2D
+# (só a superfície inferior — sem paredes invisíveis nos degraus, cf. stage 00);
+# visual = massa de rocha até acima do alcance da câmera, marching-squares com
+# curvas côncavas (3,1)/(2,2) nos degraus.
+# [x0, x1, y_surface, com_colisão] — o trecho 4416-5984 da Z2 é o teto-armadilha
+# dos elevadores (Z2Ceiling+Z2Spikes, corpo próprio): a massa só desenha por
+# cima dele (até y2048), sem colisão nova.
+const _CEIL_SEGS := {
+	"Z1": [
+		[ 448.0, 1024.0,  576.0, true],    # Plat1 (912)
+		[1024.0, 1600.0,  512.0, true],    # MovPlat1 (829) + Plat2 (816)
+		[1600.0, 1856.0,  448.0, true],    # MovPlat2 (758)
+		[1856.0, 2240.0,  384.0, true],    # Plat3 (720)
+		[2240.0, 2944.0,  320.0, true],    # MovPlat3 (629) + Plat4 (624)
+		[2944.0, 3328.0,  448.0, true],    # boca do shaft de descida (pinch preservado)
+	],
+	"Z2": [
+		[3328.0, 4416.0, 2304.0, true],    # entrada + rafts (piso 2624)
+		[4416.0, 5984.0, 2048.0, false],   # teto-armadilha dos elevadores (corpo próprio)
+		[5984.0, 9792.0, 2304.0, true],    # ledges + saída até o Corridor1
+	],
+	"Z3": [
+		[10752.0, 11776.0, 2304.0, true],
+		[11776.0, 12352.0, 2240.0, true],  # refúgio Z3Ref12080 (topo 2540) + aberturas
+		[12352.0, 12736.0, 2304.0, true],
+		[12736.0, 13312.0, 2240.0, true],  # Z3Ref13040
+		[13312.0, 13696.0, 2304.0, true],
+		[13696.0, 14272.0, 2240.0, true],  # Z3Ref14000
+		[14272.0, 16384.0, 2304.0, true],
+	],
+}
+const _CEIL_TOP := { "Z1": 64.0, "Z2": 1728.0, "Z3": 1728.0 }
+
+func _build_zone_ceilings() -> void:
+	# Substitui o Z1Ceil reto do .tscn (Z2Ceil/Z3Ceil já eram removidos pelos
+	# rebuilds das zonas 2/3).
+	var old := get_node_or_null("Z1Ceil")
+	if old:
+		old.queue_free()
+	for zk: String in _CEIL_SEGS:
+		var body := StaticBody2D.new()
+		body.name = "%sCeilSegs" % zk
+		body.collision_layer = 1
+		body.collision_mask = 0
+		add_child(body)
+		for s: Array in _CEIL_SEGS[zk]:
+			if not (s[3] as bool):
+				continue
+			var cs := CollisionShape2D.new()
+			var sh := SegmentShape2D.new()
+			sh.a = Vector2(s[0], s[2])
+			sh.b = Vector2(s[1], s[2])
+			cs.shape = sh
+			body.add_child(cs)
+
+func _ceil_surface_at(zk: String, wx: float) -> float:
+	for s: Array in _CEIL_SEGS[zk]:
+		if wx >= (s[0] as float) and wx < (s[1] as float):
+			return s[2]
+	return -1.0   # fora do alcance do teto
+
+func _ceil_solid(zk: String, wx: float, y: float) -> bool:
+	var yb := _ceil_surface_at(zk, wx)
+	return yb > 0.0 and y < yb
+
+func _draw_zone_ceilings() -> void:
+	var ts := _TS
+	var sts := _SRC_TS
+	for zk: String in _CEIL_SEGS:
+		var segs: Array = _CEIL_SEGS[zk]
+		var x0f: float = segs[0][0]
+		var x1f: float = segs[segs.size() - 1][1]
+		var tex := _get_zone_tileset(Vector2((x0f + x1f) * 0.5, segs[0][2]))
+		if tex == null:
+			continue
+		var y_top: float = _CEIL_TOP[zk]
+		var x := x0f
+		while x < x1f:
+			var yb := _ceil_surface_at(zk, x)
+			var y := y_top
+			while y < yb:
+				var ed := not _ceil_solid(zk, x, y + ts)
+				var el := not _ceil_solid(zk, x - ts, y)
+				var er := not _ceil_solid(zk, x + ts, y)
+				var tile: Vector2i
+				if   ed and el: tile = Vector2i(0, 2)
+				elif ed and er: tile = Vector2i(3, 3)
+				elif ed:        tile = Vector2i(1, 2)
+				elif el:        tile = Vector2i(1, 0)
+				elif er:        tile = Vector2i(3, 2)
+				elif not _ceil_solid(zk, x - ts, y + ts): tile = Vector2i(2, 2)
+				elif not _ceil_solid(zk, x + ts, y + ts): tile = Vector2i(3, 1)
+				else:           tile = Vector2i(2, 1)
+				draw_texture_rect_region(tex, Rect2(x, y, ts, ts),
+					Rect2(tile.x * sts, tile.y * sts, sts, sts))
+				y += ts
+			x += ts
+
+# Teto da sala da armadura secreta: tile (1,2) via room-tiles (faixa reta).
 func _draw_stage01_ceilings() -> void:
 	var ts     := _TS
 	var src_ts := _SRC_TS
-	for n_name in ["Z1Ceil", "Z2Ceil", "SecretArmorCeil", "Z3Ceil"]:
+	for n_name in ["SecretArmorCeil"]:
 		var node := get_node_or_null(n_name)
 		if not is_instance_valid(node):
 			continue
@@ -585,12 +873,17 @@ func _build_zone4() -> void:
 	_build_z4_secret()
 	# Tile da zona 1 também nas paredes/pisos ESTRUTURAIS do shaft (sem override antes
 	# usavam o tile z4 laranja/vulcânico, destoando das paredes de escalada já em z1).
-	for n in ["Z4ShaftEntry", "Z4SecretWL", "Z4SecretWR", "Z4SecretFloor",
+	# Z4SecretWR fica FORA da lista: é a parede esquerda do shaft, desenhada com
+	# coluna de face em _draw_z4_shaft_walls (junção substitui o tile de face).
+	for n in ["Z4ShaftEntry", "Z4SecretWL", "Z4SecretFloor",
 			"Z4CollectFloorL", "Z4CollectFloorR", "Z4CollectWL", "Z4CollectCeil",
 			"Z4PreL", "Z4PreR"]:
 		var b := get_node_or_null(n)
 		if b:
 			b.set_meta("lava_override", _Z1_TILE_PATH)
+	var swr := get_node_or_null("Z4SecretWR")
+	if swr:
+		swr.set_meta("skip_base_draw", true)
 
 func _z4_wall(n: String, cx: float, cy: float, w: float, h: float, no_grab := false) -> StaticBody2D:
 	var b := _z2_static(n, Vector2(cx, cy), Vector2(w, h))
@@ -614,80 +907,138 @@ func _z4_foothold(n: String, wall_x: float, cy: float, side: String, h: float = 
 	return b
 
 func _build_z4_shaft() -> void:
-	for i in _SHAFT_SEGS.size():
-		var s = _SHAFT_SEGS[i]
-		var yt: float = s[0]; var yb: float = s[1]; var xl: float = s[2]; var xr: float = s[3]
-		var h: float = yb - yt
-		var cy: float = (yt + yb) * 0.5
-		# Parede ESQUERDA do shaft = Z4SecretWR (montado em _build_z4_secret, x17360–17424):
-		# sela o segredo E serve de wall-jump. Não criamos Z4ShaftWL (eram redundantes e
-		# invadiam o segredo). Só a parede DIREITA por seg.
-		_z4_wall("Z4ShaftWR%d" % i, xr + 32.0, cy, 64.0, h)       # parede direita (grabbable)
-		# Cap de transição: quando o xr muda entre segs adjacentes (degrau), um bloco
-		# horizontal no-grab sela o degrau na borda inferior (yb) deste seg. Sem ele,
-		# o topo da parede do seg inferior fica exposto como ledge acessível a partir do
-		# seg superior (alargamento) ou cria um vão entre as duas faces (estreitamento).
-		if i > 0:
-			var xr_below: float = _SHAFT_SEGS[i - 1][3]   # xr do seg ABAIXO (maior y)
-			if xr != xr_below:
-				var xr_min := minf(xr, xr_below)
-				var xr_max := maxf(xr, xr_below)
-				_z4_wall("Z4Trans%d" % i, (xr_min + xr_max) * 0.5, yb, xr_max - xr_min, 32.0, true)
-	# Piso de ENTRADA: liga o topo da escada (step3, x17056–17184) à boca do shaft,
-	# cobrindo o antigo buraco da passagem secreta. O player anda da escada direto pro
-	# shaft pelo vão da parede #1 (y2056–2208) e faz wall-jump pra cima. topo y2208.
-	# Extendido à direita: esq x17000 → dir x17712 (face interna WR0 do seg0) pra tapar o
-	# buraco de 96px que existia no canto inferior direito da entrada do shaft.
-	_z3_static_floor("Z4ShaftEntry", Vector2(17356.0, 2272.0), Vector2(712.0, 128.0))
-	# lava única (chase) cobrindo o shaft
-	# Shaft 3× alto → lava sobe até o topo (cap -3200), 3× mais rápido. Largura = seg0
-	# (boca de entrada, x17424–18000) pra NÃO vazar além das paredes (z_index=1 renderiza
-	# na frente; lava mais larga aparecia como coluna laranja fora da parede).
-	var lava := _z4_lava("Z4ShaftLava", "chase", 17568.0, 2360.0, 288.0, 3400.0)
-	# Ritmo: 70 px/s pressiona sem alcançar uma subida limpa (~150-200 px/s de escalada);
-	# acelera p/ 105 no terço superior (y<324 = seg3+), onde os rests desmoronam.
-	lava.set("rise_speed", 70.0)
-	lava.set("cap_y", -958.0)
-	lava.set("accel_y", 324.0)
-	lava.set("accel_speed", 105.0)
-	# gatilho na ENTRADA do shaft (boca de baixo, dentro da coluna seg0) → a lava só
-	# começa a subir quando o player de fato entra no shaft. Antes ela espera parada em
-	# low_y (2360), 152px abaixo do piso do shaft (2208), sem aparecer na coluna.
+	var body: Array = _SHAFT_SEGS[0]
+	var mouth: Array = _SHAFT_SEGS[1]
+	var b_yt: float = body[0]; var b_yb: float = body[1]
+	var b_xl: float = body[2]; var b_xr: float = body[3]
+	var m_yt: float = mouth[0]; var m_xr: float = mouth[3]
+	# Parede ESQUERDA = Z4SecretWR (montada em _build_z4_secret, face x17424,
+	# y-1042..1900): sela o segredo e cobre todo o corpo do shaft. Abaixo de y1900
+	# fica a boca de entrada (vão da parede #1), como sempre foi.
+	# Parede DIREITA única do corpo (grabbable) — envelope constante, sem degraus.
+	# skip_base_draw: paredes do shaft têm desenho próprio com coluna de face
+	# em _draw_z4_shaft_walls (junção dos elementos substitui o tile de face).
+	_z4_wall("Z4ShaftWR", b_xr + 32.0, (b_yt + b_yb) * 0.5, 64.0, b_yb - b_yt) \
+		.set_meta("skip_base_draw", true)
+	# Boca do topo: parede direita própria + teto com abertura à esquerda (a subida
+	# termina na face esquerda, que segue reta pra dentro da boca).
+	_z4_wall("Z4MouthWR", m_xr + 32.0, (m_yt + b_yt) * 0.5, 64.0, b_yt - m_yt) \
+		.set_meta("skip_base_draw", true)
+	var cap := _z2_static("Z4TopCap", Vector2((m_xr + b_xr) * 0.5, b_yt - 16.0),
+		Vector2(b_xr - m_xr, 32.0))
+	cap.add_to_group("no_wall_grab")
+	# platform_override, NUNCA lava_override em corpo de 32px (min-7 transborda ~200px)
+	cap.set_meta("platform_override", _Z1_TILE_PATH)
+	# Piso de ENTRADA: da escada (x17000) até a parede direita do corpo — fecha o
+	# fundo do envelope de 448px. topo y2208; entrada pelo vão da parede #1 (y2056–2208).
+	_z3_static_floor("Z4ShaftEntry", Vector2((17000.0 + b_xr) * 0.5, 2272.0),
+		Vector2(b_xr - 17000.0, 128.0))
+	# Lava única (chase) da largura do interior: com o envelope constante nada vaza
+	# pelas laterais (acima do teto -636 a sobra fica atrás da sala pré-boss, fora
+	# de vista, como no layout antigo).
+	var lava := _z4_lava("Z4ShaftLava", "chase", (b_xl + b_xr) * 0.5, 2360.0,
+		b_xr - b_xl, 3400.0)
+	# Ritmo: 70 px/s pressiona sem alcançar subida limpa (~150-200 px/s de escalada);
+	# acelera p/ 105 só na reta final (topo do WallPlat5) — depois da estreia dos crumbles.
+	lava.set("rise_speed", _Z4_LAVA_RISE_SPEED)
+	lava.set("cap_y", _Z4_LAVA_CAP_Y)
+	lava.set("accel_y", _Z4_LAVA_ACCEL_Y)
+	lava.set("accel_speed", _Z4_LAVA_FAST_SPEED)
+	# gatilho na ENTRADA do shaft → a lava só sobe quando o player entra de fato.
+	# Antes ela espera parada em low_y (2360), 152px abaixo do piso (2208).
 	var trig := Area2D.new()
 	trig.name = "Z4ChaseTrigger"
 	trig.collision_layer = 0
 	trig.collision_mask = 2
-	trig.position = Vector2(17568, 2150)
-	trig.add_child(_z2_shape(Vector2(288, 116)))
+	trig.position = Vector2((b_xl + b_xr) * 0.5, 2150.0)
+	trig.add_child(_z2_shape(Vector2(b_xr - b_xl, 116.0)))
 	add_child(trig)
 	trig.body_entered.connect(func(b): if b is CharacterBase: lava.call("activate"))
 	# Ao morrer, a lava-chase volta ao fundo e desliga (senão respawna já no alto e
 	# mata o player em loop). Re-ativa quando ele reentra no Z4ChaseTrigger.
 	if is_instance_valid(_player):
 		_player.died.connect(func(): lava.call("reset"))
-	# Saliências, espinhos e plataformas: tabelas (fonte única, validadas por
-	# test_z4_shaft_dims). wall_x das tabelas é uma face real de _SHAFT_SEGS.
+	# Elementos do shaft: tabelas (fonte única, validadas por test_z4_shaft_dims).
+	for bf in _Z4_WALL_PLATS:
+		_z4_wall_plat(bf[0], bf[1], bf[2], bf[3])
 	for f in _Z4_FOOTHOLDS:
 		_z4_foothold(f[0], f[1], f[2], f[3], f[4])
 	for s in _Z4_SPIKES:
-		_z4_spike_face(s[0], s[1] + (32.0 if s[3] == "L" else -32.0), s[2], 64.0, s[4], s[3])
+		_z4_spike_face(s[0], s[1], s[2], s[4], s[3])
 	for p in _Z4_PLATFORMS:
 		var _old_p := get_node_or_null(p[0])
 		if _old_p:
 			_old_p.free()   # free imediato: queue_free é deferido e causaria rename silencioso (cf. _z4_spawn_flyer)
 		var pb := _z3_static_floor(p[0], Vector2(p[1], p[2] + p[4] * 0.5), Vector2(p[3], p[4]))
 		# Modo PLATFORM com a rocha z1: bordas de ponta (0,0)/(1,3) nas extremidades.
-		# (lava_override desenhava a faixa de topo reta, sem cantos nas pontas.)
 		pb.set_meta("platform_override", _Z1_TILE_PATH)
-	# Rests do terço superior DESMORONAM (crumbling_ledge: cai 0.5s após o pouso,
-	# respawn 1.2s): meio do zigue-zague do seg3 e limite seg3/seg4.
-	_z4_crumble("Z4Crumble3", Vector2(17648.0, 122.0), Vector2(128.0, 32.0))
-	_z4_crumble("Z4Crumble4", Vector2(17632.0, -186.0), Vector2(128.0, 32.0))
+	for c in _Z4_CRUMBLES:
+		_z4_crumble(c[0], Vector2(c[1], c[2] + 16.0), Vector2(c[3], 32.0))
+
+# Parede+plataforma do zigue-zague ("Parede+Plat" da skill new-wall-element):
+# piso de switchback preso à parede `side`, deixando vão de (interior − depth)
+# = 192px no lado oposto. Com spikes_under vira o composto "Espinhos Plat":
+# tira de espinhos presa na parte INTERNA da base (128px), mantendo 128px limpos
+# junto à parede — zona de montaria pra subir a parede e pisar sem morrer.
+func _z4_wall_plat(n: String, side: String, top_y: float, spikes_under: bool) -> void:
+	var xl: float = _SHAFT_SEGS[0][2]
+	var xr: float = _SHAFT_SEGS[0][3]
+	var x0: float = xl if side == "L" else xr - _Z4_WALL_PLAT_DEPTH
+	# Espessura 64px = 2 fileiras de arte (tabela do usuário: topo (3,0)+cantos,
+	# base (1,2)+cantos): rocha visível [top, top+64] = colisão, encaixe exato.
+	var b := _z2_static(n, Vector2(x0 + _Z4_WALL_PLAT_DEPTH * 0.5, top_y + 32.0),
+		Vector2(_Z4_WALL_PLAT_DEPTH, 64.0))
+	# Desenho próprio em _draw_z4_wall_plats() (skill new-wall-element): ponta
+	# arredondada só no lado EXTERNO + junção substituindo o tile de face.
+	b.set_meta("skip_base_draw", true)
+	if spikes_under:
+		const STRIP := 128.0   # 2 clusters inteiros de spikes.png (64px cada) — nunca cortar
+		# Meio tile de recuo no canto EXTERNO (regra da skill: o tile de ponta é
+		# ~50% transparente; sem recuo a tira vaza além da rocha visível). A
+		# folga extra fica do lado da parede (zona de montaria: 96px limpos).
+		var s0: float = x0 + 32.0 if side == "R" \
+				else x0 + _Z4_WALL_PLAT_DEPTH - STRIP - 32.0
+		# Base 1/4 de tile EMBUTIDA na rocha (o PNG tem margem transparente na
+		# base; encostada na borda visível os espinhos parecem flutuar) — mesmo
+		# ajuste do modo "Espinhos Plat" do imgdebug.
+		_z4_spikes_under(n + "Spikes", s0, s0 + STRIP, top_y + 48.0)
+
+# Tira de espinhos pendurada na base de uma parede+plat, apontando pra baixo: Area2D
+# instant-kill alinhada às pontas (cobre o corpo todo da tira) + visual do PNG
+# rotacionado 180° — rects sempre positivos + rotation (NUNCA Rect2 com tamanho
+# negativo: no web export o quad aparece duplicado/espelhado).
+func _z4_spikes_under(n: String, x0: float, x1: float, top_y: float) -> void:
+	const DEPTH := 64.0   # 32px src na escala 2 = 1 tile
+	var hurt := Area2D.new()
+	hurt.name = n + "Hurt"
+	hurt.set_script(_LAVA)
+	hurt.collision_layer = 0
+	hurt.collision_mask = 2
+	hurt.set("instant_kill", true)
+	hurt.position = Vector2((x0 + x1) * 0.5, top_y + DEPTH * 0.5)
+	hurt.add_child(_z2_shape(Vector2(x1 - x0, DEPTH)))
+	add_child(hurt)
+	var spr := Sprite2D.new()
+	spr.name = n + "Vis"
+	spr.texture = _SPIKES_TEX
+	spr.centered = true
+	spr.texture_repeat = CanvasItem.TEXTURE_REPEAT_ENABLED
+	spr.region_enabled = true
+	spr.region_rect = Rect2(0.0, 0.0, (x1 - x0) * 0.5, 32.0)
+	spr.scale = Vector2(2.0, 2.0)
+	spr.rotation = PI   # tips do PNG (pra cima) viram pra baixo; padrão simétrico
+	spr.position = Vector2((x0 + x1) * 0.5, top_y + DEPTH * 0.5)
+	spr.z_index = 5
+	add_child(spr)
 
 # Espinho no_wall_grab: parede de colisão (no_grab) + Area2D de kill (lava_floor, instant_kill)
 # sobrepostos + visual girado da textura da zona 2.
 # side "R" = parede direita, espinhos apontam pra esquerda; "L" = esquerda, apontam direita.
-func _z4_spike_face(n: String, cx: float, cy: float, w: float, h: float, side: String = "R") -> void:
+# wall_x = FACE da parede (mesma convenção da tabela e do _z4_foothold) — o centro
+# do bloco de 64px é calculado AQUI, não no call site.
+func _z4_spike_face(n: String, wall_x: float, cy: float, h: float, side: String = "R") -> void:
+	var w := 64.0
+	var cx: float = wall_x + 32.0 if side == "L" else wall_x - 32.0
 	# skip_base_draw: o bloco de colisão NÃO desenha tiles — o visual do espinho é só
 	# o PNG (fundo transparente). Sem isso o modo "lava" desenhava um bloco de rocha
 	# atrás dos espinhos e, pelo mínimo de 7 linhas, transbordava ~250px pra baixo.
@@ -790,9 +1141,11 @@ func _spawn_fire_roster() -> void:
 	_spawn_fire("mortar", "F_Z3Mor1", Vector2(10900, 2560))
 	_spawn_fire("mortar", "F_Z3Mor2", Vector2(12550, 2560))
 	_spawn_fire("mortar", "F_Z3Mor3", Vector2(14400, 2560))
-	_spawn_fire("skimmer", "F_Z3Ski1", Vector2(11600, 2350))
-	_spawn_fire("skimmer", "F_Z3Ski2", Vector2(12900, 2350))
-	_spawn_fire("skimmer", "F_Z3Ski3", Vector2(14200, 2350))
+	# Skimmers desceram 2350→2380: com o teto novo (superfície 2304) o topo da
+	# hitbox deles a 2350 encostava na massa; a 2380 sobra folga de ~28px.
+	_spawn_fire("skimmer", "F_Z3Ski1", Vector2(11600, 2380))
+	_spawn_fire("skimmer", "F_Z3Ski2", Vector2(12900, 2380))
+	_spawn_fire("skimmer", "F_Z3Ski3", Vector2(14200, 2380))
 	_spawn_fire("hopper", "F_Z3Hop1", Vector2(11050, 2560))
 	_spawn_fire("hopper", "F_Z3Hop2", Vector2(13050, 2560))
 	_spawn_fire("hopper", "F_Z3Hop3", Vector2(14900, 2560))
@@ -801,11 +1154,11 @@ func _spawn_fire_roster() -> void:
 	# Z4 — shaft de wall-jump: poucos inimigos e intencionais (o perigo principal é
 	# lava-chase + espinhos instant-kill; densidade alta virava morte barata por knockback).
 	# 5 no shaft + 2 na base/entrada. Um por trecho, guardando um ponto da rota.
-	_spawn_fire("cinder",  "F_Z4Cin1",  Vector2(17560, 1284))   # limite seg0/seg1 (entrada da subida)
-	_spawn_fire("orbiter", "F_Z4Orb1",  Vector2(17648, 1044))   # seg1: entre o espinho esq e a Z4Foot1
-	_spawn_fire("skimmer", "F_Z4Ski1",  Vector2(17700, 890))    # seg1: paira sobre o rest Z4Plat1 (top 924)
-	_spawn_fire("cinder",  "F_Z4Cin2",  Vector2(17660, 150))    # seg3: guarda o zigue-zague (Foot3/Crumble3)
-	_spawn_fire("grunt",   "F_Z4Grunt3", Vector2(17504, -528))  # seg4: sobre o rest Z4Plat4 (top -496)
+	_spawn_fire("cinder",  "F_Z4Cin1",  Vector2(17560, 1284))   # junto ao WallPlat2 (guarda a montaria)
+	_spawn_fire("orbiter", "F_Z4Orb1",  Vector2(17648, 1044))   # entre WallPlat2 e WallPlat3
+	_spawn_fire("skimmer", "F_Z4Ski1",  Vector2(17700, 890))    # vão da direita, sob o WallPlat3
+	_spawn_fire("cinder",  "F_Z4Cin2",  Vector2(17660, 150))    # entre WallPlat4 e o Z4Crumble1
+	_spawn_fire("grunt",   "F_Z4Grunt3", Vector2(17520, -192))  # sobre o WallPlat5 (top -160)
 	_spawn_fire("grunt",   "F_Z4Grunt1", Vector2(16400, 2540))  # base / escada Z4
 	_spawn_fire("grunt",   "F_Z4Grunt2", Vector2(17100, 2140))  # entrada do shaft
 
@@ -951,6 +1304,23 @@ func _build_z4_secret() -> void:
 	# Parede #2 (SUPERIOR) — slot direito da câmara do coletável.
 	# Separa o segredo da sala pré-boss / topo do shaft. Quebra só de DENTRO (detector "L").
 	_z4_cracked("Z4Crack2", Vector2(17392.0, -1098.0), Vector2(64.0, 224.0), "left", "L")   # cx 17412→17392: face dir em x17424 (flush c/ parede esq do shaft)
+	# Cobertura de rocha sobre TODO o interior (coluna + câmara): o segredo só é
+	# revelado quando a parede #1 quebra. O tint das paredes quebráveis fica fora
+	# das rects — a pista visual da parede continua visível pelo lado do shaft.
+	var cover: Node2D = preload("res://stages/secret_cover.gd").new()
+	cover.name = "Z4SecretCover"
+	cover.tex = _cached_override_tex(_Z1_TILE_PATH)
+	cover.z_index = 7
+	cover.rects = [
+		Rect2(17000.0, -986.0, 360.0, 3050.0),   # coluna (interior x17000–17360, y-986..2064)
+		Rect2(16800.0, -1210.0, 560.0, 224.0),   # câmara do coletável (interior)
+	]
+	add_child(cover)
+	var crack1 := get_node_or_null("Z4Crack1")
+	if crack1:
+		crack1.connect("wall_destroyed", func():
+			if is_instance_valid(cover):
+				cover.queue_free())
 
 # Parede quebrável (cracked_wall.gd): corpo sólido + HitDetector Area2D só no lado
 # permitido. det_side "R"/"L" posiciona o detector à direita/esquerda; break_side

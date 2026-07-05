@@ -1,31 +1,37 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="18670.67 -4016 3825.33 1264" width="2800" height="925" font-family="monospace">
-<rect x="18670.67" y="-4016" width="3825.33" height="1264" fill="#0a0a12"/>
-<rect x="18964" y="-3472" width="2688" height="216" fill="#f28c26" fill-opacity="0.82" stroke="#f7b472" stroke-width="2"/>
-<rect x="18966" y="-3470" width="112.16" height="30" fill="#000000" fill-opacity="0.7"/>
-<text x="18970" y="-3446" font-size="24" fill="#f7b472">zone011</text>
-<rect x="18900" y="-3256" width="2816" height="64" fill="#8c8c8c" fill-opacity="0.82" stroke="#b4b4b4" stroke-width="2"/>
-<rect x="18902" y="-3254" width="127.04" height="30" fill="#000000" fill-opacity="0.7"/>
-<text x="18906" y="-3230" font-size="24" fill="#b4b4b4">floor005</text>
-<rect x="18900" y="-3920" width="2816" height="64" fill="#334db3" fill-opacity="0.82" stroke="#7a8bcd" stroke-width="2"/>
-<rect x="18902" y="-3918" width="112.16" height="30" fill="#000000" fill-opacity="0.7"/>
-<text x="18906" y="-3894" font-size="24" fill="#7a8bcd">ceil005</text>
-<rect x="21684" y="-3888" width="64" height="664" fill="#4d80f2" fill-opacity="0.82" stroke="#8bacf7" stroke-width="2"/>
-<rect x="21686" y="-3886" width="112.16" height="30" fill="#000000" fill-opacity="0.7"/>
-<text x="21690" y="-3862" font-size="24" fill="#8bacf7">wall009</text>
-<rect x="18868" y="-3920" width="64" height="448" fill="#4d80f2" fill-opacity="0.82" stroke="#8bacf7" stroke-width="2"/>
-<rect x="18870" y="-3918" width="112.16" height="30" fill="#000000" fill-opacity="0.7"/>
-<text x="18874" y="-3894" font-size="24" fill="#8bacf7">wall008</text>
-<rect x="18766.67" y="-3484" width="66.67" height="200" fill="#f2d933" fill-opacity="0.82" stroke="#f7e67a" stroke-width="2"/>
-<rect x="18768.67" y="-3482" width="112.16" height="30" fill="#000000" fill-opacity="0.7"/>
-<text x="18772.67" y="-3458" font-size="24" fill="#f7e67a">door004</text>
-<rect x="19968" y="-2880" width="384" height="32" fill="#4dd959" fill-opacity="0.82" stroke="#8be693" stroke-width="2"/>
-<rect x="19970" y="-2878" width="112.16" height="30" fill="#000000" fill-opacity="0.7"/>
-<text x="19974" y="-2854" font-size="24" fill="#8be693">plat010</text>
-<rect x="22016" y="-2880" width="384" height="32" fill="#4dd959" fill-opacity="0.82" stroke="#8be693" stroke-width="2"/>
-<rect x="22018" y="-2878" width="112.16" height="30" fill="#000000" fill-opacity="0.7"/>
-<text x="22022" y="-2854" font-size="24" fill="#8be693">plat011</text>
-<rect x="18800" y="-3256" width="164" height="64" fill="#b3b3b3" fill-opacity="0.82" stroke="#cdcdcd" stroke-width="2"/>
-<rect x="18802" y="-3254" width="112.16" height="30" fill="#000000" fill-opacity="0.7"/>
-<text x="18806" y="-3230" font-size="24" fill="#cdcdcd">misc044</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="18104 -1446 4392 768" width="2800" height="490" font-family="monospace">
+<rect x="18104" y="-1446" width="4392" height="768" fill="#0a0a12"/>
+<rect x="18964" y="-1094" width="2688" height="108" fill="#f28c26" fill-opacity="0.82" stroke="#f7b472" stroke-width="2"/>
+<rect x="18966" y="-1092" width="112.16" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="18970" y="-1068" font-size="24" fill="#f7b472">zone014</text>
+<rect x="18900" y="-986" width="2816" height="64" fill="#8c8c8c" fill-opacity="0.82" stroke="#b4b4b4" stroke-width="2"/>
+<rect x="18902" y="-984" width="127.04" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="18906" y="-960" font-size="24" fill="#b4b4b4">floor005</text>
+<rect x="18900" y="-1350" width="2816" height="64" fill="#334db3" fill-opacity="0.82" stroke="#7a8bcd" stroke-width="2"/>
+<rect x="18902" y="-1348" width="112.16" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="18906" y="-1324" font-size="24" fill="#7a8bcd">ceil007</text>
+<rect x="18200" y="-1034" width="660" height="64" fill="#b3b3b3" fill-opacity="0.82" stroke="#cdcdcd" stroke-width="2"/>
+<rect x="18202" y="-1032" width="112.16" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="18206" y="-1008" font-size="24" fill="#cdcdcd">misc033</text>
+<rect x="18200" y="-1134" width="660" height="64" fill="#b3b3b3" fill-opacity="0.82" stroke="#cdcdcd" stroke-width="2"/>
+<rect x="18202" y="-1132" width="112.16" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="18206" y="-1108" font-size="24" fill="#cdcdcd">misc032</text>
+<rect x="21684" y="-1318" width="64" height="364" fill="#4d80f2" fill-opacity="0.82" stroke="#8bacf7" stroke-width="2"/>
+<rect x="21686" y="-1316" width="112.16" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="21690" y="-1292" font-size="24" fill="#8bacf7">wall008</text>
+<rect x="18868" y="-1350" width="64" height="256" fill="#4d80f2" fill-opacity="0.82" stroke="#8bacf7" stroke-width="2"/>
+<rect x="18870" y="-1348" width="112.16" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="18874" y="-1324" font-size="24" fill="#8bacf7">wall007</text>
+<rect x="18766.67" y="-1198" width="66.67" height="200" fill="#f2d933" fill-opacity="0.82" stroke="#f7e67a" stroke-width="2"/>
+<rect x="18768.67" y="-1196" width="112.16" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="18772.67" y="-1172" font-size="24" fill="#f7e67a">door004</text>
+<rect x="19968" y="-806" width="384" height="32" fill="#4dd959" fill-opacity="0.82" stroke="#8be693" stroke-width="2"/>
+<rect x="19970" y="-804" width="112.16" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="19974" y="-780" font-size="24" fill="#8be693">plat018</text>
+<rect x="22016" y="-806" width="384" height="32" fill="#4dd959" fill-opacity="0.82" stroke="#8be693" stroke-width="2"/>
+<rect x="22018" y="-804" width="112.16" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="22022" y="-780" font-size="24" fill="#8be693">plat019</text>
+<rect x="18800" y="-1002" width="164" height="64" fill="#b3b3b3" fill-opacity="0.82" stroke="#cdcdcd" stroke-width="2"/>
+<rect x="18802" y="-1000" width="112.16" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="18806" y="-976" font-size="24" fill="#cdcdcd">misc034</text>
 </svg>
