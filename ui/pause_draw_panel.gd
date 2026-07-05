@@ -74,8 +74,13 @@ func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 
 func _select_grid(i: int) -> void:
-	sel_grid = clampi(i, 0, 8)
-	var bid: String = _SLOTS[sel_grid]["boss_id"] as String
+	var idx: int = clampi(i, 0, 8)
+	var bid: String = _SLOTS[idx]["boss_id"] as String
+	# Card bloqueado não seleciona: só o Buster ("") e habilidades JÁ conquistadas
+	# derrotando o boss (o teclado já filtrava via _build_nav; o mouse não).
+	if bid != "" and not GameManager.boss_abilities_unlocked.has(bid):
+		return
+	sel_grid = idx
 	GameManager.selected_boss_ability = bid
 	var nav: Array = _build_nav()
 	sel_idx = max(0, nav.find(bid))

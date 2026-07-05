@@ -99,6 +99,10 @@ func get_ability_ammo(ability_id: String) -> int:
     return int(boss_ability_ammo.get(ability_id, ABILITY_MAX_AMMO))
 
 func use_ability_ammo(ability_id: String, amount: int = 1) -> bool:
+    # Habilidade nunca desbloqueada não tem munição — sem isso o default de
+    # get_ability_ammo (30) deixava usar ataque de boss sem tê-lo derrotado.
+    if not boss_abilities_unlocked.has(ability_id):
+        return false
     var cur: int = get_ability_ammo(ability_id)
     if cur <= 0:
         return false
@@ -188,6 +192,10 @@ func load_game() -> bool:
     subtank_charges = _to_float_array(data.get("subtank_charges", [0.0, 0.0, 0.0, 0.0]))
     boss_abilities_unlocked = _to_string_array(data.get("boss_abilities_unlocked", []))
     selected_boss_ability = data.get("selected_boss_ability", "")
+    # Saneia saves antigos (época em que dava pra selecionar habilidade bloqueada):
+    # seleção que não foi conquistada volta pro Buster.
+    if selected_boss_ability != "" and not boss_abilities_unlocked.has(selected_boss_ability):
+        selected_boss_ability = ""
     boss_ability_ammo = data.get("boss_ability_ammo", {})
     zael_armor = data.get("zael_armor", {"helmet": false, "torso": false, "arms": false, "legs": false})
     zara_armor = data.get("zara_armor", {"helmet": false, "torso": false, "arms": false, "legs": false})
