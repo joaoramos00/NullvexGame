@@ -20,6 +20,9 @@ const WALL_SLIDE_SPEED := 60.0
 const WALL_JUMP_H := 300.0
 const WALL_JUMP_V := -500.0
 const WALL_JUMP_LOCK := 0.20  # trava o air-control horizontal após o wall-jump → arco diagonal (MMX)
+const WALL_JUMP_H_DASH := 460.0  # segurando dash no wall jump → salto mais longo (= _DASH_JUMP_SPEED do Zael)
+const WALL_JUMP_LOCK_DASH := 0.26
+const WALL_GRAB_MAX_RISE := 160.0  # agarra a parede mesmo subindo até esta velocidade → encadeia parede→parede
 const WALL_CLING_TIME := 0.18
 const JUMP_BUFFER_TIME := 0.10
 const WALL_JUMP_DIAGONAL_V := -560.0
@@ -54,6 +57,7 @@ var _wall_normal := Vector2.ZERO
 var _wall_cling_timer: float = 0.0
 var _jump_buffer_timer: float = 0.0
 var _wall_jump_lock_timer: float = 0.0
+var _wall_jump_dash_speed: float = 0.0  # >0 = wall jump com dash: air-control mantém esta velocidade até pousar/agarrar
 var _wall_dash_available: bool = false
 var _was_wall_sliding: bool = false
 var _stage_ice_contacts: int = 0
@@ -102,6 +106,7 @@ func _tick_timers(delta: float) -> void:
 		_wall_cling_timer -= delta
 	if is_on_floor():
 		_coyote_timer = COYOTE_TIME
+		_wall_jump_dash_speed = 0.0
 	elif _coyote_timer > 0.0:
 		_coyote_timer -= delta
 
@@ -112,7 +117,9 @@ func _update_wall_slide() -> void:
 		_wall_cling_timer = 0.0
 		return
 	var dir := Input.get_axis("move_left", "move_right")
-	if is_on_wall() and dir != 0.0 and velocity.y >= 0.0:
+	# velocity.y >= -WALL_GRAB_MAX_RISE: agarra ainda subindo (final do arco) pra encadear
+	# parede→parede sem esperar cair; o limite evita grudar no começo do pulo (sobe a 480)
+	if is_on_wall() and dir != 0.0 and velocity.y >= -WALL_GRAB_MAX_RISE:
 		if _touching_no_grab_wall():
 			_is_wall_sliding = false
 			_wall_cling_timer = 0.0
@@ -120,6 +127,7 @@ func _update_wall_slide() -> void:
 		if not _was_wall_sliding:
 			_wall_cling_timer = WALL_CLING_TIME
 			_wall_dash_available = true
+			_wall_jump_dash_speed = 0.0
 			_on_wall_grabbed()
 		_is_wall_sliding = true
 		_wall_normal = get_wall_normal()
@@ -169,6 +177,8 @@ func _apply_horizontal_movement(direction: float, delta: float, on_floor: bool) 
 	if direction != 0.0:
 		if _stage_on_ice and on_floor:
 			velocity.x = move_toward(velocity.x, direction * SPEED, ICE_ACCEL * delta)
+		elif not on_floor and _wall_jump_dash_speed > 0.0:
+			velocity.x = direction * _wall_jump_dash_speed
 		else:
 			velocity.x = direction * SPEED
 	else:
@@ -196,10 +206,14 @@ func _apply_wall_jump() -> void:
 	# MMX: chuta sempre na diagonal pra cima e pra LONGE da parede. O lockout
 	# (ver _handle_movement) segura o impulso horizontal por um instante pro arco
 	# diagonal acontecer — sem ele, o air-control zerava o empurrão e subia reto.
-	velocity.x = _wall_normal.x * WALL_JUMP_H
+	# Segurando dash: kick mais longo (arco esticado) e o air-control preserva a velocidade.
+	var dash_held := Input.is_action_pressed("dash")
+	var h: float = WALL_JUMP_H_DASH if dash_held else WALL_JUMP_H
+	velocity.x = _wall_normal.x * h
 	velocity.y = WALL_JUMP_V
+	_wall_jump_dash_speed = h if dash_held else 0.0
 	AudioManager.play_sfx(AudioLibrary.sfx_wall_jump)
-	_wall_jump_lock_timer = WALL_JUMP_LOCK
+	_wall_jump_lock_timer = WALL_JUMP_LOCK_DASH if dash_held else WALL_JUMP_LOCK
 	_is_wall_sliding = false
 	_wall_cling_timer = 0.0
 	_jump_buffer_timer = 0.0
