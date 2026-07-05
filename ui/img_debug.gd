@@ -774,10 +774,11 @@ class _FillTileView extends Control:
 # Visualização de plataformas e salas: monta bloco N×M com _tile_at ou _room_at
 class _PlatformView extends Control:
     var tile_tex: Texture2D
+    var spike_tex: Texture2D = null  # spikes.png (tips pra cima) — modo wall_plat_spikes
     var rows: int = 2
     var cols: int = 3
-    var mode: String = "platform"   # "platform" | "room" | "floor_platform" | "floor_platform_hole" | "floor_hole" | "foothold" | "ceil_flat" | "ceil_step" | "ceil_hole" | "ceil_platform" | "ceil_plat_pit"
-    var mirror_hole: bool = false    # floor_platform_hole: false = abismo à direita, true = à esquerda; ceil_step: false = degrau à direita, true = à esquerda
+    var mode: String = "platform"   # "platform" | "room" | "floor_platform" | "floor_platform_hole" | "floor_hole" | "foothold" | "wall_platform" | "wall_obstacle" | "wall_plat_spikes" | "wall_plat_spikes_under" | "ceil_flat" | "ceil_step" | "ceil_hole" | "ceil_platform" | "ceil_plat_pit"
+    var mirror_hole: bool = false    # floor_platform_hole: false = abismo à direita, true = à esquerda; ceil_step: false = degrau à direita, true = à esquerda; wall_*: false = parede à esquerda, true = à direita
 
     const _TS := 32.0   # tamanho source
     const _TD := 48.0   # tamanho exibido
@@ -802,6 +803,7 @@ class _PlatformView extends Control:
         if _is_fp:              gd = _fp_grid()
         elif mode == "floor_hole": gd = _fh_grid()
         elif _is_ceil:          gd = _ceil_combined_grid()
+        elif mode.begins_with("wall_"): gd = _wall_grid()
         else:                   gd = Vector2i(c, r)
         custom_minimum_size = Vector2(gd.x * _TD, gd.y * _TD)
         queue_redraw()
@@ -818,6 +820,9 @@ class _PlatformView extends Control:
             return
         if mode == "floor_hole":
             _draw_floor_hole()
+            return
+        if mode.begins_with("wall_"):
+            _draw_wall()
             return
         if mode == "ceil_flat" or mode == "ceil_step" or mode == "ceil_hole" or mode == "ceil_platform" or mode == "ceil_plat_pit":
             _draw_ceil_combined()
@@ -1043,6 +1048,123 @@ class _PlatformView extends Control:
                 draw_texture_rect_region(tile_tex,
                     Rect2(c * _TD, r * _TD, _TD, _TD),
                     Rect2(t.x * _TS, t.y * _TS, _TS, _TS))
+
+    # ── Modos de parede (vista de shaft) ─────────────────────────────────────
+    # Parede vertical de fundo com 2 colunas (miolo (2,1) + face) + elemento de
+    # `cols`×`rows` tiles preso nela, com vão livre acima e abaixo. Na junção a
+    # face da parede vira canto côncavo — esq: topo (2,0) / base (3,1); dir:
+    # topo (1,1) / base (2,2). "wall_platform" marca a superfície pisável no
+    # topo; "wall_obstacle" marca o contorno de colisão que bloqueia a passagem.
+    # Espelhar move a parede para a direita (elemento projeta pra esquerda).
+    func _wall_grid() -> Vector2i:
+        return Vector2i(2 + cols + _FP_SIDE, rows + 2 * _FP_DEPTH)
+
+    # cc em coords canônicas (parede à esquerda); tiles já saem espelhados
+    # conforme mirror_hole (cada peça tem contraparte própria — nunca flipar).
+    func _wall_tile_at(cc: int, r: int) -> Vector2i:
+        var m := mirror_hole
+        var elem_t := _FP_DEPTH
+        var elem_b := _FP_DEPTH + rows - 1
+        var in_band := r >= elem_t and r <= elem_b
+        var elem_last := 1 + cols
+        if cc == 0:
+            return Vector2i(2, 1)                                  # miolo da parede
+        if cc == 1:                                                # face da parede
+            if not in_band:
+                return Vector2i(1, 0) if m else Vector2i(3, 2)
+            if r == elem_t:
+                return Vector2i(1, 1) if m else Vector2i(2, 0)     # junção topo
+            if r == elem_b:
+                return Vector2i(2, 2) if m else Vector2i(3, 1)     # junção base
+            return Vector2i(2, 1)
+        if cc <= elem_last and in_band:                            # elemento
+            var outer := cc == elem_last
+            if r == elem_t:
+                if outer: return Vector2i(1, 3) if m else Vector2i(0, 0)
+                return Vector2i(3, 0)
+            if r == elem_b:
+                if outer: return Vector2i(0, 2) if m else Vector2i(3, 3)
+                return Vector2i(1, 2)
+            if outer: return Vector2i(1, 0) if m else Vector2i(3, 2)
+            return Vector2i(2, 1)
+        return _EMPTY
+
+    func _draw_wall() -> void:
+        var g := _wall_grid()
+        for r in g.y:
+            for c in g.x:
+                var cc := c if not mirror_hole else g.x - 1 - c
+                var t := _wall_tile_at(cc, r)
+                if t == _EMPTY:
+                    continue
+                draw_texture_rect_region(tile_tex,
+                    Rect2(c * _TD, r * _TD, _TD, _TD),
+                    Rect2(t.x * _TS, t.y * _TS, _TS, _TS))
+        var yellow := Color(1.0, 0.9, 0.0, 0.9)
+        var x_wall: float = 2.0 * _TD if not mirror_hole else (g.x - 2) * _TD   # face da parede
+        var x_out:  float = (2 + cols) * _TD if not mirror_hole else (g.x - 2 - cols) * _TD
+        var x0 := minf(x_wall, x_out)
+        var x1 := maxf(x_wall, x_out)
+        var y0 := _FP_DEPTH * _TD
+        var y1 := (_FP_DEPTH + rows) * _TD
+        if mode == "wall_plat_spikes" and spike_tex:
+            # Tira de espinhos na face LATERAL da parede, abaixo da plataforma
+            # (mesma convenção do _z4_spike_face: rotação +90° = tips pra direita
+            # na parede esquerda, -90° = tips pra esquerda na direita; 1 tile de
+            # profundidade). Tira desenhada em coords locais e rotacionada.
+            var sl := _FP_DEPTH * _TD    # comprimento: vão livre abaixo da plataforma
+            # Tiles de face da parede e BOTTOM da plataforma têm parte transparente:
+            # a rocha visível fica pra dentro do tile → base do espinho 3/4 de tile
+            # pra dentro da coluna de face e tira meio tile pra cima, encostada na
+            # base visível da plataforma ((1,2) é sólido só na metade superior).
+            var tip_x: float = 2.25 * _TD if not mirror_hole else (g.x - 2.25) * _TD
+            var y_sp: float = y1 - 0.5 * _TD
+            if not mirror_hole:
+                draw_set_transform(Vector2(tip_x, y_sp), PI * 0.5, Vector2.ONE)
+            else:
+                draw_set_transform(Vector2(tip_x, y_sp + sl), -PI * 0.5, Vector2.ONE)
+            draw_texture_rect_region(spike_tex,
+                Rect2(0.0, 0.0, sl, _TD),
+                Rect2(0.0, 0.0, _FP_DEPTH * _TS, _TS))
+            draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+        if mode == "wall_plat_spikes_under" and spike_tex:
+            # Espinhos pendurados na parte de baixo da plataforma, apontando pra
+            # baixo. Base 3/4 de tile acima da borda (rocha visível do BOTTOM é
+            # ~1/4 do tile) e recuo de meio tile no canto externo (~50% vazio).
+            # Sem rects negativos (o renderer web duplica/espelha o quad): rotação
+            # de 180° via draw_set_transform vira as tips do PNG (pra cima) pra
+            # baixo; o espelho horizontal junto é inofensivo (triângulos são
+            # simétricos). Origem no canto INF-DIREITO da tira (rot PI desenha
+            # pra trás nos dois eixos).
+            var sx0: float = x0 if not mirror_hole else x0 + 0.5 * _TD
+            var sx1: float = x1 - 0.5 * _TD if not mirror_hole else x1
+            # spikes.png = 1 cluster por tile (32×32): largura da tira em tiles
+            # INTEIROS pra nunca cortar espinho — a sobra (meio tile do recuo
+            # externo) fica do lado da parede; âncora segue no canto externo.
+            var sw: float = floorf((sx1 - sx0) / _TD) * _TD
+            if sw > 0.0:
+                var ax: float = sx1 if not mirror_hole else sx0 + sw
+                draw_set_transform(Vector2(ax, y1 + 0.25 * _TD), PI, Vector2.ONE)
+                draw_texture_rect_region(spike_tex,
+                    Rect2(0.0, 0.0, sw, _TD),
+                    Rect2(0.0, 0.0, sw / _TD * _TS, _TS))
+                draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+        if mode != "wall_obstacle":
+            draw_line(Vector2(x0, y0), Vector2(x1, y0), yellow, 1.5)   # superfície pisável
+            var red := Color(1.0, 0.25, 0.2, 0.9)
+            if mode == "wall_plat_spikes":
+                var tip_x2: float = 2.25 * _TD if not mirror_hole else (g.x - 2.25) * _TD
+                draw_line(Vector2(tip_x2, y1 - 0.5 * _TD), Vector2(tip_x2, y1 + (_FP_DEPTH - 0.5) * _TD), red, 1.5)   # pontas (kill)
+            elif mode == "wall_plat_spikes_under":
+                var sx0g: float = x0 if not mirror_hole else x0 + 0.5 * _TD
+                var sx1g: float = x1 - 0.5 * _TD if not mirror_hole else x1
+                var swg: float = floorf((sx1g - sx0g) / _TD) * _TD
+                var axg: float = sx1g if not mirror_hole else sx0g + swg
+                draw_line(Vector2(axg - swg, y1 + 0.25 * _TD), Vector2(axg, y1 + 0.25 * _TD), red, 1.5)   # pontas (kill)
+        else:  # wall_obstacle: faces expostas do bloco (menos o lado da parede)
+            draw_line(Vector2(x0, y0), Vector2(x1, y0), yellow, 1.5)   # topo
+            draw_line(Vector2(x0, y1), Vector2(x1, y1), yellow, 1.5)   # base
+            draw_line(Vector2(x_out, y0), Vector2(x_out, y1), yellow, 1.5)   # face frontal
 
     # ── Modos de teto (vista combinada: teto + zona de jogo + piso) ─────────
     # rows = espessura do teto no lado mais profundo (ou elevação do degrau/plataforma).
@@ -3578,7 +3700,9 @@ func _refresh_tiles() -> void:
 
     var pview := _PlatformView.new()
     pview.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+    pview.texture_repeat = CanvasItem.TEXTURE_REPEAT_ENABLED   # tira de espinhos repete o PNG
     pview.tile_tex = load(_TILESETS[0].path) as Texture2D
+    pview.spike_tex = load("res://stages/stage_01/spikes.png") as Texture2D
 
     var plat_ts_row := HBoxContainer.new()
     plat_ts_row.add_theme_constant_override("separation", 6)
@@ -3614,6 +3738,12 @@ func _refresh_tiles() -> void:
 
     var ceil_sub_visible: Array = []   # Array[Control] — preenchido após criação da sub-row
     var ceil_sub_btns: Array = []      # Array[Button]  — preenchido após criação dos sub-botões
+    var floor_sub_visible: Array = []  # Array[Control] — sub-row do grupo Piso
+    var floor_sub_btns: Array = []     # Array[Button]  — sub-botões do grupo Piso
+    var wall_sub_visible: Array = []   # Array[Control] — sub-row do grupo Parede
+    var wall_sub_btns: Array = []      # Array[Button]  — sub-botões do grupo Parede
+    var _is_floor_mode := func(mkey: String) -> bool:
+        return mkey.begins_with("floor_") or mkey == "foothold"
 
     var mode_btns: Array = []
     var _sw := func(mkey: String, mlbl: String) -> void:
@@ -3623,8 +3753,12 @@ func _refresh_tiles() -> void:
             b.modulate = Color(1.0, 1.0, 0.0) if b.text == mlbl else Color(0.6, 0.6, 0.6)
         if ceil_sub_visible.size() > 0 and is_instance_valid(ceil_sub_visible[0]):
             (ceil_sub_visible[0] as Control).visible = mkey.begins_with("ceil_")
+        if floor_sub_visible.size() > 0 and is_instance_valid(floor_sub_visible[0]):
+            (floor_sub_visible[0] as Control).visible = _is_floor_mode.call(mkey)
+        if wall_sub_visible.size() > 0 and is_instance_valid(wall_sub_visible[0]):
+            (wall_sub_visible[0] as Control).visible = mkey.begins_with("wall_")
 
-    for me: Array in [["Plataforma", "platform"], ["Sala", "room"], ["Piso+Plat", "floor_platform"], ["Piso+Abismo", "floor_platform_hole"], ["Buraco no Piso", "floor_hole"], ["Saliência", "foothold"], ["Teto", "ceil_flat"]]:
+    for me: Array in [["Plataforma", "platform"], ["Sala", "room"], ["Piso", "floor_platform"], ["Parede", "wall_platform"], ["Teto", "ceil_flat"]]:
         var mbtn := Button.new()
         mbtn.text = me[0]
         mbtn.add_theme_font_size_override("font_size", 32)
@@ -3634,10 +3768,64 @@ func _refresh_tiles() -> void:
             _sw.call(mk, ml)
             if mk.begins_with("ceil_"):
                 for sb: Button in ceil_sub_btns:
-                    sb.modulate = Color(1.0, 1.0, 0.0) if sb.text == "Reto" else Color(0.6, 0.6, 0.6))
+                    sb.modulate = Color(1.0, 1.0, 0.0) if sb.text == "Reto" else Color(0.6, 0.6, 0.6)
+            if _is_floor_mode.call(mk):
+                for sb: Button in floor_sub_btns:
+                    sb.modulate = Color(1.0, 1.0, 0.0) if sb.text == "Piso+Plat" else Color(0.6, 0.6, 0.6)
+            if mk.begins_with("wall_"):
+                for sb: Button in wall_sub_btns:
+                    sb.modulate = Color(1.0, 1.0, 0.0) if sb.text == "Parede+Plat" else Color(0.6, 0.6, 0.6))
         mode_row.add_child(mbtn)
         mode_btns.append(mbtn)
     mode_btns[0].modulate = Color(1.0, 1.0, 0.0)
+
+    # Sub-row de piso (escondida até o modo "Piso" ser activado)
+    var floor_sub_row := HBoxContainer.new()
+    floor_sub_row.add_theme_constant_override("separation", 6)
+    floor_sub_row.visible = false
+    var floor_tipo_lbl := Label.new()
+    floor_tipo_lbl.text = "Tipo:"
+    floor_tipo_lbl.add_theme_font_size_override("font_size", 24)
+    floor_sub_row.add_child(floor_tipo_lbl)
+    var _sw_floor_sub := func(sk: String, sl: String) -> void:
+        _sw.call(sk, "Piso")
+        for sb: Button in floor_sub_btns:
+            sb.modulate = Color(1.0, 1.0, 0.0) if sb.text == sl else Color(0.6, 0.6, 0.6)
+    for sub: Array in [["Piso+Plat", "floor_platform"], ["Piso+Abismo", "floor_platform_hole"], ["Buraco no Piso", "floor_hole"], ["Saliência", "foothold"]]:
+        var sbtn := Button.new()
+        sbtn.text = sub[0]
+        sbtn.add_theme_font_size_override("font_size", 32)
+        var sk: String = sub[1]; var sl: String = sub[0]
+        sbtn.pressed.connect(func(): _sw_floor_sub.call(sk, sl))
+        floor_sub_row.add_child(sbtn)
+        floor_sub_btns.append(sbtn)
+    floor_sub_btns[0].modulate = Color(1.0, 1.0, 0.0)
+    floor_sub_visible.append(floor_sub_row)
+    plat_panel.add_child(floor_sub_row)
+
+    # Sub-row de parede (escondida até o modo "Parede" ser activado)
+    var wall_sub_row := HBoxContainer.new()
+    wall_sub_row.add_theme_constant_override("separation", 6)
+    wall_sub_row.visible = false
+    var wall_tipo_lbl := Label.new()
+    wall_tipo_lbl.text = "Tipo:"
+    wall_tipo_lbl.add_theme_font_size_override("font_size", 24)
+    wall_sub_row.add_child(wall_tipo_lbl)
+    var _sw_wall_sub := func(sk: String, sl: String) -> void:
+        _sw.call(sk, "Parede")
+        for sb: Button in wall_sub_btns:
+            sb.modulate = Color(1.0, 1.0, 0.0) if sb.text == sl else Color(0.6, 0.6, 0.6)
+    for sub: Array in [["Parede+Plat", "wall_platform"], ["Parede+Obstáculo", "wall_obstacle"], ["Espinhos Parede", "wall_plat_spikes"], ["Espinhos Plat", "wall_plat_spikes_under"]]:
+        var sbtn := Button.new()
+        sbtn.text = sub[0]
+        sbtn.add_theme_font_size_override("font_size", 32)
+        var sk: String = sub[1]; var sl: String = sub[0]
+        sbtn.pressed.connect(func(): _sw_wall_sub.call(sk, sl))
+        wall_sub_row.add_child(sbtn)
+        wall_sub_btns.append(sbtn)
+    wall_sub_btns[0].modulate = Color(1.0, 1.0, 0.0)
+    wall_sub_visible.append(wall_sub_row)
+    plat_panel.add_child(wall_sub_row)
 
     # Sub-row de teto (escondida até o modo "Teto" ser activado)
     var ceil_sub_row := HBoxContainer.new()
