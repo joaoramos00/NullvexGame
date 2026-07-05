@@ -35,3 +35,9 @@ tests/bot/node_modules/
 
 # Re-ignora .mcp.json (contém Bearer token) — sobrepõe o !.mcp.json do bloco OpenCastle
 .mcp.json
+
+# Build web exportado na pasta errada (o correto é export/web/)
+exports/
+
+# Python cache
+__pycache__/

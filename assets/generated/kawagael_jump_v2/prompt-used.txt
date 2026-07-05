@@ -1,0 +1,16 @@
+Asset plan:
+- asset_type: player
+- action: jump
+- view: side
+- raw sheet: 2x2, 4 frames
+- output: transparent processed sheet plus Godot-compatible horizontal strip
+- final runtime frame size: 68x68
+- reference: characters/ranged/kawagael/KawagaelRun_v2.png
+
+Raw prompt:
+See jump/jump-prompt.txt
+
+Processing:
+1. Generate raw 2x2 sheet with image edit using KawagaelRun_v2.png as identity reference.
+2. Process with generate2dsprite.py using rows=2 cols=2 component_mode=largest align=feet shared_scale reject-edge-touch.
+3. Assemble processed frames into a 272x68 strip for KawagaelJump_v2.png.

@@ -1,0 +1,12 @@
+Use case: stylized-concept
+Asset type: 2D game sprite jump animation sheet
+Primary request: Create a side-view jump animation sheet for the same Kawagael character shown in the input reference image.
+Input image role: Use the provided KawagaelRun_v2.png only as the visual identity reference. Preserve the same character identity, emerald-green armor, purple shadow accents, gold crown-like helmet antennae, cyan glowing eyes, cyan chest gem, compact forearm railguns, dark outlines, and action-platformer pixel-art material language. Improve only the jump poses.
+Style/medium: crisp game-ready pixel art for a side-scrolling action platformer, readable at small size, strong dark outline, clean cel-shaded armor clusters, no painterly blur.
+Composition/framing: exact 2 rows by 2 columns, four equal invisible cells, read left-to-right across the first row then left-to-right across the second row. Each cell must contain one full-body jump frame facing right.
+Action sequence: 4-frame side-view jump cycle facing right. Frame 1 crouched takeoff with knees bent, torso leaning forward, arms and forearm railguns close. Frame 2 rising jump with legs tucked back and body stretched upward. Frame 3 apex / falling pose with knees tucked, body compact, railguns balanced close to the torso. Frame 4 landing anticipation / recovery with one foot reaching down, knees bent, ready to return to idle or run.
+Body rules: keep head, torso, helmet antennae, railguns, armor proportions, and chest gem consistent in all frames. No shooting pose. No muzzle flash. No projectile. No dust cloud.
+Containment rules: body centered in each cell, body centerline near cell center, consistent body height and scale across frames. The entire character including helmet antennae, railguns, hands, feet, toes, glows, and outlines must fit fully inside the central 60% to 70% safe area of each cell. Nothing may touch or cross a cell edge. Leave solid magenta padding on all four sides.
+Constraints: exact 2x2 grid, same character identity every frame, full body visible, no cropped parts, no visible grid, no borders, no dividers.
+Avoid: no detached dust, no energy trails, no projectile, no muzzle flash, no text, no labels, no UI, no gradients.
+Background: 100% solid flat #FF00FF only.
