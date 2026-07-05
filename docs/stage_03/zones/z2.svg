@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-128 -128 9824 1424" width="2800" height="406" font-family="monospace">
+<rect x="-128" y="-128" width="9824" height="1424" fill="#0a0a12"/>
+<rect x="4800" y="300" width="4800" height="900" fill="#f28c26" fill-opacity="0.82" stroke="#f7b472" stroke-width="2"/>
+<rect x="4802" y="302" width="112.16" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="4806" y="326" font-size="24" fill="#f7b472">zone004</text>
+<rect x="8400" y="800" width="1200" height="192" fill="#8c8c8c" fill-opacity="0.82" stroke="#b4b4b4" stroke-width="2"/>
+<rect x="8402" y="802" width="127.04" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="8406" y="826" font-size="24" fill="#b4b4b4">floor010</text>
+<rect x="4800" y="800" width="1000" height="192" fill="#8c8c8c" fill-opacity="0.82" stroke="#b4b4b4" stroke-width="2"/>
+<rect x="4802" y="802" width="127.04" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="4806" y="826" font-size="24" fill="#b4b4b4">floor007</text>
+<rect x="6800" y="800" width="512" height="128" fill="#b3b3b3" fill-opacity="0.82" stroke="#cdcdcd" stroke-width="2"/>
+<rect x="6802" y="802" width="112.16" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="6806" y="826" font-size="24" fill="#cdcdcd">misc002</text>
+<rect x="6600" y="800" width="200" height="192" fill="#8c8c8c" fill-opacity="0.82" stroke="#b4b4b4" stroke-width="2"/>
+<rect x="6602" y="802" width="127.04" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="6606" y="826" font-size="24" fill="#b4b4b4">floor008</text>
+<rect x="5800" y="800" width="64" height="320" fill="#73bff2" fill-opacity="0.82" stroke="#a4d6f7" stroke-width="2"/>
+<rect x="5802" y="802" width="127.04" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="5806" y="826" font-size="24" fill="#a4d6f7">glass001</text>
+<rect x="6536" y="800" width="64" height="320" fill="#73bff2" fill-opacity="0.82" stroke="#a4d6f7" stroke-width="2"/>
+<rect x="6538" y="802" width="127.04" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="6542" y="826" font-size="24" fill="#a4d6f7">glass002</text>
+<rect x="7400" y="800" width="64" height="320" fill="#73bff2" fill-opacity="0.82" stroke="#a4d6f7" stroke-width="2"/>
+<rect x="7402" y="802" width="127.04" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="7406" y="826" font-size="24" fill="#a4d6f7">glass003</text>
+<rect x="8336" y="800" width="64" height="320" fill="#73bff2" fill-opacity="0.82" stroke="#a4d6f7" stroke-width="2"/>
+<rect x="8338" y="802" width="127.04" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="8342" y="826" font-size="24" fill="#a4d6f7">glass004</text>
+<rect x="7312" y="800" width="88" height="192" fill="#8c8c8c" fill-opacity="0.82" stroke="#b4b4b4" stroke-width="2"/>
+<rect x="7314" y="802" width="127.04" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="7318" y="826" font-size="24" fill="#b4b4b4">floor009</text>
+<rect x="8600" y="764" width="320" height="40" fill="#f28c26" fill-opacity="0.82" stroke="#f7b472" stroke-width="2"/>
+<rect x="8602" y="766" width="112.16" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="8606" y="790" font-size="24" fill="#f7b472">zone006</text>
+<rect x="5988" y="752" width="160" height="32" fill="#33e6e6" fill-opacity="0.82" stroke="#7aeeee" stroke-width="2"/>
+<rect x="5990" y="754" width="112.16" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="5994" y="778" font-size="24" fill="#7aeeee">movp001</text>
+<rect x="6284" y="752" width="160" height="32" fill="#33e6e6" fill-opacity="0.82" stroke="#7aeeee" stroke-width="2"/>
+<rect x="6286" y="754" width="112.16" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="6290" y="778" font-size="24" fill="#7aeeee">movp002</text>
+<rect x="7842" y="752" width="160" height="32" fill="#33e6e6" fill-opacity="0.82" stroke="#7aeeee" stroke-width="2"/>
+<rect x="7844" y="754" width="112.16" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="7848" y="778" font-size="24" fill="#7aeeee">movp003</text>
+<rect x="7018" y="588" width="64" height="64" fill="#f28c26" fill-opacity="0.82" stroke="#f7b472" stroke-width="2"/>
+<rect x="7020" y="590" width="112.16" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="7024" y="614" font-size="24" fill="#f7b472">zone005</text>
+<rect x="-32" y="-32" width="64" height="64" fill="#334db3" fill-opacity="0.82" stroke="#7a8bcd" stroke-width="2"/>
+<rect x="-30" y="-30" width="112.16" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="-26" y="-6" font-size="24" fill="#7a8bcd">ceil002</text>
+</svg>
