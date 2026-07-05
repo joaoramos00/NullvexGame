@@ -1,0 +1,16 @@
+Asset plan:
+- asset_type: player
+- action: run
+- view: side
+- raw sheet: 2x4, 8 frames
+- output: transparent processed sheet plus Godot-compatible horizontal strip
+- final runtime frame size: 68x68
+- reference: characters/ranged/kawagael/KawagaelRun.png
+
+Raw prompt:
+See run/run-prompt.txt
+
+Processing:
+1. Generate raw 2x4 sheet with image edit using KawagaelRun.png as identity reference.
+2. Process with generate2dsprite.py using rows=2 cols=4 component_mode=largest align=feet shared_scale reject-edge-touch.
+3. Assemble processed frames into a 544x68 strip for KawagaelRun_v2.png.

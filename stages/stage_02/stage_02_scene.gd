@@ -134,7 +134,9 @@ func _process(delta: float) -> void:
 func _setup_corridors() -> void:
 	_corr1 = _make_corridor("CP1", _CP1_ENTRY_X, _CP1_EXIT_X, 1, false, false)
 	_corr2 = _make_corridor("CP2", _CP2_ENTRY_X, _CP2_EXIT_X, 2, not (DebugBoot.bot_enabled or DebugBoot.no_enemies), false)
-	_corr3 = _make_corridor("CP3", _CP3_ENTRY_X, _CP3_EXIT_X, 3, false, false)
+	# CP3 usa índice 4: o checkpoint 3 é o da base do Poço de Gelo (índices
+	# crescem com a progressão — checkpoint só salva se o índice for maior).
+	_corr3 = _make_corridor("CP3", _CP3_ENTRY_X, _CP3_EXIT_X, 4, false, false)
 
 func _make_corridor(name_prefix: String, entry_x: float, exit_x: float, checkpoint_index: int, manual: bool, heal: bool) -> CorridorSection:
 	var width := exit_x - entry_x
@@ -378,9 +380,11 @@ func _fp(n: String, zone: String, left_x: float, lc: int, pc: int, rc: int, er: 
 	})
 	return b
 
-# Campo de espinhos de gelo no chão: Area2D de dano (ice_spikes.gd, 12 no toque)
-# + tira visual do spikes.png tingida de azul, tips pra cima, base ~16px
-# embutida no piso. Largura em clusters INTEIROS de 64px (nunca cortar).
+# Campo de espinhos de gelo no chão: Area2D INSTANT KILL (ice_spikes.gd, padrão
+# espinho-mata do projeto) + tira visual do spikes.png tingida de azul, tips pra
+# cima, base ~16px embutida no piso. Largura em clusters INTEIROS de 64px.
+# A faixa de kill (32px) é mais baixa que o visual — raspar as pontas no pulo
+# não mata, pisar mata.
 func _ice_spike_field(n: String, x0: float, x1: float) -> void:
 	var area := Area2D.new()
 	area.name = n
@@ -651,9 +655,9 @@ func _build_zone1() -> void:
 	_fp("Z1_FP2", "z1", 4700.0, 2, 6, 2)         # 4700–5340, plat 4828–5212 topo 736
 	_floor_seg("Z1", 5340.0, 5600.0, FLOOR_Y)
 
-# Z2 — espinhos de gelo: campos VISÍVEIS de dano no chão (A com rota segura por
-# plataformas flutuantes; B aberto, atravessa no pulo tomando o dano) + alcova
-# secreta do Capacete da Zara sob o piso, selada pelo Z2_IgnarathGate.
+# Z2 — espinhos de gelo (INSTANT KILL, padrão do projeto): dois campos com rota
+# segura por plataformas flutuantes — A com duas (folgado), B com uma só no
+# meio (preciso) + alcova secreta do Capacete da Zara (Z2_IgnarathGate).
 func _build_zone2() -> void:
 	_floor_seg("Z2", 5600.0, 6600.0, FLOOR_Y)
 	_floor_seg("Z2", 6600.0, 7050.0, FLOOR_Y)
@@ -661,10 +665,11 @@ func _build_zone2() -> void:
 	_secret_alcove("z2", 7300.0, 7800.0, "Z2_IgnarathGate")
 	_step_up("Z2", 7800.0, 8300.0)
 	_floor_seg("Z2", 8300.0, 9400.0, FLOOR_Y)
-	_ice_spike_field("Z2_SpikesA", 8416.0, 8864.0)       # 7 clusters; rota segura por cima
+	_ice_spike_field("Z2_SpikesA", 8416.0, 8864.0)       # 7 clusters; 2 plataformas
 	_ice_plat("Z2_IcePlat1", "z2", 8540.0, 704.0)
 	_ice_plat("Z2_IcePlat2", "z2", 8760.0, 704.0)
-	_ice_spike_field("Z2_SpikesB", 9024.0, 9344.0)       # 5 clusters; atravessa no pulo (dano)
+	_ice_spike_field("Z2_SpikesB", 9024.0, 9344.0)       # 5 clusters; 1 plataforma central
+	_ice_plat("Z2_IcePlat3", "z2", 9184.0, 704.0, 128.0)
 	_recoverable_pit("Z2", 9400.0, 10600.0, 9850.0, 10100.0)
 
 # Z3 — nevasca alternada (ver _setup_blizzards; poços = refúgios sem vento) +
@@ -676,24 +681,174 @@ func _build_zone3() -> void:
 	_recoverable_pit("Z3", 14400.0, 15600.0, 14900.0, 15150.0)
 	_step_up("Z3", 15600.0, 16100.0)
 	_recoverable_pit("Z3", 16100.0, 17300.0, 16550.0, 16800.0)
-	_floor_seg("Z3", 17300.0, 18000.0, FLOOR_Y)
+	_floor_seg("Z3", 17300.0, 17400.0, FLOOR_Y)   # borda da boca do Poço de Gelo
 
-# Z4 — abismos mortais em PROGRESSÃO: 180 (pulável limpo) → 340 (1 crumble) →
-# 400 (2 crumbles encadeados), vidro liso nas faces; alcova secreta do Spread
-# sob o piso (Z4_LuxarGate). Kill plane da base mata na queda.
+# Z4 — abismos mortais em PROGRESSÃO: 160 (pulável limpo) → 340 (1 crumble) →
+# 400 (2 crumbles encadeados), vidro liso nas faces; BORDAS ÁSPERAS (128px sem
+# derrapagem) na aproximação de cada abismo; alcova secreta do Spread sob o
+# piso (Z4_LuxarGate). Kill plane da base mata na queda.
 func _build_zone4() -> void:
-	_floor_seg("Z4", 18000.0, 19000.0, FLOOR_Y)
-	_deadly_pit(19000.0, 20200.0, 19180.0, 19360.0)
+	_build_ice_well()
+	_floor_seg("Z4", 18664.0, 19000.0, FLOOR_Y)   # chegada do poço → aproximação do 1º abismo
+	_deadly_pit(19000.0, 20200.0, 19190.0, 19350.0)      # vão 160
+	_rough_patch("Z4_Rough1a", 19126.0)
+	_rough_patch("Z4_Rough1b", 19414.0)
 	_floor_seg("Z4", 20200.0, 20900.0, FLOOR_Y)
 	_deadly_pit(20900.0, 22200.0, 21080.0, 21420.0)
 	_ice_crumble("Z4_Crumble1", 21250.0, FLOOR_Y)
+	_rough_patch("Z4_Rough2a", 21016.0)
+	_rough_patch("Z4_Rough2b", 21484.0)
 	_floor_seg("Z4", 22200.0, 22400.0, FLOOR_Y)
 	_floor_seg("Z4", 22400.0, 22600.0, FLOOR_Y + 96.0)   # catch (entrada da alcova)
 	_secret_alcove("z4", 22600.0, 22900.0, "Z4_LuxarGate")
 	_deadly_pit(22900.0, 23600.0, 23080.0, 23480.0)
 	_ice_crumble("Z4_Crumble2", 23180.0, FLOOR_Y)
 	_ice_crumble("Z4_Crumble3", 23380.0, FLOOR_Y)
+	_rough_patch("Z4_Rough3a", 23016.0)
+	_rough_patch("Z4_Rough3b", 23544.0)
 	_floor_seg("Z4", 23600.0, 24400.0, FLOOR_Y)          # sob o corredor CP3
+	# FINAL PROVISÓRIO (até o Cryovex entrar): piso de chegada + parede de fundo
+	# + zona que completa a fase (GameManager.complete_stage → UI + auto-save).
+	_floor_seg("Z4", 24400.0, 24800.0, FLOOR_Y)
+	var endwall := StaticBody2D.new()
+	endwall.name = "Z4_EndWall"
+	endwall.collision_layer = 1
+	endwall.collision_mask = 0
+	endwall.position = Vector2(24832.0, 560.0)
+	var ecs := CollisionShape2D.new()
+	var esh := RectangleShape2D.new()
+	esh.size = Vector2(64.0, 480.0)
+	ecs.shape = esh
+	endwall.add_child(ecs)
+	endwall.set_meta("lava_override", _zone_tile_path("z4"))
+	add_child(endwall)
+	var goal := Area2D.new()
+	goal.name = "ProvisionalGoal"
+	goal.collision_layer = 0
+	goal.collision_mask = 2
+	goal.position = Vector2(24700.0, FLOOR_Y - 100.0)
+	var gcs := CollisionShape2D.new()
+	var gsh := RectangleShape2D.new()
+	gsh.size = Vector2(96.0, 200.0)
+	gcs.shape = gsh
+	goal.add_child(gcs)
+	add_child(goal)
+	var goal_done := [false]
+	goal.body_entered.connect(func(b: Node) -> void:
+		if b.is_in_group("player") and not goal_done[0]:
+			goal_done[0] = true
+			GameManager.complete_stage(2))
+
+# ── POÇO DE GELO (set-piece vertical entre Z3 e Z4) ──────────────────────────
+# "U" de 1280px de profundidade (x17400–18728): DESCE pelo shaft esquerdo
+# derrapando entre 4 plataformas geladas alternadas nas paredes (a 2ª tem
+# espinhos embaixo — instant kill), CHECKPOINT (índice 3) na base, e SOBE pelo
+# shaft direito num UPDRAFT de nevasca (vento vertical; one-way — cair contra o
+# updraft é impossível). Paredes lisas (no_wall_grab: gelo). Resolve o buraco
+# de 11k px sem checkpoint entre o CP2 e o fim, e dá verticalidade à fase.
+#
+#   Z3 ─┐17400      17720┌────18344┐      18664┌─ Z4
+#        │  DESCIDA  │ bloco central │ UPDRAFT │
+#        │ p1▄       │   (sólido)    │    ▲    │
+#        │       ▄p2*│               │    ▲    │
+#        │ p3▄       │               │    ▲    │
+#        │       ▄p4 └──────1888     │    ▲    │
+#        │        BASE + CHECKPOINT (2080)     │
+#        └──────────────────────────────────────┘
+func _build_ice_well() -> void:
+	const W_TOP := 800.0        # nível do corredor
+	const W_BASE := 2080.0      # piso da base
+	const W_MID_BOT := 1888.0   # fundo do bloco central (pé-direito 192 na base)
+	# Paredes externas (gelo liso) + bloco central + piso da base
+	for w: Array in [
+		["Z4_WellWallL", 17368.0, (W_TOP + W_BASE) * 0.5, 64.0, W_BASE - W_TOP],
+		["Z4_WellWallR", 18696.0, (W_TOP + W_BASE) * 0.5, 64.0, W_BASE - W_TOP],
+		["Z4_WellCore", 18032.0, (W_TOP + W_MID_BOT) * 0.5, 624.0, W_MID_BOT - W_TOP],
+	]:
+		var b := StaticBody2D.new()
+		b.name = w[0]
+		b.collision_layer = 1
+		b.collision_mask = 0
+		b.position = Vector2(w[1], w[2])
+		var cs := CollisionShape2D.new()
+		var sh := RectangleShape2D.new()
+		sh.size = Vector2(w[3], w[4])
+		cs.shape = sh
+		b.add_child(cs)
+		b.add_to_group("no_wall_grab")   # gelo liso: sem wall-grab no poço
+		b.set_meta("lava_override", _zone_tile_path("z4"))
+		add_child(b)
+	_floor_seg("Z4", 17336.0, 18728.0, W_BASE)               # piso da base
+	# Plataformas geladas da descida (alternadas; quedas de 256px)
+	_ice_plat("Z4_WellPlat1", "z4", 17480.0, 1056.0)         # esquerda
+	_ice_plat("Z4_WellPlat2", "z4", 17640.0, 1312.0)         # direita (face do bloco)
+	_ice_plat("Z4_WellPlat3", "z4", 17480.0, 1568.0)         # esquerda
+	_ice_plat("Z4_WellPlat4", "z4", 17640.0, 1824.0)         # direita
+	# Espinhos SOB a WellPlat2 (instant kill): punem raspar por baixo dela na
+	# queda — 1 cluster na metade externa (a metade junto à face do bloco fica
+	# limpa). Tips pra baixo via rotação (nunca Rect2 negativo — regra do web).
+	var wsp: Area2D = load("res://stages/stage_02/ice_spikes.gd").new()
+	wsp.name = "Z4_WellSpikes"
+	wsp.collision_layer = 0
+	wsp.collision_mask = 2
+	wsp.position = Vector2(17592.0, 1360.0)
+	var wsp_cs := CollisionShape2D.new()
+	var wsp_sh := RectangleShape2D.new()
+	wsp_sh.size = Vector2(64.0, 64.0)
+	wsp_cs.shape = wsp_sh
+	wsp.add_child(wsp_cs)
+	add_child(wsp)
+	var wsp_vis := Sprite2D.new()
+	wsp_vis.name = "Z4_WellSpikesVis"
+	wsp_vis.texture = _SPIKES_TEX
+	wsp_vis.centered = true
+	wsp_vis.region_enabled = true
+	wsp_vis.region_rect = Rect2(0.0, 0.0, 32.0, 32.0)
+	wsp_vis.scale = Vector2(2.0, 2.0)
+	wsp_vis.rotation = PI
+	wsp_vis.modulate = _ICE_TINT
+	wsp_vis.position = Vector2(17592.0, 1360.0)
+	wsp_vis.z_index = 5
+	add_child(wsp_vis)
+	# Checkpoint da base (índice 3; o corredor CP3 passa a 4)
+	var cp: Area2D = preload("res://stages/checkpoint.tscn").instantiate()
+	cp.name = "WellCheckpoint"
+	cp.set("checkpoint_index", 3)
+	cp.position = Vector2(18032.0, 1952.0)
+	var cp_cs := cp.get_node_or_null("CollisionShape2D") as CollisionShape2D
+	if cp_cs:
+		var cp_rect := RectangleShape2D.new()
+		cp_rect.size = Vector2(64.0, 256.0)
+		cp_cs.shape = cp_rect
+	add_child(cp)
+	# Updraft de nevasca no shaft direito (sobe de volta ao corredor)
+	var up: Area2D = preload("res://stages/stage_02/blizzard_zone.gd").new()
+	up.name = "Z4_WellUpdraft"
+	up.set("force", Vector2(0.0, -1300.0))
+	up.collision_layer = 0
+	up.collision_mask = 2
+	up.position = Vector2(18504.0, 1470.0)
+	var ucs := CollisionShape2D.new()
+	var ush := RectangleShape2D.new()
+	ush.size = Vector2(288.0, 1220.0)
+	ucs.shape = ush
+	up.add_child(ucs)
+	add_child(up)
+
+# Borda áspera: faixa de 128px de cascalho que desativa a derrapagem — colada
+# na beirada dos abismos mortais (aproximação do pulo com tração normal).
+func _rough_patch(n: String, cx: float) -> void:
+	var p: Area2D = preload("res://stages/stage_02/rough_patch.gd").new()
+	p.name = n
+	p.collision_layer = 0
+	p.collision_mask = 2
+	p.position = Vector2(cx, FLOOR_Y - 24.0)
+	var cs := CollisionShape2D.new()
+	var sh := RectangleShape2D.new()
+	sh.size = Vector2(128.0, 48.0)
+	cs.shape = sh
+	p.add_child(cs)
+	add_child(p)
 
 # Debug ?zone=N: spawna o player no início de uma zona (calibrar trechos isolados).
 func _zone_spawn(zone: int) -> Vector2:

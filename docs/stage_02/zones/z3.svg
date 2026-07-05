@@ -25,9 +25,6 @@
 <rect x="12336" y="-1440" width="128" height="2048" fill="#73bff2" fill-opacity="0.82" stroke="#a4d6f7" stroke-width="2"/>
 <rect x="12338" y="-1438" width="127.04" height="30" fill="#000000" fill-opacity="0.7"/>
 <text x="12342" y="-1414" font-size="24" fill="#a4d6f7">glass002</text>
-<rect x="17300" y="800" width="700" height="192" fill="#8c8c8c" fill-opacity="0.82" stroke="#b4b4b4" stroke-width="2"/>
-<rect x="17302" y="802" width="127.04" height="30" fill="#000000" fill-opacity="0.7"/>
-<text x="17306" y="826" font-size="24" fill="#b4b4b4">floor034</text>
 <rect x="15600" y="736" width="500" height="192" fill="#8c8c8c" fill-opacity="0.82" stroke="#b4b4b4" stroke-width="2"/>
 <rect x="15602" y="738" width="127.04" height="30" fill="#000000" fill-opacity="0.7"/>
 <text x="15606" y="762" font-size="24" fill="#b4b4b4">floor030</text>
@@ -70,6 +67,9 @@
 <rect x="13200" y="800" width="176" height="192" fill="#8c8c8c" fill-opacity="0.82" stroke="#b4b4b4" stroke-width="2"/>
 <rect x="13202" y="802" width="127.04" height="30" fill="#000000" fill-opacity="0.7"/>
 <text x="13206" y="826" font-size="24" fill="#b4b4b4">floor025</text>
+<rect x="17300" y="800" width="100" height="192" fill="#8c8c8c" fill-opacity="0.82" stroke="#b4b4b4" stroke-width="2"/>
+<rect x="17302" y="802" width="127.04" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="17306" y="826" font-size="24" fill="#b4b4b4">floor034</text>
 <rect x="13166.67" y="636" width="66.67" height="200" fill="#f2d933" fill-opacity="0.82" stroke="#f7e67a" stroke-width="2"/>
 <rect x="13168.67" y="638" width="112.16" height="30" fill="#000000" fill-opacity="0.7"/>
 <text x="13172.67" y="662" font-size="24" fill="#f7e67a">door004</text>

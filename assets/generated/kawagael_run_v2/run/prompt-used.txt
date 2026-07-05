@@ -1,0 +1,13 @@
+Use case: stylized-concept
+Asset type: 2D game sprite running animation sheet
+Primary request: Create an improved side-view run animation sheet for the same character shown in the input reference image.
+Input image role: Use the provided KawagaelRun.png only as the visual identity reference. Preserve the same character identity, silhouette family, emerald-green armor, purple shadow accents, gold crown-like helmet antennae, cyan glowing eyes, cyan chest gem, compact forearm railguns, dark outlines, and action-platformer pixel-art material language. Do not copy any other character. Improve only the running animation.
+Style/medium: crisp game-ready pixel art for a side-scrolling action platformer, readable at small size, strong dark outline, clean cel-shaded armor clusters, no painterly blur.
+Composition/framing: exact 2 rows by 4 columns, eight equal invisible cells, read left-to-right across the first row then left-to-right across the second row. Each cell must contain one full-body run frame facing right.
+Action sequence: 8-frame run cycle facing right with clear alternating legs and arms. Frame 1 camera-side leg forward planted, far leg back. Frame 2 passing pose. Frame 3 camera-side leg pushing back, far leg swinging forward. Frame 4 airborne/extended transition. Frame 5 far-side leg forward planted, camera-side leg back; this must be clearly opposite of frame 1. Frame 6 passing pose opposite. Frame 7 far-side leg pushing back, camera-side leg swinging forward. Frame 8 airborne/extended transition returning cleanly to frame 1.
+Leg readability: make the camera-side leg slightly brighter emerald with clearer gold highlights; make the far-side leg darker with more purple shadow. The legs must visibly trade positions during the cycle.
+Body rules: keep head, torso, helmet antennae, railguns, armor proportions, and chest gem consistent in all frames. Arms pump opposite the legs while forearm railguns stay close to the body. No shooting, no muzzle flash, no projectiles.
+Containment rules: body centered in each cell, body centerline near cell center, feet on a stable bottom anchor line, same body height and scale in every frame. The entire character including helmet antennae, railguns, hands, feet, toes, glows, and outlines must fit fully inside the central 60% to 70% safe area of each cell. Nothing may touch or cross a cell edge. Leave solid magenta padding on all four sides.
+Constraints: exact 2x4 grid, same character identity every frame, full body visible, no cropped parts, no visible grid, no borders, no dividers.
+Avoid: no detached dust, no energy trails, no projectile, no muzzle flash, no text, no labels, no UI, no gradients.
+Background: 100% solid flat #FF00FF only.

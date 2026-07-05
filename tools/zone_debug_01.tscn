@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://zone_debug_01_gen"]
+
+[ext_resource type="Script" path="res://tools/zone_debug_01.gd" id="1_script"]
+
+[node name="ZoneDebug01" type="Node"]
+script = ExtResource("1_script")
