@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-128 -128 9824 1424" width="2800" height="406" font-family="monospace">
+<rect x="-128" y="-128" width="9824" height="1424" fill="#0a0a12"/>
+<rect x="4800" y="300" width="4800" height="900" fill="#f28c26" fill-opacity="0.82" stroke="#f7b472" stroke-width="2"/>
+<rect x="4802" y="302" width="112.16" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="4806" y="326" font-size="24" fill="#f7b472">zone004</text>
+<rect x="5500" y="300" width="760" height="500" fill="#f28c26" fill-opacity="0.82" stroke="#f7b472" stroke-width="2"/>
+<rect x="5502" y="302" width="112.16" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="5506" y="326" font-size="24" fill="#f7b472">zone005</text>
+<rect x="7700" y="300" width="760" height="500" fill="#f28c26" fill-opacity="0.82" stroke="#f7b472" stroke-width="2"/>
+<rect x="7702" y="302" width="112.16" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="7706" y="326" font-size="24" fill="#f7b472">zone008</text>
+<rect x="6160" y="800" width="1640" height="192" fill="#8c8c8c" fill-opacity="0.82" stroke="#b4b4b4" stroke-width="2"/>
+<rect x="6162" y="802" width="127.04" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="6166" y="826" font-size="24" fill="#b4b4b4">floor011</text>
+<rect x="8360" y="800" width="1240" height="192" fill="#8c8c8c" fill-opacity="0.82" stroke="#b4b4b4" stroke-width="2"/>
+<rect x="8362" y="802" width="127.04" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="8366" y="826" font-size="24" fill="#b4b4b4">floor012</text>
+<rect x="4800" y="800" width="800" height="192" fill="#8c8c8c" fill-opacity="0.82" stroke="#b4b4b4" stroke-width="2"/>
+<rect x="4802" y="802" width="127.04" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="4806" y="826" font-size="24" fill="#b4b4b4">floor010</text>
+<rect x="6900" y="280" width="200" height="520" fill="#f28c26" fill-opacity="0.82" stroke="#f7b472" stroke-width="2"/>
+<rect x="6902" y="282" width="112.16" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="6906" y="306" font-size="24" fill="#f7b472">zone006</text>
+<rect x="7100" y="480" width="128" height="320" fill="#b3b3b3" fill-opacity="0.82" stroke="#cdcdcd" stroke-width="2"/>
+<rect x="7102" y="482" width="112.16" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="7106" y="506" font-size="24" fill="#cdcdcd">misc004</text>
+<rect x="5600" y="800" width="64" height="320" fill="#73bff2" fill-opacity="0.82" stroke="#a4d6f7" stroke-width="2"/>
+<rect x="5602" y="802" width="127.04" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="5606" y="826" font-size="24" fill="#a4d6f7">glass003</text>
+<rect x="6096" y="800" width="64" height="320" fill="#73bff2" fill-opacity="0.82" stroke="#a4d6f7" stroke-width="2"/>
+<rect x="6098" y="802" width="127.04" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="6102" y="826" font-size="24" fill="#a4d6f7">glass004</text>
+<rect x="7800" y="800" width="64" height="320" fill="#73bff2" fill-opacity="0.82" stroke="#a4d6f7" stroke-width="2"/>
+<rect x="7802" y="802" width="127.04" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="7806" y="826" font-size="24" fill="#a4d6f7">glass005</text>
+<rect x="8296" y="800" width="64" height="320" fill="#73bff2" fill-opacity="0.82" stroke="#a4d6f7" stroke-width="2"/>
+<rect x="8298" y="802" width="127.04" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="8302" y="826" font-size="24" fill="#a4d6f7">glass006</text>
+<rect x="7132" y="408" width="64" height="64" fill="#f28c26" fill-opacity="0.82" stroke="#f7b472" stroke-width="2"/>
+<rect x="7134" y="410" width="112.16" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="7138" y="434" font-size="24" fill="#f7b472">zone007</text>
+<rect x="8868" y="568" width="64" height="64" fill="#f28c26" fill-opacity="0.82" stroke="#f7b472" stroke-width="2"/>
+<rect x="8870" y="570" width="112.16" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="8874" y="594" font-size="24" fill="#f7b472">zone009</text>
+<rect x="-32" y="-32" width="64" height="64" fill="#334db3" fill-opacity="0.82" stroke="#7a8bcd" stroke-width="2"/>
+<rect x="-30" y="-30" width="112.16" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="-26" y="-6" font-size="24" fill="#7a8bcd">ceil002</text>
+</svg>
