@@ -33,8 +33,9 @@ func _ready() -> void:
 		var wall_top    : float = ceil_n.position.y  - TS * 0.5   # topo da parede = topo da sala
 		var wall_bottom : float = floor_n.position.y + TS * 0.5   # base da parede = base da sala
 		# _BOSS_DOOR_LO e _BOSS_DOOR_HI copiados das consts da stage
-		const DOOR_LO := 240.0
-		const DOOR_HI := 440.0
+		# (arena deslocada -1622 em Y junto com o topo do shaft; piso top -986)
+		const DOOR_LO := -1094.0
+		const DOOR_HI := -986.0
 		if DOOR_LO < wall_top:
 			print("FAIL: DOOR_LO (%.0f) acima do topo da parede (%.0f)" % [DOOR_LO, wall_top])
 			fail = true
@@ -42,8 +43,8 @@ func _ready() -> void:
 			print("FAIL: DOOR_HI (%.0f) abaixo da base da parede (%.0f)" % [DOOR_HI, wall_bottom])
 			fail = true
 		# ── Colisão da BossWallL NÃO invade o vão da porta ───────────────────────────
-		# A colisão da parede esquerda deve terminar em/acima de _BOSS_DOOR_LO (224),
-		# deixando 224..440 como abertura livre — senão o player fica fisicamente bloqueado
+		# A colisão da parede esquerda deve terminar em/acima de _BOSS_DOOR_LO,
+		# deixando DOOR_LO..DOOR_HI como abertura livre — senão o player fica fisicamente bloqueado
 		# de entrar na arena (bug crítico: parede sólida full-height).
 		var lcs: CollisionShape2D = null
 		for c in lwall.get_children():
@@ -71,8 +72,8 @@ func _ready() -> void:
 		if al < 18900.0 or ar > 21716.0:
 			print("FAIL: arena_left/right fora dos limites esperados (%.0f, %.0f)" % [al, ar])
 			fail = true
-		if absf(af - 440.0) > 0.5:
-			print("FAIL: arena_floor esperado 440, obtido %.1f" % af)
+		if absf(af - (-986.0)) > 0.5:
+			print("FAIL: arena_floor esperado -986, obtido %.1f" % af)
 			fail = true
 
 	# ── Soleira de transição (BossThreshold) ─────────────────────────────────────
@@ -82,8 +83,8 @@ func _ready() -> void:
 		if thr.position.x < 18800.0 or thr.position.x > 18970.0:
 			print("FAIL: BossThreshold.x fora do esperado (%.0f)" % thr.position.x)
 			fail = true
-		# centro_y = 472 → topo = 440 (= _BOSS_FLOOR_TOP)
-		if thr.position.y < 440.0 or thr.position.y > 510.0:
+		# topo = -986 (= _BOSS_FLOOR_TOP); centro até ~70px abaixo do topo
+		if thr.position.y < -986.0 or thr.position.y > -916.0:
 			print("FAIL: BossThreshold.y fora do esperado (%.0f)" % thr.position.y)
 			fail = true
 
