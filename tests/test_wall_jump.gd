@@ -7,6 +7,7 @@ func _ready() -> void:
 	test_wall_slide_flag_set_when_on_wall()
 	test_wall_jump_velocity_applied()
 	test_dash_wall_jump()
+	test_wall_coyote()
 	test_no_wall_slide_on_floor()
 	print("Wall Jump Tests: %d passed, %d failed" % [_passed, _failed])
 	get_tree().quit(0 if _failed == 0 else 1)
@@ -80,4 +81,26 @@ func test_no_wall_slide_on_floor() -> void:
 	c._is_dashing = true
 	c._update_wall_slide()
 	_assert(c._is_wall_sliding == false, "Wall slide desativa quando dashing")
+	c.queue_free()
+
+func test_wall_coyote() -> void:
+	var char_scene := load("res://characters/ranged/zael.tscn") as PackedScene
+	var c := char_scene.instantiate()
+	add_child(c)
+	_assert(c.WALL_COYOTE_TIME == 0.15, "WALL_COYOTE_TIME == 0.15")
+	# Coyote ativo no ar (sem chão na cena → is_on_floor() == false)
+	c._is_wall_sliding = false
+	c._wall_coyote_timer = 0.1
+	_assert(c._can_wall_jump(), "_can_wall_jump: true com coyote ativo no ar")
+	# Sem slide e sem coyote
+	c._wall_coyote_timer = 0.0
+	_assert(not c._can_wall_jump(), "_can_wall_jump: false sem slide e sem coyote")
+	# Em wall slide
+	c._is_wall_sliding = true
+	_assert(c._can_wall_jump(), "_can_wall_jump: true em wall slide")
+	# _apply_wall_jump zera o coyote
+	c._wall_normal = Vector2(1.0, 0.0)
+	c._wall_coyote_timer = 0.15
+	c._apply_wall_jump()
+	_assert(c._wall_coyote_timer == 0.0, "_apply_wall_jump zera o coyote de parede")
 	c.queue_free()
