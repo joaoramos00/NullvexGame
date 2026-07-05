@@ -18,9 +18,14 @@ var _override_tex_cache: Dictionary = {}
 var _zone_min: float = 0.0
 var _zone_max: float = 1.0
 var _zone_use_y: bool = false
-# Rect da área visível pela câmera (world-space). Atualizado em _process a cada frame;
-# usado em _draw() para pintar o backdrop antes das plataformas.
-var _cam_visible_rect := Rect2()
+# Retângulo do backdrop (fundo branco temporário): calculado UMA VEZ, cobrindo toda a
+# extensão da fase com margem generosa. Fixo (não acompanha a câmera por frame) — um
+# rect recalculado a cada _process a partir de _cam_visible_rect ficava 1 frame
+# dessincronizado do que a GPU efetivamente renderizava, deixando frestas escuras
+# (o frame anterior "vazando") ao mover a câmera rápido. Mesmo padrão do fundo de
+# debug de stage_00 (_draw_background: rect grande fixo cobrindo a fase inteira).
+var _bg_rect := Rect2()
+var _bg_rect_ready := false
 
 func _ready() -> void:
 	if StageManager.current_stage_id < 0:
@@ -73,10 +78,6 @@ func _process(delta: float) -> void:
 	if is_instance_valid(_player) and _cam_ctrl != null:
 		_cam_ctrl.update(delta)
 		$Camera2D.global_position = Vector2(_cam_ctrl.target_x, _cam_ctrl.target_y)
-	var zoom := $Camera2D.zoom
-	var vp   := get_viewport().get_visible_rect().size
-	var half := vp / zoom * 0.5
-	_cam_visible_rect = Rect2($Camera2D.global_position - half, half * 2.0)
 	queue_redraw()
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -136,18 +137,38 @@ func _cached_override_tex(path: String) -> Texture2D:
 	_override_tex_cache[path] = t
 	return t
 
+# Calcula UMA VEZ o retângulo do backdrop cobrindo toda a extensão construída da
+# fase (com margem). Chamado lazy no primeiro _draw() — nesse ponto todos os nós
+# dinâmicos (zonas construídas em _ready() de stage_01_scene.gd) já existem.
+func _compute_bg_rect() -> void:
+	_bg_rect_ready = true
+	var min_x: float = INF
+	var max_x: float = -INF
+	var min_y: float = INF
+	var max_y: float = -INF
+	for child in get_children():
+		if not (child is StaticBody2D or child is AnimatableBody2D or child is Area2D):
+			continue
+		var p: Vector2 = (child as Node2D).position
+		min_x = minf(min_x, p.x)
+		max_x = maxf(max_x, p.x)
+		min_y = minf(min_y, p.y)
+		max_y = maxf(max_y, p.y)
+	if min_x == INF:
+		return
+	const PAD := 1000.0
+	_bg_rect = Rect2(min_x - PAD, min_y - PAD, (max_x - min_x) + PAD * 2.0, (max_y - min_y) + PAD * 2.0)
+
 func _draw() -> void:
-	# Backdrop: preenche a área visível com o tile de preenchimento (2,1) da zona atual.
-	# Desenhado ANTES das plataformas; as plataformas sobreescrevem com seu tile próprio.
-	# Elimina o vazio preto fora das paredes (shaft, laterais de corredores, etc.).
-	# Ativo apenas para fases 1-8 (que têm zone_tilesets carregados).
-	if not _zone_tilesets.is_empty() and _cam_visible_rect.size.x > 0.0:
-		var bdr_tex := _get_zone_tileset(_cam_visible_rect.get_center())
-		if bdr_tex:
-			# Expande às bordas de tile para não aparecer borda branca.
-			var tl := (_cam_visible_rect.position / float(_TS)).floor() * _TS
-			var br := (_cam_visible_rect.end   / float(_TS)).ceil()  * _TS
-			_draw_fill_tiles(Rect2(tl, br - tl), bdr_tex)
+	# Backdrop: fundo branco liso (temporário — substitui o preenchimento por
+	# tileset). Elimina o vazio preto fora das paredes (shaft, laterais de
+	# corredores, etc.). Ativo apenas para fases 1-8 (que têm zone_tilesets
+	# carregados, usado só como sinal de que o backdrop deve existir).
+	if not _zone_tilesets.is_empty():
+		if not _bg_rect_ready:
+			_compute_bg_rect()
+		if _bg_rect.size.x > 0.0:
+			draw_rect(_bg_rect, Color.WHITE)
 	for child in get_children():
 		if not child is StaticBody2D:
 			continue

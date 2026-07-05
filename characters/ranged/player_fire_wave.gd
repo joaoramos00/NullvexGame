@@ -76,6 +76,10 @@ func _switch_to_wall() -> void:
 
 func _switch_to_floor() -> void:
 	_vertical = false
+	# _ray_wall só perde a parede quando o ponto de checagem (à frente, em X)
+	# já está sobre o novo piso; avança X até lá para não flutuar num vão
+	# entre a lateral da parede (onde a wave ficou parada subindo) e o piso novo.
+	global_position.x += dir * (_WAVE_W * 0.5 + 8.0)
 	# Restaura floor following
 	_ray_floor = RayCast2D.new()
 	_ray_floor.collision_mask = 1
@@ -106,7 +110,9 @@ func _spawn_burst() -> void:
 	sp.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	sp.z_index = 3
 	if _vertical:
-		sp.global_position = Vector2(global_position.x, global_position.y - _WAVE_H * 0.5 + 32.0)
+		sp.global_position = Vector2(
+			global_position.x + dir * _WAVE_W * 0.5,
+			global_position.y - _WAVE_H * 0.5 + 32.0)
 		sp.rotation = -dir * PI * 0.5
 	else:
 		sp.global_position = Vector2(global_position.x, global_position.y + _WAVE_H * 0.5 - 32.0)
