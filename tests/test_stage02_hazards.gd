@@ -59,9 +59,10 @@ func _test_ice_spikes_damage_player() -> void:
 	var player := DummyPlayer.new()
 	add_child(spikes)
 	add_child(player)
+	_assert(bool(spikes.instant_kill), "ice_spikes instant_kill por padrão (espinho mata)")
 	spikes.damage = 7
-	spikes._on_body_entered(player)
-	_assert(player.damage_taken == 7, "ice_spikes damage player once on enter")
+	spikes._on_body_entered(player)   # DummyPlayer não é CharacterBase → caminho de dano
+	_assert(player.damage_taken == 7, "ice_spikes damage fallback p/ corpos genéricos")
 	spikes.queue_free()
 	player.queue_free()
 

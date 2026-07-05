@@ -55,6 +55,9 @@
 <rect x="8680" y="704" width="160" height="32" fill="#4dd959" fill-opacity="0.82" stroke="#8be693" stroke-width="2"/>
 <rect x="8682" y="706" width="112.16" height="30" fill="#000000" fill-opacity="0.7"/>
 <text x="8686" y="730" font-size="24" fill="#8be693">plat002</text>
+<rect x="9120" y="704" width="128" height="32" fill="#4dd959" fill-opacity="0.82" stroke="#8be693" stroke-width="2"/>
+<rect x="9122" y="706" width="112.16" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="9126" y="730" font-size="24" fill="#8be693">plat003</text>
 <rect x="7364" y="960" width="64" height="64" fill="#8c8c8c" fill-opacity="0.82" stroke="#b4b4b4" stroke-width="2"/>
 <rect x="7366" y="962" width="127.04" height="30" fill="#000000" fill-opacity="0.7"/>
 <text x="7370" y="986" font-size="24" fill="#b4b4b4">floor017</text>
