@@ -8,6 +8,7 @@ func _ready() -> void:
 	test_wall_jump_velocity_applied()
 	test_dash_wall_jump()
 	test_wall_coyote()
+	test_wall_coyote_arming()
 	test_no_wall_slide_on_floor()
 	print("Wall Jump Tests: %d passed, %d failed" % [_passed, _failed])
 	get_tree().quit(0 if _failed == 0 else 1)
@@ -81,6 +82,30 @@ func test_no_wall_slide_on_floor() -> void:
 	c._is_dashing = true
 	c._update_wall_slide()
 	_assert(c._is_wall_sliding == false, "Wall slide desativa quando dashing")
+	c.queue_free()
+
+func test_wall_coyote_arming() -> void:
+	var char_scene := load("res://characters/ranged/zael.tscn") as PackedScene
+	var c := char_scene.instantiate()
+	add_child(c)
+	# Soltou do slide (sem parede detectada, sem chão) → else final arma o coyote
+	c._is_dashing = false
+	c._is_wall_sliding = true
+	c._wall_coyote_timer = 0.0
+	c._update_wall_slide()
+	_assert(c._is_wall_sliding == false, "Soltar da parede encerra o slide")
+	_assert(c._wall_coyote_timer == c.WALL_COYOTE_TIME, "Soltar da parede arma o coyote")
+	# Sem slide prévio, o else final NÃO arma
+	c._wall_coyote_timer = 0.0
+	c._update_wall_slide()
+	_assert(c._wall_coyote_timer == 0.0, "Sem slide prévio não arma coyote")
+	# Encerrar slide pelo ramo do dash não arma
+	c._is_wall_sliding = true
+	c._is_dashing = true
+	c._wall_coyote_timer = 0.0
+	c._update_wall_slide()
+	_assert(c._wall_coyote_timer == 0.0, "Encerrar slide por dash não arma coyote")
+	c._is_dashing = false
 	c.queue_free()
 
 func test_wall_coyote() -> void:
