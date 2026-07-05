@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-128 -128 5824 1312" width="2800" height="631" font-family="monospace">
+<rect x="-128" y="-128" width="5824" height="1312" fill="#0a0a12"/>
+<rect x="3650" y="800" width="550" height="192" fill="#8c8c8c" fill-opacity="0.82" stroke="#b4b4b4" stroke-width="2"/>
+<rect x="3652" y="802" width="127.04" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="3656" y="826" font-size="24" fill="#b4b4b4">floor010</text>
+<rect x="400" y="800" width="768" height="128" fill="#b3b3b3" fill-opacity="0.82" stroke="#cdcdcd" stroke-width="2"/>
+<rect x="402" y="802" width="112.16" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="406" y="826" font-size="24" fill="#cdcdcd">misc001</text>
+<rect x="1400" y="736" width="500" height="192" fill="#8c8c8c" fill-opacity="0.82" stroke="#b4b4b4" stroke-width="2"/>
+<rect x="1402" y="738" width="127.04" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="1406" y="762" font-size="24" fill="#b4b4b4">floor004</text>
+<rect x="4200" y="736" width="500" height="192" fill="#8c8c8c" fill-opacity="0.82" stroke="#b4b4b4" stroke-width="2"/>
+<rect x="4202" y="738" width="127.04" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="4206" y="762" font-size="24" fill="#b4b4b4">floor011</text>
+<rect x="3000" y="800" width="450" height="192" fill="#8c8c8c" fill-opacity="0.82" stroke="#b4b4b4" stroke-width="2"/>
+<rect x="3002" y="802" width="127.04" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="3006" y="826" font-size="24" fill="#b4b4b4">floor008</text>
+<rect x="2560" y="800" width="440" height="192" fill="#8c8c8c" fill-opacity="0.82" stroke="#b4b4b4" stroke-width="2"/>
+<rect x="2562" y="802" width="127.04" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="2566" y="826" font-size="24" fill="#b4b4b4">floor007</text>
+<rect x="4700" y="800" width="640" height="128" fill="#b3b3b3" fill-opacity="0.82" stroke="#cdcdcd" stroke-width="2"/>
+<rect x="4702" y="802" width="112.16" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="4706" y="826" font-size="24" fill="#cdcdcd">misc002</text>
+<rect x="0" y="800" width="400" height="192" fill="#8c8c8c" fill-opacity="0.82" stroke="#b4b4b4" stroke-width="2"/>
+<rect x="2" y="802" width="127.04" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="6" y="826" font-size="24" fill="#b4b4b4">floor002</text>
+<rect x="1900" y="800" width="400" height="192" fill="#8c8c8c" fill-opacity="0.82" stroke="#b4b4b4" stroke-width="2"/>
+<rect x="1902" y="802" width="127.04" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="1906" y="826" font-size="24" fill="#b4b4b4">floor005</text>
+<rect x="2300" y="896" width="260" height="192" fill="#8c8c8c" fill-opacity="0.82" stroke="#b4b4b4" stroke-width="2"/>
+<rect x="2302" y="898" width="127.04" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="2306" y="922" font-size="24" fill="#b4b4b4">floor006</text>
+<rect x="5340" y="800" width="260" height="192" fill="#8c8c8c" fill-opacity="0.82" stroke="#b4b4b4" stroke-width="2"/>
+<rect x="5342" y="802" width="127.04" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="5346" y="826" font-size="24" fill="#b4b4b4">floor012</text>
+<rect x="1168" y="800" width="232" height="192" fill="#8c8c8c" fill-opacity="0.82" stroke="#b4b4b4" stroke-width="2"/>
+<rect x="1170" y="802" width="127.04" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="1174" y="826" font-size="24" fill="#b4b4b4">floor003</text>
+<rect x="3450" y="896" width="200" height="192" fill="#8c8c8c" fill-opacity="0.82" stroke="#b4b4b4" stroke-width="2"/>
+<rect x="3452" y="898" width="127.04" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="3456" y="922" font-size="24" fill="#b4b4b4">floor009</text>
+<rect x="4757.33" y="711.93" width="72" height="96" fill="#e64040" fill-opacity="0.82" stroke="#ee8383" stroke-width="2"/>
+<rect x="4759.33" y="713.93" width="127.04" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="4763.33" y="737.93" font-size="24" fill="#ee8383">grunt009</text>
+<rect x="1086.67" y="552.5" width="72" height="96" fill="#e64040" fill-opacity="0.82" stroke="#ee8383" stroke-width="2"/>
+<rect x="1088.67" y="554.5" width="127.04" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="1092.67" y="578.5" font-size="24" fill="#ee8383">grunt002</text>
+<rect x="2886.67" y="512.5" width="72" height="96" fill="#e64040" fill-opacity="0.82" stroke="#ee8383" stroke-width="2"/>
+<rect x="2888.67" y="514.5" width="127.04" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="2892.67" y="538.5" font-size="24" fill="#ee8383">grunt006</text>
+<rect x="4386.67" y="552.5" width="72" height="96" fill="#e64040" fill-opacity="0.82" stroke="#ee8383" stroke-width="2"/>
+<rect x="4388.67" y="554.5" width="127.04" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="4392.67" y="578.5" font-size="24" fill="#ee8383">grunt008</text>
+<rect x="1664" y="704.94" width="72" height="96" fill="#e64040" fill-opacity="0.82" stroke="#ee8383" stroke-width="2"/>
+<rect x="1666" y="706.94" width="127.04" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="1670" y="730.94" font-size="24" fill="#ee8383">grunt004</text>
+<rect x="5064" y="693.65" width="72" height="96" fill="#e64040" fill-opacity="0.82" stroke="#ee8383" stroke-width="2"/>
+<rect x="5066" y="695.65" width="127.04" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="5070" y="719.65" font-size="24" fill="#ee8383">grunt010</text>
+<rect x="3686.67" y="711.93" width="72" height="96" fill="#e64040" fill-opacity="0.82" stroke="#ee8383" stroke-width="2"/>
+<rect x="3688.67" y="713.93" width="127.04" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="3692.67" y="737.93" font-size="24" fill="#ee8383">grunt007</text>
+<rect x="2686.67" y="711.93" width="72" height="96" fill="#e64040" fill-opacity="0.82" stroke="#ee8383" stroke-width="2"/>
+<rect x="2688.67" y="713.93" width="127.04" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="2692.67" y="737.93" font-size="24" fill="#ee8383">grunt005</text>
+<rect x="1486.67" y="647.93" width="72" height="96" fill="#e64040" fill-opacity="0.82" stroke="#ee8383" stroke-width="2"/>
+<rect x="1488.67" y="649.93" width="127.04" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="1492.67" y="673.93" font-size="24" fill="#ee8383">grunt003</text>
+<rect x="686.67" y="647.93" width="72" height="96" fill="#e64040" fill-opacity="0.82" stroke="#ee8383" stroke-width="2"/>
+<rect x="688.67" y="649.93" width="127.04" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="692.67" y="673.93" font-size="24" fill="#ee8383">grunt001</text>
+<rect x="-32" y="-32" width="64" height="64" fill="#334db3" fill-opacity="0.82" stroke="#7a8bcd" stroke-width="2"/>
+<rect x="-30" y="-30" width="112.16" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="-26" y="-6" font-size="24" fill="#7a8bcd">ceil001</text>
+<rect x="-32" y="-32" width="64" height="64" fill="#334db3" fill-opacity="0.82" stroke="#7a8bcd" stroke-width="2"/>
+<rect x="-30" y="-30" width="112.16" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="-26" y="-6" font-size="24" fill="#7a8bcd">ceil003</text>
+<rect x="1468" y="668" width="64" height="64" fill="#f28c26" fill-opacity="0.82" stroke="#f7b472" stroke-width="2"/>
+<rect x="1470" y="670" width="112.16" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="1474" y="694" font-size="24" fill="#f7b472">zone001</text>
+<rect x="148" y="728" width="64" height="64" fill="#f2f2f2" fill-opacity="0.82" stroke="#f7f7f7" stroke-width="2"/>
+<rect x="150" y="730" width="127.04" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="154" y="754" font-size="24" fill="#f7f7f7">spawn001</text>
+</svg>
