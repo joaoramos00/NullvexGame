@@ -1004,8 +1004,8 @@ func _z4_wall_plat(n: String, side: String, top_y: float, spikes_under: bool) ->
 		# Base embutida na rocha (o PNG tem margem transparente na base;
 		# encostada na borda visível os espinhos parecem flutuar) — offset bem
 		# maior que o proporcional (24) porque em jogo ainda pareciam altos
-		# demais (+8 depois +30 de ajuste de playtest).
-		_z4_spikes_under(n + "Spikes", s0, s0 + STRIP, top_y + 62.0)
+		# demais (+8, +30, depois -5 de ajustes de playtest).
+		_z4_spikes_under(n + "Spikes", s0, s0 + STRIP, top_y + 57.0)
 
 # Tira de espinhos pendurada na base de uma parede+plat, apontando pra baixo: Area2D
 # instant-kill alinhada às pontas (cobre o corpo todo da tira) + visual do PNG
@@ -1045,10 +1045,10 @@ func _z4_spike_face(n: String, wall_x: float, cy: float, h: float, side: String 
 	# Embute na parede (visual+sólido) — antes ficavam exatamente flush em
 	# wall_x, mas o bevel/transparência do tile de face da rocha faz parecer que
 	# sobra um vão. cx desloca o bloco todo pra dentro da parede.
-	# Lado R ajustado +10px pra fora (playtest: parecia grudado demais na
-	# parede direita comparado à esquerda) — embeds não são mais simétricos.
+	# Lado R ajustado (playtest): +10px pra fora, depois -5px de volta pra
+	# perto da parede — embeds não são mais simétricos.
 	const _EMBED_L := 8.0
-	const _EMBED_R := 18.0
+	const _EMBED_R := 13.0
 	var cx: float = wall_x + _EMBED_L if side == "L" else wall_x - _EMBED_R
 	# skip_base_draw: o bloco de colisão NÃO desenha tiles — o visual do espinho é só
 	# o PNG (fundo transparente). Sem isso o modo "lava" desenhava um bloco de rocha
