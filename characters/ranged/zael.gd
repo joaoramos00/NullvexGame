@@ -223,7 +223,7 @@ func _setup_sprite_frames() -> void:
 
 func _handle_jump() -> void:
     # Wall-jump tem PRIORIDADE: funciona mesmo durante o dash-jump (encerra o dash-jump).
-    if Input.is_action_just_pressed("jump") and _is_wall_sliding:
+    if Input.is_action_just_pressed("jump") and _can_wall_jump():
         _dash_jump = false
         _apply_wall_jump()
         return
