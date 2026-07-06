@@ -25,7 +25,7 @@ func _ready() -> void:
     test_debug_movement_scene_includes_stage02_enemies()
     test_floor_platform_tiles()
     test_floor_platform_hole_tiles()
-    test_wall_platform_rows0_keeps_tip_tiles()
+    test_wall_platform_cols0_keeps_tip_tiles()
     print("ALL TESTS PASSED")
     get_tree().quit(0)
 
@@ -413,35 +413,34 @@ func test_floor_platform_hole_tiles() -> void:
     pv.free()
     print("PASS: floor_platform_hole_tiles")
 
-# Modo "Parede+Plat": rows=0 é o piso do controle "−" — em vez de sumir a
-# plataforma (banda vazia, r>=elem_t and r<=elem_b nunca verdadeiro), cai pro
-# cap mínimo de 2 linhas (ponta topo + ponta base, sem miolo reto), idêntico
-# em altura de canvas e tiles ao rows=2 (nunca um resultado vazio/quebrado).
-func test_wall_platform_rows0_keeps_tip_tiles() -> void:
+# Modo "Parede+Plat": cols=0 é o piso do controle "−" — em vez de sumir o
+# elemento (elem_last coincide com a coluna da face, interceptado antes de
+# chegar no ramo da ponta), cols=0 cai pro nub mínimo de 1 coluna (só a ponta,
+# topo+base, sem miolo) — igual ao Foothold de 1 tile já usado no jogo.
+func test_wall_platform_cols0_keeps_tip_tiles() -> void:
     var pv = ImgDebug._PlatformView.new()
     pv.mode = "wall_platform"
-    pv.cols = 3
-    var elem_last: int = 1 + pv.cols   # coluna externa do elemento (outer)
-
     pv.rows = 2
-    var grid2: Vector2i = pv._wall_grid()
+    pv.cols = 0
+    var elem_t: int = pv._FP_DEPTH
+    var elem_b: int = pv._FP_DEPTH + pv.rows - 1
+    var elem_last: int = 1 + 1   # eff_cols(0) == 1 → coluna externa do nub
 
-    pv.rows = 0
-    var grid0: Vector2i = pv._wall_grid()
-    assert(grid0 == grid2, "rows=0 deve ter a mesma altura de canvas que rows=2 (cap mínimo), veio %s vs %s" % [grid0, grid2])
+    var grid: Vector2i = pv._wall_grid()
+    assert(grid.x > elem_last, "cols=0: canvas deve ter largura suficiente pro nub (elem_last=%d), veio %d" % [elem_last, grid.x])
 
     # Parede à esquerda (mirror_hole=false): ponta topo (0,0), ponta base (3,3)
     pv.mirror_hole = false
-    assert(pv._wall_tile_at(elem_last, 2) == Vector2i(0, 0), "rows=0, parede esq: ponta topo (0,0)")
-    assert(pv._wall_tile_at(elem_last, 3) == Vector2i(3, 3), "rows=0, parede esq: ponta base (3,3)")
+    assert(pv._wall_tile_at(elem_last, elem_t) == Vector2i(0, 0), "cols=0, parede esq: ponta topo (0,0)")
+    assert(pv._wall_tile_at(elem_last, elem_b) == Vector2i(3, 3), "cols=0, parede esq: ponta base (3,3)")
 
     # Parede à direita (mirror_hole=true): ponta topo (1,3), ponta base (0,2)
     pv.mirror_hole = true
-    assert(pv._wall_tile_at(elem_last, 2) == Vector2i(1, 3), "rows=0, parede dir: ponta topo (1,3)")
-    assert(pv._wall_tile_at(elem_last, 3) == Vector2i(0, 2), "rows=0, parede dir: ponta base (0,2)")
+    assert(pv._wall_tile_at(elem_last, elem_t) == Vector2i(1, 3), "cols=0, parede dir: ponta topo (1,3)")
+    assert(pv._wall_tile_at(elem_last, elem_b) == Vector2i(0, 2), "cols=0, parede dir: ponta base (0,2)")
 
     pv.free()
-    print("PASS: wall_platform_rows0_keeps_tip_tiles")
+    print("PASS: wall_platform_cols0_keeps_tip_tiles")
 
 func _find_button(node: Node, text: String) -> Button:
     if node is Button and (node as Button).text == text:

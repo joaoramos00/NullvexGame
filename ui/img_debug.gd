@@ -1056,24 +1056,24 @@ class _PlatformView extends Control:
     # topo (1,1) / base (2,2). "wall_platform" marca a superfície pisável no
     # topo; "wall_obstacle" marca o contorno de colisão que bloqueia a passagem.
     # Espelhar move a parede para a direita (elemento projeta pra esquerda).
-    # rows == 0 é o piso do controle "−": em vez de sumir a plataforma
-    # (elem_t > elem_b, nada desenhado), rows=0 cai pro cap mínimo de 2 linhas
-    # (ponta topo + ponta base, sem miolo reto) — mesma altura de rows=2, nunca
-    # um resultado vazio/quebrado ao decrementar até o fim.
-    func _wall_eff_rows() -> int:
-        return 2 if rows == 0 else rows
+    # cols == 0 é o piso do controle "−": em vez de sumir o elemento (elem_last
+    # coincide com a coluna da face, interceptado antes de chegar no ramo da
+    # "ponta"), cols=0 cai pro nub mínimo de 1 coluna — só a ponta (topo+base),
+    # sem miolo — igual ao Foothold de 1 tile já usado no jogo (Z4Foot1-5).
+    func _wall_eff_cols() -> int:
+        return 1 if cols == 0 else cols
 
     func _wall_grid() -> Vector2i:
-        return Vector2i(2 + cols + _FP_SIDE, _wall_eff_rows() + 2 * _FP_DEPTH)
+        return Vector2i(2 + cols + _FP_SIDE, rows + 2 * _FP_DEPTH)
 
     # cc em coords canônicas (parede à esquerda); tiles já saem espelhados
     # conforme mirror_hole (cada peça tem contraparte própria — nunca flipar).
     func _wall_tile_at(cc: int, r: int) -> Vector2i:
         var m := mirror_hole
         var elem_t := _FP_DEPTH
-        var elem_b := _FP_DEPTH + _wall_eff_rows() - 1
+        var elem_b := _FP_DEPTH + rows - 1
         var in_band := r >= elem_t and r <= elem_b
-        var elem_last := 1 + cols
+        var elem_last := 1 + _wall_eff_cols()
         if cc == 0:
             return Vector2i(2, 1)                                  # miolo da parede
         if cc == 1:                                                # face da parede
@@ -1109,11 +1109,11 @@ class _PlatformView extends Control:
                     Rect2(t.x * _TS, t.y * _TS, _TS, _TS))
         var yellow := Color(1.0, 0.9, 0.0, 0.9)
         var x_wall: float = 2.0 * _TD if not mirror_hole else (g.x - 2) * _TD   # face da parede
-        var x_out:  float = (2 + cols) * _TD if not mirror_hole else (g.x - 2 - cols) * _TD
+        var x_out:  float = (2 + _wall_eff_cols()) * _TD if not mirror_hole else (g.x - 2 - _wall_eff_cols()) * _TD
         var x0 := minf(x_wall, x_out)
         var x1 := maxf(x_wall, x_out)
         var y0 := _FP_DEPTH * _TD
-        var y1 := (_FP_DEPTH + _wall_eff_rows()) * _TD
+        var y1 := (_FP_DEPTH + rows) * _TD
         if mode == "wall_plat_spikes" and spike_tex:
             # Tira de espinhos na face LATERAL da parede, abaixo da plataforma
             # (mesma convenção do _z4_spike_face: rotação +90° = tips pra direita
@@ -3870,7 +3870,8 @@ func _refresh_tiles() -> void:
     cols_m.text = "−"
     cols_m.add_theme_font_size_override("font_size", 24)
     cols_m.pressed.connect(func():
-        if pview.cols > 1:
+        var min_cols := 0 if pview.mode.begins_with("wall_") else 1
+        if pview.cols > min_cols:
             pview.set_dims(pview.rows, pview.cols - 1)
             cols_lbl.text = "Cols: %d" % pview.cols)
     var cols_p := Button.new()
@@ -3895,8 +3896,7 @@ func _refresh_tiles() -> void:
     rows_m.text = "−"
     rows_m.add_theme_font_size_override("font_size", 24)
     rows_m.pressed.connect(func():
-        var min_rows := 0 if pview.mode.begins_with("wall_") else 1
-        if pview.rows > min_rows:
+        if pview.rows > 1:
             pview.set_dims(pview.rows - 1, pview.cols)
             rows_lbl.text = "Rows: %d" % pview.rows)
     var rows_p := Button.new()
