@@ -39,6 +39,7 @@ const HIT_FLASH_DURATION := 0.12
 # Quando true (padrão), o boss aciona a luta sozinho ao player entrar em AGGRO_RANGE.
 # Quando false, a luta só começa via aggro() externo (ex.: gatilho de entrada na sala).
 @export var auto_aggro: bool = true
+@export var contact_damage: int = 15
 
 var current_hp: int
 var state: State = State.IDLE
@@ -57,6 +58,33 @@ func _ready() -> void:
 	queue_redraw()
 	HitboxData.reloaded.connect(_apply_hitbox_data)
 	_apply_hitbox_data()
+	_sync_contact_zone()
+	var cz := get_node_or_null("ContactZone")
+	if cz != null:
+		cz.body_entered.connect(_on_contact_body_entered)
+
+func _on_contact_body_entered(body: Node) -> void:
+	if is_dead or state in [State.IDLE, State.INTRO, State.DEAD]:
+		return
+	if body.has_method("take_damage"):
+		body.take_damage(contact_damage)
+
+# Espelha as CollisionShape2D do corpo do boss (filhas diretas) na ContactZone,
+# já que cada boss tem uma shape diferente (e HitboxData pode trocá-la em
+# runtime) — sem isso a ContactZone ficaria com a capsule genérica do
+# boss_base.tscn, desalinhada do corpo visível de cada boss.
+func _sync_contact_zone() -> void:
+	var cz := get_node_or_null("ContactZone")
+	if cz == null:
+		return
+	for c in cz.get_children():
+		c.free()
+	for c in get_children():
+		if c is CollisionShape2D:
+			var cs := CollisionShape2D.new()
+			cs.position = c.position
+			cs.shape = c.shape
+			cz.add_child(cs)
 
 func _hitbox_id() -> String:
 	var scr: Script = get_script() as Script
@@ -74,6 +102,7 @@ func _apply_hitbox_data() -> void:
 			if sp.has("pos"): spr.position = Vector2(sp["pos"][0], sp["pos"][1])
 			if sp.has("scale"): spr.scale = Vector2(sp["scale"][0], sp["scale"][1])
 	_rebuild_boss_shapes(e.get("shapes", []))
+	_sync_contact_zone()
 
 func _rebuild_boss_shapes(shapes: Array) -> void:
 	if shapes.is_empty():

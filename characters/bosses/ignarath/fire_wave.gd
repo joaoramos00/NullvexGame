@@ -48,6 +48,10 @@ func _ready() -> void:
 	_build_visual()
 	_update_visuals()
 	body_entered.connect(_on_body_entered)
+	# Sem isso, o hitbox (ativo desde este frame) viaja ATÉ 80px sem nenhum
+	# burst — o 1º burst só nascia depois de _BURST_SPACING percorrido, então
+	# a onda podia acertar o player antes de qualquer sinal visual aparecer.
+	_spawn_ground_burst()
 
 func _build_visual() -> void:
 	pass  # visual substituído por ground bursts — sprites antigos removidos
