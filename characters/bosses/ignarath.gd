@@ -246,7 +246,7 @@ func _run_claw_wave_sequence() -> void:
 			await get_tree().create_timer(0.10).timeout
 		if is_dead or gen != _attack_gen:
 			return
-		_do_floor_wave(speed)
+		_do_floor_wave(speed, wall_x)
 		spawned += 1
 
 	# espera a primeira onda chegar à parede
@@ -266,7 +266,7 @@ func _run_claw_wave_sequence() -> void:
 		if spawned < TOTAL_N:
 			await get_tree().create_timer(0.12).timeout
 
-func _do_floor_wave(speed: float) -> void:
+func _do_floor_wave(speed: float, stop_x: float) -> void:
 	var wave: Area2D = _FIRE_WAVE.new()
 	wave.set("dir", _facing)
 	wave.set("speed", speed)
@@ -274,7 +274,12 @@ func _do_floor_wave(speed: float) -> void:
 	wave.set("source_id", "ignarath")
 	wave.set("wave_w", CLAW_WAVE_W)
 	wave.set("wave_h", CLAW_WAVE_H)
-	wave.set("despawn_x", (arena_right + 120.0) if _facing > 0.0 else (arena_left - 120.0))
+	# stop_x = wall_x (mesmo ponto onde a onda vertical nasce, encostada na
+	# face da parede) — antes era arena_right+120/arena_left-120, um overshoot
+	# de 24px além da própria parede. Do lado sólido isso ficava escondido
+	# dentro da rocha; do lado da porta (vão aberto pro corredor) a chama
+	# aparecia saindo pela porta em vez de parar na parede.
+	wave.set("despawn_x", stop_x)
 	wave.global_position = Vector2(global_position.x + _facing * 50.0, arena_floor - CLAW_WAVE_H * 0.5)
 	get_parent().add_child(wave)
 
