@@ -1295,6 +1295,12 @@ func _spawn_ignarath() -> void:
 	ign.arena_left  = _BOSS_L + 64.0
 	ign.arena_right = _BOSS_R - 64.0
 	ign.arena_floor = _BOSS_FLOOR_TOP
+	# arena_top nunca tinha sido setado (default -200 do BossBase) — a onda de
+	# fogo vertical (_do_wall_wave) nasce em arena_floor (~-1074) e sobe até
+	# despawn_y=arena_top; com -200 ela já nascia "acima" do teto de despawn e
+	# sumia no 1º frame de física, quase sem subir. Bug antigo, só ficou visível
+	# agora que o boss agrota de verdade.
+	ign.arena_top   = _BOSS_CEIL_TOP
 	ign.auto_aggro  = false
 	add_child(ign)
 	_ignarath = ign
