@@ -100,6 +100,13 @@ func _ready() -> void:
 		if absf(af - (-1074.0)) > 0.5:
 			print("FAIL: arena_floor esperado -1074 (nivelado com o corredor), obtido %.1f" % af)
 			fail = true
+		# arena_top: default do BossBase é -200 (bem abaixo do chão da arena) —
+		# se não for setado, a onda de fogo vertical (_do_wall_wave) nasce já
+		# "acima" do teto de despawn e some no 1º frame sem subir a parede.
+		var at := float(ign.get("arena_top"))
+		if absf(at - (-1458.0)) > 0.5:
+			print("FAIL: arena_top esperado -1458 (=_BOSS_CEIL_TOP), obtido %.1f — onda de fogo vertical não vai subir a parede" % at)
+			fail = true
 
 	if fail:
 		get_tree().quit(1)
