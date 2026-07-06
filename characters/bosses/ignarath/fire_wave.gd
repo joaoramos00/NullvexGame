@@ -13,7 +13,7 @@ const _SHEET_FRAMES := 4
 const _TEX_GROUND_BURST  := preload("res://characters/bosses/ignarath/fx_ground_burst.png")
 const _BURST_FRAMES      := 9
 const _BURST_FPS         := 14.0
-const _BURST_SPACING     := 40.0  # era 80 — puffs mais densos, reduz o rastro "cego" atrás da onda
+const _BURST_SPACING     := 80.0
 
 var dir: float = 1.0           # +1 direita, -1 esquerda
 var speed: float = 300.0
@@ -54,38 +54,7 @@ func _ready() -> void:
 	_spawn_ground_burst()
 
 func _build_visual() -> void:
-	# Corpo persistente (filho do próprio Area2D, sempre na posição/tamanho exatos
-	# do hitbox) — sem isso, o único sinal visual eram os ground bursts
-	# periódicos, plantados no chão sem acompanhar a onda: o hitbox real podia
-	# ficar até _BURST_SPACING px à frente do último burst visível, acertando o
-	# player em um trecho "cego". Bursts continuam como reforço/trilha.
-	_frame_w = float(_TEX_BODY.get_width()) / _SHEET_COLS
-	_frame_h = float(_TEX_BODY.get_height()) / _SHEET_ROWS
-
-	_start_sprite = Sprite2D.new()
-	_start_sprite.name = "WaveStartSprite"
-	_configure_sheet_sprite(_start_sprite, _TEX_START)
-	_start_sprite.z_index = 2
-	add_child(_start_sprite)
-
-	_body_atlas = AtlasTexture.new()
-	_body_atlas.atlas = _TEX_BODY
-	_body_atlas.region = Rect2(0.0, 0.0, _frame_w, _frame_h)
-	_body_line = Line2D.new()
-	_body_line.name = "WaveBodyLine"
-	_body_line.texture = _body_atlas
-	_body_line.texture_mode = Line2D.LINE_TEXTURE_TILE
-	_body_line.joint_mode = Line2D.LINE_JOINT_ROUND
-	_body_line.begin_cap_mode = Line2D.LINE_CAP_NONE
-	_body_line.end_cap_mode = Line2D.LINE_CAP_NONE
-	_body_line.z_index = 1
-	add_child(_body_line)
-
-	_end_sprite = Sprite2D.new()
-	_end_sprite.name = "WaveEndSprite"
-	_configure_sheet_sprite(_end_sprite, _TEX_END)
-	_end_sprite.z_index = 2
-	add_child(_end_sprite)
+	pass  # visual substituído por ground bursts — sprites antigos removidos
 
 func _draw() -> void:
 	if not DebugBoot.hitbox_debug:
