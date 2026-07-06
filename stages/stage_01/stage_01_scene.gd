@@ -104,6 +104,10 @@ const _BOSS_FLOOR_TOP  := -1074.0   # = piso do corredor (_corr_boss), sem degra
 const _BOSS_CEIL_TOP   := -1458.0   # interior = -1074 − (−1458) = 384px = 6 tiles
 const _BOSS_DOOR_LO    := -1182.0   # abertura de 108px (mesma altura de antes)
 const _BOSS_DOOR_HI    := -1074.0   # = _BOSS_FLOOR_TOP (porta encosta no chão)
+# Câmera fixa mostrando a sala inteira (mesmo zoom do stage_00: 1920/2=960 de
+# largura visível > 896 de interior; 1080/2=540 de altura > 384 de interior).
+const _BOSS_CAM_CENTER := Vector2(19312.0, -1266.0)   # centro de (_BOSS_L+_BOSS_R)/2, (_BOSS_FLOOR_TOP+_BOSS_CEIL_TOP)/2
+const _BOSS_CAM_ZOOM    := 2.0
 
 # Shaft Z4 — zigue-zague por BAFFLES (pisos de switchback alternados) num envelope
 # CONSTANTE: corpo único de 448px de interior + boca estreita no topo.
@@ -1270,12 +1274,18 @@ func _build_z4_boss() -> void:
 	if DebugBoot.zone == 5:
 		# zone=5 pula direto pra dentro da arena — simula a travessia aqui, DEPOIS
 		# do loop de limpeza acima (senão o Ignarath recém-criado seria destruído).
+		if _cam_ctrl != null:
+			_cam_ctrl.lock_to(_BOSS_CAM_CENTER, _BOSS_CAM_ZOOM)
+			$Camera2D.zoom = Vector2(_BOSS_CAM_ZOOM, _BOSS_CAM_ZOOM)
 		_spawn_ignarath()
 		if is_instance_valid(_ignarath):
 			_ignarath.aggro()
 
 # Chamado quando o player termina de atravessar _corr_boss (sinal player_traversed).
 func _on_corr_boss_traversed() -> void:
+	if _cam_ctrl != null:
+		_cam_ctrl.lock_to(_BOSS_CAM_CENTER, _BOSS_CAM_ZOOM)
+		$Camera2D.zoom = Vector2(_BOSS_CAM_ZOOM, _BOSS_CAM_ZOOM)
 	_spawn_ignarath()
 	if is_instance_valid(_ignarath):
 		_ignarath.aggro()
