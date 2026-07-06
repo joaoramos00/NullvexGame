@@ -1,8 +1,9 @@
 extends Node
 # Verifica que a arena do boss do stage 01 foi construída corretamente:
-# paredes, piso, teto, soleira de transição e Ignarath presentes;
-# door y-range dentro da extensão vertical da parede esquerda;
-# nenhum nó com o nome da cratera antiga permanece.
+# paredes, piso, teto e Ignarath presentes (mesmas dimensões de
+# Boss_Floor/Ceil/LWall/RWall do stage_00 — 896x64/64x512, sem soleira, piso
+# nivelado com o corredor); door y-range dentro da extensão vertical da
+# parede esquerda; nenhum nó com o nome da cratera antiga permanece.
 
 func _ready() -> void:
 	var s: Node = load("res://stages/stage_01/stage_01.tscn").instantiate()
@@ -12,16 +13,15 @@ func _ready() -> void:
 
 	# ── Nós estruturais ──────────────────────────────────────────────────────────
 	for expected in ["BossWallL", "BossWallR", "BossFloor", "BossCeil",
-			"BossThreshold", "Ignarath", "BossRoomTrigger"]:
+			"Ignarath", "BossRoomTrigger"]:
 		if s.get_node_or_null(expected) == null:
 			print("FAIL: nó ausente — %s" % expected)
 			fail = true
 
-	# ── Sem cratera antiga ────────────────────────────────────────────────────────
-	for old in ["BossLava", "Z4Lava"]:
-		# A lava do shaft (Z4ShaftLava) é esperada; BossLava e Z4Lava não devem existir.
+	# ── Sem cratera antiga nem soleira (arena nivelada com o corredor agora) ──────
+	for old in ["BossLava", "Z4Lava", "BossThreshold", "BossPlat1", "BossPlat2"]:
 		if s.get_node_or_null(old) != null:
-			print("FAIL: nó antigo da cratera ainda presente — %s" % old)
+			print("FAIL: nó antigo/removido ainda presente — %s" % old)
 			fail = true
 
 	# ── Geometria da parede esquerda vs door range ────────────────────────────────
@@ -33,9 +33,8 @@ func _ready() -> void:
 		var wall_top    : float = ceil_n.position.y  - TS * 0.5   # topo da parede = topo da sala
 		var wall_bottom : float = floor_n.position.y + TS * 0.5   # base da parede = base da sala
 		# _BOSS_DOOR_LO e _BOSS_DOOR_HI copiados das consts da stage
-		# (arena deslocada -1622 em Y junto com o topo do shaft; piso top -986)
-		const DOOR_LO := -1094.0
-		const DOOR_HI := -986.0
+		const DOOR_LO := -1182.0
+		const DOOR_HI := -1074.0
 		if DOOR_LO < wall_top:
 			print("FAIL: DOOR_LO (%.0f) acima do topo da parede (%.0f)" % [DOOR_LO, wall_top])
 			fail = true
@@ -60,6 +59,28 @@ func _ready() -> void:
 				print("FAIL: colisão da BossWallL (base y=%.1f) invade o vão da porta (>%.0f)" % [lwall_coll_bottom, DOOR_LO])
 				fail = true
 
+	# ── Sala do mesmo tamanho de Boss_Floor/LWall do stage_00 (896x64/64x512) ─────
+	if floor_n:
+		var fsh: RectangleShape2D = null
+		for c in floor_n.get_children():
+			if c is CollisionShape2D:
+				fsh = (c as CollisionShape2D).shape as RectangleShape2D
+				break
+		if fsh == null or absf(fsh.size.x - 896.0) > 0.5 or absf(fsh.size.y - 64.0) > 0.5:
+			print("FAIL: BossFloor deveria ser 896x64 (igual ao stage_00), veio %s" % [fsh.size if fsh else "null"])
+			fail = true
+	if lwall:
+		var lsh: RectangleShape2D = null
+		for c in lwall.get_children():
+			if c is CollisionShape2D:
+				lsh = (c as CollisionShape2D).shape as RectangleShape2D
+				break
+		# BossWallL só cobre a seção acima da porta (não a altura toda de 512) —
+		# checa só a largura (64), a mesma de Boss_LWall do stage_00.
+		if lsh == null or absf(lsh.size.x - 64.0) > 0.5:
+			print("FAIL: BossWallL deveria ter largura 64 (igual ao stage_00), veio %s" % [lsh.size if lsh else "null"])
+			fail = true
+
 	# ── Ignarath auto_aggro desligado ────────────────────────────────────────────
 	var ign := s.get_node_or_null("Ignarath")
 	if ign != null:
@@ -69,23 +90,11 @@ func _ready() -> void:
 		var al := float(ign.get("arena_left"))
 		var ar := float(ign.get("arena_right"))
 		var af := float(ign.get("arena_floor"))
-		if al < 18900.0 or ar > 21716.0:
+		if al < 18832.0 or ar > 19728.0:
 			print("FAIL: arena_left/right fora dos limites esperados (%.0f, %.0f)" % [al, ar])
 			fail = true
-		if absf(af - (-986.0)) > 0.5:
-			print("FAIL: arena_floor esperado -986, obtido %.1f" % af)
-			fail = true
-
-	# ── Soleira de transição (BossThreshold) ─────────────────────────────────────
-	var thr := s.get_node_or_null("BossThreshold")
-	if thr != null:
-		# Deve estar no intervalo x 18800..18970 e y ~440 (floor top)
-		if thr.position.x < 18800.0 or thr.position.x > 18970.0:
-			print("FAIL: BossThreshold.x fora do esperado (%.0f)" % thr.position.x)
-			fail = true
-		# topo = -986 (= _BOSS_FLOOR_TOP); centro até ~70px abaixo do topo
-		if thr.position.y < -986.0 or thr.position.y > -916.0:
-			print("FAIL: BossThreshold.y fora do esperado (%.0f)" % thr.position.y)
+		if absf(af - (-1074.0)) > 0.5:
+			print("FAIL: arena_floor esperado -1074 (nivelado com o corredor), obtido %.1f" % af)
 			fail = true
 
 	if fail:
