@@ -4,11 +4,15 @@ extends Node
 # Boss_Floor/Ceil/LWall/RWall do stage_00 — 896x64/64x512, sem soleira, piso
 # nivelado com o corredor); door y-range dentro da extensão vertical da
 # parede esquerda; nenhum nó com o nome da cratera antiga permanece.
+# Ignarath só nasce ao atravessar o corredor (_on_corr_boss_traversed) — usa
+# o mesmo atalho ?zone=5 do debug pra simular a entrada na sala.
 
 func _ready() -> void:
+	DebugBoot.zone = 5
 	var s: Node = load("res://stages/stage_01/stage_01.tscn").instantiate()
 	add_child(s)
 	for i in 4: await get_tree().physics_frame
+	DebugBoot.zone = -1
 	var fail := false
 
 	# ── Nós estruturais ──────────────────────────────────────────────────────────
@@ -90,7 +94,7 @@ func _ready() -> void:
 		var al := float(ign.get("arena_left"))
 		var ar := float(ign.get("arena_right"))
 		var af := float(ign.get("arena_floor"))
-		if al < 18832.0 or ar > 19728.0:
+		if al < 18864.0 or ar > 19760.0:
 			print("FAIL: arena_left/right fora dos limites esperados (%.0f, %.0f)" % [al, ar])
 			fail = true
 		if absf(af - (-1074.0)) > 0.5:
