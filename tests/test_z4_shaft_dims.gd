@@ -2,7 +2,9 @@ extends Node
 
 # Player limitante = Zael (caixa 40×80). Pulo: altura 118, alcance 196 (→192 no grid).
 # Gate automático = vão livre horizontal nas faixas de y COM projeção — cada
-# projeção com a própria profundidade: saliências 64px, espinhos 32px, parede+plats e
+# projeção com a própria profundidade: saliências 64px, espinhos 24px (sólido
+# embutido 8px na parede — kill Area2D é mais largo, mas isso não bloqueia
+# passagem), parede+plats e
 # tiras de espinho sob plat _Z4_WALL_PLAT_DEPTH (a tira conta da parede até a
 # borda interna, pois o corredor de montaria junto à parede não é passagem).
 # Crumbles e plataformas avulsas ficam FORA do gate: são pousos transitórios no
@@ -29,7 +31,7 @@ func _ready() -> void:
 	var xr: float = segs[0][3]
 	var projs: Array = []
 	for f in footholds: projs.append([f[1], f[2], f[4], f[3], 64.0])
-	for s in spikes:    projs.append([s[1], s[2], s[4], s[3], 32.0])
+	for s in spikes:    projs.append([s[1], s[2], s[4], s[3], 24.0])
 	for bf in baffles:
 		var wall_x: float = xl if bf[1] == "L" else xr
 		# parede+plat: 64px de espessura (colisão [top, top+64])

@@ -1001,10 +1001,10 @@ func _z4_wall_plat(n: String, side: String, top_y: float, spikes_under: bool) ->
 		# folga extra fica do lado da parede (zona de montaria: 96px limpos).
 		var s0: float = x0 + 32.0 if side == "R" \
 				else x0 + _Z4_WALL_PLAT_DEPTH - STRIP - 32.0
-		# Base 1/4 de DEPTH (32px) EMBUTIDA na rocha (o PNG tem margem
-		# transparente na base; encostada na borda visível os espinhos parecem
-		# flutuar) — mesmo ajuste proporcional do modo "Espinhos Plat" do imgdebug.
-		_z4_spikes_under(n + "Spikes", s0, s0 + STRIP, top_y + 24.0)
+		# Base embutida na rocha (o PNG tem margem transparente na base;
+		# encostada na borda visível os espinhos parecem flutuar) — offset maior
+		# que o proporcional (24) porque em jogo ainda pareciam altos demais.
+		_z4_spikes_under(n + "Spikes", s0, s0 + STRIP, top_y + 32.0)
 
 # Tira de espinhos pendurada na base de uma parede+plat, apontando pra baixo: Area2D
 # instant-kill alinhada às pontas (cobre o corpo todo da tira) + visual do PNG
@@ -1041,11 +1041,19 @@ func _z4_spikes_under(n: String, x0: float, x1: float, top_y: float) -> void:
 # do bloco de 32px é calculado AQUI, não no call site.
 func _z4_spike_face(n: String, wall_x: float, cy: float, h: float, side: String = "R") -> void:
 	var w := 32.0
-	var cx: float = wall_x + 16.0 if side == "L" else wall_x - 16.0
+	# Embute 8px na parede (visual+sólido) — antes ficavam exatamente flush em
+	# wall_x, mas o bevel/transparência do tile de face da rocha faz parecer que
+	# sobra um vão. cx desloca o bloco todo 8px pra dentro da parede.
+	var cx: float = wall_x + 8.0 if side == "L" else wall_x - 8.0
 	# skip_base_draw: o bloco de colisão NÃO desenha tiles — o visual do espinho é só
 	# o PNG (fundo transparente). Sem isso o modo "lava" desenhava um bloco de rocha
 	# atrás dos espinhos e, pelo mínimo de 7 linhas, transbordava ~250px pra baixo.
 	_z4_wall(n, cx, cy, w, h, true).set_meta("skip_base_draw", true)
+	# Kill um pouco mais largo (40 vs 32 do visual/sólido): numa faixa fina de
+	# 32px, o corpo sólido (mesma posição/tamanho) resolve o encosto antes da
+	# Area2D registrar overlap real — "encostar não mata". Alargar só o hurt
+	# (nunca o visual) garante sobreposição de verdade sem mudar a aparência.
+	const HURT_W := 40.0
 	var hurt := Area2D.new()
 	hurt.name = n + "Hurt"
 	hurt.set_script(_LAVA)
@@ -1053,7 +1061,7 @@ func _z4_spike_face(n: String, wall_x: float, cy: float, h: float, side: String 
 	hurt.collision_mask = 2
 	hurt.set("instant_kill", true)
 	hurt.position = Vector2(cx, cy)
-	hurt.add_child(_z2_shape(Vector2(w, h)))
+	hurt.add_child(_z2_shape(Vector2(HURT_W, h)))
 	add_child(hurt)
 	# Visual: mesma textura dos espinhos da zona 2 (spikes.png, tips apontando UP).
 	# Em Godot 2D rotação POSITIVA é horária (y pra baixo): +PI/2 vira tips pra
