@@ -162,18 +162,20 @@ const _Z4_SPIKES := [
 	["Z4SpikeR4", 17872.0, -556.0, "R", 160.0],   # reta final ┘ (flush no teto -636)
 ]
 
-# Plataformas sólidas avulsas: só o apoio da boca (os demais rests viraram baffles).
+# Plataformas sólidas avulsas: nenhuma (o apoio da boca, Z4Plat5, foi removido —
+# redundante em jogo, os demais rests já viraram baffles).
 # [nome, cx, cy(topo), w, h]
-const _Z4_PLATFORMS := [
-	["Z4Plat5", 17472.0, -846.0, 64.0, 32.0],   # boca (estreita, 64px p/ caber em 96px)
-]
+const _Z4_PLATFORMS := []
 
-# Crumbles (desmoronam 0.5s após o pouso, respawn 1.2s) — pousos transitórios:
-# 1 = estreia isolada da mecânica (ANTES da aceleração da lava, uma novidade por
-# vez); 2 = pivô da troca de parede no clímax (entre as bandas L4/R4).
+# Crumbles (desmoronam _Z4_CRUMBLE_DELAY após o pouso, respawn 1.2s) — pousos
+# transitórios: 1 = estreia isolada da mecânica (ANTES da aceleração da lava,
+# uma novidade por vez); 2 = pivô da troca de parede no clímax (entre as bandas
+# L4/R4). Delay reduzido de 0.5s (default do script) por playtest — quebrava
+# devagar demais.
 # [nome, cx, top_y, w]
+const _Z4_CRUMBLE_DELAY := 0.35
 const _Z4_CRUMBLES := [
-	["Z4Crumble1", 17560.0,   60.0, 128.0],
+	["Z4Crumble1", 17592.0,   76.0, 128.0],   # +32 direita, +16 baixo (playtest)
 	["Z4Crumble2", 17648.0, -420.0, 128.0],
 ]
 
@@ -976,7 +978,7 @@ func _build_z4_shaft() -> void:
 		# Modo PLATFORM com a rocha z1: bordas de ponta (0,0)/(1,3) nas extremidades.
 		pb.set_meta("platform_override", _Z1_TILE_PATH)
 	for c in _Z4_CRUMBLES:
-		_z4_crumble(c[0], Vector2(c[1], c[2] + 16.0), Vector2(c[3], 32.0))
+		_z4_crumble(c[0], Vector2(c[1], c[2] + 16.0), Vector2(c[3], 32.0), _Z4_CRUMBLE_DELAY)
 
 # Parede+plataforma do zigue-zague ("Parede+Plat" da skill new-wall-element):
 # piso de switchback preso à parede `side`, deixando vão de (interior − depth)
@@ -1087,10 +1089,11 @@ func _z4_spike_face(n: String, wall_x: float, cy: float, h: float, side: String 
 	add_child(spr)
 
 # Saliência que desmorona: StaticBody2D com crumbling_ledge.gd + LandDetector no topo.
-func _z4_crumble(n: String, center: Vector2, size: Vector2) -> void:
+func _z4_crumble(n: String, center: Vector2, size: Vector2, crumble_delay: float = 0.5) -> void:
 	var body := StaticBody2D.new()
 	body.name = n
 	body.set_script(preload("res://stages/stage_01/crumbling_ledge.gd"))
+	body.set("crumble_delay", crumble_delay)
 	body.collision_layer = 1
 	body.collision_mask = 0
 	body.position = center
