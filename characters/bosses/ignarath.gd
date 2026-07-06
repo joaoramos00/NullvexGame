@@ -80,12 +80,20 @@ func _ready() -> void:
 # Remove o placeholder vermelho + barra de HP do BossBase._draw (o boss usa o
 # Sprite2D; o HP é mostrado pelo HUD via connect_to_boss).
 func _draw() -> void:
-	pass
+	if not DebugBoot.hitbox_debug:
+		return
+	# Garra corpo-a-corpo não usa Area2D — dano é distance_to(player) < CLAW_RANGE
+	# no instante do golpe. Mostra o alcance durante o windup (_telegraph_timer),
+	# só na fase da garra (_attack_phase==1; fase 0 é o firebreath).
+	if _telegraph_timer > 0.0 and _attack_phase == 1:
+		draw_arc(Vector2.ZERO, CLAW_RANGE, 0.0, TAU, 32, Color(1.0, 0.0, 0.0, 0.9), 2.0)
 
 func _physics_process(delta: float) -> void:
 	super._physics_process(delta)
 	if not is_dead:
 		_update_animation(delta)
+	if DebugBoot.hitbox_debug:
+		queue_redraw()
 
 # ── Intro ─────────────────────────────────────────────────────────────────────
 func _run_intro() -> void:
