@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://test_ignarath_claw_wave"]
+
+[ext_resource type="Script" path="res://tests/test_ignarath_claw_wave.gd" id="1_script"]
+
+[node name="TestIgnarathClawWave" type="Node"]
+script = ExtResource("1_script")

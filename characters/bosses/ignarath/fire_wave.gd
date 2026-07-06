@@ -26,8 +26,17 @@ var wave_h: float = 150.0
 var vertical: bool = false     # true = sobe pela parede
 var burst_angle: float = 0.0   # rotação dos bursts (PI/2 para parede esq, -PI/2 para dir)
 var despawn_y: float = -99999.0  # teto de despawn para modo vertical
+# Onda única chão→parede: ao alcançar despawn_x, vira vertical no MESMO
+# objeto (em vez de sumir) e sobe até despawn_y. Evita ter que instanciar
+# duas ondas separadas pra um "golpe único" que viaja e depois sobe.
+var climb_after: bool = false
+var climb_size: float = 0.0     # wave_w/wave_h ao virar vertical (0 = mantém o tamanho atual)
+var burst_count: int = 0        # se >0, distribui esse nº de bursts por total_distance
+var total_distance: float = 0.0 # trajeto total esperado (chão+subida), usado com burst_count
+var _climbed: bool = false
 var _life: float = 6.0
 var _t: float = 0.0
+var _burst_spacing_eff: float = _BURST_SPACING
 var _dist_since_burst: float = 0.0
 var _start_sprite: Sprite2D = null
 var _body_line: Line2D = null
@@ -48,9 +57,12 @@ func _ready() -> void:
 	_build_visual()
 	_update_visuals()
 	body_entered.connect(_on_body_entered)
-	# Sem isso, o hitbox (ativo desde este frame) viaja ATÉ 80px sem nenhum
-	# burst — o 1º burst só nascia depois de _BURST_SPACING percorrido, então
-	# a onda podia acertar o player antes de qualquer sinal visual aparecer.
+	if burst_count > 0 and total_distance > 0.0:
+		_burst_spacing_eff = total_distance / float(burst_count)
+	# Sem isso, o hitbox (ativo desde este frame) viaja ATÉ a 1ª distância de
+	# burst sem nenhum sinal visual — o 1º burst só nascia depois de
+	# _burst_spacing_eff percorrido, então a onda podia acertar o player
+	# antes de qualquer sinal visual aparecer.
 	_spawn_ground_burst()
 
 func _build_visual() -> void:
@@ -74,8 +86,8 @@ func _physics_process(delta: float) -> void:
 	else:
 		global_position.x += dir * moved
 	_dist_since_burst += moved
-	if _dist_since_burst >= _BURST_SPACING:
-		_dist_since_burst -= _BURST_SPACING
+	if _dist_since_burst >= _burst_spacing_eff:
+		_dist_since_burst -= _burst_spacing_eff
 		_spawn_ground_burst()
 	_update_visuals()
 	_life -= delta
@@ -84,7 +96,24 @@ func _physics_process(delta: float) -> void:
 		return
 	if not vertical:
 		if (dir > 0.0 and global_position.x >= despawn_x) or (dir < 0.0 and global_position.x <= despawn_x):
-			queue_free()
+			if climb_after and not _climbed:
+				_start_climb()
+			else:
+				queue_free()
+
+# Transição chão→parede da onda ÚNICA: continua o MESMO Area2D (preserva o
+# hitbox contínuo e a contagem de bursts) em vez de instanciar uma 2ª onda.
+func _start_climb() -> void:
+	_climbed = true
+	global_position.x = despawn_x
+	vertical = true
+	if climb_size > 0.0:
+		wave_w = climb_size
+		wave_h = climb_size
+		var cs := get_node_or_null("CollisionShape2D") as CollisionShape2D
+		if cs != null and cs.shape is RectangleShape2D:
+			(cs.shape as RectangleShape2D).size = Vector2(wave_w, wave_h)
+	queue_redraw()
 
 func _on_body_entered(body: Node) -> void:
 	if body.has_method("take_damage"):
