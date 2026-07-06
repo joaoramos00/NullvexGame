@@ -221,11 +221,15 @@ func _update_visuals() -> void:
 
 
 func _draw() -> void:
-	if _body_line != null:
-		return
-	var fl: float = 0.5 + 0.5 * sin(Time.get_ticks_msec() / 30.0)
-	draw_line(origin, _end, Color(1.0, 0.35 + 0.25 * fl, 0.05, 0.9), half_width * 2.0)
-	draw_line(origin, _end, Color(1.0, 0.85, 0.3, 0.95), half_width)
+	if _body_line == null:
+		var fl: float = 0.5 + 0.5 * sin(Time.get_ticks_msec() / 30.0)
+		draw_line(origin, _end, Color(1.0, 0.35 + 0.25 * fl, 0.05, 0.9), half_width * 2.0)
+		draw_line(origin, _end, Color(1.0, 0.85, 0.3, 0.95), half_width)
+	if DebugBoot.hitbox_debug:
+		# Sem Area2D real: o dano usa distância ponto-segmento < half_width+24
+		# a cada frame (_physics_process). A linha grossa aqui É essa margem —
+		# não só o half_width visual.
+		draw_line(origin, _end, Color(1.0, 0.0, 0.0, 0.9), (half_width + 24.0) * 2.0)
 
 func _point_seg_dist(p: Vector2, a: Vector2, b: Vector2) -> float:
 	var ab: Vector2 = b - a

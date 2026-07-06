@@ -16,6 +16,8 @@ const _Z1_TILE_PATH := "res://stages/stage_01/Stage_01T_z1.png"  # shaft Z4 usa 
 const _DOOR_TEX  := preload("res://stages/door_pixellab.png")
 const _CRACKED_WALL := preload("res://stages/stage_01/cracked_wall.gd")
 const _COLLECTIBLE_SCENE := preload("res://stages/collectible.tscn")
+const _FIRE_WAVE_SCRIPT := preload("res://characters/bosses/ignarath/fire_wave.gd")
+const _FIRE_BEAM_SCRIPT := preload("res://characters/bosses/ignarath/fire_beam.gd")
 const _FIRE := {
 	"grunt":   preload("res://characters/enemies/stage_01/enemy_magma_grunt.tscn"),
 	"ram":     preload("res://characters/enemies/stage_01/enemy_molten_ram.tscn"),
@@ -36,6 +38,11 @@ func _ready() -> void:
 	if StageManager.current_stage_id < 0:
 		StageManager.current_stage_id = 1
 	super._ready()
+	# Morrer não recarrega a cena (só respawn no checkpoint 5, dentro do
+	# corredor) — sem isto a câmera ficava travada na sala vazia e o Ignarath
+	# continuava existindo (com HP/estado da luta anterior) até o player
+	# atravessar de novo. Mesmo padrão de stage_00::_on_player_died_reset.
+	_player.died.connect(_on_ignarath_died_reset)
 	# Paredes do shaft de DESCIDA: lisas (no_wall_grab) — desce pulando nas ShaftP,
 	# não escalando. Sem isso o player agarra a parede e fica pendurado.
 	for wn in ["ShaftWallL", "ShaftWallR"]:
@@ -1280,6 +1287,30 @@ func _build_z4_boss() -> void:
 		_spawn_ignarath()
 		if is_instance_valid(_ignarath):
 			_ignarath.aggro()
+
+# Player morreu (a cena não recarrega, só respawn no checkpoint 5 dentro do
+# corredor): limpa o estado da sala do boss pro respawn voltar com câmera livre
+# e sem Ignarath ativo. Ele é recriado do zero (canto direito, HP cheio) quando
+# o player atravessa _corr_boss de novo (exit_retriggerable=true).
+func _on_ignarath_died_reset() -> void:
+	if _cam_ctrl != null:
+		_cam_ctrl.unlock()
+	if is_instance_valid(_player):
+		_player.process_mode = Node.PROCESS_MODE_INHERIT   # caso tenha morrido congelado (boss_aggro)
+	if is_instance_valid(_ignarath):
+		_ignarath.queue_free()
+	_ignarath = null
+	_ignarath_spawned = false
+	$HUD.hide_boss_bar()
+	var old_trig := get_node_or_null("BossRoomTrigger")
+	if old_trig:
+		old_trig.free()   # imediato: _setup_boss_room_trigger() recria com o mesmo nome no re-spawn
+	# Remove ataques do Ignarath que ainda estejam em voo/no chão na sala.
+	# Comparação por script (não class_name): scripts novos sem class_name
+	# não entram no cache global do headless (ver skip_base_draw/secret_cover.gd).
+	for child in get_children():
+		if child.get_script() == _FIRE_WAVE_SCRIPT or child.get_script() == _FIRE_BEAM_SCRIPT:
+			child.queue_free()
 
 # Chamado quando o player termina de atravessar _corr_boss (sinal player_traversed).
 func _on_corr_boss_traversed() -> void:

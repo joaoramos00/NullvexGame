@@ -53,7 +53,11 @@ func _build_visual() -> void:
 	pass  # visual substituído por ground bursts — sprites antigos removidos
 
 func _draw() -> void:
-	pass
+	if not DebugBoot.hitbox_debug:
+		return
+	# Contorno do hitbox real (RectangleShape2D criado em _ready()) — desenho em
+	# espaço local, acompanha a posição/rotação do nó automaticamente.
+	draw_rect(Rect2(-wave_w * 0.5, -wave_h * 0.5, wave_w, wave_h), Color(1.0, 0.0, 0.0, 0.9), false, 2.0)
 
 func _physics_process(delta: float) -> void:
 	_t += delta
