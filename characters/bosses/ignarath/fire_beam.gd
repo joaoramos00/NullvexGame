@@ -86,7 +86,10 @@ func _compute_end(prog: float) -> Vector2:
 	# fora do alcance de quem está no chão). Limita o alvo à largura da
 	# arena: o raio sempre mira um ponto de chão válido (base da parede),
 	# então só clipa cedo se algo de verdade estiver no caminho.
-	geom.x = clampf(geom.x, arena_left, arena_right)
+	# arena_left/right ficam inset por METADE da espessura da parede (mesma
+	# convenção usada em ignarath.gd::_run_claw_wave_sequence) — o clamp cru
+	# parava 32px antes da face de verdade. +32/-32 chega na face.
+	geom.x = clampf(geom.x, arena_left - 32.0, arena_right + 32.0)
 	return _wall_clip(geom)
 
 func _wall_clip(geom: Vector2) -> Vector2:
