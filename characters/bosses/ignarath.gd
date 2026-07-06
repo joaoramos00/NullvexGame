@@ -231,9 +231,10 @@ func _spawn_claw_wave() -> void:
 	_spawn_claw_slash_fx()
 	_run_claw_wave_sequence()
 
+const CLAW_WAVE_BURSTS := 10   # nº de bursts ao longo da onda ÚNICA (chão + subida), não 10 ondas
+
 func _run_claw_wave_sequence() -> void:
 	var speed   := CLAW_WAVE_SPEED_P2 if phase >= 2 else CLAW_WAVE_SPEED_P1
-	var gen     := _attack_gen
 	# arena_left/right ficam inset 64px (espessura da parede) da parede de
 	# verdade (ver _spawn_ignarath: arena_right=_BOSS_R-64). +64/−64 aqui dava
 	# o CENTRO da parede (BossWallR fica em _BOSS_R, 64px de espessura) — a onda
@@ -245,38 +246,16 @@ func _run_claw_wave_sequence() -> void:
 			else (arena_left - 32.0 + CLAW_WAVE_H * 0.5)
 	var b_angle := -PI * 0.5 if _facing > 0.0 else PI * 0.5
 	var start_x := global_position.x + _facing * 50.0
-	var travel_time := absf(wall_x - start_x) / speed
-	const FLOOR_N := 3
-	const TOTAL_N := 10
-	var spawned   := 0
+	var start_y := arena_floor - CLAW_WAVE_H * 0.5
 
-	# 3 ondas no chão
-	for i in FLOOR_N:
-		if i > 0:
-			await get_tree().create_timer(0.10).timeout
-		if is_dead or gen != _attack_gen:
-			return
-		_do_floor_wave(speed, wall_x)
-		spawned += 1
+	# UMA onda só: nasce no chão junto ao boss, viaja até a parede e sobe até
+	# arena_top no mesmo objeto (fire_wave.gd faz a transição horizontal→
+	# vertical sozinho ao alcançar wall_x). 10 bursts distribuídos ao longo de
+	# TODO o trajeto (chão + subida), não 10 ondas/hitboxes separadas.
+	var floor_dist  := absf(wall_x - start_x)
+	var wall_dist   := absf(arena_top - start_y)
+	var total_dist  := floor_dist + wall_dist
 
-	# espera a primeira onda chegar à parede
-	var elapsed   := float(FLOOR_N - 1) * 0.10
-	var remaining := travel_time - elapsed
-	if remaining > 0.0:
-		await get_tree().create_timer(remaining).timeout
-	if is_dead or gen != _attack_gen:
-		return
-
-	# fires na parede até completar 10
-	while spawned < TOTAL_N:
-		if is_dead or gen != _attack_gen:
-			return
-		_do_wall_wave(wall_x, speed, b_angle)
-		spawned += 1
-		if spawned < TOTAL_N:
-			await get_tree().create_timer(0.12).timeout
-
-func _do_floor_wave(speed: float, stop_x: float) -> void:
 	var wave: Area2D = _FIRE_WAVE.new()
 	wave.set("dir", _facing)
 	wave.set("speed", speed)
@@ -284,26 +263,14 @@ func _do_floor_wave(speed: float, stop_x: float) -> void:
 	wave.set("source_id", "ignarath")
 	wave.set("wave_w", CLAW_WAVE_W)
 	wave.set("wave_h", CLAW_WAVE_H)
-	# stop_x = wall_x (mesmo ponto onde a onda vertical nasce, encostada na
-	# face da parede) — antes era arena_right+120/arena_left-120, um overshoot
-	# de 24px além da própria parede. Do lado sólido isso ficava escondido
-	# dentro da rocha; do lado da porta (vão aberto pro corredor) a chama
-	# aparecia saindo pela porta em vez de parar na parede.
-	wave.set("despawn_x", stop_x)
-	wave.global_position = Vector2(global_position.x + _facing * 50.0, arena_floor - CLAW_WAVE_H * 0.5)
-	get_parent().add_child(wave)
-
-func _do_wall_wave(wall_x: float, speed: float, b_angle: float = 0.0) -> void:
-	var wave: Area2D = _FIRE_WAVE.new()
-	wave.set("speed", speed)
-	wave.set("damage", CLAW_WAVE_DAMAGE)
-	wave.set("source_id", "ignarath")
-	wave.set("wave_w", CLAW_WAVE_H)
-	wave.set("wave_h", CLAW_WAVE_H)
-	wave.set("vertical", true)
-	wave.set("burst_angle", b_angle)
+	wave.set("despawn_x", wall_x)
+	wave.set("climb_after", true)
+	wave.set("climb_size", CLAW_WAVE_H)
 	wave.set("despawn_y", arena_top)
-	wave.global_position = Vector2(wall_x, arena_floor - CLAW_WAVE_H * 0.5)
+	wave.set("burst_angle", b_angle)
+	wave.set("burst_count", CLAW_WAVE_BURSTS)
+	wave.set("total_distance", total_dist)
+	wave.global_position = Vector2(start_x, start_y)
 	get_parent().add_child(wave)
 
 func _spawn_claw_slash_fx() -> void:
