@@ -227,8 +227,12 @@ func _run_claw_wave_sequence() -> void:
 	# arena_left/right ficam inset 64px (espessura da parede) da parede de
 	# verdade (ver _spawn_ignarath: arena_right=_BOSS_R-64). +64/−64 aqui dava
 	# o CENTRO da parede (BossWallR fica em _BOSS_R, 64px de espessura) — a onda
-	# nascia embutida na parede. +32/−32 = face da parede voltada pra sala.
-	var wall_x  := (arena_right + 32.0) if _facing > 0.0 else (arena_left - 32.0)
+	# nascia embutida na parede. +32/−32 chega na FACE da parede, mas a onda
+	# (56px de largura) fica centrada nessa face — metade ainda atravessa pra
+	# dentro. -CLAW_WAVE_H*0.5 desloca mais o suficiente pra ficar toda do lado
+	# de fora, encostada na face (borda da onda == face da parede, sem overlap).
+	var wall_x  := (arena_right + 32.0 - CLAW_WAVE_H * 0.5) if _facing > 0.0 \
+			else (arena_left - 32.0 + CLAW_WAVE_H * 0.5)
 	var b_angle := -PI * 0.5 if _facing > 0.0 else PI * 0.5
 	var start_x := global_position.x + _facing * 50.0
 	var travel_time := absf(wall_x - start_x) / speed
