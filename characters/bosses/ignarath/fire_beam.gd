@@ -23,6 +23,8 @@ var player: CharacterBase = null
 var origin: Vector2 = Vector2.ZERO      # boca, em coords de mundo
 var facing: float = 1.0                  # +1 direita, -1 esquerda
 var floor_y: float = 0.0
+var arena_left: float = -INF
+var arena_right: float = INF
 var sweep_time: float = 1.0
 var max_angle_deg: float = 70.0          # ângulo de início a partir da vertical (90 = horizontal)
 var half_width: float = 20.0
@@ -78,6 +80,13 @@ func _compute_end(prog: float) -> Vector2:
 		geom = origin + Vector2(sin_a * depth * 15.0, cos_a * depth * 15.0)
 	else:
 		geom = origin + (depth / cos_a) * Vector2(sin_a, cos_a)
+	# Em ângulos próximos de 90°, o alvo (no chão) fica cada vez mais longe —
+	# perto de uma parede, o raycast batia nela ANTES de chegar no chão, bem
+	# acima da altura real do piso (a "ponta" ficava flutuando na parede,
+	# fora do alcance de quem está no chão). Limita o alvo à largura da
+	# arena: o raio sempre mira um ponto de chão válido (base da parede),
+	# então só clipa cedo se algo de verdade estiver no caminho.
+	geom.x = clampf(geom.x, arena_left, arena_right)
 	return _wall_clip(geom)
 
 func _wall_clip(geom: Vector2) -> Vector2:
