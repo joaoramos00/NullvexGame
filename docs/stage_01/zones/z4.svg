@@ -49,27 +49,27 @@
 <rect x="17616" y="352" width="256" height="64" fill="#4dd959" fill-opacity="0.82" stroke="#8be693" stroke-width="2"/>
 <rect x="17618" y="354" width="112.16" height="30" fill="#000000" fill-opacity="0.7"/>
 <text x="17622" y="378" font-size="24" fill="#8be693">plat012</text>
+<rect x="16288" y="2368" width="64" height="256" fill="#f28c26" fill-opacity="0.82" stroke="#f7b472" stroke-width="2"/>
+<rect x="16290" y="2370" width="112.16" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="16294" y="2394" font-size="24" fill="#f7b472">zone006</text>
+<rect x="16480" y="2520" width="128" height="128" fill="#a6a640" fill-opacity="0.82" stroke="#c5c583" stroke-width="2"/>
+<rect x="16482" y="2522" width="112.16" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="16486" y="2546" font-size="24" fill="#c5c583">step001</text>
+<rect x="16672" y="2416" width="128" height="128" fill="#a6a640" fill-opacity="0.82" stroke="#c5c583" stroke-width="2"/>
+<rect x="16674" y="2418" width="112.16" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="16678" y="2442" font-size="24" fill="#c5c583">step002</text>
+<rect x="16864" y="2312" width="128" height="128" fill="#a6a640" fill-opacity="0.82" stroke="#c5c583" stroke-width="2"/>
+<rect x="16866" y="2314" width="112.16" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="16870" y="2338" font-size="24" fill="#c5c583">step003</text>
+<rect x="17424" y="1760" width="256" height="64" fill="#4dd959" fill-opacity="0.82" stroke="#8be693" stroke-width="2"/>
+<rect x="17426" y="1762" width="112.16" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="17430" y="1786" font-size="24" fill="#8be693">plat008</text>
 <rect x="17424" y="800" width="256" height="64" fill="#4dd959" fill-opacity="0.82" stroke="#8be693" stroke-width="2"/>
 <rect x="17426" y="802" width="112.16" height="30" fill="#000000" fill-opacity="0.7"/>
 <text x="17430" y="826" font-size="24" fill="#8be693">plat007</text>
 <rect x="17616" y="1312" width="256" height="64" fill="#4dd959" fill-opacity="0.82" stroke="#8be693" stroke-width="2"/>
 <rect x="17618" y="1314" width="112.16" height="30" fill="#000000" fill-opacity="0.7"/>
 <text x="17622" y="1338" font-size="24" fill="#8be693">plat013</text>
-<rect x="17424" y="1760" width="256" height="64" fill="#4dd959" fill-opacity="0.82" stroke="#8be693" stroke-width="2"/>
-<rect x="17426" y="1762" width="112.16" height="30" fill="#000000" fill-opacity="0.7"/>
-<text x="17430" y="1786" font-size="24" fill="#8be693">plat008</text>
-<rect x="16864" y="2312" width="128" height="128" fill="#a6a640" fill-opacity="0.82" stroke="#c5c583" stroke-width="2"/>
-<rect x="16866" y="2314" width="112.16" height="30" fill="#000000" fill-opacity="0.7"/>
-<text x="16870" y="2338" font-size="24" fill="#c5c583">step003</text>
-<rect x="16672" y="2416" width="128" height="128" fill="#a6a640" fill-opacity="0.82" stroke="#c5c583" stroke-width="2"/>
-<rect x="16674" y="2418" width="112.16" height="30" fill="#000000" fill-opacity="0.7"/>
-<text x="16678" y="2442" font-size="24" fill="#c5c583">step002</text>
-<rect x="16480" y="2520" width="128" height="128" fill="#a6a640" fill-opacity="0.82" stroke="#c5c583" stroke-width="2"/>
-<rect x="16482" y="2522" width="112.16" height="30" fill="#000000" fill-opacity="0.7"/>
-<text x="16486" y="2546" font-size="24" fill="#c5c583">step001</text>
-<rect x="16288" y="2368" width="64" height="256" fill="#f28c26" fill-opacity="0.82" stroke="#f7b472" stroke-width="2"/>
-<rect x="16290" y="2370" width="112.16" height="30" fill="#000000" fill-opacity="0.7"/>
-<text x="16294" y="2394" font-size="24" fill="#f7b472">zone006</text>
 <rect x="17360" y="-1210" width="64" height="224" fill="#996b40" fill-opacity="0.82" stroke="#bd9f83" stroke-width="2"/>
 <rect x="17362" y="-1208" width="127.04" height="30" fill="#000000" fill-opacity="0.7"/>
 <text x="17366" y="-1184" font-size="24" fill="#bd9f83">block002</text>
@@ -88,106 +88,106 @@
 <rect x="17360" y="-1074" width="64" height="128" fill="#b3b3b3" fill-opacity="0.82" stroke="#cdcdcd" stroke-width="2"/>
 <rect x="17362" y="-1072" width="112.16" height="30" fill="#000000" fill-opacity="0.7"/>
 <text x="17366" y="-1048" font-size="24" fill="#cdcdcd">misc026</text>
+<rect x="17412" y="-480" width="40" height="200" fill="#d93373" fill-opacity="0.82" stroke="#e67aa4" stroke-width="2"/>
+<rect x="17414" y="-478" width="141.92" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="17418" y="-454" font-size="24" fill="#e67aa4">spikes002</text>
 <rect x="17328" y="-1210" width="32" height="224" fill="#f28c26" fill-opacity="0.82" stroke="#f7b472" stroke-width="2"/>
 <rect x="17330" y="-1208" width="112.16" height="30" fill="#000000" fill-opacity="0.7"/>
 <text x="17334" y="-1184" font-size="24" fill="#f7b472">zone009</text>
-<rect x="17531.92" y="1237.58" width="72" height="96" fill="#e64040" fill-opacity="0.82" stroke="#ee8383" stroke-width="2"/>
-<rect x="17533.92" y="1239.58" width="127.04" height="30" fill="#000000" fill-opacity="0.7"/>
-<text x="17537.92" y="1263.58" font-size="24" fill="#ee8383">grunt036</text>
-<rect x="17642.68" y="1067.81" width="72" height="96" fill="#e64040" fill-opacity="0.82" stroke="#ee8383" stroke-width="2"/>
-<rect x="17644.68" y="1069.81" width="127.04" height="30" fill="#000000" fill-opacity="0.7"/>
-<text x="17648.68" y="1093.81" font-size="24" fill="#ee8383">grunt037</text>
-<rect x="17696.02" y="842.95" width="72" height="96" fill="#e64040" fill-opacity="0.82" stroke="#ee8383" stroke-width="2"/>
-<rect x="17698.02" y="844.95" width="127.04" height="30" fill="#000000" fill-opacity="0.7"/>
-<text x="17702.02" y="868.95" font-size="24" fill="#ee8383">grunt039</text>
-<rect x="17656.02" y="103.58" width="72" height="96" fill="#e64040" fill-opacity="0.82" stroke="#ee8383" stroke-width="2"/>
-<rect x="17658.02" y="105.58" width="127.04" height="30" fill="#000000" fill-opacity="0.7"/>
-<text x="17662.02" y="129.58" font-size="24" fill="#ee8383">grunt038</text>
-<rect x="17516.02" y="-248.06" width="72" height="96" fill="#e64040" fill-opacity="0.82" stroke="#ee8383" stroke-width="2"/>
-<rect x="17518.02" y="-246.06" width="127.04" height="30" fill="#000000" fill-opacity="0.7"/>
-<text x="17522.02" y="-222.06" font-size="24" fill="#ee8383">grunt035</text>
-<rect x="16396.02" y="2535.93" width="72" height="96" fill="#e64040" fill-opacity="0.82" stroke="#ee8383" stroke-width="2"/>
-<rect x="16398.02" y="2537.93" width="127.04" height="30" fill="#000000" fill-opacity="0.7"/>
-<text x="16402.02" y="2561.93" font-size="24" fill="#ee8383">grunt033</text>
-<rect x="17096.02" y="2119.93" width="72" height="96" fill="#e64040" fill-opacity="0.82" stroke="#ee8383" stroke-width="2"/>
-<rect x="17098.02" y="2121.93" width="127.04" height="30" fill="#000000" fill-opacity="0.7"/>
-<text x="17102.02" y="2145.93" font-size="24" fill="#ee8383">grunt034</text>
-<rect x="17424" y="-480" width="32" height="200" fill="#d93373" fill-opacity="0.82" stroke="#e67aa4" stroke-width="2"/>
-<rect x="17426" y="-478" width="141.92" height="30" fill="#000000" fill-opacity="0.7"/>
-<text x="17430" y="-454" font-size="24" fill="#e67aa4">spikes003</text>
-<rect x="17424" y="-480" width="32" height="200" fill="#d93373" fill-opacity="0.82" stroke="#e67aa4" stroke-width="2"/>
-<rect x="17426" y="-478" width="141.92" height="30" fill="#000000" fill-opacity="0.7"/>
-<text x="17430" y="-454" font-size="24" fill="#e67aa4">spikes002</text>
-<rect x="17084" y="1997.5" width="192" height="32" fill="#33e6e6" fill-opacity="0.82" stroke="#7aeeee" stroke-width="2"/>
-<rect x="17086" y="1999.5" width="112.16" height="30" fill="#000000" fill-opacity="0.7"/>
-<text x="17090" y="2023.5" font-size="24" fill="#7aeeee">movp013</text>
+<rect x="17645.34" y="102.74" width="72" height="96" fill="#e64040" fill-opacity="0.82" stroke="#ee8383" stroke-width="2"/>
+<rect x="17647.34" y="104.74" width="127.04" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="17651.34" y="128.74" font-size="24" fill="#ee8383">grunt038</text>
+<rect x="17085.34" y="2119.93" width="72" height="96" fill="#e64040" fill-opacity="0.82" stroke="#ee8383" stroke-width="2"/>
+<rect x="17087.34" y="2121.93" width="127.04" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="17091.34" y="2145.93" font-size="24" fill="#ee8383">grunt034</text>
+<rect x="17505.34" y="-248.06" width="72" height="96" fill="#e64040" fill-opacity="0.82" stroke="#ee8383" stroke-width="2"/>
+<rect x="17507.34" y="-246.06" width="127.04" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="17511.34" y="-222.06" font-size="24" fill="#ee8383">grunt035</text>
+<rect x="16385.34" y="2529.02" width="72" height="96" fill="#e64040" fill-opacity="0.82" stroke="#ee8383" stroke-width="2"/>
+<rect x="16387.34" y="2531.02" width="127.04" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="16391.34" y="2555.02" font-size="24" fill="#ee8383">grunt033</text>
+<rect x="17542.59" y="1236.74" width="72" height="96" fill="#e64040" fill-opacity="0.82" stroke="#ee8383" stroke-width="2"/>
+<rect x="17544.59" y="1238.74" width="127.04" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="17548.59" y="1262.74" font-size="24" fill="#ee8383">grunt036</text>
+<rect x="17632.01" y="1067.3" width="72" height="96" fill="#e64040" fill-opacity="0.82" stroke="#ee8383" stroke-width="2"/>
+<rect x="17634.01" y="1069.3" width="127.04" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="17638.01" y="1093.3" font-size="24" fill="#ee8383">grunt037</text>
+<rect x="17685.34" y="842.44" width="72" height="96" fill="#e64040" fill-opacity="0.82" stroke="#ee8383" stroke-width="2"/>
+<rect x="17687.34" y="844.44" width="127.04" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="17691.34" y="868.44" font-size="24" fill="#ee8383">grunt039</text>
+<rect x="17844" y="-636" width="40" height="160" fill="#d93373" fill-opacity="0.82" stroke="#e67aa4" stroke-width="2"/>
+<rect x="17846" y="-634" width="141.92" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="17850" y="-610" font-size="24" fill="#e67aa4">spikes009</text>
+<rect x="17416" y="-480" width="32" height="200" fill="#d93373" fill-opacity="0.82" stroke="#e67aa4" stroke-width="2"/>
+<rect x="17418" y="-478" width="141.92" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="17422" y="-454" font-size="24" fill="#e67aa4">spikes004</text>
+<rect x="17084" y="2009.5" width="192" height="32" fill="#33e6e6" fill-opacity="0.82" stroke="#7aeeee" stroke-width="2"/>
+<rect x="17086" y="2011.5" width="112.16" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="17090" y="2035.5" font-size="24" fill="#7aeeee">movp013</text>
 <rect x="17424" y="1900" width="32" height="164" fill="#f28c26" fill-opacity="0.82" stroke="#f7b472" stroke-width="2"/>
 <rect x="17426" y="1902" width="112.16" height="30" fill="#000000" fill-opacity="0.7"/>
 <text x="17430" y="1926" font-size="24" fill="#f7b472">zone010</text>
-<rect x="17840" y="-636" width="32" height="160" fill="#d93373" fill-opacity="0.82" stroke="#e67aa4" stroke-width="2"/>
-<rect x="17842" y="-634" width="141.92" height="30" fill="#000000" fill-opacity="0.7"/>
-<text x="17846" y="-610" font-size="24" fill="#e67aa4">spikes010</text>
-<rect x="17840" y="-636" width="32" height="160" fill="#d93373" fill-opacity="0.82" stroke="#e67aa4" stroke-width="2"/>
-<rect x="17842" y="-634" width="141.92" height="30" fill="#000000" fill-opacity="0.7"/>
-<text x="17846" y="-610" font-size="24" fill="#e67aa4">spikes009</text>
-<rect x="16908" y="-1046" width="64" height="64" fill="#f28c26" fill-opacity="0.82" stroke="#f7b472" stroke-width="2"/>
-<rect x="16910" y="-1044" width="112.16" height="30" fill="#000000" fill-opacity="0.7"/>
-<text x="16914" y="-1020" font-size="24" fill="#f7b472">zone007</text>
-<rect x="17808" y="96" width="64" height="64" fill="#4dd959" fill-opacity="0.82" stroke="#8be693" stroke-width="2"/>
-<rect x="17810" y="98" width="112.16" height="30" fill="#000000" fill-opacity="0.7"/>
-<text x="17814" y="122" font-size="24" fill="#8be693">plat015</text>
-<rect x="17424" y="544" width="64" height="64" fill="#4dd959" fill-opacity="0.82" stroke="#8be693" stroke-width="2"/>
-<rect x="17426" y="546" width="112.16" height="30" fill="#000000" fill-opacity="0.7"/>
-<text x="17430" y="570" font-size="24" fill="#8be693">plat006</text>
-<rect x="17808" y="1056" width="64" height="64" fill="#4dd959" fill-opacity="0.82" stroke="#8be693" stroke-width="2"/>
-<rect x="17810" y="1058" width="112.16" height="30" fill="#000000" fill-opacity="0.7"/>
-<text x="17814" y="1082" font-size="24" fill="#8be693">plat016</text>
-<rect x="17808" y="-352" width="64" height="64" fill="#4dd959" fill-opacity="0.82" stroke="#8be693" stroke-width="2"/>
-<rect x="17810" y="-350" width="112.16" height="30" fill="#000000" fill-opacity="0.7"/>
-<text x="17814" y="-326" font-size="24" fill="#8be693">plat014</text>
+<rect x="17848" y="-636" width="32" height="160" fill="#d93373" fill-opacity="0.82" stroke="#e67aa4" stroke-width="2"/>
+<rect x="17850" y="-634" width="141.92" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="17854" y="-610" font-size="24" fill="#e67aa4">spikes012</text>
+<rect x="17520" y="1792" width="128" height="32" fill="#d93373" fill-opacity="0.82" stroke="#e67aa4" stroke-width="2"/>
+<rect x="17522" y="1794" width="141.92" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="17526" y="1818" font-size="24" fill="#e67aa4">spikes006</text>
+<rect x="17648" y="1344" width="128" height="32" fill="#d93373" fill-opacity="0.82" stroke="#e67aa4" stroke-width="2"/>
+<rect x="17650" y="1346" width="141.92" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="17654" y="1370" font-size="24" fill="#e67aa4">spikes008</text>
+<rect x="17648" y="384" width="128" height="32" fill="#d93373" fill-opacity="0.82" stroke="#e67aa4" stroke-width="2"/>
+<rect x="17650" y="386" width="141.92" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="17654" y="410" font-size="24" fill="#e67aa4">spikes007</text>
 <rect x="17808" y="1952" width="64" height="64" fill="#4dd959" fill-opacity="0.82" stroke="#8be693" stroke-width="2"/>
 <rect x="17810" y="1954" width="112.16" height="30" fill="#000000" fill-opacity="0.7"/>
 <text x="17814" y="1978" font-size="24" fill="#8be693">plat017</text>
-<rect x="17648" y="376" width="128" height="32" fill="#d93373" fill-opacity="0.82" stroke="#e67aa4" stroke-width="2"/>
-<rect x="17650" y="378" width="141.92" height="30" fill="#000000" fill-opacity="0.7"/>
-<text x="17654" y="402" font-size="24" fill="#e67aa4">spikes007</text>
+<rect x="17808" y="-352" width="64" height="64" fill="#4dd959" fill-opacity="0.82" stroke="#8be693" stroke-width="2"/>
+<rect x="17810" y="-350" width="112.16" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="17814" y="-326" font-size="24" fill="#8be693">plat014</text>
+<rect x="17808" y="1056" width="64" height="64" fill="#4dd959" fill-opacity="0.82" stroke="#8be693" stroke-width="2"/>
+<rect x="17810" y="1058" width="112.16" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="17814" y="1082" font-size="24" fill="#8be693">plat016</text>
+<rect x="17424" y="544" width="64" height="64" fill="#4dd959" fill-opacity="0.82" stroke="#8be693" stroke-width="2"/>
+<rect x="17426" y="546" width="112.16" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="17430" y="570" font-size="24" fill="#8be693">plat006</text>
+<rect x="17808" y="96" width="64" height="64" fill="#4dd959" fill-opacity="0.82" stroke="#8be693" stroke-width="2"/>
+<rect x="17810" y="98" width="112.16" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="17814" y="122" font-size="24" fill="#8be693">plat015</text>
+<rect x="16908" y="-1046" width="64" height="64" fill="#f28c26" fill-opacity="0.82" stroke="#f7b472" stroke-width="2"/>
+<rect x="16910" y="-1044" width="112.16" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="16914" y="-1020" font-size="24" fill="#f7b472">zone007</text>
 <rect x="17496" y="60" width="128" height="32" fill="#4dd959" fill-opacity="0.82" stroke="#8be693" stroke-width="2"/>
 <rect x="17498" y="62" width="112.16" height="30" fill="#000000" fill-opacity="0.7"/>
 <text x="17502" y="86" font-size="24" fill="#8be693">plat010</text>
-<rect x="17648" y="1336" width="128" height="32" fill="#d93373" fill-opacity="0.82" stroke="#e67aa4" stroke-width="2"/>
-<rect x="17650" y="1338" width="141.92" height="30" fill="#000000" fill-opacity="0.7"/>
-<text x="17654" y="1362" font-size="24" fill="#e67aa4">spikes008</text>
 <rect x="17584" y="-420" width="128" height="32" fill="#4dd959" fill-opacity="0.82" stroke="#8be693" stroke-width="2"/>
 <rect x="17586" y="-418" width="112.16" height="30" fill="#000000" fill-opacity="0.7"/>
 <text x="17590" y="-394" font-size="24" fill="#8be693">plat011</text>
-<rect x="17520" y="1784" width="128" height="32" fill="#d93373" fill-opacity="0.82" stroke="#e67aa4" stroke-width="2"/>
-<rect x="17522" y="1786" width="141.92" height="30" fill="#000000" fill-opacity="0.7"/>
-<text x="17526" y="1810" font-size="24" fill="#e67aa4">spikes006</text>
-<rect x="17840" y="1120" width="32" height="64" fill="#d93373" fill-opacity="0.82" stroke="#e67aa4" stroke-width="2"/>
-<rect x="17842" y="1122" width="141.92" height="30" fill="#000000" fill-opacity="0.7"/>
-<text x="17846" y="1146" font-size="24" fill="#e67aa4">spikes013</text>
-<rect x="17840" y="1120" width="32" height="64" fill="#d93373" fill-opacity="0.82" stroke="#e67aa4" stroke-width="2"/>
-<rect x="17842" y="1122" width="141.92" height="30" fill="#000000" fill-opacity="0.7"/>
-<text x="17846" y="1146" font-size="24" fill="#e67aa4">spikes014</text>
-<rect x="17424" y="608" width="32" height="64" fill="#d93373" fill-opacity="0.82" stroke="#e67aa4" stroke-width="2"/>
-<rect x="17426" y="610" width="141.92" height="30" fill="#000000" fill-opacity="0.7"/>
-<text x="17430" y="634" font-size="24" fill="#e67aa4">spikes004</text>
-<rect x="17424" y="608" width="32" height="64" fill="#d93373" fill-opacity="0.82" stroke="#e67aa4" stroke-width="2"/>
-<rect x="17426" y="610" width="141.92" height="30" fill="#000000" fill-opacity="0.7"/>
-<text x="17430" y="634" font-size="24" fill="#e67aa4">spikes005</text>
-<rect x="17840" y="160" width="32" height="64" fill="#d93373" fill-opacity="0.82" stroke="#e67aa4" stroke-width="2"/>
-<rect x="17842" y="162" width="141.92" height="30" fill="#000000" fill-opacity="0.7"/>
-<text x="17846" y="186" font-size="24" fill="#e67aa4">spikes011</text>
-<rect x="17840" y="160" width="32" height="64" fill="#d93373" fill-opacity="0.82" stroke="#e67aa4" stroke-width="2"/>
-<rect x="17842" y="162" width="141.92" height="30" fill="#000000" fill-opacity="0.7"/>
-<text x="17846" y="186" font-size="24" fill="#e67aa4">spikes012</text>
+<rect x="17844" y="1120" width="40" height="64" fill="#d93373" fill-opacity="0.82" stroke="#e67aa4" stroke-width="2"/>
+<rect x="17846" y="1122" width="141.92" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="17850" y="1146" font-size="24" fill="#e67aa4">spikes011</text>
+<rect x="17412" y="608" width="40" height="64" fill="#d93373" fill-opacity="0.82" stroke="#e67aa4" stroke-width="2"/>
+<rect x="17414" y="610" width="141.92" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="17418" y="634" font-size="24" fill="#e67aa4">spikes003</text>
+<rect x="17844" y="160" width="40" height="64" fill="#d93373" fill-opacity="0.82" stroke="#e67aa4" stroke-width="2"/>
+<rect x="17846" y="162" width="141.92" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="17850" y="186" font-size="24" fill="#e67aa4">spikes010</text>
+<rect x="17416" y="608" width="32" height="64" fill="#d93373" fill-opacity="0.82" stroke="#e67aa4" stroke-width="2"/>
+<rect x="17418" y="610" width="141.92" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="17422" y="634" font-size="24" fill="#e67aa4">spikes005</text>
+<rect x="17848" y="1120" width="32" height="64" fill="#d93373" fill-opacity="0.82" stroke="#e67aa4" stroke-width="2"/>
+<rect x="17850" y="1122" width="141.92" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="17854" y="1146" font-size="24" fill="#e67aa4">spikes014</text>
+<rect x="17848" y="160" width="32" height="64" fill="#d93373" fill-opacity="0.82" stroke="#e67aa4" stroke-width="2"/>
+<rect x="17850" y="162" width="141.92" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="17854" y="186" font-size="24" fill="#e67aa4">spikes013</text>
 <rect x="17440" y="-846" width="64" height="32" fill="#4dd959" fill-opacity="0.82" stroke="#8be693" stroke-width="2"/>
 <rect x="17442" y="-844" width="112.16" height="30" fill="#000000" fill-opacity="0.7"/>
 <text x="17446" y="-820" font-size="24" fill="#8be693">plat009</text>
-<rect x="17584" y="-436" width="128" height="16" fill="#f28c26" fill-opacity="0.82" stroke="#f7b472" stroke-width="2"/>
-<rect x="17586" y="-434" width="112.16" height="30" fill="#000000" fill-opacity="0.7"/>
-<text x="17590" y="-410" font-size="24" fill="#f7b472">zone013</text>
 <rect x="17496" y="44" width="128" height="16" fill="#f28c26" fill-opacity="0.82" stroke="#f7b472" stroke-width="2"/>
 <rect x="17498" y="46" width="112.16" height="30" fill="#000000" fill-opacity="0.7"/>
 <text x="17502" y="70" font-size="24" fill="#f7b472">zone012</text>
+<rect x="17584" y="-436" width="128" height="16" fill="#f28c26" fill-opacity="0.82" stroke="#f7b472" stroke-width="2"/>
+<rect x="17586" y="-434" width="112.16" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="17590" y="-410" font-size="24" fill="#f7b472">zone013</text>
 </svg>
