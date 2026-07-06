@@ -29,6 +29,8 @@ const _FIRE := {
 }
 
 var _corr_boss: CorridorSection = null
+var _ignarath: BossBase = null
+var _ignarath_spawned := false
 
 func _ready() -> void:
 	if StageManager.current_stage_id < 0:
@@ -93,10 +95,11 @@ func _ready() -> void:
 # stage_00 (896×64 piso/teto, 64×512 parede, interior 384px) — mesma largura
 # do corredor, piso nivelado com ele (sem degrau). BossPlat1/2 (arena antiga,
 # 2816px) foram removidas: não fazem mais sentido numa sala do tamanho padrão.
-# _BOSS_L = 32px sobrepostos na parede direita do corredor (18864), evitando
-# vão — mesma folga usada no stage_00 entre Corr3 e Boss_LWall (~30px).
-const _BOSS_L          := 18832.0
-const _BOSS_R          := 19728.0   # _BOSS_L + 896
+# _BOSS_L = exit_x do _corr_boss (18864): a porta É a parede, centralizada
+# nela — não sobreposta/deslocada. Playtest: a versão anterior (18832) deixava
+# a porta visualmente fora do corpo da parede.
+const _BOSS_L          := 18864.0
+const _BOSS_R          := 19760.0   # _BOSS_L + 896
 const _BOSS_FLOOR_TOP  := -1074.0   # = piso do corredor (_corr_boss), sem degrau
 const _BOSS_CEIL_TOP   := -1458.0   # interior = -1074 − (−1458) = 384px = 6 tiles
 const _BOSS_DOOR_LO    := -1182.0   # abertura de 108px (mesma altura de antes)
@@ -190,16 +193,14 @@ const _Z4_LAVA_FAST_SPEED := 105.0
 const _Z4_LAVA_ACCEL_Y    := -160.0
 const _Z4_LAVA_CAP_Y      := -958.0
 
-# A luta do Ignarath só começa quando o player ENTRA na sala pela porta lateral,
-# não por proximidade — senão o boss ataca enquanto o player ainda está no corredor.
-# Desliga o auto-aggro por distância e cria um Area2D cobrindo o interior da arena.
-# Chamado por _build_z4_boss() após a arena ser construída.
+# A luta do Ignarath só começa quando o player ENTRA na sala (spawn + aggro
+# imediato em _on_corr_boss_traversed); este trigger é o BACKUP — mesmo padrão
+# do stage_00 (_setup_boss_aggro_trigger), necessário porque o auto-walk da
+# porta às vezes para o player um pouco antes do aggro imediato surtir efeito
+# em algum caminho de retry. Chamado por _spawn_ignarath() após a arena existir.
 func _setup_boss_room_trigger() -> void:
-	var ign := get_node_or_null("Ignarath")
-	if ign == null:
+	if not is_instance_valid(_ignarath):
 		return
-	# auto_aggro já foi desligado em _build_z4_boss(); reforça para segurança.
-	ign.set("auto_aggro", false)
 	# Trigger cobre o interior da nova arena (porta lateral, esquerda).
 	# Usa _BOSS_DOOR_LO como topo do gatilho — dispara logo ao entrar pela porta.
 	var left  := _BOSS_L + 64.0
@@ -214,8 +215,8 @@ func _setup_boss_room_trigger() -> void:
 	trig.add_child(_z2_shape(Vector2(right - left, trig_bot - trig_top)))
 	add_child(trig)
 	trig.body_entered.connect(func(b: Node) -> void:
-		if b is CharacterBase:
-			ign.call("aggro"))
+		if b is CharacterBase and is_instance_valid(_ignarath):
+			_ignarath.aggro())
 
 func _on_camera_lock(center: Vector2, zoom: float) -> void:
 	$Camera2D.zoom = Vector2(zoom, zoom)
@@ -1225,8 +1226,11 @@ func _build_z4_top() -> void:
 	_corr_boss.exit_retriggerable   = true
 	_corr_boss.cam_center           = Vector2(18416.0, -1138.0)
 	_corr_boss.cam_zoom             = 2.0
-	# setup() e conexão do sinal são feitos pelo loop em _ready() (evita double-connect).
+	# setup() e camera_lock_requested são feitos pelo loop genérico em _ready()
+	# (evita double-connect); player_traversed é específico deste corredor (spawna
+	# o Ignarath só na entrada da sala — ver _on_corr_boss_traversed).
 	add_child(_corr_boss)
+	_corr_boss.player_traversed.connect(_on_corr_boss_traversed)
 
 func _build_z4_boss() -> void:
 	# Os nós de boss do .tscn foram queue_free()'d em _ready() mas ainda não foram
@@ -1258,17 +1262,48 @@ func _build_z4_boss() -> void:
 		Vector2(_BOSS_R - _BOSS_L, 64.0)).set_meta("skip_base_draw", true)
 	# Sem soleira: o piso da arena (_BOSS_FLOOR_TOP=-1074) é nivelado com o piso
 	# do corredor — mesma cota, sem degrau (igual ao Corr3→Boss_Floor do stage_00).
-	# Ignarath — respeita ?noenemies=1 / bot (spawn por script ocorre após a remoção do stage_scene)
-	if DebugBoot.no_enemies:
+	# Ignarath NÃO nasce aqui — só quando o player atravessa _corr_boss (ver
+	# _on_corr_boss_traversed / _spawn_ignarath). Isso corrige 2 bugs de playtest:
+	# o boss "já estava lá" antes de entrar na sala, e a HUD não pegava a vida
+	# dele porque stage_scene.gd::_ready() só conecta bosses que já existem como
+	# child NO MOMENTO do super._ready() (chamado bem antes de _build_z4_boss).
+	if DebugBoot.zone == 5:
+		# zone=5 pula direto pra dentro da arena — simula a travessia aqui, DEPOIS
+		# do loop de limpeza acima (senão o Ignarath recém-criado seria destruído).
+		_spawn_ignarath()
+		if is_instance_valid(_ignarath):
+			_ignarath.aggro()
+
+# Chamado quando o player termina de atravessar _corr_boss (sinal player_traversed).
+func _on_corr_boss_traversed() -> void:
+	_spawn_ignarath()
+	if is_instance_valid(_ignarath):
+		_ignarath.aggro()
+
+# Cria o Ignarath só na entrada da sala, no canto DIREITO (longe da porta) —
+# mesmo padrão de stage_00::_spawn_boss(): wiring completo (player, HUD,
+# aggro/intro) feito aqui à mão, já que o boss nasce tarde demais pro loop
+# genérico de stage_scene.gd pegar.
+func _spawn_ignarath() -> void:
+	if DebugBoot.no_enemies or _ignarath_spawned:
 		return
-	var ign := preload("res://characters/bosses/ignarath.tscn").instantiate()
+	_ignarath_spawned = true
+	var ign: BossBase = preload("res://characters/bosses/ignarath.tscn").instantiate()
 	ign.name = "Ignarath"
-	ign.position = Vector2((_BOSS_L + _BOSS_R) * 0.5, _BOSS_FLOOR_TOP - 80.0)
-	ign.set("arena_left",  _BOSS_L + 64.0)
-	ign.set("arena_right", _BOSS_R - 64.0)
-	ign.set("arena_floor", _BOSS_FLOOR_TOP)
-	ign.set("auto_aggro",  false)
+	ign.position = Vector2(_BOSS_R - 192.0, _BOSS_FLOOR_TOP - 80.0)   # canto direito
+	ign.player = _player
+	ign.arena_left  = _BOSS_L + 64.0
+	ign.arena_right = _BOSS_R - 64.0
+	ign.arena_floor = _BOSS_FLOOR_TOP
+	ign.auto_aggro  = false
 	add_child(ign)
+	_ignarath = ign
+	$HUD.connect_to_boss(ign)
+	ign.boss_aggro.connect(func():
+		_player.velocity = Vector2.ZERO
+		_player.process_mode = Node.PROCESS_MODE_DISABLED)
+	ign.boss_intro_ended.connect(func():
+		_player.process_mode = Node.PROCESS_MODE_INHERIT)
 	_setup_boss_room_trigger()
 
 # Passagem secreta = coluna azul-clara à ESQUERDA do shaft (referência shaftStage01Zona4.png),
@@ -1429,12 +1464,14 @@ func _z4_stair(prefix: String, x0: float, top0: float, dx: float, dy: float,
 		top -= dy
 
 # Debug ?zone=N: pontos de spawn no início de cada zona (calibração do bot).
+# zone=5 (dentro da arena) simula a travessia do corredor em _build_z4_boss()
+# (DEPOIS do loop de limpeza dele — spawnar aqui seria destruído por ele).
 func _zone_spawn(zone: int) -> Vector2:
 	match zone:
 		2: return Vector2(3760, 2480)    # zona 2 — sobre Z2Plat1 (pós shaft ↓)
 		3: return Vector2(10800, 2480)   # zona 3 nova — piso de entrada (runway p/ a plataforma)
 		4: return Vector2(16320, 2480)   # zona 4 — base da escada-chase
-		5: return Vector2(19280, -1174)  # boss — dentro da arena (896px, x18832–19728, piso -1074)
+		5: return Vector2(19312, -1174)  # boss — dentro da arena (896px, x18864–19760, piso -1074)
 		6: return Vector2(2640, 540)     # DEBUG: shaft ↓ — sobre a Z1Plat4 (testar descida)
 		7: return Vector2(17520, 1100)   # DEBUG: meio do shaft de wall-jump (seg4)
 		8: return Vector2(17800, -1150)  # DEBUG: topo do shaft / câmara pré-chefe (Z4PreR, piso -1074)
