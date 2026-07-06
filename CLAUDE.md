@@ -190,6 +190,7 @@ Skills locais em `.claude/skills/`. Invocar dizendo "use a skill X" ou `/X`.
 | `new-boss` | Criar novo boss elemental com AI e fraqueza |
 | `new-stage` | Criar nova fase (simple ou complex com zonas) |
 | `new-corridor` | Adicionar corredor de transição a um stage complexo usando `CorridorSection` |
+| `new-boss-room` | Criar/corrigir a sala/arena de um boss ou miniboss (destino de um corredor) — regra de múltiplos de 64px, padrão selado (stage_00) vs porta aberta+trigger (stage_01) |
 | `new-foothold` | Criar saliência agarrável (foothold) num shaft — parede curta que projeta 1 tile, com modo "Saliência" no imgdebug |
 | `new-wall-element` | Elemento preso à parede de shaft: plataforma, obstáculo ou espinhos (na face da parede / sob a plataforma) — grupo "Parede" no imgdebug |
 | `run-tests` | Rodar testes headless do Godot, reportar PASS/FAIL |

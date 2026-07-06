@@ -94,7 +94,11 @@ func _ready() -> void:
 const _BOSS_L          := 18900.0
 const _BOSS_R          := 21716.0
 const _BOSS_FLOOR_TOP  := -986.0
-const _BOSS_CEIL_TOP   := -1286.0
+# -1306 (não -1286): interior = _BOSS_FLOOR_TOP − _BOSS_CEIL_TOP = 320px = 5
+# tiles exatos. Antes eram 300px (4,7 tiles) — o grid de _draw_boss_room()
+# arredondava pra 7 linhas (448px) e sobrava ~20px de descompasso entre o
+# desenho e a colisão real (chão/teto pareciam "flutuar" fora do lugar).
+const _BOSS_CEIL_TOP   := -1306.0
 const _BOSS_DOOR_LO    := -1094.0
 const _BOSS_DOOR_HI    := -986.0
 
@@ -1182,30 +1186,35 @@ func _spawn_fire_roster() -> void:
 	_spawn_fire("grunt",   "F_Z4Grunt2", Vector2(17100, 2140))  # entrada do shaft
 
 func _build_z4_top() -> void:
-	# Câmara pré-chefe: piso seco com vão (boca do shaft, seg5 alargado) em x17424–17616.
-	# (Task 5 alargou o seg5 topo de x17456–17584 p/ x17424–17616 = 192px; Z4PreL/Z4PreR
-	# realinhados pra deixar a boca toda livre, senão o piso pré-boss invadia a subida.)
-	# Trecho esquerdo: tampa a parede esquerda do topo do shaft (Z4ShaftWL5, x17360–17424);
-	# face direita = x17424 (= face esquerda do interior do seg5).
-	# Z4PreL/Z4PreR reusam o helper _z3_static_floor de propósito: piso seco com o
-	# mesmo tile/desenho de chão do corredor (não é plataforma elevada, só piso reto).
-	_z3_static_floor("Z4PreL", Vector2(17392.0, -1010.0), Vector2(64.0, 128.0))   # x17360–17424 (offset -1622)
-	# Trecho direito: começa em x17616 (= face direita do interior do seg5, sobre o
-	# Z4ShaftWR5) e segue até a entrada do boss corridor (x17616–18200).
-	_z3_static_floor("Z4PreR", Vector2(17860.0, -1010.0), Vector2(680.0, 128.0))  # x17520–18200 (offset -1622)
-	# Corredor pré-boss com checkpoint 2 e câmera bloqueada.
+	# Câmara pré-chefe + corredor, redesenhados pra seguir a mesma disciplina do
+	# Corr1 do stage_00 (docs/stage_00/corredor.md): toda medida em múltiplos de
+	# 64px, piso/teto contínuos (mesma altura de superfície do início ao fim, sem
+	# degrau nem vão) — resolve 3 defeitos do layout anterior: (1) Z4PreL/Z4PreR
+	# não tinham teto nenhum ("céu aberto"); (2) o corredor tinha 660×64/64×264,
+	# fora da grade de 64 (linha de tile cortada); (3) o piso do corredor estava
+	# 40px mais baixo que o do Z4PreR (degrau invisível na transição).
+	# Trecho esquerdo: tampa a parede esquerda do topo do shaft (Z4ShaftWL5, x17360–17424).
+	_z3_static_floor("Z4PreL", Vector2(17392.0, -1010.0), Vector2(64.0, 128.0))
+	_z2_static("Z4PreLCeil", Vector2(17392.0, -1234.0), Vector2(64.0, 64.0))
+	# Trecho direito: da boca do shaft (x17520) até a entrada do corredor (x17520–18224,
+	# 704px = 11 tiles). Piso topo -1074 = mesma superfície do Z4PreL e do corredor.
+	_z3_static_floor("Z4PreR", Vector2(17872.0, -1010.0), Vector2(704.0, 128.0))
+	_z2_static("Z4PreRCeil", Vector2(17872.0, -1234.0), Vector2(704.0, 64.0))
+	# Corredor pré-boss com checkpoint 5 e câmera bloqueada. 640px = 10 tiles
+	# (zoom 3.0 conforme tabela da skill new-corridor), interior 128px de altura
+	# e paredes de 256px — idênticos ao Corr1 do stage_00, só a largura muda.
 	_corr_boss = CorridorSection.new()
 	_corr_boss.tileset              = _ROOM_TILE
 	_corr_boss.glass_tex            = null       # sem painel de vidro neste corredor
 	_corr_boss.door_tex             = _DOOR_TEX
-	_corr_boss.floor_center         = Vector2(18530.0, -1002.0)
-	_corr_boss.floor_size           = Vector2(660.0, 64.0)
-	_corr_boss.ceil_center          = Vector2(18530.0, -1102.0)
-	_corr_boss.ceil_size            = Vector2(660.0, 64.0)
-	_corr_boss.wall_l_center        = Vector2(18200.0, -1052.0)
-	_corr_boss.wall_l_size          = Vector2(64.0, 264.0)
-	_corr_boss.wall_r_center        = Vector2(18860.0, -1052.0)
-	_corr_boss.wall_r_size          = Vector2(64.0, 264.0)
+	_corr_boss.floor_center         = Vector2(18544.0, -1042.0)  # topo -1074 = Z4PreR
+	_corr_boss.floor_size           = Vector2(640.0, 64.0)
+	_corr_boss.ceil_center          = Vector2(18544.0, -1234.0)  # base -1202 = Z4PreRCeil
+	_corr_boss.ceil_size            = Vector2(640.0, 64.0)
+	_corr_boss.wall_l_center        = Vector2(18224.0, -1138.0)
+	_corr_boss.wall_l_size          = Vector2(64.0, 256.0)
+	_corr_boss.wall_r_center        = Vector2(18864.0, -1138.0)
+	_corr_boss.wall_r_size          = Vector2(64.0, 256.0)
 	_corr_boss.entry_x              = 18260.0
 	_corr_boss.exit_x               = 18800.0
 	_corr_boss.save_checkpoint      = true
@@ -1213,8 +1222,8 @@ func _build_z4_top() -> void:
 	_corr_boss.checkpoint_respawn_x = 18300.0
 	_corr_boss.heal_on_entry        = false
 	_corr_boss.exit_retriggerable   = true
-	_corr_boss.cam_center           = Vector2(18530.0, -1052.0)
-	_corr_boss.cam_zoom             = 2.0
+	_corr_boss.cam_center           = Vector2(18544.0, -1138.0)
+	_corr_boss.cam_zoom             = 3.0
 	# setup() e conexão do sinal são feitos pelo loop em _ready() (evita double-connect).
 	add_child(_corr_boss)
 
@@ -1241,7 +1250,7 @@ func _build_z4_boss() -> void:
 	# parede senta exatamente em y=_BOSS_DOOR_LO. (Antes era parede sólida full-height
 	# que bloqueava fisicamente a entrada.)
 	var lwall_top := _BOSS_CEIL_TOP - 64.0           # = -224 (encosta na borda externa do teto)
-	var lwall_h := _BOSS_DOOR_LO - lwall_top         # = 224 - (-224) = 448
+	var lwall_h := _BOSS_DOOR_LO - lwall_top         # = -1094 - (-1370) = 276
 	_z2_static("BossWallL", Vector2(_BOSS_L, lwall_top + lwall_h * 0.5),
 		Vector2(64.0, lwall_h)).set_meta("skip_base_draw", true)
 	_z2_static("BossWallR", Vector2(_BOSS_R, cy), Vector2(64.0, h)).set_meta("skip_base_draw", true)
@@ -1249,9 +1258,10 @@ func _build_z4_boss() -> void:
 		Vector2(_BOSS_R - _BOSS_L, 64.0)).set_meta("skip_base_draw", true)
 	_z2_static("BossCeil", Vector2((_BOSS_L + _BOSS_R) * 0.5, _BOSS_CEIL_TOP - 32.0),
 		Vector2(_BOSS_R - _BOSS_L, 64.0)).set_meta("skip_base_draw", true)
-	# Soleira de transição corredor→arena: o corredor (Task 7) termina em floor top≈y376 e
-	# a arena começa em _BOSS_FLOOR_TOP=440 (64px mais baixo). Este bloco cobre o vão
-	# horizontal entre o corredor e a parede esquerda da arena (x18800→18964) e serve como
+	# Soleira de transição corredor→arena: o corredor termina em floor top=-1074 e
+	# a arena começa em _BOSS_FLOOR_TOP=-986 (88px mais baixo — a arena é mais funda
+	# que o corredor de propósito). Este bloco cobre o vão horizontal entre o
+	# corredor e a parede esquerda da arena (x18800→18964) e serve como
 	# degrau sólido nivelado com o piso da arena — o player desce o degrau ao entrar.
 	_z2_static("BossThreshold", Vector2(18882.0, -970.0), Vector2(164.0, 64.0)).set_meta("skip_base_draw", true)
 	# Ignarath — respeita ?noenemies=1 / bot (spawn por script ocorre após a remoção do stage_scene)
