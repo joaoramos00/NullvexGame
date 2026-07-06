@@ -17,6 +17,7 @@ const _BEAM_BODY_FRAMES  := 9
 const _BEAM_BODY_FPS     := 12.0
 const _BEAM_BODY_SPACING := 40.0
 const _MAX_BODY_SPRITES  := 14
+const _TIP_EXTRA_MARGIN  := 48.0  # alcance de dano na ponta (> margem do corpo, 24.0)
 
 var player: CharacterBase = null
 var origin: Vector2 = Vector2.ZERO      # boca, em coords de mundo
@@ -53,7 +54,12 @@ func _physics_process(delta: float) -> void:
 	var prog: float = clampf(_t / sweep_time, 0.0, 1.0)
 	_end = _compute_end(prog)
 	if is_instance_valid(player) and not player.is_dead:
-		if _point_seg_dist(player.global_position, origin, _end) < half_width + 24.0:
+		var hit := _point_seg_dist(player.global_position, origin, _end) < half_width + 24.0
+		# Ponta tem alcance extra: o impacto visual ali (fx_beam_impact + ponta
+		# 2x maior) é bem maior que a margem do corpo do feixe.
+		if not hit:
+			hit = player.global_position.distance_to(_end) < half_width + _TIP_EXTRA_MARGIN
+		if hit:
 			player.take_damage(damage, source_id)
 	_update_visuals()
 	queue_redraw()
@@ -228,8 +234,9 @@ func _draw() -> void:
 	if DebugBoot.hitbox_debug:
 		# Sem Area2D real: o dano usa distância ponto-segmento < half_width+24
 		# a cada frame (_physics_process). A linha grossa aqui É essa margem —
-		# não só o half_width visual.
+		# não só o half_width visual. Círculo na ponta = alcance extra do impacto.
 		draw_line(origin, _end, Color(1.0, 0.0, 0.0, 0.9), (half_width + 24.0) * 2.0)
+		draw_arc(_end, half_width + _TIP_EXTRA_MARGIN, 0.0, TAU, 24, Color(1.0, 0.0, 0.0, 0.9), 2.0)
 
 func _point_seg_dist(p: Vector2, a: Vector2, b: Vector2) -> float:
 	var ab: Vector2 = b - a
