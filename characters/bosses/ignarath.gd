@@ -177,6 +177,8 @@ func _spawn_fire_beam(sweep_time: float) -> void:
 	beam.set("origin", global_position + _mouth)
 	beam.set("facing", _facing)
 	beam.set("floor_y", arena_floor)
+	beam.set("arena_left", arena_left)
+	beam.set("arena_right", arena_right)
 	beam.set("sweep_time", sweep_time)
 	beam.set("max_angle_deg", BEAM_MAX_ANGLE)
 	beam.set("half_width", BEAM_HALF_WIDTH)
