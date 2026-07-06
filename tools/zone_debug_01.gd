@@ -8,7 +8,9 @@ extends Node
 ##
 ## Roda headless:
 ##   Godot --headless --path . res://tools/zone_debug_01.tscn -- --area=all
-## Args: --area=all|z1|z2|z3|z4|boss   (default all)
+## Args: --area=all|z1|z2|z3|z4|boss|corridorboss   (default all)
+## corridorboss = recorte por X (17900–19850), não por área: corredor pré-boss
+## + sala do boss numa imagem só, útil pra depurar o alinhamento entre os dois.
 
 const _STAGE_SCENE := preload("res://stages/stage_01/stage_01.tscn")
 const _OUT_DIR := "res://docs/stage_01/zones/"
@@ -109,6 +111,11 @@ func _run() -> void:
 			continue
 		area_items.sort_custom(func(a, b): return a.rect.get_area() > b.rect.get_area())
 		_write_svg(area_name, area_items)
+		made += 1
+
+	# Corredor pré-boss + sala do boss numa imagem só (recorte por X, não por área).
+	if _areas_filter == "" or _areas_filter == "corridorboss":
+		_write_xrange_svg("corridorboss", 17900.0, 19850.0, _items)
 		made += 1
 
 	_write_legend()
@@ -247,6 +254,27 @@ func _rect_of(n: Node, kind: String) -> Rect2:
 
 func _write_svg(area_name: String, area_items: Array) -> void:
 	var bbox: Rect2 = (_bboxes[area_name] as Rect2).grow(_PAD)
+	_render_svg(_AREA_FILE[area_name], area_items, bbox)
+
+
+# Recorte por faixa de X, independente da classificação por área — útil pra ver
+# a TRANSIÇÃO entre duas áreas (ex.: corredor→sala do boss) numa imagem só, sem
+# reclassificar nada. --area=corridorboss ou "all".
+func _write_xrange_svg(out_name: String, x_min: float, x_max: float, all_items: Array) -> void:
+	var items := all_items.filter(func(it):
+		var cx: float = it.rect.position.x + it.rect.size.x * 0.5
+		return cx >= x_min and cx <= x_max)
+	if items.is_empty():
+		return
+	var bbox: Rect2 = items[0].rect
+	for it in items:
+		bbox = bbox.merge(it.rect)
+	_render_svg(out_name, items, bbox.grow(_PAD))
+
+
+func _render_svg(out_name: String, items: Array, bbox: Rect2) -> void:
+	var sorted_items := items.duplicate()
+	sorted_items.sort_custom(func(a, b): return a.rect.get_area() > b.rect.get_area())
 	var w: float = bbox.size.x
 	var h: float = bbox.size.y
 	var scale: float = 1.0
@@ -262,7 +290,7 @@ func _write_svg(area_name: String, area_items: Array) -> void:
 	s.append('<rect x="%s" y="%s" width="%s" height="%s" fill="#0a0a12"/>' % [
 		_n(bbox.position.x), _n(bbox.position.y), _n(w), _n(h)])
 
-	for it in area_items:
+	for it in sorted_items:
 		var col: Color = _TYPE_COLOR.get(it.type, Color.WHITE)
 		var r: Rect2 = it.rect
 		var hexc := "#" + col.to_html(false)
@@ -272,14 +300,14 @@ func _write_svg(area_name: String, area_items: Array) -> void:
 		_append_label(s, it.id, r.position, hexl)
 
 	s.append('</svg>')
-	var path := "%s%s.svg" % [_OUT_DIR, _AREA_FILE[area_name]]
+	var path := "%s%s.svg" % [_OUT_DIR, out_name]
 	var f := FileAccess.open(path, FileAccess.WRITE)
 	if f == null:
 		push_error("Falha ao abrir %s" % path)
 		return
 	f.store_string("\n".join(s))
 	f.close()
-	print("  svg: %s (%d elementos)" % [path, area_items.size()])
+	print("  svg: %s (%d elementos)" % [path, sorted_items.size()])
 
 
 func _append_label(s: PackedStringArray, text: String, anchor: Vector2, hexl: String) -> void:
