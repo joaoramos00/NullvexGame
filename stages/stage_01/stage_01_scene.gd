@@ -1002,9 +1002,10 @@ func _z4_wall_plat(n: String, side: String, top_y: float, spikes_under: bool) ->
 		var s0: float = x0 + 32.0 if side == "R" \
 				else x0 + _Z4_WALL_PLAT_DEPTH - STRIP - 32.0
 		# Base embutida na rocha (o PNG tem margem transparente na base;
-		# encostada na borda visível os espinhos parecem flutuar) — offset maior
-		# que o proporcional (24) porque em jogo ainda pareciam altos demais.
-		_z4_spikes_under(n + "Spikes", s0, s0 + STRIP, top_y + 32.0)
+		# encostada na borda visível os espinhos parecem flutuar) — offset bem
+		# maior que o proporcional (24) porque em jogo ainda pareciam altos
+		# demais (+8 depois +30 de ajuste de playtest).
+		_z4_spikes_under(n + "Spikes", s0, s0 + STRIP, top_y + 62.0)
 
 # Tira de espinhos pendurada na base de uma parede+plat, apontando pra baixo: Area2D
 # instant-kill alinhada às pontas (cobre o corpo todo da tira) + visual do PNG
@@ -1041,10 +1042,14 @@ func _z4_spikes_under(n: String, x0: float, x1: float, top_y: float) -> void:
 # do bloco de 32px é calculado AQUI, não no call site.
 func _z4_spike_face(n: String, wall_x: float, cy: float, h: float, side: String = "R") -> void:
 	var w := 32.0
-	# Embute 8px na parede (visual+sólido) — antes ficavam exatamente flush em
+	# Embute na parede (visual+sólido) — antes ficavam exatamente flush em
 	# wall_x, mas o bevel/transparência do tile de face da rocha faz parecer que
-	# sobra um vão. cx desloca o bloco todo 8px pra dentro da parede.
-	var cx: float = wall_x + 8.0 if side == "L" else wall_x - 8.0
+	# sobra um vão. cx desloca o bloco todo pra dentro da parede.
+	# Lado R ajustado +10px pra fora (playtest: parecia grudado demais na
+	# parede direita comparado à esquerda) — embeds não são mais simétricos.
+	const _EMBED_L := 8.0
+	const _EMBED_R := 18.0
+	var cx: float = wall_x + _EMBED_L if side == "L" else wall_x - _EMBED_R
 	# skip_base_draw: o bloco de colisão NÃO desenha tiles — o visual do espinho é só
 	# o PNG (fundo transparente). Sem isso o modo "lava" desenhava um bloco de rocha
 	# atrás dos espinhos e, pelo mínimo de 7 linhas, transbordava ~250px pra baixo.
