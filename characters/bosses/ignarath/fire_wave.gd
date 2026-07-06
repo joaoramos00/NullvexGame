@@ -139,11 +139,13 @@ func _spawn_ground_burst() -> void:
 		sp.global_position = Vector2(global_position.x, global_position.y - wave_h * 0.5 + 32.0)
 		sp.rotation = burst_angle
 	else:
-		# burst do chão: rotação FIXA (não usa burst_angle, que é só da fase
-		# de subida na parede) — sprite nasce "deitado", precisa de -90°
-		# (anti-horário) pra explodir pra cima, saindo do chão.
+		# burst do chão: SEM rotação — burst_angle é só da fase de subida
+		# na parede (±90° conforme o lado). No spawn de teste padrão (zone=5),
+		# o player nasce à esquerda do boss (_facing=-1 -> burst_angle=+90°);
+		# "gira 90° anti-horário" partia desse valor até a rotação neutra
+		# correta: +90° − 90° = 0°.
 		sp.global_position = Vector2(global_position.x, global_position.y + wave_h * 0.5 - 32.0)
-		sp.rotation = -PI * 0.5
+		sp.rotation = 0.0
 	sp.animation_finished.connect(sp.queue_free)
 	get_parent().add_child(sp)
 	sp.play("burst")
