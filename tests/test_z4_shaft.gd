@@ -43,9 +43,8 @@ func _ready() -> void:
 			print("FAIL: %sHurt ausente" % sname); fail = true
 		elif not bool(hurt2.get("instant_kill")):
 			print("FAIL: %sHurt instant_kill=false" % sname); fail = true
-	# Apoio da boca + crumbles (estreia isolada + pivô do clímax)
-	if s.get_node_or_null("Z4Plat5") == null:
-		print("FAIL: Z4Plat5 ausente"); fail = true
+	# Crumbles (estreia isolada + pivô do clímax) — Z4Plat5 (apoio da boca) foi
+	# removido por playtest (redundante, os rests já viraram baffles).
 	for ename in ["Z4Crumble1", "Z4Crumble2"]:
 		if s.get_node_or_null(ename) == null:
 			print("FAIL: %s ausente" % ename); fail = true
