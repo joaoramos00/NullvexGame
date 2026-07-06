@@ -66,7 +66,8 @@ Use quando o design quer que o player possa recuar/sair da luta.
 
 1. **stage_id**, **room_id** (ex: `Boss`, `MiniBoss`)
 2. **Padrão de entrada**: A (selada) ou B (porta aberta + trigger)?
-3. **corridor_width** — largura do corredor que leva até a sala (múltiplo de 64)
+3. **corridor_width** — sempre 896 (regra de ouro da skill `new-corridor` —
+   todo corredor tem o mesmo tamanho do Corr1 do stage_00, só muda o tileset)
 4. **room_width** — largura da sala (múltiplo de 64; pode ser maior que o
    corredor pra dar espaço de combate, mas precisa ser múltiplo de 64 também)
 5. **floor_top** — Y da superfície do piso da sala (pode ser diferente do

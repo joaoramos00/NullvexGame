@@ -2,20 +2,48 @@
 
 Use quando o usuário pedir para adicionar um corredor de transição a um stage complexo existente.
 
+## Regra de ouro: todo corredor tem o MESMO tamanho e zoom do Corr1 do stage_00
+
+**Não é "múltiplo de 64px genérico" — é o valor exato do stage_00, sempre:**
+
+```
+floor_size / ceil_size = Vector2(896, 64)   # 14 tiles
+wall_l_size / wall_r_size = Vector2(64, 256)
+interior height = 128px (2 tiles)
+cam_zoom = 2.0
+```
+
+Isso vale pra QUALQUER corredor em QUALQUER stage. O que muda de um corredor
+pro outro é só: `tileset`, posição (`floor_center`/`ceil_center`/`wall_*_center`,
+`entry_x`/`exit_x`, `cam_center`) e — se a área disponível for menor que 896px —
+**redistribuir o espaço adjacente** (encurtar a zona/plataforma que vem antes ou
+depois) até 896px caber, nunca encolher o corredor em si. Ver
+`stages/stage_01/stage_01_scene.gd::_build_z4_top` — o corredor pré-boss (`_corr_boss`)
+foi corrigido de 660×64 (arbitrário) pra 896×64 exatamente por essa regra;
+o espaço foi aberto encurtando `Z4PreR` de 704 pra 448, não encolhendo o corredor.
+
+**Só stage_00 e stage_01 estão prontos hoje** — não mexer nos corredores de
+stage_02/03/04 (ainda em WIP) só porque eles também desviam da regra; isso é
+trabalho futuro, não deste fix.
+
 ## Informações a Coletar
 
 Pergunte ao usuário (uma por vez se não fornecidas):
 
 1. **stage_id** — ex: `stage_00`
 2. **corridor_id** — ex: `Corr1`, `Corr2`
-3. **tileset** — caminho do tileset (ex: `res://stages/stage_00/Stage_00T.png`)
+3. **tileset** — caminho do tileset (ex: `res://stages/stage_00/Stage_00T.png`) — **único campo que muda a "identidade visual" do corredor**
 4. **glass_tex** — tileset do teto de glass (ex: `res://stage_00_glass.png`; `null` se não houver)
-5. **entry_x / exit_x** — X absoluto das duas portas no mundo
+5. **entry_x / exit_x** — X absoluto das duas portas no mundo (a distância entre elas não precisa ser 896 — a porta fica em qualquer ponto dentro do corredor, ver padrão de offset abaixo)
 6. **glass_mirror** — `false` para corredor normal (lateral à esquerda); `true` para corredor espelho (lateral à direita, ex: saída de sala de boss)
-7. **cam_center** — centro da câmera enquanto o player traversa (ex: `Vector2(5982, 1024)`)
-8. **cam_zoom** — zoom da câmera no corredor. Regra: `zoom = 2.0` funciona bem quando a largura do corredor ≥ 800px (preenche ~93% da tela). Para corredores menores, aumentar o zoom.
-9. **checkpoint_index** — índice do checkpoint (1 ou 2); `save_checkpoint = false` para corredores sem checkpoint (ex: saída de miniboss)
-10. **checkpoint_respawn_x** — X de respawn após o checkpoint (geralmente `exit_x + 128`)
+7. **cam_center** — centro da câmera enquanto o player traversa (X = centro do corredor; Y = centro vertical do interior)
+
+**Offset padrão das portas dentro do corredor de 896px** (mesma proporção do
+Corr1): `entry_x = wall_l_center.x + 32`; `exit_x = wall_r_center.x` (a porta de
+saída fica exatamente na parede direita).
+
+8. **checkpoint_index** — índice do checkpoint (1 ou 2); `save_checkpoint = false` para corredores sem checkpoint (ex: saída de miniboss)
+9. **checkpoint_respawn_x** — X de respawn após o checkpoint (geralmente `exit_x + 128`)
 
 ## Geometria do Glass (se glass_tex != null)
 
@@ -48,15 +76,12 @@ Padrão CorrMB (espelho exato do CP1):
 O flip `Rect2(64, 0, -32, 32)` produz visualmente o tile `(1,1)` (Inner-TL), não `(3,2)` (LEFT face).
 O `CorridorSection._draw_glass()` já usa `right_lat_src = Rect2(3*_SRC, 2*_SRC, _SRC, _SRC)` no branch `glass_mirror`. ✓
 
-### cam_zoom e largura do corredor
+### cam_zoom
 
-| Largura | cam_zoom recomendado | Corridor fill % |
-|---------|---------------------|-----------------|
-| 896px   | 2.0                 | 93%             |
-| 640px   | 3.0                 | 100%            |
-| 320px   | 5.0–6.0             | 83–100%         |
-
-Zoom baixo demais expõe geometria fora do corredor (sala adjacente, zona seguinte), quebrando o visual fechado.
+Sempre `2.0` (regra de ouro no topo do arquivo) — largura sempre 896px, então o
+zoom nunca muda de corredor pra corredor. Não existe "corredor menor com zoom
+maior"; se o espaço disponível é menor que 896px, encurta a geometria
+adjacente (ver regra de ouro), não o corredor.
 
 ## Deslocamento de Geometria Adjacente
 

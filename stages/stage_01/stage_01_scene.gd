@@ -1196,34 +1196,35 @@ func _build_z4_top() -> void:
 	# Trecho esquerdo: tampa a parede esquerda do topo do shaft (Z4ShaftWL5, x17360–17424).
 	_z3_static_floor("Z4PreL", Vector2(17392.0, -1010.0), Vector2(64.0, 128.0))
 	_z2_static("Z4PreLCeil", Vector2(17392.0, -1234.0), Vector2(64.0, 64.0))
-	# Trecho direito: da boca do shaft (x17520) até a entrada do corredor (x17520–18224,
-	# 704px = 11 tiles). Piso topo -1074 = mesma superfície do Z4PreL e do corredor.
-	_z3_static_floor("Z4PreR", Vector2(17872.0, -1010.0), Vector2(704.0, 128.0))
-	_z2_static("Z4PreRCeil", Vector2(17872.0, -1234.0), Vector2(704.0, 64.0))
-	# Corredor pré-boss com checkpoint 5 e câmera bloqueada. 640px = 10 tiles
-	# (zoom 3.0 conforme tabela da skill new-corridor), interior 128px de altura
-	# e paredes de 256px — idênticos ao Corr1 do stage_00, só a largura muda.
+	# Trecho direito: da boca do shaft (x17520) até a entrada do corredor (x17520–17968,
+	# 448px = 7 tiles). Piso topo -1074 = mesma superfície do Z4PreL e do corredor.
+	_z3_static_floor("Z4PreR", Vector2(17744.0, -1010.0), Vector2(448.0, 128.0))
+	_z2_static("Z4PreRCeil", Vector2(17744.0, -1234.0), Vector2(448.0, 64.0))
+	# Corredor pré-boss com checkpoint 5 e câmera bloqueada. Mesma largura,
+	# altura interior, altura de parede e zoom do Corr1 do stage_00
+	# (docs/stage_00/corredor.md) — 896px = 14 tiles, zoom 2.0. Só a posição
+	# muda; a "receita" é idêntica, como pedido.
 	_corr_boss = CorridorSection.new()
 	_corr_boss.tileset              = _ROOM_TILE
 	_corr_boss.glass_tex            = null       # sem painel de vidro neste corredor
 	_corr_boss.door_tex             = _DOOR_TEX
-	_corr_boss.floor_center         = Vector2(18544.0, -1042.0)  # topo -1074 = Z4PreR
-	_corr_boss.floor_size           = Vector2(640.0, 64.0)
-	_corr_boss.ceil_center          = Vector2(18544.0, -1234.0)  # base -1202 = Z4PreRCeil
-	_corr_boss.ceil_size            = Vector2(640.0, 64.0)
-	_corr_boss.wall_l_center        = Vector2(18224.0, -1138.0)
+	_corr_boss.floor_center         = Vector2(18416.0, -1042.0)  # topo -1074 = Z4PreR
+	_corr_boss.floor_size           = Vector2(896.0, 64.0)
+	_corr_boss.ceil_center          = Vector2(18416.0, -1234.0)  # base -1202 = Z4PreRCeil
+	_corr_boss.ceil_size            = Vector2(896.0, 64.0)
+	_corr_boss.wall_l_center        = Vector2(17968.0, -1138.0)
 	_corr_boss.wall_l_size          = Vector2(64.0, 256.0)
 	_corr_boss.wall_r_center        = Vector2(18864.0, -1138.0)
 	_corr_boss.wall_r_size          = Vector2(64.0, 256.0)
-	_corr_boss.entry_x              = 18260.0
-	_corr_boss.exit_x               = 18800.0
+	_corr_boss.entry_x              = 18000.0
+	_corr_boss.exit_x               = 18864.0
 	_corr_boss.save_checkpoint      = true
 	_corr_boss.checkpoint_index     = 5          # último checkpoint (antes do boss; 5 > 4 da base da Z4 p/ o standalone não re-salvar na volta)
 	_corr_boss.checkpoint_respawn_x = 18300.0
 	_corr_boss.heal_on_entry        = false
 	_corr_boss.exit_retriggerable   = true
-	_corr_boss.cam_center           = Vector2(18544.0, -1138.0)
-	_corr_boss.cam_zoom             = 3.0
+	_corr_boss.cam_center           = Vector2(18416.0, -1138.0)
+	_corr_boss.cam_zoom             = 2.0
 	# setup() e conexão do sinal são feitos pelo loop em _ready() (evita double-connect).
 	add_child(_corr_boss)
 
