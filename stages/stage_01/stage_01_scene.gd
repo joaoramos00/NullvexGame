@@ -89,18 +89,18 @@ func _ready() -> void:
 			if is_instance_valid(acover):
 				acover.queue_free())
 
-# Arena do boss deslocada -1622 em Y p/ acompanhar o topo do shaft reduzido (y-1026).
-# X inalterado. (tscn y=832 − 1622 = −790.)
-const _BOSS_L          := 18900.0
-const _BOSS_R          := 21716.0
-const _BOSS_FLOOR_TOP  := -986.0
-# -1306 (não -1286): interior = _BOSS_FLOOR_TOP − _BOSS_CEIL_TOP = 320px = 5
-# tiles exatos. Antes eram 300px (4,7 tiles) — o grid de _draw_boss_room()
-# arredondava pra 7 linhas (448px) e sobrava ~20px de descompasso entre o
-# desenho e a colisão real (chão/teto pareciam "flutuar" fora do lugar).
-const _BOSS_CEIL_TOP   := -1306.0
-const _BOSS_DOOR_LO    := -1094.0
-const _BOSS_DOOR_HI    := -986.0
+# Sala do boss = cópia exata das dimensões de Boss_Floor/Ceil/LWall/RWall do
+# stage_00 (896×64 piso/teto, 64×512 parede, interior 384px) — mesma largura
+# do corredor, piso nivelado com ele (sem degrau). BossPlat1/2 (arena antiga,
+# 2816px) foram removidas: não fazem mais sentido numa sala do tamanho padrão.
+# _BOSS_L = 32px sobrepostos na parede direita do corredor (18864), evitando
+# vão — mesma folga usada no stage_00 entre Corr3 e Boss_LWall (~30px).
+const _BOSS_L          := 18832.0
+const _BOSS_R          := 19728.0   # _BOSS_L + 896
+const _BOSS_FLOOR_TOP  := -1074.0   # = piso do corredor (_corr_boss), sem degrau
+const _BOSS_CEIL_TOP   := -1458.0   # interior = -1074 − (−1458) = 384px = 6 tiles
+const _BOSS_DOOR_LO    := -1182.0   # abertura de 108px (mesma altura de antes)
+const _BOSS_DOOR_HI    := -1074.0   # = _BOSS_FLOOR_TOP (porta encosta no chão)
 
 # Shaft Z4 — zigue-zague por BAFFLES (pisos de switchback alternados) num envelope
 # CONSTANTE: corpo único de 448px de interior + boca estreita no topo.
@@ -1232,26 +1232,23 @@ func _build_z4_boss() -> void:
 	# Os nós de boss do .tscn foram queue_free()'d em _ready() mas ainda não foram
 	# removidos (queue_free é deferido). Libera-os imediatamente antes de criar os novos,
 	# senão o Godot renomeia silenciosamente os novos nós ao adicionar com o mesmo nome.
-	for bn in ["BossWallL", "BossWallR", "BossFloor", "BossCeil", "BossLava", "Ignarath"]:
+	for bn in ["BossWallL", "BossWallR", "BossFloor", "BossCeil", "BossLava",
+			"BossThreshold", "BossPlat1", "BossPlat2", "Ignarath"]:
 		var old := get_node_or_null(bn)
 		if old:
 			old.free()
-	# BossPlat1/2 vêm da .tscn (não rebuildados); acompanham a arena no offset -3696.
-	for pn in ["BossPlat1", "BossPlat2"]:
-		var bp := get_node_or_null(pn) as Node2D
-		if bp:
-			bp.position.y -= 1622.0
 	# Paredes, piso e teto da arena — marcados skip_base_draw p/ não serem desenhados
 	# pelo loop padrão de plataformas; o visual é gerenciado em _draw_boss_room().
-	var h := _BOSS_FLOOR_TOP - _BOSS_CEIL_TOP + 64.0
+	# h = interior + 128 (64 de espessura do piso + 64 do teto): a parede cobre
+	# do topo do teto até a base do piso, encaixe exato (mesma fórmula do
+	# Boss_LWall/RWall do stage_00: interior 384 + 128 = 512).
+	var h := _BOSS_FLOOR_TOP - _BOSS_CEIL_TOP + 128.0
 	var cy := (_BOSS_CEIL_TOP + _BOSS_FLOOR_TOP) * 0.5
 	# Parede ESQUERDA com PORTA: a colisão cobre só a seção ACIMA da porta (do teto até
-	# _BOSS_DOOR_LO). De _BOSS_DOOR_LO (224) até _BOSS_FLOOR_TOP (440) fica VAZIO — é a
-	# abertura por onde o player entra na arena vindo do corredor. A face inferior da
-	# parede senta exatamente em y=_BOSS_DOOR_LO. (Antes era parede sólida full-height
-	# que bloqueava fisicamente a entrada.)
-	var lwall_top := _BOSS_CEIL_TOP - 64.0           # = -224 (encosta na borda externa do teto)
-	var lwall_h := _BOSS_DOOR_LO - lwall_top         # = -1094 - (-1370) = 276
+	# _BOSS_DOOR_LO). De _BOSS_DOOR_LO até _BOSS_DOOR_HI (=_BOSS_FLOOR_TOP) fica VAZIO —
+	# é a abertura por onde o player entra na arena vindo do corredor.
+	var lwall_top := _BOSS_CEIL_TOP - 64.0
+	var lwall_h := _BOSS_DOOR_LO - lwall_top
 	_z2_static("BossWallL", Vector2(_BOSS_L, lwall_top + lwall_h * 0.5),
 		Vector2(64.0, lwall_h)).set_meta("skip_base_draw", true)
 	_z2_static("BossWallR", Vector2(_BOSS_R, cy), Vector2(64.0, h)).set_meta("skip_base_draw", true)
@@ -1259,12 +1256,8 @@ func _build_z4_boss() -> void:
 		Vector2(_BOSS_R - _BOSS_L, 64.0)).set_meta("skip_base_draw", true)
 	_z2_static("BossCeil", Vector2((_BOSS_L + _BOSS_R) * 0.5, _BOSS_CEIL_TOP - 32.0),
 		Vector2(_BOSS_R - _BOSS_L, 64.0)).set_meta("skip_base_draw", true)
-	# Soleira de transição corredor→arena: o corredor termina em floor top=-1074 e
-	# a arena começa em _BOSS_FLOOR_TOP=-986 (88px mais baixo — a arena é mais funda
-	# que o corredor de propósito). Este bloco cobre o vão horizontal entre o
-	# corredor e a parede esquerda da arena (x18800→18964) e serve como
-	# degrau sólido nivelado com o piso da arena — o player desce o degrau ao entrar.
-	_z2_static("BossThreshold", Vector2(18882.0, -970.0), Vector2(164.0, 64.0)).set_meta("skip_base_draw", true)
+	# Sem soleira: o piso da arena (_BOSS_FLOOR_TOP=-1074) é nivelado com o piso
+	# do corredor — mesma cota, sem degrau (igual ao Corr3→Boss_Floor do stage_00).
 	# Ignarath — respeita ?noenemies=1 / bot (spawn por script ocorre após a remoção do stage_scene)
 	if DebugBoot.no_enemies:
 		return
@@ -1441,7 +1434,7 @@ func _zone_spawn(zone: int) -> Vector2:
 		2: return Vector2(3760, 2480)    # zona 2 — sobre Z2Plat1 (pós shaft ↓)
 		3: return Vector2(10800, 2480)   # zona 3 nova — piso de entrada (runway p/ a plataforma)
 		4: return Vector2(16320, 2480)   # zona 4 — base da escada-chase
-		5: return Vector2(20300, -1086)  # boss — dentro da arena reconstruída (x18900–21716, piso -986)
+		5: return Vector2(19280, -1174)  # boss — dentro da arena (896px, x18832–19728, piso -1074)
 		6: return Vector2(2640, 540)     # DEBUG: shaft ↓ — sobre a Z1Plat4 (testar descida)
 		7: return Vector2(17520, 1100)   # DEBUG: meio do shaft de wall-jump (seg4)
 		8: return Vector2(17800, -1150)  # DEBUG: topo do shaft / câmara pré-chefe (Z4PreR, piso -1074)
