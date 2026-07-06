@@ -382,16 +382,18 @@ func _fp(n: String, zone: String, left_x: float, lc: int, pc: int, rc: int, er: 
 
 # Campo de espinhos de gelo no chão: Area2D INSTANT KILL (ice_spikes.gd, padrão
 # espinho-mata do projeto) + tira visual do spikes.png tingida de azul, tips pra
-# cima, base ~16px embutida no piso. Largura em clusters INTEIROS de 64px.
-# A faixa de kill (32px) é mais baixa que o visual — raspar as pontas no pulo
-# não mata, pisar mata.
+# cima, base ~8px embutida no piso. Largura em clusters INTEIROS de 32px
+# (escala nativa 1x — cluster antigo de 64px cortado ao meio, o dobro aparece
+# sozinho via texture_repeat na mesma largura x0-x1).
+# SEM margem de perdão: a faixa de kill cobre o visual inteiro (tip a tip) —
+# tocar a ponta já mata, não só pisar.
 func _ice_spike_field(n: String, x0: float, x1: float) -> void:
 	var area := Area2D.new()
 	area.name = n
 	area.set_script(load("res://stages/stage_02/ice_spikes.gd"))
 	area.collision_layer = 0
 	area.collision_mask = 2
-	area.position = Vector2((x0 + x1) * 0.5, FLOOR_Y - 16.0)
+	area.position = Vector2((x0 + x1) * 0.5, FLOOR_Y - 8.0)
 	var cs := CollisionShape2D.new()
 	var sh := RectangleShape2D.new()
 	sh.size = Vector2(x1 - x0, 32.0)
@@ -404,10 +406,10 @@ func _ice_spike_field(n: String, x0: float, x1: float) -> void:
 	spr.centered = true
 	spr.texture_repeat = CanvasItem.TEXTURE_REPEAT_ENABLED
 	spr.region_enabled = true
-	spr.region_rect = Rect2(0.0, 0.0, (x1 - x0) * 0.5, 32.0)
-	spr.scale = Vector2(2.0, 2.0)
+	spr.region_rect = Rect2(0.0, 0.0, x1 - x0, 32.0)
+	spr.scale = Vector2(1.0, 1.0)
 	spr.modulate = _ICE_TINT
-	spr.position = Vector2((x0 + x1) * 0.5, FLOOR_Y - 16.0)
+	spr.position = Vector2((x0 + x1) * 0.5, FLOOR_Y - 8.0)
 	spr.z_index = 5
 	add_child(spr)
 
@@ -665,10 +667,10 @@ func _build_zone2() -> void:
 	_secret_alcove("z2", 7300.0, 7800.0, "Z2_IgnarathGate")
 	_step_up("Z2", 7800.0, 8300.0)
 	_floor_seg("Z2", 8300.0, 9400.0, FLOOR_Y)
-	_ice_spike_field("Z2_SpikesA", 8416.0, 8864.0)       # 7 clusters; 2 plataformas
+	_ice_spike_field("Z2_SpikesA", 8416.0, 8864.0)       # 14 clusters; 2 plataformas
 	_ice_plat("Z2_IcePlat1", "z2", 8540.0, 704.0)
 	_ice_plat("Z2_IcePlat2", "z2", 8760.0, 704.0)
-	_ice_spike_field("Z2_SpikesB", 9024.0, 9344.0)       # 5 clusters; 1 plataforma central
+	_ice_spike_field("Z2_SpikesB", 9024.0, 9344.0)       # 10 clusters; 1 plataforma central
 	_ice_plat("Z2_IcePlat3", "z2", 9184.0, 704.0, 128.0)
 	_recoverable_pit("Z2", 9400.0, 10600.0, 9850.0, 10100.0)
 
@@ -785,8 +787,8 @@ func _build_ice_well() -> void:
 	_ice_plat("Z4_WellPlat3", "z4", 17480.0, 1568.0)         # esquerda
 	_ice_plat("Z4_WellPlat4", "z4", 17640.0, 1824.0)         # direita
 	# Espinhos SOB a WellPlat2 (instant kill): punem raspar por baixo dela na
-	# queda — 1 cluster na metade externa (a metade junto à face do bloco fica
-	# limpa). Tips pra baixo via rotação (nunca Rect2 negativo — regra do web).
+	# queda — 1 cluster de 32px (escala nativa) perto da face do bloco. Tips
+	# pra baixo via rotação (nunca Rect2 negativo — regra do web).
 	var wsp: Area2D = load("res://stages/stage_02/ice_spikes.gd").new()
 	wsp.name = "Z4_WellSpikes"
 	wsp.collision_layer = 0
@@ -794,7 +796,7 @@ func _build_ice_well() -> void:
 	wsp.position = Vector2(17592.0, 1360.0)
 	var wsp_cs := CollisionShape2D.new()
 	var wsp_sh := RectangleShape2D.new()
-	wsp_sh.size = Vector2(64.0, 64.0)
+	wsp_sh.size = Vector2(32.0, 32.0)
 	wsp_cs.shape = wsp_sh
 	wsp.add_child(wsp_cs)
 	add_child(wsp)
@@ -804,7 +806,7 @@ func _build_ice_well() -> void:
 	wsp_vis.centered = true
 	wsp_vis.region_enabled = true
 	wsp_vis.region_rect = Rect2(0.0, 0.0, 32.0, 32.0)
-	wsp_vis.scale = Vector2(2.0, 2.0)
+	wsp_vis.scale = Vector2(1.0, 1.0)
 	wsp_vis.rotation = PI
 	wsp_vis.modulate = _ICE_TINT
 	wsp_vis.position = Vector2(17592.0, 1360.0)

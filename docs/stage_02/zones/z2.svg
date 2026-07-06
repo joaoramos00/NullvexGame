@@ -37,18 +37,18 @@
 <rect x="7300" y="800" width="500" height="64" fill="#8c8c8c" fill-opacity="0.82" stroke="#b4b4b4" stroke-width="2"/>
 <rect x="7302" y="802" width="127.04" height="30" fill="#000000" fill-opacity="0.7"/>
 <text x="7306" y="826" font-size="24" fill="#b4b4b4">floor016</text>
-<rect x="8416" y="768" width="448" height="32" fill="#d93373" fill-opacity="0.82" stroke="#e67aa4" stroke-width="2"/>
-<rect x="8418" y="770" width="141.92" height="30" fill="#000000" fill-opacity="0.7"/>
-<text x="8422" y="794" font-size="24" fill="#e67aa4">spikes001</text>
+<rect x="8416" y="776" width="448" height="32" fill="#d93373" fill-opacity="0.82" stroke="#e67aa4" stroke-width="2"/>
+<rect x="8418" y="778" width="141.92" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="8422" y="802" font-size="24" fill="#e67aa4">spikes001</text>
 <rect x="7736" y="864" width="64" height="192" fill="#8c8c8c" fill-opacity="0.82" stroke="#b4b4b4" stroke-width="2"/>
 <rect x="7738" y="866" width="127.04" height="30" fill="#000000" fill-opacity="0.7"/>
 <text x="7742" y="890" font-size="24" fill="#b4b4b4">floor018</text>
 <rect x="7300" y="864" width="64" height="192" fill="#b3b3b3" fill-opacity="0.82" stroke="#cdcdcd" stroke-width="2"/>
 <rect x="7302" y="866" width="112.16" height="30" fill="#000000" fill-opacity="0.7"/>
 <text x="7306" y="890" font-size="24" fill="#cdcdcd">misc003</text>
-<rect x="9024" y="768" width="320" height="32" fill="#d93373" fill-opacity="0.82" stroke="#e67aa4" stroke-width="2"/>
-<rect x="9026" y="770" width="141.92" height="30" fill="#000000" fill-opacity="0.7"/>
-<text x="9030" y="794" font-size="24" fill="#e67aa4">spikes002</text>
+<rect x="9024" y="776" width="320" height="32" fill="#d93373" fill-opacity="0.82" stroke="#e67aa4" stroke-width="2"/>
+<rect x="9026" y="778" width="141.92" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="9030" y="802" font-size="24" fill="#e67aa4">spikes002</text>
 <rect x="8460" y="704" width="160" height="32" fill="#4dd959" fill-opacity="0.82" stroke="#8be693" stroke-width="2"/>
 <rect x="8462" y="706" width="112.16" height="30" fill="#000000" fill-opacity="0.7"/>
 <text x="8466" y="730" font-size="24" fill="#8be693">plat001</text>
