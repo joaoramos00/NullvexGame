@@ -625,7 +625,7 @@ func _build_zone2() -> void:
 	# fill (igual base do floor) + PNG de espinhos apontando pra baixo.
 	var ceil_body := _z2_static("Z2Ceiling", Vector2(5200, 2080), Vector2(1600, 80))
 	ceil_body.set_meta("tileset_override", _Z2_FLOOR_TILE)
-	_z2_lava("Z2Spikes", Vector2(5200, 2150), Vector2(1600, 60), true)
+	_z2_lava("Z2Spikes", Vector2(5200, 2135), Vector2(1600, 30), true)
 	_z2_spikes_visual(5200.0, 2120.0, 1600.0)
 	# Entrada (saída do shaft) e saída (→ Corredor1) sólidas.
 	_z2_static("Z2Entry", Vector2(3350, 2688), Vector2(700, 128))   # x3000–3700 topo 2624
@@ -670,6 +670,9 @@ func _z2_static(n: String, center: Vector2, size: Vector2) -> StaticBody2D:
 
 func _z2_spikes_visual(center_x: float, top_y: float, width: float) -> void:
 	# Tira de espinhos (PNG) repetida apontando pra baixo, pendurada no teto.
+	# Escala nativa (1x): cada cluster = 32px na tela (metade do tamanho antigo,
+	# 64px) — na mesma largura `width`, o dobro de clusters aparece sozinho via
+	# texture_repeat, sem precisar contar/posicionar manualmente.
 	var spr := Sprite2D.new()
 	spr.name = "Z2SpikesVis"
 	spr.texture = _SPIKES_TEX
@@ -677,8 +680,8 @@ func _z2_spikes_visual(center_x: float, top_y: float, width: float) -> void:
 	spr.flip_v = true                                   # espinhos do PNG apontam pra cima → vira pra baixo
 	spr.texture_repeat = CanvasItem.TEXTURE_REPEAT_ENABLED
 	spr.region_enabled = true
-	spr.region_rect = Rect2(0, 0, width * 0.5, 32)      # *0.5 compensa o scale 2 (cada cluster = 64px)
-	spr.scale = Vector2(2, 2)
+	spr.region_rect = Rect2(0, 0, width, 32)
+	spr.scale = Vector2(1, 1)
 	spr.position = Vector2(center_x - width * 0.5, top_y)
 	spr.z_index = 5
 	add_child(spr)
@@ -992,23 +995,23 @@ func _z4_wall_plat(n: String, side: String, top_y: float, spikes_under: bool) ->
 	# arredondada só no lado EXTERNO + junção substituindo o tile de face.
 	b.set_meta("skip_base_draw", true)
 	if spikes_under:
-		const STRIP := 128.0   # 2 clusters inteiros de spikes.png (64px cada) — nunca cortar
+		const STRIP := 128.0   # 4 clusters inteiros de spikes.png (32px cada) — nunca cortar
 		# Meio tile de recuo no canto EXTERNO (regra da skill: o tile de ponta é
 		# ~50% transparente; sem recuo a tira vaza além da rocha visível). A
 		# folga extra fica do lado da parede (zona de montaria: 96px limpos).
 		var s0: float = x0 + 32.0 if side == "R" \
 				else x0 + _Z4_WALL_PLAT_DEPTH - STRIP - 32.0
-		# Base 1/4 de tile EMBUTIDA na rocha (o PNG tem margem transparente na
-		# base; encostada na borda visível os espinhos parecem flutuar) — mesmo
-		# ajuste do modo "Espinhos Plat" do imgdebug.
-		_z4_spikes_under(n + "Spikes", s0, s0 + STRIP, top_y + 48.0)
+		# Base 1/4 de DEPTH (32px) EMBUTIDA na rocha (o PNG tem margem
+		# transparente na base; encostada na borda visível os espinhos parecem
+		# flutuar) — mesmo ajuste proporcional do modo "Espinhos Plat" do imgdebug.
+		_z4_spikes_under(n + "Spikes", s0, s0 + STRIP, top_y + 24.0)
 
 # Tira de espinhos pendurada na base de uma parede+plat, apontando pra baixo: Area2D
 # instant-kill alinhada às pontas (cobre o corpo todo da tira) + visual do PNG
 # rotacionado 180° — rects sempre positivos + rotation (NUNCA Rect2 com tamanho
 # negativo: no web export o quad aparece duplicado/espelhado).
 func _z4_spikes_under(n: String, x0: float, x1: float, top_y: float) -> void:
-	const DEPTH := 64.0   # 32px src na escala 2 = 1 tile
+	const DEPTH := 32.0   # escala nativa (1x): 32px src = 32px na tela
 	var hurt := Area2D.new()
 	hurt.name = n + "Hurt"
 	hurt.set_script(_LAVA)
@@ -1024,8 +1027,8 @@ func _z4_spikes_under(n: String, x0: float, x1: float, top_y: float) -> void:
 	spr.centered = true
 	spr.texture_repeat = CanvasItem.TEXTURE_REPEAT_ENABLED
 	spr.region_enabled = true
-	spr.region_rect = Rect2(0.0, 0.0, (x1 - x0) * 0.5, 32.0)
-	spr.scale = Vector2(2.0, 2.0)
+	spr.region_rect = Rect2(0.0, 0.0, x1 - x0, 32.0)
+	spr.scale = Vector2(1.0, 1.0)
 	spr.rotation = PI   # tips do PNG (pra cima) viram pra baixo; padrão simétrico
 	spr.position = Vector2((x0 + x1) * 0.5, top_y + DEPTH * 0.5)
 	spr.z_index = 5
@@ -1035,10 +1038,10 @@ func _z4_spikes_under(n: String, x0: float, x1: float, top_y: float) -> void:
 # sobrepostos + visual girado da textura da zona 2.
 # side "R" = parede direita, espinhos apontam pra esquerda; "L" = esquerda, apontam direita.
 # wall_x = FACE da parede (mesma convenção da tabela e do _z4_foothold) — o centro
-# do bloco de 64px é calculado AQUI, não no call site.
+# do bloco de 32px é calculado AQUI, não no call site.
 func _z4_spike_face(n: String, wall_x: float, cy: float, h: float, side: String = "R") -> void:
-	var w := 64.0
-	var cx: float = wall_x + 32.0 if side == "L" else wall_x - 32.0
+	var w := 32.0
+	var cx: float = wall_x + 16.0 if side == "L" else wall_x - 16.0
 	# skip_base_draw: o bloco de colisão NÃO desenha tiles — o visual do espinho é só
 	# o PNG (fundo transparente). Sem isso o modo "lava" desenhava um bloco de rocha
 	# atrás dos espinhos e, pelo mínimo de 7 linhas, transbordava ~250px pra baixo.
@@ -1055,16 +1058,16 @@ func _z4_spike_face(n: String, wall_x: float, cy: float, h: float, side: String 
 	# Visual: mesma textura dos espinhos da zona 2 (spikes.png, tips apontando UP).
 	# Em Godot 2D rotação POSITIVA é horária (y pra baixo): +PI/2 vira tips pra
 	# DIREITA (parede "L") e -PI/2 vira tips pra ESQUERDA (parede "R").
-	# region_rect: h*0.5 px de largura (= h px na escala 2) ao longo da parede,
-	#              32 px de altura (= 64 px na escala 2) = profundidade do espinho.
+	# region_rect: h px de largura ao longo da parede, 32 px de altura = profundidade
+	# do espinho — escala nativa (1x), sem compensação (era h*0.5 na escala 2x).
 	var spr := Sprite2D.new()
 	spr.name = n + "Vis"
 	spr.texture = _SPIKES_TEX
 	spr.centered = true
 	spr.texture_repeat = CanvasItem.TEXTURE_REPEAT_ENABLED
 	spr.region_enabled = true
-	spr.region_rect = Rect2(0.0, 0.0, h * 0.5, 32.0)
-	spr.scale = Vector2(2.0, 2.0)
+	spr.region_rect = Rect2(0.0, 0.0, h, 32.0)
+	spr.scale = Vector2(1.0, 1.0)
 	spr.rotation = -PI * 0.5 if side == "R" else PI * 0.5
 	spr.position = Vector2(cx, cy)
 	spr.z_index = 5

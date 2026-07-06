@@ -154,9 +154,6 @@
 <rect x="23116" y="800" width="128" height="32" fill="#4dd959" fill-opacity="0.82" stroke="#8be693" stroke-width="2"/>
 <rect x="23118" y="802" width="112.16" height="30" fill="#000000" fill-opacity="0.7"/>
 <text x="23122" y="826" font-size="24" fill="#8be693">plat009</text>
-<rect x="17560" y="1328" width="64" height="64" fill="#d93373" fill-opacity="0.82" stroke="#e67aa4" stroke-width="2"/>
-<rect x="17562" y="1330" width="141.92" height="30" fill="#000000" fill-opacity="0.7"/>
-<text x="17566" y="1354" font-size="24" fill="#e67aa4">spikes003</text>
 <rect x="22664" y="960" width="64" height="64" fill="#8c8c8c" fill-opacity="0.82" stroke="#b4b4b4" stroke-width="2"/>
 <rect x="22666" y="962" width="127.04" height="30" fill="#000000" fill-opacity="0.7"/>
 <text x="22670" y="986" font-size="24" fill="#b4b4b4">floor045</text>
@@ -172,4 +169,7 @@
 <rect x="21186" y="784" width="128" height="16" fill="#f28c26" fill-opacity="0.82" stroke="#f7b472" stroke-width="2"/>
 <rect x="21188" y="786" width="112.16" height="30" fill="#000000" fill-opacity="0.7"/>
 <text x="21192" y="810" font-size="24" fill="#f7b472">zone016</text>
+<rect x="17576" y="1344" width="32" height="32" fill="#d93373" fill-opacity="0.82" stroke="#e67aa4" stroke-width="2"/>
+<rect x="17578" y="1346" width="141.92" height="30" fill="#000000" fill-opacity="0.7"/>
+<text x="17582" y="1370" font-size="24" fill="#e67aa4">spikes003</text>
 </svg>
