@@ -134,11 +134,16 @@ func _spawn_ground_burst() -> void:
 	sp.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	sp.z_index = 3
 	if vertical:
-		# borda superior (frente da subida)
+		# borda superior (frente da subida) — gira conforme o lado da parede
+		# (burst_angle: -90°/+90°, setado pelo chamador conforme _facing).
 		sp.global_position = Vector2(global_position.x, global_position.y - wave_h * 0.5 + 32.0)
+		sp.rotation = burst_angle
 	else:
+		# burst do chão: rotação FIXA (não usa burst_angle, que é só da fase
+		# de subida na parede) — sprite nasce "deitado", precisa de -90°
+		# (anti-horário) pra explodir pra cima, saindo do chão.
 		sp.global_position = Vector2(global_position.x, global_position.y + wave_h * 0.5 - 32.0)
-	sp.rotation = burst_angle
+		sp.rotation = -PI * 0.5
 	sp.animation_finished.connect(sp.queue_free)
 	get_parent().add_child(sp)
 	sp.play("burst")
