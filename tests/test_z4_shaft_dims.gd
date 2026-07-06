@@ -3,7 +3,7 @@ extends Node
 # Player limitante = Zael (caixa 40×80). Pulo: altura 118, alcance 196 (→192 no grid).
 # Gate automático = vão livre horizontal nas faixas de y COM projeção — cada
 # projeção com a própria profundidade: saliências 64px, espinhos 24px na
-# parede L / 34px na R (embeds assimétricos de playtest — kill Area2D é mais
+# parede L / 29px na R (embeds assimétricos de playtest — kill Area2D é mais
 # largo, mas isso não bloqueia passagem), parede+plats e
 # tiras de espinho sob plat _Z4_WALL_PLAT_DEPTH (a tira conta da parede até a
 # borda interna, pois o corredor de montaria junto à parede não é passagem).
@@ -32,7 +32,7 @@ func _ready() -> void:
 	var projs: Array = []
 	for f in footholds: projs.append([f[1], f[2], f[4], f[3], 64.0])
 	for s in spikes:
-		var spike_depth: float = 24.0 if s[3] == "L" else 34.0
+		var spike_depth: float = 24.0 if s[3] == "L" else 29.0
 		projs.append([s[1], s[2], s[4], s[3], spike_depth])
 	for bf in baffles:
 		var wall_x: float = xl if bf[1] == "L" else xr
