@@ -23,6 +23,7 @@ const WALL_JUMP_LOCK := 0.20  # trava o air-control horizontal após o wall-jump
 const WALL_JUMP_H_DASH := 460.0  # segurando dash no wall jump → salto mais longo (= _DASH_JUMP_SPEED do Zael)
 const WALL_JUMP_LOCK_DASH := 0.26
 const WALL_GRAB_MAX_RISE := 160.0  # agarra a parede mesmo subindo até esta velocidade → encadeia parede→parede
+const WALL_COYOTE_TIME := 0.15  # janela pós-soltar da parede em que o wall jump ainda vale (travessia)
 const WALL_CLING_TIME := 0.18
 const JUMP_BUFFER_TIME := 0.10
 const WALL_JUMP_DIAGONAL_V := -560.0
@@ -58,6 +59,7 @@ var _wall_cling_timer: float = 0.0
 var _jump_buffer_timer: float = 0.0
 var _wall_jump_lock_timer: float = 0.0
 var _wall_jump_dash_speed: float = 0.0  # >0 = wall jump com dash: air-control mantém esta velocidade até pousar/agarrar
+var _wall_coyote_timer: float = 0.0
 var _wall_dash_available: bool = false
 var _was_wall_sliding: bool = false
 var _stage_ice_contacts: int = 0
@@ -104,9 +106,12 @@ func _tick_timers(delta: float) -> void:
 		_wall_jump_lock_timer -= delta
 	if _wall_cling_timer > 0.0:
 		_wall_cling_timer -= delta
+	if _wall_coyote_timer > 0.0:
+		_wall_coyote_timer -= delta
 	if is_on_floor():
 		_coyote_timer = COYOTE_TIME
 		_wall_jump_dash_speed = 0.0
+		_wall_coyote_timer = 0.0
 	elif _coyote_timer > 0.0:
 		_coyote_timer -= delta
 
@@ -132,6 +137,8 @@ func _update_wall_slide() -> void:
 		_is_wall_sliding = true
 		_wall_normal = get_wall_normal()
 	else:
+		if _was_wall_sliding:
+			_wall_coyote_timer = WALL_COYOTE_TIME  # soltou sem pular → janela de travessia
 		_is_wall_sliding = false
 
 func _touching_no_grab_wall() -> bool:
@@ -215,11 +222,17 @@ func _apply_wall_jump() -> void:
 	AudioManager.play_sfx(AudioLibrary.sfx_wall_jump)
 	_wall_jump_lock_timer = WALL_JUMP_LOCK_DASH if dash_held else WALL_JUMP_LOCK
 	_is_wall_sliding = false
+	_wall_coyote_timer = 0.0
 	_wall_cling_timer = 0.0
 	_jump_buffer_timer = 0.0
 	_double_tap_timer = 0.0
 	_double_tap_dir = 0.0
 	_on_wall_jumped()
+
+func _can_wall_jump() -> bool:
+	# Slide ativo, ou acabou de soltar da parede (coyote) e está no ar.
+	# No chão o timer é zerado em _tick_timers, então pulo de chão mantém prioridade.
+	return _is_wall_sliding or (_wall_coyote_timer > 0.0 and not is_on_floor())
 
 func _handle_jump() -> void:
 	if _is_dashing or door_walk_speed != 0.0 or door_locked:
@@ -228,7 +241,7 @@ func _handle_jump() -> void:
 		_jump_buffer_timer = JUMP_BUFFER_TIME
 	if _jump_buffer_timer <= 0.0:
 		return
-	if _is_wall_sliding:
+	if _can_wall_jump():
 		_apply_wall_jump()
 		return
 	if is_on_floor() or _coyote_timer > 0.0:
