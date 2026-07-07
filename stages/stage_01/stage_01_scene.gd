@@ -606,21 +606,29 @@ func _draw_z4_top_ceil() -> void:
 	var center := (top_ceil as Node2D).position + cs.position
 	var rect := Rect2(center - size * 0.5, size)
 	var cols := ceili(rect.size.x / ts)
-	const FILL_ROWS := 7   # row 0 = face visível (1,2); rows 1-6 = rocha de preenchimento acima
+	const _FILL := Vector2i(2, 1)   # miolo — único tile 100% opaco do tileset (os demais têm ~50% de alpha)
+	const FILL_ROWS := 7   # row 0 = face visível (1,2) sobre base opaca; rows 1-6 = preenchimento acima
 	for col in cols:
 		var dx := rect.position.x + col * ts
 		var dw := minf(ts, rect.position.x + rect.size.x - dx)
-		var tile: Vector2i
 		for row in FILL_ROWS:
-			if row == 0:
-				if col == 0:            tile = Vector2i(0, 2)   # canto inferior-esquerdo
-				elif col == cols - 1:   tile = Vector2i(3, 3)   # canto inferior-direito
-				else:                   tile = Vector2i(1, 2)   # face de teto
-			else:
-				tile = Vector2i(2, 1)   # preenchimento (miolo)
 			var dy := rect.position.y - row * ts
-			draw_texture_rect_region(tex, Rect2(dx, dy, dw, ts),
-				Rect2(tile.x * sts, tile.y * sts, sts * dw / ts, sts))
+			var dst := Rect2(dx, dy, dw, ts)
+			if row == 0:
+				# Face (1,2) e cantos (0,2)/(3,3) são translúcidos (~50% alpha) —
+				# feitos pra ficar sobre uma base sólida, não direto contra o vazio.
+				# Sem a base (2,1) por baixo, a "rocha" ficava metade branca (bug
+				# reportado: vão branco entre o teto e a sala).
+				draw_texture_rect_region(tex, dst,
+					Rect2(_FILL.x * sts, _FILL.y * sts, sts * dw / ts, sts))
+				var face := Vector2i(1, 2)
+				if col == 0:            face = Vector2i(0, 2)   # canto inferior-esquerdo
+				elif col == cols - 1:   face = Vector2i(3, 3)   # canto inferior-direito
+				draw_texture_rect_region(tex, dst,
+					Rect2(face.x * sts, face.y * sts, sts * dw / ts, sts))
+			else:
+				draw_texture_rect_region(tex, dst,
+					Rect2(_FILL.x * sts, _FILL.y * sts, sts * dw / ts, sts))
 
 # Câmara do boss desenhada como grid unificado (molde do stage_00 _draw_boss_room): perímetro
 # de rocha (z1) com cantos côncavos corretos em uma passada. A abertura fica na PAREDE ESQUERDA
@@ -1472,7 +1480,13 @@ func _build_z4_secret() -> void:
 	# arredondadas nas junções em vez de uma rocha contínua.
 	_z3_static_floor("Z4CollectFloorL", Vector2(16940.0, -922.0), Vector2(280.0, 128.0))
 	_z3_static_floor("Z4CollectFloorR", Vector2(17330.0, -922.0), Vector2(100.0, 128.0))
-	_z2_static("Z4CollectWL",   Vector2(16768.0, -1082.0), Vector2(64.0, 256.0))   # parede esq (y-1210–-954)
+	# Topo em y-1298 (32px acima do topo do Z4TopCeil, y-1266): _draw_lava_tiles
+	# desenha a fileira 0 (crosta, translúcida) 32px ACIMA do topo do corpo e só
+	# a partir da fileira 1 (miolo opaco) que a rocha fica sólida — então o topo
+	# físico precisa ficar 32px acima de onde a rocha precisa estar opaca, senão
+	# fica uma faixa sem nada opaco atrás da face translúcida do teto (bug
+	# reportado: vão branco entre a parede e o teto).
+	_z2_static("Z4CollectWL",   Vector2(16768.0, -1126.0), Vector2(64.0, 344.0))   # parede esq (y-1298–-954)
 	# Coletável: Dual Blades da Zara (WEAPON_ZARA / "dual_blades").
 	var col: Area2D = _COLLECTIBLE_SCENE.instantiate()
 	col.name = "Z4DualBlades"
