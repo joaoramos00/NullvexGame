@@ -579,24 +579,21 @@ func _draw_stage01_ceilings() -> void:
 		var center := (node as Node2D).position + cs.position
 		var y_bot := center.y + size.y * 0.5
 		_draw_room_tiles(Rect2(center.x - size.x * 0.5, y_bot - ts - src_ts, size.x, ts + src_ts), n_name + "_Ceil")
-	# Topo do shaft Z4: Z4CollectCeil (teto da sala secreta) + Z4PreLCeil/Z4PreRCeil
-	# (teto da antecâmara pré-boss) — mesma rocha de zona 1 dos tetos do shaft,
-	# mesma face (1,2) + preenchimento acima, como um só material (não 3 desenhos
-	# diferentes). O vão entre Z4PreLCeil e Z4PreRCeil é a boca do shaft — fica
-	# aberto de propósito, não preencher.
+	# Topo do shaft Z4: UM corpo só (Z4TopCeil) cobrindo da sala secreta até a
+	# entrada do corredor pré-boss — mesma rocha de zona 1. Antes eram 4 corpos
+	# encostados (Z4CollectCeil/Z4PreLCeil/Z4ShaftMouthCeil/Z4PreRCeil), cada um
+	# desenhado à parte ganhava sua própria "tampa" arredondada nas pontas
+	# ((3,3)/(0,2)) e a faixa aparecia quebrada em pílulas em vez de rocha contínua.
 	var z1_tex := _cached_override_tex(_Z1_TILE_PATH)
-	for n_name in ["Z4CollectCeil", "Z4PreLCeil", "Z4PreRCeil", "Z4ShaftMouthCeil"]:
-		var node := get_node_or_null(n_name)
-		if not is_instance_valid(node):
-			continue
-		var cs := _first_collision_shape(node)
-		if not cs or not cs.shape is RectangleShape2D:
-			continue
-		var size := (cs.shape as RectangleShape2D).size
-		var center := (node as Node2D).position + cs.position
-		var y_bot := center.y + size.y * 0.5
-		_draw_room_tiles(Rect2(center.x - size.x * 0.5, y_bot - ts - src_ts, size.x, ts + src_ts),
-			n_name + "_Ceil", false, z1_tex)
+	var top_ceil := get_node_or_null("Z4TopCeil")
+	if is_instance_valid(top_ceil):
+		var cs := _first_collision_shape(top_ceil)
+		if cs and cs.shape is RectangleShape2D:
+			var size := (cs.shape as RectangleShape2D).size
+			var center := (top_ceil as Node2D).position + cs.position
+			var y_bot := center.y + size.y * 0.5
+			_draw_room_tiles(Rect2(center.x - size.x * 0.5, y_bot - ts - src_ts, size.x, ts + src_ts),
+				"Z4TopCeil_Ceil", false, z1_tex)
 
 # Câmara do boss desenhada como grid unificado (molde do stage_00 _draw_boss_room): perímetro
 # de rocha (z1) com cantos côncavos corretos em uma passada. A abertura fica na PAREDE ESQUERDA
@@ -942,14 +939,11 @@ func _build_zone4() -> void:
 	var swr := get_node_or_null("Z4SecretWR")
 	if swr:
 		swr.set_meta("skip_base_draw", true)
-	# Z4CollectCeil/Z4PreLCeil/Z4PreRCeil eram 3 tetos desenhados separadamente
-	# (modo "lava" genérico, pensado p/ piso — topo+corpo, orientação errada p/ teto).
-	# Agora os 3 usam a MESMA rocha de zona 1 e o mesmo desenho de face de teto
-	# (1,2) + preenchimento acima via _draw_stage01_ceilings(), como um só material.
-	for cn_name in ["Z4CollectCeil", "Z4PreLCeil", "Z4PreRCeil", "Z4ShaftMouthCeil"]:
-		var cn := get_node_or_null(cn_name)
-		if cn:
-			cn.set_meta("skip_base_draw", true)
+	# Z4TopCeil (teto único do topo do shaft) usa a rocha de zona 1 e o desenho
+	# de face de teto (1,2) + preenchimento acima via _draw_stage01_ceilings().
+	var top_ceil := get_node_or_null("Z4TopCeil")
+	if top_ceil:
+		top_ceil.set_meta("skip_base_draw", true)
 
 func _z4_wall(n: String, cx: float, cy: float, w: float, h: float, no_grab := false) -> StaticBody2D:
 	var b := _z2_static(n, Vector2(cx, cy), Vector2(w, h))
@@ -1252,16 +1246,18 @@ func _build_z4_top() -> void:
 	# 40px mais baixo que o do Z4PreR (degrau invisível na transição).
 	# Trecho esquerdo: tampa a parede esquerda do topo do shaft (Z4ShaftWL5, x17360–17424).
 	_z3_static_floor("Z4PreL", Vector2(17392.0, -1010.0), Vector2(64.0, 128.0))
-	_z2_static("Z4PreLCeil", Vector2(17392.0, -1234.0), Vector2(64.0, 64.0))
 	# Trecho direito: da boca do shaft (x17520) até a entrada do corredor (x17520–17968,
 	# 448px = 7 tiles). Piso topo -1074 = mesma superfície do Z4PreL e do corredor.
 	_z3_static_floor("Z4PreR", Vector2(17744.0, -1010.0), Vector2(448.0, 128.0))
-	_z2_static("Z4PreRCeil", Vector2(17744.0, -1234.0), Vector2(448.0, 64.0))
-	# Teto sobre a boca do shaft (x17424–17520, 96px): só o TETO fecha aqui — o
-	# CHÃO continua aberto (Z4PreL/Z4PreR não têm piso nesse trecho), preservando
-	# a abertura vertical por onde o player sobe. Une visualmente Z4PreLCeil e
-	# Z4PreRCeil numa faixa 100% contínua.
-	_z2_static("Z4ShaftMouthCeil", Vector2(17472.0, -1234.0), Vector2(96.0, 64.0))
+	# Teto ÚNICO cobrindo toda a extensão do topo do shaft, da sala secreta
+	# (x16800) até a entrada do corredor pré-boss (x17968) — inclui a boca do
+	# shaft (x17424–17520): só o TETO fecha ali, o CHÃO continua aberto
+	# (preserva a abertura vertical por onde o player sobe). Um corpo só (não
+	# vários encostados) pra não ganhar tampa arredondada nas junções e a rocha
+	# aparecer quebrada em pedaços; y = mesmo nível de piso/teto do corredor
+	# pré-boss (-1202 base), 8px abaixo do nível antigo da sala secreta (-1210,
+	# diferença imperceptível).
+	_z2_static("Z4TopCeil", Vector2(17384.0, -1234.0), Vector2(1168.0, 64.0))
 	# Corredor pré-boss com checkpoint 5 e câmera bloqueada. Mesma largura,
 	# altura interior, altura de parede e zoom do Corr1 do stage_00
 	# (docs/stage_00/corredor.md) — 896px = 14 tiles, zoom 2.0. Só a posição
@@ -1272,7 +1268,7 @@ func _build_z4_top() -> void:
 	_corr_boss.door_tex             = _DOOR_TEX
 	_corr_boss.floor_center         = Vector2(18416.0, -1042.0)  # topo -1074 = Z4PreR
 	_corr_boss.floor_size           = Vector2(896.0, 64.0)
-	_corr_boss.ceil_center          = Vector2(18416.0, -1234.0)  # base -1202 = Z4PreRCeil
+	_corr_boss.ceil_center          = Vector2(18416.0, -1234.0)  # base -1202 = Z4TopCeil
 	_corr_boss.ceil_size            = Vector2(896.0, 64.0)
 	_corr_boss.wall_l_center        = Vector2(17968.0, -1138.0)
 	_corr_boss.wall_l_size          = Vector2(64.0, 256.0)
@@ -1443,11 +1439,13 @@ func _build_z4_secret() -> void:
 	elev.add_child(_z2_shape(Vector2(192.0, 32.0)))
 	add_child(elev)
 	# Câmara do coletável: piso x16800–17380 com buraco x17080–17280 (encaixe do elevador).
-	# Interior 224px centrado em y=-1098 (= crack2 center): piso top=-986, teto bottom=-1210.
+	# Interior 216px centrado em y=-1094 (= crack2 center): piso top=-986, teto bottom=-1202.
+	# Teto: parte do Z4TopCeil único (criado em _build_z4_top), não corpo próprio —
+	# senão o teto do topo do shaft aparecia quebrado em pedaços com tampas
+	# arredondadas nas junções em vez de uma rocha contínua.
 	_z3_static_floor("Z4CollectFloorL", Vector2(16940.0, -922.0), Vector2(280.0, 128.0))
 	_z3_static_floor("Z4CollectFloorR", Vector2(17330.0, -922.0), Vector2(100.0, 128.0))
 	_z2_static("Z4CollectWL",   Vector2(16768.0, -1082.0), Vector2(64.0, 256.0))   # parede esq (y-1210–-954)
-	_z2_static("Z4CollectCeil", Vector2(17090.0, -1242.0), Vector2(580.0, 64.0))   # teto bottom=-1210
 	# Coletável: Dual Blades da Zara (WEAPON_ZARA / "dual_blades").
 	var col: Area2D = _COLLECTIBLE_SCENE.instantiate()
 	col.name = "Z4DualBlades"
