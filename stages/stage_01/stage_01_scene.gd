@@ -1483,7 +1483,12 @@ func _build_z4_secret() -> void:
 	add_child(col)
 	# Parede #2 (SUPERIOR) — slot direito da câmara do coletável.
 	# Separa o segredo da sala pré-boss / topo do shaft. Quebra só de DENTRO (detector "L").
-	_z4_cracked("Z4Crack2", Vector2(17392.0, -1098.0), Vector2(64.0, 224.0), "left", "L")   # cx 17412→17392: face dir em x17424 (flush c/ parede esq do shaft)
+	# Topo em y-1202 = flush com a base do Z4TopCeil (teto único do topo do shaft,
+	# ver _build_z4_top) — sem isso o topo da parede (-1210, valor antigo, de
+	# quando o teto da sala secreta era um corpo próprio 8px mais alto) ficava
+	# encravado NO MEIO do bloco do teto em vez de encostar na borda dele,
+	# criando uma costura visual (parede "não linkava" com o teto).
+	_z4_cracked("Z4Crack2", Vector2(17392.0, -1094.0), Vector2(64.0, 216.0), "left", "L")   # cx 17412→17392: face dir em x17424 (flush c/ parede esq do shaft)
 	# Cobertura de rocha sobre TODO o interior (coluna + câmara): o segredo só é
 	# revelado quando a parede #1 quebra. O tint das paredes quebráveis fica fora
 	# das rects — a pista visual da parede continua visível pelo lado do shaft.
@@ -1493,7 +1498,7 @@ func _build_z4_secret() -> void:
 	cover.z_index = 7
 	cover.rects = [
 		Rect2(17000.0, -986.0, 360.0, 3050.0),   # coluna (interior x17000–17360, y-986..2064)
-		Rect2(16800.0, -1210.0, 560.0, 224.0),   # câmara do coletável (interior)
+		Rect2(16800.0, -1202.0, 560.0, 216.0),   # câmara do coletável (interior, topo flush c/ Z4TopCeil)
 	]
 	add_child(cover)
 	var crack1 := get_node_or_null("Z4Crack1")
