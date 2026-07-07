@@ -36,9 +36,10 @@ func _ready() -> void:
 		const TS := 64.0
 		var wall_top    : float = ceil_n.position.y  - TS * 0.5   # topo da parede = topo da sala
 		var wall_bottom : float = floor_n.position.y + TS * 0.5   # base da parede = base da sala
-		# _BOSS_DOOR_LO e _BOSS_DOOR_HI copiados das consts da stage
-		const DOOR_LO := -1182.0
+		# _BOSS_DOOR_LO e _BOSS_DOOR_HI copiados das consts da stage (derivadas
+		# do door_cy/door_height reais do CorridorSection — ver stage_01_scene.gd)
 		const DOOR_HI := -1074.0
+		const DOOR_LO := DOOR_HI - 64.0 - 100.0   # floor_top-64 (door_cy) - 200/2 (door_h/2)
 		if DOOR_LO < wall_top:
 			print("FAIL: DOOR_LO (%.0f) acima do topo da parede (%.0f)" % [DOOR_LO, wall_top])
 			fail = true

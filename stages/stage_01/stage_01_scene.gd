@@ -109,8 +109,17 @@ const _BOSS_L          := 18864.0
 const _BOSS_R          := 19760.0   # _BOSS_L + 896
 const _BOSS_FLOOR_TOP  := -1074.0   # = piso do corredor (_corr_boss), sem degrau
 const _BOSS_CEIL_TOP   := -1458.0   # interior = -1074 − (−1458) = 384px = 6 tiles
-const _BOSS_DOOR_LO    := -1182.0   # abertura de 108px (mesma altura de antes)
-const _BOSS_DOOR_HI    := -1074.0   # = _BOSS_FLOOR_TOP (porta encosta no chão)
+# Deriva do MESMO cálculo que CorridorSection.setup() usa pra calibrar a
+# porta do checkpoint (door_cy = floor_top-64; door_height = 200, default
+# do CorridorSection) — mesmo padrão do stage_00 (_DOOR_CY/_DOOR_H em
+# stage_00_scene.gd:58-59). O vão da parede TEM que bater com o tamanho
+# real da porta: um valor solto (-1182, "108px de abertura") deixava a
+# parede sólida invadir 56px do espaço onde a porta de verdade opera —
+# bug de playtest "wall007 passando um pouco a door004".
+const _BOSS_DOOR_CY    := _BOSS_FLOOR_TOP - 64.0   # = door_cy calibrado por setup()
+const _BOSS_DOOR_H     := 200.0                    # = door_height (default do CorridorSection)
+const _BOSS_DOOR_LO    := _BOSS_DOOR_CY - _BOSS_DOOR_H * 0.5   # topo real da porta (-1238)
+const _BOSS_DOOR_HI    := _BOSS_FLOOR_TOP   # porta encosta no chão
 # Câmera fixa mostrando a sala inteira (mesmo zoom do stage_00: 1920/2=960 de
 # largura visível > 896 de interior; 1080/2=540 de altura > 384 de interior).
 const _BOSS_CAM_CENTER := Vector2(19312.0, -1266.0)   # centro de (_BOSS_L+_BOSS_R)/2, (_BOSS_FLOOR_TOP+_BOSS_CEIL_TOP)/2
