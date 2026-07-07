@@ -245,17 +245,23 @@ func _draw() -> void:
 # piso — mesma técnica do Z4TopCeil em stage_01_scene.gd: evita vazio branco
 # quando a câmera sobe/desce além do corredor (ex.: corredor pré-boss). Não
 # mexe nas tiles visíveis do teto/piso, só estende pra fora da caixa delas.
+# IMPORTANTE: _draw_room/_draw_platform desenham a tile da borda deslocada
+# meio-tile (_SRC=32) pra dentro da caixa de colisão (ty=+_SRC no teto,
+# dy=...-_SRC no piso) — a tile visível NÃO ocupa a caixa inteira. O
+# preenchimento precisa começar onde a textura de verdade termina (borda +
+# _SRC), não na borda crua da caixa, senão sobra uma faixa de 32px sem nada.
 const _FILL_ROWS := 6
 
 func _draw_ceil_fill() -> void:
 	var rect := Rect2(ceil_center - ceil_size * 0.5, ceil_size)
 	var cols := ceili(rect.size.x / _TS)
 	var fill_src := Rect2(2 * _SRC, 1 * _SRC, _SRC, _SRC)
+	var edge_y := rect.position.y + _SRC   # topo real da tile do teto (ver _draw_room ty=+_SRC)
 	for col in cols:
 		var dx := rect.position.x + col * _TS
 		var dw := minf(_TS, rect.position.x + rect.size.x - dx)
 		for row in _FILL_ROWS:
-			var dy := rect.position.y - (row + 1) * _TS
+			var dy := edge_y - (row + 1) * _TS
 			draw_texture_rect_region(tileset, Rect2(dx, dy, dw, _TS),
 				Rect2(fill_src.position, Vector2(_SRC * dw / _TS, _SRC)))
 
@@ -263,11 +269,12 @@ func _draw_floor_fill() -> void:
 	var rect := Rect2(floor_center - floor_size * 0.5, floor_size)
 	var cols := ceili(rect.size.x / _TS)
 	var fill_src := Rect2(2 * _SRC, 1 * _SRC, _SRC, _SRC)
+	var edge_y := rect.position.y - _SRC + _TS   # base real da tile do piso (ver _draw_platform dy=...-_SRC, altura _TS)
 	for col in cols:
 		var dx := rect.position.x + col * _TS
 		var dw := minf(_TS, rect.position.x + rect.size.x - dx)
 		for row in _FILL_ROWS:
-			var dy := rect.position.y + rect.size.y + row * _TS
+			var dy := edge_y + row * _TS
 			draw_texture_rect_region(tileset, Rect2(dx, dy, dw, _TS),
 				Rect2(fill_src.position, Vector2(_SRC * dw / _TS, _SRC)))
 
