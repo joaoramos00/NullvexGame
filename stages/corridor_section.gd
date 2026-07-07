@@ -232,12 +232,44 @@ func _process(_delta: float) -> void:
 func _draw() -> void:
 	if tileset == null:
 		return
+	_draw_ceil_fill()
 	_draw_floor_tiles()
 	_draw_ceil_tiles()
+	_draw_floor_fill()
 	if glass_tex != null:
 		_draw_glass()
 	if door_tex != null:
 		_draw_door_underlays()
+
+# Linhas extras de rocha 100% opaca (miolo (2,1)) acima do teto e abaixo do
+# piso — mesma técnica do Z4TopCeil em stage_01_scene.gd: evita vazio branco
+# quando a câmera sobe/desce além do corredor (ex.: corredor pré-boss). Não
+# mexe nas tiles visíveis do teto/piso, só estende pra fora da caixa delas.
+const _FILL_ROWS := 6
+
+func _draw_ceil_fill() -> void:
+	var rect := Rect2(ceil_center - ceil_size * 0.5, ceil_size)
+	var cols := ceili(rect.size.x / _TS)
+	var fill_src := Rect2(2 * _SRC, 1 * _SRC, _SRC, _SRC)
+	for col in cols:
+		var dx := rect.position.x + col * _TS
+		var dw := minf(_TS, rect.position.x + rect.size.x - dx)
+		for row in _FILL_ROWS:
+			var dy := rect.position.y - (row + 1) * _TS
+			draw_texture_rect_region(tileset, Rect2(dx, dy, dw, _TS),
+				Rect2(fill_src.position, Vector2(_SRC * dw / _TS, _SRC)))
+
+func _draw_floor_fill() -> void:
+	var rect := Rect2(floor_center - floor_size * 0.5, floor_size)
+	var cols := ceili(rect.size.x / _TS)
+	var fill_src := Rect2(2 * _SRC, 1 * _SRC, _SRC, _SRC)
+	for col in cols:
+		var dx := rect.position.x + col * _TS
+		var dw := minf(_TS, rect.position.x + rect.size.x - dx)
+		for row in _FILL_ROWS:
+			var dy := rect.position.y + rect.size.y + row * _TS
+			draw_texture_rect_region(tileset, Rect2(dx, dy, dw, _TS),
+				Rect2(fill_src.position, Vector2(_SRC * dw / _TS, _SRC)))
 
 func _draw_door_underlays() -> void:
 	var dv := door_height / 3.0
