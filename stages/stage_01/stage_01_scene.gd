@@ -554,6 +554,16 @@ func _draw_zone_ceilings() -> void:
 				y += ts
 			x += ts
 
+# Primeiro CollisionShape2D filho, independente do nome. Corpos criados via
+# _z2_static()/_z2_shape() (só script, sem .tscn) não têm o filho nomeado
+# "CollisionShape2D" garantido no build exportado — get_node_or_null("CollisionShape2D")
+# falhava silenciosamente (retornava null) e o teto nunca era desenhado.
+func _first_collision_shape(node: Node) -> CollisionShape2D:
+	for c in node.get_children():
+		if c is CollisionShape2D:
+			return c
+	return null
+
 # Teto da sala da armadura secreta: tile (1,2) via room-tiles (faixa reta).
 func _draw_stage01_ceilings() -> void:
 	var ts     := _TS
@@ -562,7 +572,7 @@ func _draw_stage01_ceilings() -> void:
 		var node := get_node_or_null(n_name)
 		if not is_instance_valid(node):
 			continue
-		var cs := (node as Node2D).get_node_or_null("CollisionShape2D") as CollisionShape2D
+		var cs := _first_collision_shape(node)
 		if not cs or not cs.shape is RectangleShape2D:
 			continue
 		var size := (cs.shape as RectangleShape2D).size
@@ -579,7 +589,7 @@ func _draw_stage01_ceilings() -> void:
 		var node := get_node_or_null(n_name)
 		if not is_instance_valid(node):
 			continue
-		var cs := (node as Node2D).get_node_or_null("CollisionShape2D") as CollisionShape2D
+		var cs := _first_collision_shape(node)
 		if not cs or not cs.shape is RectangleShape2D:
 			continue
 		var size := (cs.shape as RectangleShape2D).size
