@@ -584,16 +584,43 @@ func _draw_stage01_ceilings() -> void:
 	# encostados (Z4CollectCeil/Z4PreLCeil/Z4ShaftMouthCeil/Z4PreRCeil), cada um
 	# desenhado à parte ganhava sua própria "tampa" arredondada nas pontas
 	# ((3,3)/(0,2)) e a faixa aparecia quebrada em pílulas em vez de rocha contínua.
-	var z1_tex := _cached_override_tex(_Z1_TILE_PATH)
+	# Desenho próprio (não _draw_room_tiles): a versão genérica só desenha UMA
+	# linha visível pra "_Ceil" mesmo pedindo altura maior (base_ys desloca a
+	# segunda linha pra fora do rect, dh=0) — aqui preenchemos de verdade várias
+	# linhas ACIMA da face, escondendo o vazio branco quando a câmera sobe.
+	_draw_z4_top_ceil()
+
+func _draw_z4_top_ceil() -> void:
 	var top_ceil := get_node_or_null("Z4TopCeil")
-	if is_instance_valid(top_ceil):
-		var cs := _first_collision_shape(top_ceil)
-		if cs and cs.shape is RectangleShape2D:
-			var size := (cs.shape as RectangleShape2D).size
-			var center := (top_ceil as Node2D).position + cs.position
-			var y_bot := center.y + size.y * 0.5
-			_draw_room_tiles(Rect2(center.x - size.x * 0.5, y_bot - ts - src_ts, size.x, ts + src_ts),
-				"Z4TopCeil_Ceil", false, z1_tex)
+	if not is_instance_valid(top_ceil):
+		return
+	var cs := _first_collision_shape(top_ceil)
+	if not cs or not cs.shape is RectangleShape2D:
+		return
+	var tex := _cached_override_tex(_Z1_TILE_PATH)
+	if tex == null:
+		return
+	var ts  := _TS
+	var sts := _SRC_TS
+	var size := (cs.shape as RectangleShape2D).size
+	var center := (top_ceil as Node2D).position + cs.position
+	var rect := Rect2(center - size * 0.5, size)
+	var cols := ceili(rect.size.x / ts)
+	const FILL_ROWS := 7   # row 0 = face visível (1,2); rows 1-6 = rocha de preenchimento acima
+	for col in cols:
+		var dx := rect.position.x + col * ts
+		var dw := minf(ts, rect.position.x + rect.size.x - dx)
+		var tile: Vector2i
+		for row in FILL_ROWS:
+			if row == 0:
+				if col == 0:            tile = Vector2i(0, 2)   # canto inferior-esquerdo
+				elif col == cols - 1:   tile = Vector2i(3, 3)   # canto inferior-direito
+				else:                   tile = Vector2i(1, 2)   # face de teto
+			else:
+				tile = Vector2i(2, 1)   # preenchimento (miolo)
+			var dy := rect.position.y - row * ts
+			draw_texture_rect_region(tex, Rect2(dx, dy, dw, ts),
+				Rect2(tile.x * sts, tile.y * sts, sts * dw / ts, sts))
 
 # Câmara do boss desenhada como grid unificado (molde do stage_00 _draw_boss_room): perímetro
 # de rocha (z1) com cantos côncavos corretos em uma passada. A abertura fica na PAREDE ESQUERDA
