@@ -569,6 +569,24 @@ func _draw_stage01_ceilings() -> void:
 		var center := (node as Node2D).position + cs.position
 		var y_bot := center.y + size.y * 0.5
 		_draw_room_tiles(Rect2(center.x - size.x * 0.5, y_bot - ts - src_ts, size.x, ts + src_ts), n_name + "_Ceil")
+	# Topo do shaft Z4: Z4CollectCeil (teto da sala secreta) + Z4PreLCeil/Z4PreRCeil
+	# (teto da antecâmara pré-boss) — mesma rocha de zona 1 dos tetos do shaft,
+	# mesma face (1,2) + preenchimento acima, como um só material (não 3 desenhos
+	# diferentes). O vão entre Z4PreLCeil e Z4PreRCeil é a boca do shaft — fica
+	# aberto de propósito, não preencher.
+	var z1_tex := _cached_override_tex(_Z1_TILE_PATH)
+	for n_name in ["Z4CollectCeil", "Z4PreLCeil", "Z4PreRCeil", "Z4ShaftMouthCeil"]:
+		var node := get_node_or_null(n_name)
+		if not is_instance_valid(node):
+			continue
+		var cs := (node as Node2D).get_node_or_null("CollisionShape2D") as CollisionShape2D
+		if not cs or not cs.shape is RectangleShape2D:
+			continue
+		var size := (cs.shape as RectangleShape2D).size
+		var center := (node as Node2D).position + cs.position
+		var y_bot := center.y + size.y * 0.5
+		_draw_room_tiles(Rect2(center.x - size.x * 0.5, y_bot - ts - src_ts, size.x, ts + src_ts),
+			n_name + "_Ceil", false, z1_tex)
 
 # Câmara do boss desenhada como grid unificado (molde do stage_00 _draw_boss_room): perímetro
 # de rocha (z1) com cantos côncavos corretos em uma passada. A abertura fica na PAREDE ESQUERDA
@@ -906,7 +924,7 @@ func _build_zone4() -> void:
 	# Z4SecretWR fica FORA da lista: é a parede esquerda do shaft, desenhada com
 	# coluna de face em _draw_z4_shaft_walls (junção substitui o tile de face).
 	for n in ["Z4ShaftEntry", "Z4SecretWL", "Z4SecretFloor",
-			"Z4CollectFloorL", "Z4CollectFloorR", "Z4CollectWL", "Z4CollectCeil",
+			"Z4CollectFloorL", "Z4CollectFloorR", "Z4CollectWL",
 			"Z4PreL", "Z4PreR"]:
 		var b := get_node_or_null(n)
 		if b:
@@ -914,6 +932,14 @@ func _build_zone4() -> void:
 	var swr := get_node_or_null("Z4SecretWR")
 	if swr:
 		swr.set_meta("skip_base_draw", true)
+	# Z4CollectCeil/Z4PreLCeil/Z4PreRCeil eram 3 tetos desenhados separadamente
+	# (modo "lava" genérico, pensado p/ piso — topo+corpo, orientação errada p/ teto).
+	# Agora os 3 usam a MESMA rocha de zona 1 e o mesmo desenho de face de teto
+	# (1,2) + preenchimento acima via _draw_stage01_ceilings(), como um só material.
+	for cn_name in ["Z4CollectCeil", "Z4PreLCeil", "Z4PreRCeil", "Z4ShaftMouthCeil"]:
+		var cn := get_node_or_null(cn_name)
+		if cn:
+			cn.set_meta("skip_base_draw", true)
 
 func _z4_wall(n: String, cx: float, cy: float, w: float, h: float, no_grab := false) -> StaticBody2D:
 	var b := _z2_static(n, Vector2(cx, cy), Vector2(w, h))
@@ -1221,6 +1247,11 @@ func _build_z4_top() -> void:
 	# 448px = 7 tiles). Piso topo -1074 = mesma superfície do Z4PreL e do corredor.
 	_z3_static_floor("Z4PreR", Vector2(17744.0, -1010.0), Vector2(448.0, 128.0))
 	_z2_static("Z4PreRCeil", Vector2(17744.0, -1234.0), Vector2(448.0, 64.0))
+	# Teto sobre a boca do shaft (x17424–17520, 96px): só o TETO fecha aqui — o
+	# CHÃO continua aberto (Z4PreL/Z4PreR não têm piso nesse trecho), preservando
+	# a abertura vertical por onde o player sobe. Une visualmente Z4PreLCeil e
+	# Z4PreRCeil numa faixa 100% contínua.
+	_z2_static("Z4ShaftMouthCeil", Vector2(17472.0, -1234.0), Vector2(96.0, 64.0))
 	# Corredor pré-boss com checkpoint 5 e câmera bloqueada. Mesma largura,
 	# altura interior, altura de parede e zoom do Corr1 do stage_00
 	# (docs/stage_00/corredor.md) — 896px = 14 tiles, zoom 2.0. Só a posição

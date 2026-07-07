@@ -300,10 +300,10 @@ func _draw_platform_tiles(rect: Rect2, tex: Texture2D) -> void:
 			var src := Rect2(tile.x * src_ts, tile.y * src_ts, src_ts * dw / ts, src_ts * dh / ts)
 			draw_texture_rect_region(tex, Rect2(dx, dy, dw, dh), src)
 
-func _draw_room_tiles(rect: Rect2, piece_name: String, skip_bottom_corner: bool = false) -> void:
+func _draw_room_tiles(rect: Rect2, piece_name: String, skip_bottom_corner: bool = false, override_tex: Texture2D = null) -> void:
 	var ts     := _TS
 	var src_ts := _SRC_TS
-	var tex: Texture2D = _get_zone_tileset(rect.get_center())
+	var tex: Texture2D = override_tex if override_tex != null else _get_zone_tileset(rect.get_center())
 	if tex == null:
 		return
 	var base_xs := 0
