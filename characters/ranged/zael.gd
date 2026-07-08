@@ -14,6 +14,7 @@ const BULLET_SCALE := [
 
 const _BULLET_SCENE := preload("res://characters/ranged/zael_bullet.tscn")
 const _FIRE_WAVE    := preload("res://characters/ranged/player_fire_wave.gd")
+const _WIND_GUST    := preload("res://characters/ranged/player_wind_gust.gd")
 
 const _FRAME_W := 68
 const _FRAME_H := 68
@@ -451,7 +452,19 @@ func _use_special_ability() -> bool:
     if bid == "ignarath" and GameManager.use_ability_ammo("ignarath"):
         _fire_walk()
         return true
+    if bid == "galerix" and GameManager.use_ability_ammo("galerix"):
+        _fire_wind_gust()
+        return true
     return false
+
+func _fire_wind_gust() -> void:
+    var dir_f: float = 1.0 if facing_right else -1.0
+    var gust: Area2D = _WIND_GUST.new()
+    gust.set("dir", dir_f)
+    # Mesma altura de braço dos tiros normais (_SPAWN_OFFSET_Y) — sem isso
+    # a rajada saía perto do centro do corpo em vez de na altura do braço.
+    gust.global_position = global_position + Vector2(dir_f * _SPAWN_OFFSET_X[1], _SPAWN_OFFSET_Y)
+    get_parent().add_child(gust)
 
 func _fire_walk() -> void:
     var dir_f: float = 1.0 if facing_right else -1.0

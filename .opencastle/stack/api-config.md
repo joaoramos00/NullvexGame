@@ -27,7 +27,8 @@ export PIXELLAB_API_KEY=$(grep PIXELLAB_API_KEY .env | cut -d= -f2)
 | Endpoint | Purpose |
 |----------|---------|
 | `POST https://api.pixellab.ai/v2/tilesets-sidescroller` | Generate sidescroller tilesets (floors, walls, backgrounds) |
-| `POST https://api.pixellab.ai/v1/generate-image` | Generate individual character/enemy sprite sheets |
+| `POST https://api.pixellab.ai/v1/generate-image-pixflux` | Generate a single one-off image from a text description (no candidate review) |
+| `POST https://api.pixellab.ai/v2/create-1-direction-object` | Generate a power/ability effect object with candidate review — see `.claude/skills/pixellab-effect.md` |
 
 ### MCP Tools (preferred over direct HTTP)
 
