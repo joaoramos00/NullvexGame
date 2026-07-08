@@ -1506,6 +1506,24 @@ func _build_z4_secret() -> void:
 		crack1.connect("wall_destroyed", func():
 			if is_instance_valid(cover):
 				cover.queue_free())
+	# Cobertura só do pedaço do Z4TopCeil logo acima da Z4Crack2 (x17360–17424).
+	# A face do teto (tile (1,2)) é só ~48% opaca por design (os outros ~52%
+	# deveriam ser passáveis — tema pra outra hora); nessa faixa específica não
+	# há nenhuma parede alcançando o teto pra servir de fundo, então sobra vão
+	# branco enquanto a Z4Crack2 existir. Cover soma junto quando ela quebra —
+	# depois de quebrada, a transparência da face vira a mesma coisa "correta"
+	# que aparece em outros lugares do teto.
+	var crack2_ceil_cover: Node2D = preload("res://stages/secret_cover.gd").new()
+	crack2_ceil_cover.name = "Z4Crack2CeilCover"
+	crack2_ceil_cover.tex = _cached_override_tex(_Z1_TILE_PATH)
+	crack2_ceil_cover.z_index = 7
+	crack2_ceil_cover.rects = [Rect2(17360.0, -1266.0, 64.0, 64.0)]
+	add_child(crack2_ceil_cover)
+	var crack2 := get_node_or_null("Z4Crack2")
+	if crack2:
+		crack2.connect("wall_destroyed", func():
+			if is_instance_valid(crack2_ceil_cover):
+				crack2_ceil_cover.queue_free())
 
 # Parede quebrável (cracked_wall.gd): corpo sólido + HitDetector Area2D só no lado
 # permitido. det_side "R"/"L" posiciona o detector à direita/esquerda; break_side
