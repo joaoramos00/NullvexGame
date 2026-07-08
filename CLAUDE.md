@@ -25,7 +25,7 @@ export PIXELLAB_API_KEY=$(grep PIXELLAB_API_KEY .env | cut -d= -f2)
 ```
 
 Endpoint tileset sidescroller: `POST https://api.pixellab.ai/v2/tilesets-sidescroller`  
-Endpoint imagem genérica: `POST https://api.pixellab.ai/v1/generate-image`
+Endpoint imagem genérica (Pixflux): `POST https://api.pixellab.ai/v1/generate-image-pixflux`
 
 ---
 
@@ -196,6 +196,7 @@ Skills locais em `.claude/skills/`. Invocar dizendo "use a skill X" ou `/X`.
 | `run-tests` | Rodar testes headless do Godot, reportar PASS/FAIL |
 | `web-export` | Exportar build web e publicar no GitHub Pages |
 | `pixellab` | Gerar sprites de inimigos/bosses e tilesets via PixelLab API |
+| `pixellab-effect` | Gerar efeito visual de poder/habilidade via `create_1_direction_object` — escolhe entre candidatos antes de animar |
 
 ---
 
