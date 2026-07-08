@@ -9,6 +9,7 @@ var hitbox_debug: bool = false  # contorno dos hitboxes de ataque de boss (?hitb
 var stage_id:    int  = -1
 var zone:        int  = -1   # spawna direto numa zona da fase (debug). -1 = início normal
 var active_char: String = "zael"
+var abilities:   PackedStringArray = []   # habilidades de boss desbloqueadas no boot (?ability=galerix,ignarath)
 var _booted: bool = false
 
 static func parse_params(query: String) -> Dictionary:
@@ -35,6 +36,8 @@ func _ready() -> void:
 	z3debug      = params.get("z3debug", "0") == "1"
 	hitbox_debug = params.get("hitbox", "0") == "1"
 	active_char = params.get("char", "zael")
+	if params.has("ability"):
+		abilities = params["ability"].split(",", false)
 	# zona: aceita "zone=3" e também o formato-flag "zone01"/"zone3"
 	zone = int(params.get("zone", "-1"))
 	if zone < 0:
@@ -58,6 +61,8 @@ func _boot() -> void:
 	_booted = true
 	GameManager.reset()
 	GameManager.set_active_character(active_char)
+	for a in abilities:
+		GameManager.unlock_ability(a)
 	StageManager.current_stage_id = stage_id
 	var path := "res://stages/stage_%02d/stage_%02d.tscn" % [stage_id, stage_id]
 	if not ResourceLoader.exists(path):
