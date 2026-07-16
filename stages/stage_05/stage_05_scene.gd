@@ -330,7 +330,6 @@ func _build_zone2() -> void:
 		Vector2(_Z2_SHAFT_R - _Z2_SHAFT_L - 32.0, _Z2_SHAFT_BOTTOM - _Z2_SHAFT_TOP - 100.0), 700.0)
 	# Alcova lateral pro colectável (armadura Braços do Zael), acessível saindo
 	# um pouco do fluxo principal do updraft no meio do shaft.
-	_solid_block("z2", "Z2_ArmorFloor", _Z2_SHAFT_R + 96.0, _Z2_ARMOR_ALCOVE_Y + 32.0, 192.0, 64.0)
 	_fixed_plat("Z2_ArmorLedge", "z2", _Z2_SHAFT_R + 96.0, _Z2_ARMOR_ALCOVE_Y, 128.0)
 	var armor := preload("res://stages/collectible.tscn").instantiate()
 	armor.set("collectible_type", "armor_zael_arms")
