@@ -272,12 +272,12 @@ func _pit_tile_at(cxw: float, row: int, holes: PackedFloat32Array) -> Vector2i:
 			return Vector2i(2, 0) if left else Vector2i(1, 1)
 	return Vector2i(-1, -1)
 
-func _draw_platform_tiles(rect: Rect2, tex: Texture2D) -> void:
+func _draw_platform_tiles(rect: Rect2, tex: Texture2D, min_rows: int = 7) -> void:
 	var ts     := _TS
 	var src_ts := _SRC_TS
 	var cols := ceili(rect.size.x / ts)
 	var phys_rows := ceili(rect.size.y / ts)
-	var rows := maxi(phys_rows, 7 if phys_rows >= 2 else 0)
+	var rows := maxi(phys_rows, min_rows if phys_rows >= 2 else 0)
 	for row in rows:
 		for col in cols:
 			var tile := _tile_at(col, cols, row, rows)

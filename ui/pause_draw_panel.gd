@@ -9,7 +9,7 @@ const _SLOTS: Array = [
 	{"boss_id": "cryovex",   "label": "CRYOVEX",  "elem": "GELO",   "color": Color(0.30, 0.85, 1.00)},
 	{"boss_id": "voltrix",   "label": "VOLTRIX",  "elem": "RAIO",   "color": Color(1.00, 1.00, 0.20)},
 	{"boss_id": "gravitus",  "label": "GRAVITUS", "elem": "GRAV.",  "color": Color(0.75, 0.30, 1.00)},
-	{"boss_id": "galerix",   "label": "GALERIX",  "elem": "VENTO",  "color": Color(0.30, 1.00, 0.50)},
+	{"boss_id": "galerix",   "label": "GALERIX",  "elem": "WIND SLICE", "color": Color(0.30, 1.00, 0.50)},
 	{"boss_id": "umbraex",   "label": "UMBRAEX",  "elem": "SOMBRA", "color": Color(0.60, 0.20, 0.90)},
 	{"boss_id": "luxar",     "label": "LUXAR",    "elem": "LUZ",    "color": Color(1.00, 0.95, 0.30)},
 	{"boss_id": "terragor",  "label": "TERRAGOR", "elem": "TERRA",  "color": Color(0.70, 0.50, 0.20)},
@@ -62,12 +62,14 @@ var _placeholder_tex: Texture2D = null
 var _bg_tex: Texture2D = null
 var _card_frame_tex: Texture2D = null
 var _fire_wave_tex: Texture2D = null
+var _wind_slash_tex: Texture2D = null
 
 func _ready() -> void:
 	_placeholder_tex = load("res://assets/buster/buster_L1.png")
 	_bg_tex = load("res://assets/ui/pause_bg.png")
 	_card_frame_tex = load("res://assets/ui/pause_card_pipes.png")
 	_fire_wave_tex = load("res://characters/bosses/ignarath/fx_ground_burst.png")
+	_wind_slash_tex = load("res://characters/bosses/galerix/fx_wind_slash.png")
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	focus_mode = Control.FOCUS_NONE
@@ -225,6 +227,8 @@ func _draw_power_grid(fnt: Font) -> void:
 			var spr_dest := Rect2(cx + _SPR_X, cy + _SPR_Y, _SPR, _SPR)
 			if bid == "ignarath" and _fire_wave_tex != null:
 				draw_texture_rect_region(_fire_wave_tex, spr_dest, Rect2(0, 0, 64, 64))
+			elif bid == "galerix" and _wind_slash_tex != null:
+				draw_texture_rect_region(_wind_slash_tex, spr_dest, Rect2(0, 0, 64, 64))
 			elif _placeholder_tex != null:
 				var pivot := Vector2(spr_dest.get_center())
 				draw_set_transform(pivot, -PI * 0.5, Vector2.ONE)

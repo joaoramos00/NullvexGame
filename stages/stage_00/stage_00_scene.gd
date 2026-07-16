@@ -604,6 +604,12 @@ func _setup_floor_platform() -> void:
 # a zona 1 — desce sobre plataformas altas, sobe sobre o chão principal.
 func _build_zone1_ceiling() -> void:
 	const CLEAR := 328.0
+	# Tile de face do teto (1,2), usada em _draw_zone1_ceiling quando `ed` é
+	# verdadeiro, só é opaca na metade de CIMA — a colisão nominal (y_surf)
+	# fica na borda do tile, onde a arte já ficou transparente. Sobe só a
+	# COLISÃO em meio tile; o visual (_z1_seg_yb) continua no valor nominal.
+	# Ver memória reference_ceiling_collision_gap.
+	const FACE_GAP := 32.0
 	# [x0, x1, floor_top] — limites horizontais e topo do piso em cada secção.
 	# Plataformas derivadas das collision shapes do .tscn:
 	#   Plat_Z1A  (2600,1090) size(256,180) → top=1000  x:2472–2728
@@ -631,11 +637,11 @@ func _build_zone1_ceiling() -> void:
 	for s: Array in segs:
 		var x0: float      = s[0]
 		var x1: float      = s[1]
-		var y_surf: float  = (s[2] as float) - CLEAR   # superfície inferior do teto
+		var y_surf: float  = (s[2] as float) - CLEAR   # superfície inferior do teto (visual)
 		var cs := CollisionShape2D.new()
 		var shape := SegmentShape2D.new()
-		shape.a = Vector2(x0, y_surf)
-		shape.b = Vector2(x1, y_surf)
+		shape.a = Vector2(x0, y_surf - FACE_GAP)
+		shape.b = Vector2(x1, y_surf - FACE_GAP)
 		cs.shape = shape
 		body.add_child(cs)
 

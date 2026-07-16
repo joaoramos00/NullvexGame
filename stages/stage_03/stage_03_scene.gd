@@ -482,6 +482,8 @@ const _CEIL03_SEGS := {
 }
 const _CEIL03_TEX := { "Z1": "z1", "Z2": "z2", "Z3": "z3", "Z4": "z4", "Boss": "z4" }
 const _CEIL03_TOP := 128.0
+# Ver stage_02_scene.gd::_CEIL02_FACE_GAP / memória reference_ceiling_collision_gap.
+const _CEIL03_FACE_GAP := 32.0
 
 func _build_zone_ceilings03() -> void:
 	for zk: String in _CEIL03_SEGS:
@@ -493,8 +495,8 @@ func _build_zone_ceilings03() -> void:
 		for s: Array in _CEIL03_SEGS[zk]:
 			var cs := CollisionShape2D.new()
 			var sh := SegmentShape2D.new()
-			sh.a = Vector2(s[0], s[2])
-			sh.b = Vector2(s[1], s[2])
+			sh.a = Vector2(s[0], (s[2] as float) - _CEIL03_FACE_GAP)
+			sh.b = Vector2(s[1], (s[2] as float) - _CEIL03_FACE_GAP)
 			cs.shape = sh
 			body.add_child(cs)
 
@@ -502,6 +504,13 @@ func _ceil03_surface_at(zk: String, wx: float) -> float:
 	for s: Array in _CEIL03_SEGS[zk]:
 		if wx >= (s[0] as float) and wx < (s[1] as float):
 			return s[2]
+	# Ver memória reference_ceiling_zone_boundary.
+	for zk2: String in _CEIL03_SEGS:
+		if zk2 == zk:
+			continue
+		for s: Array in _CEIL03_SEGS[zk2]:
+			if wx >= (s[0] as float) and wx < (s[1] as float):
+				return s[2]
 	return -1.0
 
 func _ceil03_solid(zk: String, wx: float, y: float) -> bool:
