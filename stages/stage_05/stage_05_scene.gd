@@ -532,7 +532,7 @@ func _draw_zone_ceilings05() -> void:
 				elif not _ceil05_solid(zk, x - ts, y + ts): tile = Vector2i(2, 2)
 				elif not _ceil05_solid(zk, x + ts, y + ts): tile = Vector2i(3, 1)
 				else:           tile = Vector2i(2, 1)
-				draw_texture_rect_region(tex, Rect2(x, y - sts, ts, ts),
+				draw_texture_rect_region(tex, Rect2(x, y, ts, ts),
 					Rect2(float(tile.x) * sts, float(tile.y) * sts, sts, sts))
 				y += ts
 			x += ts
