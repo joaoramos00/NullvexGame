@@ -4,6 +4,7 @@ signal lives_changed(lives: int)
 signal max_hp_changed(max_hp: int)
 signal stage_completed(stage_id: int)
 signal ability_unlocked(ability_id: String)
+signal ability_changed(ability_id: String)   # troca de habilidade ativa (Q/E em tempo real ou pelo menu de pausa)
 signal character_changed(character: String)
 signal game_over
 
@@ -20,6 +21,12 @@ var collected_hearts: Array[int] = []
 var collected_subtanks: Array[int] = []
 var subtank_charges: Array[float] = [0.0, 0.0, 0.0, 0.0]
 const ABILITY_MAX_AMMO: int = 30
+# Ordem fixa de navegação: primária ("" = Buster/Espada) primeiro, depois os
+# bosses 01-08 nessa ordem. Espelha _SLOTS em ui/pause_draw_panel.gd.
+const ABILITY_ORDER: Array[String] = [
+	"", "ignarath", "cryovex", "voltrix", "gravitus",
+	"galerix", "umbraex", "luxar", "terragor",
+]
 var boss_abilities_unlocked: Array[String] = []
 var selected_boss_ability: String = ""
 var boss_ability_ammo: Dictionary = {}   # boss_id -> int
@@ -94,6 +101,29 @@ func unlock_ability(ability_id: String) -> void:
         boss_abilities_unlocked.append(ability_id)
         boss_ability_ammo[ability_id] = ABILITY_MAX_AMMO
         ability_unlocked.emit(ability_id)
+
+# Habilidades disponíveis pra navegação: primária ("") sempre + bosses
+# desbloqueados, na ordem fixa de ABILITY_ORDER. Espelha ui/pause_menu.gd::_get_nav_list.
+func get_ability_nav_list() -> Array[String]:
+    var result: Array[String] = [""]
+    for bid: String in ABILITY_ORDER.slice(1):
+        if boss_abilities_unlocked.has(bid):
+            result.append(bid)
+    return result
+
+# Troca a habilidade ativa em tempo real (botões Q/E, action ability_prev/next
+# — ver character_base.gd), sem precisar abrir o menu de pausa. dir = -1
+# (anterior) ou +1 (próxima), com wraparound.
+func cycle_ability(dir: int) -> void:
+    var nav := get_ability_nav_list()
+    if nav.is_empty():
+        return
+    var idx := nav.find(selected_boss_ability)
+    if idx < 0:
+        idx = 0
+    idx = (idx + dir + nav.size()) % nav.size()
+    selected_boss_ability = nav[idx]
+    ability_changed.emit(selected_boss_ability)
 
 func get_ability_ammo(ability_id: String) -> int:
     return int(boss_ability_ammo.get(ability_id, ABILITY_MAX_AMMO))

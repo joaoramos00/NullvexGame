@@ -4,12 +4,6 @@ extends CanvasLayer
 @onready var _button_bar: HBoxContainer = $ButtonBar
 @onready var _pause_btn: Button = $PauseButton
 
-# Stage order for navigation (primary="" first, then bosses 01-08)
-const _ABILITY_ORDER: Array = [
-	"", "ignarath", "cryovex", "voltrix", "gravitus",
-	"galerix", "umbraex", "luxar", "terragor",
-]
-
 var _is_paused: bool = false
 
 func _ready() -> void:
@@ -87,11 +81,7 @@ func _change_selection(dir: int) -> void:
 
 # Returns available abilities in stage order: primary first, then unlocked bosses
 func _get_nav_list() -> Array:
-	var result: Array = [""]   # primary always available
-	for bid: String in _ABILITY_ORDER.slice(1):
-		if GameManager.boss_abilities_unlocked.has(bid):
-			result.append(bid)
-	return result
+	return GameManager.get_ability_nav_list()
 
 func _on_resume_pressed() -> void:
 	toggle_pause()
