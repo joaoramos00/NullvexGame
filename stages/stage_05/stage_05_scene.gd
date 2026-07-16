@@ -347,7 +347,7 @@ func _build_zone2() -> void:
 # (não os valores "de prosa"): o salto plano do jogador alcança ~196px
 # (SPEED=200 × tempo de voo do JUMP_VELOCITY/GRAVITY) e ~118px de altura —
 # ver docs/.../reference_jump_height.md. Cada trecho abaixo fica com folga
-# (~150-172px, margem sob o teto de 196px) medida ponta-a-ponta das
+# (134-154px, margem sob o teto de 196px) medida ponta-a-ponta das
 # collision shapes reais, não dos centros.
 func _build_zone3() -> void:
 	_floor_seg("z3", 4800.0, 5400.0, FLOOR_Y2)
@@ -362,13 +362,16 @@ func _build_zone3() -> void:
 	_sliding_plat("Z3_Slide2", "z3", Vector2(6050.0, FLOOR_Y2 - 16.0), -1.0, 220.0)
 	# Z3_Slide3: repouso [6252,6348]; desliza +1 até 260 → estende [6512,6608].
 	# Slide2(repouso, 6098)→repouso: 154px. Espera deslizar pra alcançar o
-	# piso2 (172px se saltar da extensão máxima).
+	# piso2 (152px se saltar da extensão máxima).
 	_sliding_plat("Z3_Slide3", "z3", Vector2(6300.0, FLOOR_Y2 - 16.0), 1.0, 260.0)
 	_floor_seg("z3", 6760.0, _CP2_ENTRY_X, FLOOR_Y2)
-	# Extra de Zara (Garras) + coração num desvio elevado, acessível parando
-	# em cima do Z3_Slide2 no ponto mais à esquerda do curso dele (5830, ~20px
-	# à esquerda da saliência) — 98px acima da superfície da plataforma
-	# (dentro do teto de ~118px de altura de pulo).
+	# Extra de Zara (Garras) + coração num desvio elevado, acessível ficando na
+	# Z3_Slide1 até ela deslizar pra extensão máxima (dir +1, ~1.57s parado
+	# nela) — nesse ponto seu span [5772,5868] fica embaixo da saliência
+	# [5770,5930]: é só pular reto pra cima, 98px de ganho vertical (dentro do
+	# teto de ~118px de altura de pulo). Pra continuar, desce de volta pra
+	# Z3_Slide2 (ainda perto do repouso [6002,6098], já que a extensão da
+	# Slide1 é rápida) e segue a sequência normal Slide2→Slide3.
 	_fixed_plat("Z3_ExtraLedge", "z3", 5850.0, FLOOR_Y2 - 130.0, 160.0)
 	var claws := preload("res://stages/collectible.tscn").instantiate()
 	claws.set("collectible_type", "extra_zara_claws")
