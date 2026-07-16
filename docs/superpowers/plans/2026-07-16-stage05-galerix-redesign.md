@@ -110,7 +110,7 @@ func _on_body_entered(body: Node) -> void:
 radius = 10.0
 
 [node name="WindProjectile" type="Area2D"]
-collision_layer = 8
+collision_layer = 0
 collision_mask = 2
 script = ExtResource("1_script")
 
