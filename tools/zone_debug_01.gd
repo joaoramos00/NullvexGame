@@ -199,13 +199,61 @@ const _LEAF_KINDS := ["grunt", "flyer", "mboss", "boss", "door"]
 func _walk(n: Node, recs: Array) -> void:
 	var kind := _kind_of(n)
 	if kind != "":
-		var rect := _rect_of(n, kind)
-		if rect.size.x > 0.0 and rect.size.y > 0.0:
-			recs.append({ "name": String(n.name), "kind": kind, "rect": rect })
+		if _has_segment_shapes(n):
+			# Corpo com CollisionShape2D de SegmentShape2D (ex.: *CeilSegs, teto em
+			# zigue-zague por trechos) — não tem RectangleShape2D pra extrair bbox,
+			# então _rect_of caía no fallback genérico (64×64 na origem do nó).
+			# Um registro fino por segmento reflete a forma real (linha horizontal).
+			_append_segment_records(n, recs)
+		else:
+			var rect := _rect_of(n, kind)
+			if rect.size.x > 0.0 and rect.size.y > 0.0:
+				recs.append({ "name": String(n.name), "kind": kind, "rect": rect })
 		if kind in _LEAF_KINDS:
 			return
 	for c in n.get_children():
 		_walk(c, recs)
+
+
+func _has_segment_shapes(n: Node) -> bool:
+	var found := false
+	for c in n.get_children():
+		if c is CollisionShape2D:
+			var shp := (c as CollisionShape2D).shape
+			if shp is RectangleShape2D:
+				return false   # tem retângulo — usa o caminho normal (_rect_of)
+			if shp is SegmentShape2D:
+				found = true
+	return found
+
+
+# Um retângulo fino (4px de altura) por segmento, na altura/extensão reais do
+# SegmentShape2D — em vez de um bbox único cobrindo o corpo inteiro (que
+# borraria a forma em zigue-zague em um retângulo grosso sem sentido).
+func _append_segment_records(n: Node, recs: Array) -> void:
+	if not n is Node2D:
+		return
+	var origin: Vector2 = (n as Node2D).global_position
+	var base_name := String(n.name)
+	var i := 0
+	for c in n.get_children():
+		if c is CollisionShape2D and (c as CollisionShape2D).shape is SegmentShape2D:
+			var seg := (c as CollisionShape2D).shape as SegmentShape2D
+			var a: Vector2 = origin + seg.a
+			var b: Vector2 = origin + seg.b
+			var x0 := minf(a.x, b.x)
+			var x1 := maxf(a.x, b.x)
+			var y0 := minf(a.y, b.y)
+			var y1 := maxf(a.y, b.y)
+			# Segmento horizontal (teto) vira rect fino de altura 4; segmento
+			# vertical (parede da quina do degrau) vira rect fino de largura 4.
+			var rect: Rect2
+			if x1 - x0 >= y1 - y0:
+				rect = Rect2(x0, y0 - 2.0, maxf(x1 - x0, 4.0), 4.0)
+			else:
+				rect = Rect2(x0 - 2.0, y0, 4.0, maxf(y1 - y0, 4.0))
+			recs.append({ "name": "%s#%d" % [base_name, i], "kind": "ceilseg", "rect": rect })
+			i += 1
 
 
 func _kind_of(n: Node) -> String:

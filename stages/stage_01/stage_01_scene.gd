@@ -79,10 +79,11 @@ func _ready() -> void:
 			corr.setup(_player)
 			corr.camera_lock_requested.connect(_on_camera_lock)
 	_spawn_fire_roster()
-	var shaft_area := get_node_or_null("Z4ShaftCamArea") as Area2D
-	if shaft_area:
-		shaft_area.body_entered.connect(_on_shaft_body_entered)
-		shaft_area.body_exited.connect(_on_shaft_body_exited)
+	for shaft_area_name in ["Z4ShaftCamArea", "Z4SecretShaftCamArea"]:
+		var shaft_area := get_node_or_null(shaft_area_name) as Area2D
+		if shaft_area:
+			shaft_area.body_entered.connect(_on_shaft_body_entered)
+			shaft_area.body_exited.connect(_on_shaft_body_exited)
 	# Segredo da armadura (capacete Zael): sala x1632–2944 selada pela CrackedWall
 	# no lado do corredor de descida — coberta de rocha até a parede quebrar,
 	# mesmo padrão do segredo da Z4 (cobre também o coletável e os inimigos de lá).
@@ -242,13 +243,21 @@ func _on_camera_lock(center: Vector2, zoom: float) -> void:
 	$Camera2D.zoom = Vector2(zoom, zoom)
 	# câmera volta a seguir o player automaticamente pelo _process herdado
 
+var _shaft_area_count: int = 0
+
 func _on_shaft_body_entered(body: Node2D) -> void:
 	if body == _player and _cam_ctrl != null:
+		# Duas áreas (Z4ShaftCamArea + Z4SecretShaftCamArea) se sobrepõem numa
+		# faixinha de x — contador em vez de bool pra não desligar o modo shaft
+		# ao sair de UMA enquanto ainda dentro da outra.
+		_shaft_area_count += 1
 		_cam_ctrl.set_shaft_mode(true)
 
 func _on_shaft_body_exited(body: Node2D) -> void:
 	if body == _player and _cam_ctrl != null:
-		_cam_ctrl.set_shaft_mode(false)
+		_shaft_area_count = maxi(0, _shaft_area_count - 1)
+		if _shaft_area_count == 0:
+			_cam_ctrl.set_shaft_mode(false)
 
 func _draw() -> void:
 	super._draw()       # terreno/lava/plataformas (pula o perímetro do boss via skip_base_draw)
@@ -258,6 +267,80 @@ func _draw() -> void:
 	_draw_z4_shaft_walls()
 	_draw_z4_footholds()
 	_draw_z4_wall_plats()
+	_draw_z4_secret_wall_floor()
+
+# Z4SecretWL (parede) + Z4SecretFloor (piso, 2 linhas) desenhados como UM SÓ
+# conjunto: a parede vira o piso na base com um canto côncavo (2,0) — mesma
+# tile usada no canto inferior-esquerdo da sala do boss (_draw_boss_room,
+# "BL") — em vez de dois retângulos independentes se encostando numa emenda
+# reta. A coluna 0 do piso (encostada na parede) usa tile reta, sem o canto
+# arredondado convexo que _tile_at usaria por padrão (pensado pra borda livre).
+func _draw_z4_secret_wall_floor() -> void:
+	var tex := _cached_override_tex(_Z1_TILE_PATH)
+	if tex == null:
+		return
+	var ts  := _TS
+	var sts := _SRC_TS
+
+	var wall := get_node_or_null("Z4SecretWL")
+	if is_instance_valid(wall):
+		var wcs := _first_collision_shape(wall)
+		if wcs and wcs.shape is RectangleShape2D:
+			var wsize: Vector2 = (wcs.shape as RectangleShape2D).size
+			var wcenter: Vector2 = (wall as Node2D).position + wcs.position
+			var wrect := Rect2(wcenter - wsize * 0.5, wsize)
+			var wcols := ceili(wrect.size.x / ts)
+			var wrows := ceili(wrect.size.y / ts)
+			# 2 colunas de face (1,0)/(3,2), sem tratamento por linha (sem topo
+			# (3,0) nem canto (2,0) — a curva pro piso já é feita pela própria
+			# coluna 0 do floor003, ver skill new-imgdebug-tile-mode / modo
+			# "Piso+Parede"). Uniforme do topo à base.
+			for row in wrows:
+				for col in wcols:
+					var tile: Vector2i = Vector2i(1, 0) if col == 0 else Vector2i(3, 2)
+					var dx := wrect.position.x + col * ts
+					var dy := wrect.position.y + row * ts
+					var dw := minf(ts, wrect.position.x + wrect.size.x - dx)
+					var dh := minf(ts, wrect.position.y + wrect.size.y - dy)
+					draw_texture_rect_region(tex, Rect2(dx, dy, dw, dh),
+						Rect2(tile.x * sts, tile.y * sts, sts * dw / ts, sts * dh / ts))
+
+	var floor_n := get_node_or_null("Z4SecretFloor")
+	if not is_instance_valid(floor_n):
+		return
+	var cs := _first_collision_shape(floor_n)
+	if not cs or not cs.shape is RectangleShape2D:
+		return
+	var size: Vector2 = (cs.shape as RectangleShape2D).size
+	var center: Vector2 = (floor_n as Node2D).position + cs.position
+	var rect := Rect2(center - size * 0.5, size)
+	var cols := ceili(rect.size.x / ts)
+	# Padrão fixo de 2 linhas (piso comum encostado na parede), igual ao
+	# validado no modo "Piso+Parede" do imgdebug (marching-squares puro, sem
+	# override): col0 continua a face da parede (1,0)/(0,2); col1 é o entalhe
+	# côncavo (2,0)/(1,2) onde ela vira piso; colunas do meio são topo/base
+	# padrão (3,0)/(1,2); última coluna é o canto convexo livre (0,0)/(3,3).
+	# Offset -sts por linha = mesma convenção de _draw_platform_tiles (skill
+	# floor-tile-draw-offset) — sem ele o topo fica ~32px abaixo da colisão.
+	for row in 2:
+		for col in cols:
+			var tile: Vector2i
+			if col == 0:
+				tile = Vector2i(1, 0) if row == 0 else Vector2i(0, 2)
+			elif col == 1:
+				tile = Vector2i(2, 0) if row == 0 else Vector2i(1, 2)
+			elif col == cols - 1:
+				tile = Vector2i(0, 0) if row == 0 else Vector2i(3, 3)
+			else:
+				tile = Vector2i(3, 0) if row == 0 else Vector2i(1, 2)
+			var dx := rect.position.x + col * ts
+			var dy := rect.position.y + row * ts - sts
+			var dw := minf(ts, rect.position.x + rect.size.x - dx)
+			var dh := minf(ts, rect.position.y + rect.size.y - dy)
+			if dh <= 0.0:
+				continue
+			draw_texture_rect_region(tex, Rect2(dx, dy, dw, dh),
+				Rect2(tile.x * sts, tile.y * sts, sts * dw / ts, sts * dh / ts))
 
 # Saliências do shaft: nub de 1 tile projetando da parede, desenhado num grid de
 # MEIA-célula (32 world px = 16 src px, mesma escala 2x do resto). A arte dos tiles
@@ -486,8 +569,21 @@ const _CEIL_SEGS := {
 		[13696.0, 14272.0, 2240.0, true],  # Z3Ref14000
 		[14272.0, 16384.0, 2304.0, true],
 	],
+	# Entrada da Z4 (Z4Base + escada de perseguição Z4ChaseStep0-2), acompanhando
+	# a subida do terreno — mesmo padrão da Z1. Continua a Z3 na mesma altura
+	# (2304) até x16384. Degraus de 64px (mesmo padrão de Z1/Z2/Z3) nos dois
+	# primeiros trechos; o último trecho estica até x17000 (onde o Z4SecretFloor
+	# começa), 36px acima da base do Z4SecretFloor (y2124, era y2160 = base
+	# exata) — conecta o teto baixo da entrada ao piso da sala secreta, em vez
+	# de continuar em degraus soltos.
+	"Z4": [
+		[16384.0, 16472.0, 2304.0, true],
+		[16472.0, 16560.0, 2240.0, true],
+		[16560.0, 17000.0, 2124.0, true],
+	],
 }
-const _CEIL_TOP := { "Z1": 64.0, "Z2": 1728.0, "Z3": 1728.0 }
+const _CEIL_FILL_H := 448.0   # espessura fixa da massa de rocha acima da face (7 tiles)
+const _CEIL_FACE_GAP := 32.0  # colisão sobe esse tanto — tile (1,2) só é opaca na metade de cima
 
 func _build_zone_ceilings() -> void:
 	# Substitui o Z1Ceil reto do .tscn (Z2Ceil/Z3Ceil já eram removidos pelos
@@ -501,21 +597,55 @@ func _build_zone_ceilings() -> void:
 		body.collision_layer = 1
 		body.collision_mask = 0
 		add_child(body)
+		var prev_x1 := NAN
+		var prev_y := NAN
 		for s: Array in _CEIL_SEGS[zk]:
 			if not (s[3] as bool):
+				prev_x1 = NAN   # trecho sem colisão (corpo próprio) — não emenda com o próximo
 				continue
+			var x0: float = s[0]
+			var x1: float = s[1]
+			# _CEIL_FACE_GAP: a tile de face voltada pra baixo (1,2) só é opaca
+			# na metade de cima — a colisão fica na borda do tile por padrão,
+			# ~32px ABAIXO de onde a rocha visível realmente pára, dando a
+			# sensação de bater a cabeça no vazio. Sobe só a colisão (o visual
+			# continua desenhado até "y" normalmente, via _ceil_surface_at).
+			var y: float = (s[2] as float) - _CEIL_FACE_GAP
 			var cs := CollisionShape2D.new()
 			var sh := SegmentShape2D.new()
-			sh.a = Vector2(s[0], s[2])
-			sh.b = Vector2(s[1], s[2])
+			sh.a = Vector2(x0, y)
+			sh.b = Vector2(x1, y)
 			cs.shape = sh
 			body.add_child(cs)
+			# Parede vertical na quina do degrau (emenda com o segmento anterior):
+			# SegmentShape2D não tem espessura, então um degrau entre segmentos
+			# vizinhos deixa vão na transição por onde dava pra passar reto.
+			if not is_nan(prev_x1) and is_equal_approx(prev_x1, x0) and not is_equal_approx(prev_y, y):
+				var wcs := CollisionShape2D.new()
+				var wsh := SegmentShape2D.new()
+				wsh.a = Vector2(x0, prev_y)
+				wsh.b = Vector2(x0, y)
+				wcs.shape = wsh
+				body.add_child(wcs)
+			prev_x1 = x1
+			prev_y = y
 
 func _ceil_surface_at(zk: String, wx: float) -> float:
 	for s: Array in _CEIL_SEGS[zk]:
 		if wx >= (s[0] as float) and wx < (s[1] as float):
 			return s[2]
-	return -1.0   # fora do alcance do teto
+	# el/er (exposição lateral) consultam x±ts, que pode cair na zona VIZINHA
+	# (ex.: coluna mais à esquerda da Z4 checando x-64, que é território da
+	# Z3). Sem isso, essa borda achava que não tinha nada ali (mesmo a outra
+	# zona continuando bem colada) e desenhava com as tiles de face — só
+	# ~40% opacas — em vez do preenchimento sólido, parecendo um buraco.
+	for zk2: String in _CEIL_SEGS:
+		if zk2 == zk:
+			continue
+		for s: Array in _CEIL_SEGS[zk2]:
+			if wx >= (s[0] as float) and wx < (s[1] as float):
+				return s[2]
+	return -1.0   # fora do alcance de qualquer teto
 
 func _ceil_solid(zk: String, wx: float, y: float) -> bool:
 	var yb := _ceil_surface_at(zk, wx)
@@ -531,10 +661,13 @@ func _draw_zone_ceilings() -> void:
 		var tex := _get_zone_tileset(Vector2((x0f + x1f) * 0.5, segs[0][2]))
 		if tex == null:
 			continue
-		var y_top: float = _CEIL_TOP[zk]
 		var x := x0f
 		while x < x1f:
 			var yb := _ceil_surface_at(zk, x)
+			# Espessura FIXA por coluna (não um topo fixo pra zona inteira) —
+			# mover a face (yb) de um segmento move o bloco inteiro junto,
+			# em vez de só esticar/encolher a partir de um topo parado.
+			var y_top := yb - _CEIL_FILL_H
 			var y := y_top
 			while y < yb:
 				var ed := not _ceil_solid(zk, x, y + ts)
@@ -613,7 +746,11 @@ func _draw_z4_top_ceil() -> void:
 		var tile: Vector2i
 		for row in FILL_ROWS:
 			if row == 0:
-				if col == 0:            tile = Vector2i(0, 2)   # canto inferior-esquerdo
+				# col==0 encosta na Z4CollectWL (parede da câmara do coletável,
+				# x16736–16800) por FORA, rente à borda esquerda deste teto —
+				# não é uma ponta livre (canto convexo (0,2) assumiria ar aberto
+				# à esquerda), é face reta: tem parede sólida colada ali.
+				if col == 0:            tile = Vector2i(1, 2)   # face reta — parede encostada
 				elif col == cols - 1:   tile = Vector2i(3, 3)   # canto inferior-direito
 				else:                   tile = Vector2i(1, 2)   # face de teto
 			else:
@@ -957,7 +1094,7 @@ func _build_zone4() -> void:
 	# usavam o tile z4 laranja/vulcânico, destoando das paredes de escalada já em z1).
 	# Z4SecretWR fica FORA da lista: é a parede esquerda do shaft, desenhada com
 	# coluna de face em _draw_z4_shaft_walls (junção substitui o tile de face).
-	for n in ["Z4ShaftEntry", "Z4SecretWL", "Z4SecretFloor",
+	for n in ["Z4ShaftEntry",
 			"Z4CollectFloorL", "Z4CollectFloorR", "Z4CollectWL",
 			"Z4PreL", "Z4PreR"]:
 		var b := get_node_or_null(n)
@@ -1018,12 +1155,14 @@ func _build_z4_shaft() -> void:
 	cap.set_meta("platform_override", _Z1_TILE_PATH)
 	# Piso de ENTRADA: da escada (x17000) até a parede direita do corpo — fecha o
 	# fundo do envelope de 448px. topo y2208; entrada pelo vão da parede #1 (y2056–2208).
-	_z3_static_floor("Z4ShaftEntry", Vector2((17000.0 + b_xr) * 0.5, 2272.0),
+	# Descidos 1 tile (64px) — pedido do usuário, pra alinhar com o piso/parede
+	# da sala secreta (Z4SecretFloor/Z4SecretWL) após o ajuste da curva.
+	_z3_static_floor("Z4ShaftEntry", Vector2((17000.0 + b_xr) * 0.5, 2336.0),
 		Vector2(b_xr - 17000.0, 128.0))
 	# Lava única (chase) da largura do interior: com o envelope constante nada vaza
 	# pelas laterais (acima do teto -636 a sobra fica atrás da sala pré-boss, fora
 	# de vista, como no layout antigo).
-	var lava := _z4_lava("Z4ShaftLava", "chase", (b_xl + b_xr) * 0.5, 2360.0,
+	var lava := _z4_lava("Z4ShaftLava", "chase", (b_xl + b_xr) * 0.5, 2424.0,
 		b_xr - b_xl, 3400.0)
 	# Ritmo: 70 px/s pressiona sem alcançar subida limpa (~150-200 px/s de escalada);
 	# acelera p/ 105 só na reta final (topo do WallPlat5) — depois da estreia dos crumbles.
@@ -1285,6 +1424,18 @@ func _build_z4_top() -> void:
 	# pré-boss (-1202 base), 8px abaixo do nível antigo da sala secreta (-1210,
 	# diferença imperceptível).
 	_z2_static("Z4TopCeil", Vector2(17384.0, -1234.0), Vector2(1168.0, 64.0))
+	# Cobertura permanente do canto esquerdo do teto (x16800-16928, coluna(s)
+	# com a tile de canto (0,2), bem mais transparente que a face reta): não
+	# há nenhuma parede embaixo alcançando essa altura ali (Z4CollectWL termina
+	# em x16800, Z4SecretWL só começa em x16936) — sem isso sobra vão branco
+	# nessa esquina. Diferente do cover da Z4Crack2, este não está ligado a
+	# nenhuma parede quebrável — fica pra sempre, nada ali precisa sumir.
+	var top_ceil_left_cover: Node2D = preload("res://stages/secret_cover.gd").new()
+	top_ceil_left_cover.name = "Z4TopCeilLeftCover"
+	top_ceil_left_cover.tex = _cached_override_tex(_Z1_TILE_PATH)
+	top_ceil_left_cover.z_index = 7
+	top_ceil_left_cover.rects = [Rect2(16800.0, -1266.0, 128.0, 64.0)]
+	add_child(top_ceil_left_cover)
 	# Corredor pré-boss com checkpoint 5 e câmera bloqueada. Mesma largura,
 	# altura interior, altura de parede e zoom do Corr1 do stage_00
 	# (docs/stage_00/corredor.md) — 896px = 14 tiles, zoom 2.0. Só a posição
@@ -1449,29 +1600,63 @@ func _build_z4_secret() -> void:
 	_z4_cracked("Z4Crack1", Vector2(17392.0, 1982.0), Vector2(64.0, 164.0), "right", "R")   # topo y1900, altura 164 (restaurado)
 	# Passagem vertical TOTALMENTE FECHADA (interior x17000–17360): paredes lat. + TAMPA no
 	# fundo (Z4SecretFloor) selam tudo; só a parede #1 dá acesso. Sem buraco no piso da escada.
-	# Coluna: entrada (y1900–2064) inalterada; câmara deslocada p/ y-1042 (shaft 50% menor).
-	_z2_static("Z4SecretWL", Vector2(16968.0, 511.0), Vector2(64.0, 3106.0))   # parede esq (y-1042–2064)
+	# Coluna: entrada (y1900–2064) inalterada; câmara deslocada p/ y-986 (shaft 50% menor).
+	# skip_base_draw: desenhada junto com o Z4SecretFloor em _draw_z4_secret_wall_floor()
+	# pra curvar na base (parede vira piso, canto côncavo) em vez de dois
+	# retângulos independentes se encostando numa emenda reta.
+	# Topo em y-986 = mesma altura da superfície da Z4CollectFloorL (piso da
+	# câmara do coletável) — antes ia até y-1042, furando 56px pra cima do
+	# piso e ficando exposta dentro do cômodo em vez de terminar nele.
+	# Base em y2032 = topo do Z4SecretFloor (antes ia até y2064, sobrepondo
+	# 32px o piso) — a parede termina exatamente onde o piso começa, sem
+	# overlap entre as duas peças.
+	# Largura dobrada pra 2 tiles (128px, era 64px/1 tile) — a face passa a
+	# ter 2 colunas de verdade, (1,0) esquerda + (3,2) direita, em vez de uma
+	# coluna só com preenchimento genérico no meio. Deslocada 32px pra
+	# direita (x16968, era x16936).
+	var swl := _z2_static("Z4SecretWL", Vector2(16968.0, 523.0), Vector2(128.0, 3018.0))   # parede esq (y-986–2032)
+	swl.set_meta("skip_base_draw", true)
 	_z2_static("Z4SecretWR", Vector2(17392.0, 429.0), Vector2(64.0, 2942.0))   # parede dir (y-1042–1900; sela + wall-jump esq do shaft)
-	_z2_static("Z4SecretFloor", Vector2(17270.0, 2080.0), Vector2(540.0, 32.0)) # tampa do fundo (restaurado)
+	# Tampa do fundo com 2 rows de tile (128px = 2x64). Topo subiu 32px (y2032,
+	# era y2064) a pedido do usuário — ainda 2 linhas, só a caixa toda desloca
+	# 32px pra cima (base agora em y2160, era y2192).
+	# Esticado 32px pra cada lado (604 de largura, era 540) em vez de deslocado
+	# — mantém o centro, só cresce; lateral esquerda passa a x16904 (32px além
+	# da lateral esquerda da Z4SecretWL, x16936).
+	var sfloor := _z3_static_floor("Z4SecretFloor", Vector2(17206.0, 2096.0), Vector2(604.0, 128.0))
+	sfloor.set_meta("platform_override", _Z1_TILE_PATH)
+	sfloor.set_meta("skip_base_draw", true)
 	# Elevador up_only: descansa SOBRE a tampa (atrás da parede #1) e sobe até o buraco do
 	# piso da câmara. Só alcançável depois de quebrar a parede #1.
 	var elev := _VPLAT.new()
 	elev.name = "Z4SecretElevator"
 	elev.up_only = true
+	elev.trigger_on_step = true   # fica parada até o player pisar em cima, sobe só uma vez
 	elev.move_distance = 3018.0
 	elev.speed = 90.0
 	elev.collision_layer = 1
 	elev.collision_mask = 0
-	elev.position = Vector2(17180.0, 2048.0)   # descansa sobre a tampa (restaurado)
+	elev.position = Vector2(17180.0, 2016.0)   # descansa sobre a tampa (topo subiu 32px junto com Z4SecretFloor)
+	elev.plat_size = Vector2(192.0, 32.0)
+	elev.anim_tex = _cached_override_tex("res://stages/stage_01/fx_cyber_platform.png")   # plataforma cibernética (PixelLab), esticada horizontalmente
 	elev.add_child(_z2_shape(Vector2(192.0, 32.0)))
+	# AnimatableBody2D herda de StaticBody2D — sem isso o loop genérico de _draw()
+	# da stage desenha um retângulo de rocha padrão por baixo do sprite (nenhuma
+	# meta de override setada = modo "lava" default), aparecendo atrás dele.
+	elev.set_meta("skip_base_draw", true)
 	add_child(elev)
 	# Câmara do coletável: piso x16800–17380 com buraco x17080–17280 (encaixe do elevador).
 	# Interior 216px centrado em y=-1094 (= crack2 center): piso top=-986, teto bottom=-1202.
 	# Teto: parte do Z4TopCeil único (criado em _build_z4_top), não corpo próprio —
 	# senão o teto do topo do shaft aparecia quebrado em pedaços com tampas
 	# arredondadas nas junções em vez de uma rocha contínua.
-	_z3_static_floor("Z4CollectFloorL", Vector2(16940.0, -922.0), Vector2(280.0, 128.0))
-	_z3_static_floor("Z4CollectFloorR", Vector2(17330.0, -922.0), Vector2(100.0, 128.0))
+	# _z3_static_floor força a textura da zona 2 (_Z2_FLOOR_TILE) — errada aqui,
+	# essa câmara é toda zona 1 (_Z1_TILE_PATH), como o resto do segredo. Monta
+	# via _z2_static + override manual em vez de reusar o helper de zona 3.
+	_z2_static("Z4CollectFloorL", Vector2(16940.0, -922.0), Vector2(280.0, 128.0)) \
+		.set_meta("platform_override", _Z1_TILE_PATH)
+	_z2_static("Z4CollectFloorR", Vector2(17330.0, -922.0), Vector2(100.0, 128.0)) \
+		.set_meta("platform_override", _Z1_TILE_PATH)
 	_z2_static("Z4CollectWL",   Vector2(16768.0, -1082.0), Vector2(64.0, 256.0))   # parede esq (y-1210–-954)
 	# Coletável: Dual Blades da Zara (WEAPON_ZARA / "dual_blades").
 	var col: Area2D = _COLLECTIBLE_SCENE.instantiate()
@@ -1497,7 +1682,10 @@ func _build_z4_secret() -> void:
 	cover.tex = _cached_override_tex(_Z1_TILE_PATH)
 	cover.z_index = 7
 	cover.rects = [
-		Rect2(17000.0, -986.0, 360.0, 3050.0),   # coluna (interior x17000–17360, y-986..2064)
+		# coluna: borda esquerda em x16904, acompanhando a Z4SecretWL/Z4SecretFloor
+		# (que cresceram pra esquerda) — antes começava em x17000, sobrando um
+		# trecho novo (16904–17000) fora do preenchimento, com o segredo visível.
+		Rect2(16904.0, -986.0, 456.0, 3050.0),
 		Rect2(16800.0, -1202.0, 560.0, 216.0),   # câmara do coletável (interior, topo flush c/ Z4TopCeil)
 	]
 	add_child(cover)

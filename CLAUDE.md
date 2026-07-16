@@ -193,6 +193,8 @@ Skills locais em `.claude/skills/`. Invocar dizendo "use a skill X" ou `/X`.
 | `new-boss-room` | Criar/corrigir a sala/arena de um boss ou miniboss (destino de um corredor) — regra de múltiplos de 64px, padrão selado (stage_00) vs porta aberta+trigger (stage_01) |
 | `new-foothold` | Criar saliência agarrável (foothold) num shaft — parede curta que projeta 1 tile, com modo "Saliência" no imgdebug |
 | `new-wall-element` | Elemento preso à parede de shaft: plataforma, obstáculo ou espinhos (na face da parede / sob a plataforma) — grupo "Parede" no imgdebug |
+| `new-imgdebug-tile-mode` | Criar novo modo de referência visual composto na aba Plataformas do imgdebug (ex: piso+parede, teto+parede+piso) — marching-squares via `_fp_tile_for`/extensão, `mirror_hole`, wiring de UI |
+| `floor-tile-draw-offset` | Regra do offset `-32px` e FILL vs BOTTOM tile ao escrever um `_draw_*` manual de piso/teto fora de `_draw_platform_tiles` — evita bug "personagem flutua acima do piso" |
 | `run-tests` | Rodar testes headless do Godot, reportar PASS/FAIL |
 | `web-export` | Exportar build web e publicar no GitHub Pages |
 | `pixellab` | Gerar sprites de inimigos/bosses e tilesets via PixelLab API |
@@ -204,12 +206,12 @@ Skills locais em `.claude/skills/`. Invocar dizendo "use a skill X" ou `/X`.
 
 | Ação | Teclado |
 |------|---------|
-| move_left | A |
-| move_right | D |
-| jump | Z |
+| move_left | ← |
+| move_right | → |
+| jump | Espaço |
 | dash | X |
-| attack | J |
-| special | K |
-| ability_prev | Q |
-| ability_next | E |
+| attack | Z |
+| special | (sem tecla — removida, ver docs/superpowers/specs/2026-07-01-z-contextual-ability-design.md) |
+| ability_prev | A |
+| ability_next | D |
 | pause | Escape |

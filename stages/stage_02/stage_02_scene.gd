@@ -560,6 +560,11 @@ const _CEIL02_SEGS := {
 }
 const _CEIL02_TEX := { "Z1": "z1", "Z2": "z2", "MB": "z3", "Z3": "z3", "Z4": "z4" }
 const _CEIL02_TOP := 128.0
+# Tile de face do teto (1,2) só é opaca na metade de CIMA — a colisão nominal
+# (s[2]) fica na borda do tile, onde a arte já é transparente. Sobe só a
+# COLISÃO em meio tile; o visual continua no valor nominal (_ceil02_surface_at
+# sem essa constante). Ver memória reference_ceiling_collision_gap.
+const _CEIL02_FACE_GAP := 32.0
 
 func _build_zone_ceilings02() -> void:
 	for zk: String in _CEIL02_SEGS:
@@ -571,8 +576,8 @@ func _build_zone_ceilings02() -> void:
 		for s: Array in _CEIL02_SEGS[zk]:
 			var cs := CollisionShape2D.new()
 			var sh := SegmentShape2D.new()
-			sh.a = Vector2(s[0], s[2])
-			sh.b = Vector2(s[1], s[2])
+			sh.a = Vector2(s[0], (s[2] as float) - _CEIL02_FACE_GAP)
+			sh.b = Vector2(s[1], (s[2] as float) - _CEIL02_FACE_GAP)
 			cs.shape = sh
 			body.add_child(cs)
 
@@ -580,6 +585,15 @@ func _ceil02_surface_at(zk: String, wx: float) -> float:
 	for s: Array in _CEIL02_SEGS[zk]:
 		if wx >= (s[0] as float) and wx < (s[1] as float):
 			return s[2]
+	# Fronteira entre zonas: sem isso, o el/er da coluna de borda acha que a
+	# zona vizinha "não tem teto ali" e desenha face semi-transparente em vez
+	# de preenchimento sólido (ver memória reference_ceiling_zone_boundary).
+	for zk2: String in _CEIL02_SEGS:
+		if zk2 == zk:
+			continue
+		for s: Array in _CEIL02_SEGS[zk2]:
+			if wx >= (s[0] as float) and wx < (s[1] as float):
+				return s[2]
 	return -1.0
 
 func _ceil02_solid(zk: String, wx: float, y: float) -> bool:
