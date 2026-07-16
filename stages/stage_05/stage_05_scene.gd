@@ -43,6 +43,10 @@ const Z1_ENEMIES := {
 const Z2_ENEMIES := {
 	"harrier": [Vector2(4200.0, 400.0), Vector2(4300.0, -300.0)],
 	"wisp":    [Vector2(4100.0, 0.0), Vector2(4350.0, -500.0)],
+	# enemy_updraft_fan (Task 5) não era spawnado em zona nenhuma — órfão até
+	# a revisão final da Task 10. Shaft interior x:[4064,4448]; alturas
+	# espaçadas ao longo da subida, complementando o lift_zone.
+	"fan":     [Vector2(4256.0, 400.0), Vector2(4256.0, -200.0)],
 }
 const Z3_ENEMIES := {
 	"swarm":    [Vector2(5600.0, -850.0), Vector2(7200.0, -850.0)],
@@ -336,8 +340,12 @@ func _build_zone2() -> void:
 	_solid_block("z2", "Z2_WallR", _Z2_SHAFT_R, wallr_cy, 64.0, wallr_h)
 	# Câmara de empuxo cobrindo quase toda a coluna (deixa uma folga no topo
 	# pra desacelerar antes de aterrissar na plataforma de Z2->Z3).
-	_updraft_column("Z2_Updraft", Vector2((_Z2_SHAFT_L + _Z2_SHAFT_R) * 0.5, _Z2_SHAFT_BOTTOM - 200.0),
-		Vector2(_Z2_SHAFT_R - _Z2_SHAFT_L - 32.0, _Z2_SHAFT_BOTTOM - _Z2_SHAFT_TOP - 100.0), 700.0)
+	# Y-span [250-1100, 250+1100] = [-850, 1350]: topo 50px acima da saída
+	# (y=-800, superfície do piso de aterrissagem) — dá folga de momento pra
+	# o jogador chegar na plataforma; base inalterada (1350) cobre a entrada
+	# do shaft. Ver task-10-final-review-fix-report.md pra aritmética completa.
+	_updraft_column("Z2_Updraft", Vector2((_Z2_SHAFT_L + _Z2_SHAFT_R) * 0.5, 250.0),
+		Vector2(_Z2_SHAFT_R - _Z2_SHAFT_L - 32.0, 2200.0), 700.0)
 	# Alcova lateral pro colectável (armadura Braços do Zael), acessível saindo
 	# um pouco do fluxo principal do updraft no meio do shaft.
 	_fixed_plat("Z2_ArmorLedge", "z2", _Z2_SHAFT_R + 96.0, _Z2_ARMOR_ALCOVE_Y, 128.0)
@@ -345,8 +353,11 @@ func _build_zone2() -> void:
 	armor.set("collectible_type", "armor_zael_arms")
 	armor.global_position = Vector2(_Z2_SHAFT_R + 96.0, _Z2_ARMOR_ALCOVE_Y - 40.0)
 	add_child(armor)
-	# Aterrissagem no topo do shaft — plataforma plana levando pra Z3.
-	_floor_seg("z2", _Z2_SHAFT_L, 4800.0, FLOOR_Y2)
+	# Aterrissagem no topo do shaft — plataforma plana levando pra Z3. Começa
+	# no centro da Z2_WallR (não Z2_WallL): começar em _Z2_SHAFT_L cobriria o
+	# interior do shaft [4064,4448] com essa laje (y:[-800,-608]), selando a
+	# subida por baixo — bug crítico corrigido na revisão final da Task 10.
+	_floor_seg("z2", _Z2_SHAFT_R, 4800.0, FLOOR_Y2)
 
 # ── Zona 3 — Plataformas deslizantes sobre abismo ────────────────────────────
 # Piso fixo nas pontas (chegada de Z2 e chegada no corredor CP2), 3
