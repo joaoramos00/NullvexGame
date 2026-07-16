@@ -49,7 +49,13 @@ const Z3_ENEMIES := {
 	"grappler": [Vector2(6400.0, -900.0)],
 }
 const Z4_ENEMIES := {
-	"turret": [Vector2(9200.0, 736.0), Vector2(9900.0, 736.0)],
+	# y=-840 = FLOOR_Y2(-800) - 40, mesmo offset "40px acima da superfície" que
+	# Z1_ENEMIES usa sobre FLOOR_Y(800) (y=760). O valor anterior (736.0) era
+	# resto do scaffold da Task 6 (calibrado pro piso baixo FLOOR_Y, não pro
+	# piso elevado FLOOR_Y2 de Z4) — o turret (tem gravidade, ver
+	# enemy_gale_turret.gd::_physics_process) caía 1536px no vazio até o
+	# kill-plane, nunca ficando de pé no corredor.
+	"turret": [Vector2(9200.0, -840.0), Vector2(9900.0, -840.0)],
 }
 
 var _door_tex: Texture2D = null
@@ -73,6 +79,8 @@ func _ready() -> void:
 	_build_zone1()
 	_build_zone2()
 	_build_zone3()
+	_build_zone4()
+	_build_boss_arena()
 	_setup_zone_triggers()
 	_spawn_zone_enemies(1)
 	queue_redraw()
@@ -381,3 +389,56 @@ func _build_zone3() -> void:
 	heart.set("collectible_type", "heart")
 	heart.global_position = Vector2(5890.0, FLOOR_Y2 - 170.0)
 	add_child(heart)
+
+# ── Zona 4 — Corredor final com canhões de vento ─────────────────────────────
+
+func _build_zone4() -> void:
+	_floor_seg("z4", _CP2_EXIT_X, _BOSS_L, FLOOR_Y2)
+
+# ── Sala do boss (Galerix) ────────────────────────────────────────────────────
+# Padrão B (porta aberta + trigger, skill new-boss-room): arena aberta,
+# aggro por Area2D de entrada — não por distância.
+
+func _build_boss_arena() -> void:
+	_floor_seg("boss", _BOSS_L, _BOSS_R, FLOOR_Y2)
+	# Parede direita (fim de arena, sem porta): altura 512 (8 tiles, múltiplo
+	# de 64 — regra de ouro da skill new-boss-room) em vez dos 480 "de prosa"
+	# do plano original (7.5 tiles, deixaria a última linha do tileset de lava
+	# cortada ao meio).
+	_solid_block("boss", "Boss_WallR", _BOSS_R + 32.0, FLOOR_Y2 - 256.0, 64.0, 512.0)
+	_solid_block("boss", "Boss_WallL_Top", _BOSS_L + 32.0, FLOOR_Y2 - 352.0, 64.0, 256.0)
+	var galerix := get_node_or_null("Galerix")
+	if galerix:
+		galerix.visible = true
+		galerix.global_position = Vector2((_BOSS_L + _BOSS_R) * 0.5, FLOOR_Y2 - 64.0)
+		galerix.set("auto_aggro", false)
+		var trig := Area2D.new()
+		trig.name = "BossRoomTrigger"
+		trig.collision_layer = 0
+		trig.collision_mask = 2
+		trig.position = Vector2((_BOSS_L + _BOSS_R) * 0.5, FLOOR_Y2 - 150.0)
+		var cs := CollisionShape2D.new()
+		var sh := RectangleShape2D.new()
+		sh.size = Vector2(_BOSS_R - _BOSS_L - 200.0, 300.0)
+		cs.shape = sh
+		trig.add_child(cs)
+		add_child(trig)
+		trig.body_entered.connect(func(b: Node) -> void:
+			if b is CharacterBase:
+				galerix.call("aggro"))
+		# NÃO chamar $HUD.connect_to_boss(galerix) aqui: Galerix já existe como
+		# filho direto da cena (.tscn, Task 6, visible=false) ANTES de
+		# super._ready() rodar — o loop genérico de stage_scene.gd::_ready()
+		# (`for child in get_children(): if child is BossBase: ...`) já pega
+		# esse nó e faz esse wiring (player, HUD, boss_aggro/boss_intro_ended)
+		# de graça. Diferente do padrão "boss tardio" do stage_00/stage_01
+		# (Ignarath/IntroBoss só nascem via add_child() em runtime, depois de
+		# super._ready(), por isso PRECISAM de wiring manual — ver memória
+		# reference_late_boss_spawn_hud.md). Repetir connect_to_boss aqui
+		# conectaria hp_changed/boss_aggro/boss_defeated da HUD DUAS vezes no
+		# mesmo callable (erro "already connected" em runtime).
+		if galerix.has_signal("boss_defeated"):
+			galerix.connect("boss_defeated", _on_boss_defeated)
+
+func _on_boss_defeated(_ability_id: String) -> void:
+	GameManager.save_game()
