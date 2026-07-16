@@ -774,10 +774,11 @@ class _FillTileView extends Control:
 # Visualização de plataformas e salas: monta bloco N×M com _tile_at ou _room_at
 class _PlatformView extends Control:
     var tile_tex: Texture2D
+    var tile_tex2: Texture2D = null  # 2º tileset — modo "tileset_union" (metade direita)
     var spike_tex: Texture2D = null  # spikes.png (tips pra cima) — modo wall_plat_spikes
     var rows: int = 2
     var cols: int = 3
-    var mode: String = "platform"   # "platform" | "room" | "floor_platform" | "floor_platform_hole" | "floor_hole" | "foothold" | "wall_platform" | "wall_obstacle" | "wall_plat_spikes" | "wall_plat_spikes_under" | "ceil_flat" | "ceil_step" | "ceil_hole" | "ceil_platform" | "ceil_plat_pit"
+    var mode: String = "platform"   # "platform" | "room" | "floor_platform" | "floor_platform_hole" | "floor_hole" | "floor_wall" | "foothold" | "wall_platform" | "wall_obstacle" | "wall_plat_spikes" | "wall_plat_spikes_under" | "ceil_flat" | "ceil_step" | "ceil_hole" | "ceil_platform" | "ceil_plat_pit" | "ceil_wall_floor" | "tileset_union"
     var mirror_hole: bool = false    # floor_platform_hole: false = abismo à direita, true = à esquerda; ceil_step: false = degrau à direita, true = à esquerda; wall_*: false = parede à esquerda, true = à direita
 
     const _TS := 32.0   # tamanho source
@@ -790,6 +791,25 @@ class _PlatformView extends Control:
     # Modo "floor_hole": piso reto com um poço 2×2 cortado (mesmos tiles do jogo).
     const _FH_SIDE := 3    # tiles de piso de cada lado do poço
     const _FH_ROWS := 4    # profundidade do piso mostrada
+    # Modo "floor_wall": parede à esquerda (2 tiles de largura) descendo e
+    # curvando pro piso (canto côncavo), que se estende pra direita. `rows` =
+    # linhas de parede pura acima do piso; `cols` = largura extra do piso além
+    # da própria coluna da parede. Piso sempre 2 linhas de espessura (como
+    # Z4SecretFloor). Reaproveita _fp_tile_for (marching-squares) com uma
+    # "solidez" própria — a parede continua sólida indefinidamente pra cima
+    # (sem tampa arredondada no topo do grid, que é só um recorte visível).
+    const _FW_WALL_COLS := 2
+    const _FW_FLOOR_ROWS := 2
+    # Modo "ceil_wall_floor": teto (massa sólida + face inferior) com uma
+    # parede de 2 tiles descendo dele e curvando pro piso à direita — mesma
+    # composição de "floor_wall", só que agora presa a um teto em vez de
+    # continuar indefinidamente pra cima. `rows` = linhas só de parede entre
+    # o teto e o piso; `cols` = largura extra do piso além da parede. O teto
+    # tem 1 coluna de "beiral" sólido de cada lado (continua indefinidamente
+    # pros lados — é só um recorte). Marching-squares puro via _cwf_tile_for,
+    # sem casos especiais — o canto inf-esq do piso já sai (0,2) natural.
+    const _CWF_CEIL_ROWS := 2
+    const _CWF_OVERHANG := 1
     const _CG := 3         # gap de jogo entre face do teto e superfície do piso
     const _FD := 2         # profundidade do piso (linhas abaixo da superfície)
     const _BW := 1         # largura do buraco (vão sem teto) em cada lado — modo ceil_plat_pit
@@ -797,11 +817,14 @@ class _PlatformView extends Control:
     func set_dims(r: int, c: int) -> void:
         rows = r
         cols = c
-        var _is_fp := mode == "floor_platform" or mode == "floor_platform_hole" or mode == "foothold"
-        var _is_ceil := mode == "ceil_flat" or mode == "ceil_step" or mode == "ceil_hole" or mode == "ceil_platform" or mode == "ceil_plat_pit"
+        var bm := _base_mode()
+        var _is_fp := bm == "floor_platform" or bm == "floor_platform_hole" or bm == "foothold" or mode == "tileset_union_fp"
+        var _is_ceil := bm == "ceil_flat" or bm == "ceil_step" or bm == "ceil_hole" or bm == "ceil_platform" or bm == "ceil_plat_pit"
         var gd: Vector2i
         if _is_fp:              gd = _fp_grid()
-        elif mode == "floor_hole": gd = _fh_grid()
+        elif bm == "floor_hole": gd = _fh_grid()
+        elif bm == "floor_wall": gd = _fw_grid()
+        elif bm == "ceil_wall_floor": gd = _cwf_grid()
         elif _is_ceil:          gd = _ceil_combined_grid()
         elif mode.begins_with("wall_"): gd = _wall_grid()
         else:                   gd = Vector2i(c, r)
@@ -821,6 +844,21 @@ class _PlatformView extends Control:
         if mode == "floor_hole":
             _draw_floor_hole()
             return
+        if mode == "floor_wall":
+            _draw_floor_wall()
+            return
+        if mode == "tileset_union":
+            _draw_tileset_union()
+            return
+        if mode == "tileset_union_fp":
+            _draw_tileset_union_fp()
+            return
+        if mode.begins_with("union_"):
+            _draw_union_generic()
+            return
+        if mode == "ceil_wall_floor":
+            _draw_ceil_wall_floor()
+            return
         if mode.begins_with("wall_"):
             _draw_wall()
             return
@@ -832,11 +870,45 @@ class _PlatformView extends Control:
                 var t := _room_at(col, cols, row, rows) if mode == "room" else _tile_at(col, cols, row, rows)
                 if t == _EMPTY:
                     continue
+                # Preenchimento de borda (mesma técnica de _draw_platform_tiles
+                # no jogo real, stages/stage_scene.gd): as tiles de canto
+                # (0,0)/(1,3) têm chanfro ~50% transparente, e as de face
+                # (1,0)/(3,2) são só ~40% opacas — sem isso, o sólido recua da
+                # borda de colisão (vão horizontal, ver memória
+                # reference_corner_tile_bevel). Desenha o preenchimento
+                # ANTES, na mesma célula, deixando a tile de verdade compor
+                # por cima — sem precisar deslocar/recortar meia-tile como o
+                # jogo real faz (mesmo resultado visual, mais simples aqui).
+                if mode == "platform" and cols > 1 and (col == 0 or col == cols - 1):
+                    var fill := _gap_fill_tile(row, rows)
+                    draw_texture_rect_region(tile_tex,
+                        Rect2(col * _TD, row * _TD, _TD, _TD),
+                        Rect2(fill.x * _TS, fill.y * _TS, _TS, _TS))
                 draw_texture_rect_region(tile_tex,
                     Rect2(col * _TD, row * _TD, _TD, _TD),
                     Rect2(t.x * _TS, t.y * _TS, _TS, _TS))
         if cols >= 2 and rows >= 2:
             _draw_corner_offsets()
+
+    # Mesma convenção de _gap_fill_tile em stages/stage_scene.gd.
+    func _gap_fill_tile(row: int, rows: int) -> Vector2i:
+        if row == 0:        return Vector2i(3, 0)
+        if row == rows - 1: return Vector2i(1, 2)
+        return Vector2i(2, 1)
+
+    # Equivalente a _gap_fill_tile, mas para os modos com marching-squares por
+    # EXPOSIÇÃO (_fp_tile_for/_ceil_tile_for etc, não índice fixo de linha).
+    # Usar só em colunas de BORDA REAL (onde a peça genuinamente termina —
+    # ver "Bordas infinitas vs. bordas reais" na skill new-imgdebug-tile-mode),
+    # nunca em borda-de-recorte (parede/teto que continua fora do grid).
+    # Mesmo raciocínio de reference_corner_tile_bevel: cantos (0,0)/(1,3)/
+    # (3,3)/(0,2) e faces (1,0)/(3,2) têm transparência que o jogo real
+    # compensa com preenchimento de borda; aqui a composição alfa resolve
+    # sozinha ao desenhar o FILL por baixo antes da tile real.
+    func _edge_fill_tile(solid: Callable, c: int, r: int) -> Vector2i:
+        if not (solid.call(c, r - 1) as bool): return Vector2i(3, 0)   # TOP
+        if not (solid.call(c, r + 1) as bool): return Vector2i(1, 2)   # BOTTOM
+        return Vector2i(2, 1)                                          # FILL
 
     # Linhas amarelas nas faces de colisão + crosshair nos cantos (offset = raio cápsula 10px)
     # Escala: 10px game / 64px tile * 48px display = 7.5px
@@ -920,10 +992,18 @@ class _PlatformView extends Control:
     # sobem `rows` tiles. Marching-squares por célula escolhe o tile pela máscara
     # de faces expostas (eixos em screen-space, row 0 = topo).
 
+    # Modos "union_<original>" (grupo União) reaproveitam a MESMA forma/solidez
+    # do modo original — só a textura por coluna muda (ver _draw_union_*).
+    # Funções de forma que fazem match/comparação direta em `mode` usam
+    # _base_mode() no lugar, pra "union_ceil_step" etc. se comportar como
+    # "ceil_step" pra fins de geometria.
+    func _base_mode() -> String:
+        return mode.trim_prefix("union_") if mode.begins_with("union_") else mode
+
     # Direção do buraco no modo floor_platform_hole: +1 = direita vazia, -1 = esquerda vazia.
     # 0 nos demais modos → floor_platform clássico fica intocado.
     func _fp_hole_dir() -> int:
-        if mode != "floor_platform_hole":
+        if _base_mode() != "floor_platform_hole":
             return 0
         return -1 if mirror_hole else 1
 
@@ -956,6 +1036,118 @@ class _PlatformView extends Control:
                         else:        t = Vector2i(1, 0)   # parede face esq
                 else:
                     t = Vector2i(3, 0) if r == 0 else Vector2i(2, 1)   # piso: topo (3,0), corpo (2,1)
+                draw_texture_rect_region(tile_tex,
+                    Rect2(c * _TD, r * _TD, _TD, _TD),
+                    Rect2(t.x * _TS, t.y * _TS, _TS, _TS))
+
+    # ── Modo "Piso+Parede" ────────────────────────────────────────────────────
+    func _fw_grid() -> Vector2i:
+        return Vector2i(_FW_WALL_COLS + cols, rows + _FW_FLOOR_ROWS)
+
+    func _fw_solid(c: int, r: int) -> bool:
+        # mirror_hole: espelha a coluna — parede vai pra direita, piso passa a
+        # se estender pra esquerda dela (mesma convenção de _wall_grid/etc).
+        var g := _fw_grid()
+        var mc := c if not mirror_hole else g.x - 1 - c
+        if mc < 0:
+            return false             # aberto do lado de fora do shaft
+        if r < rows:
+            return mc < _FW_WALL_COLS   # acima do piso: só a parede (2 tiles)
+        if r < rows + _FW_FLOOR_ROWS:
+            return mc < _FW_WALL_COLS + cols   # piso: parede + extensão
+        return false                  # abaixo do piso — vazio
+
+    func _draw_floor_wall() -> void:
+        var g := _fw_grid()
+        var solid := func(cc, rr): return _fw_solid(cc, rr)
+        for r in g.y:
+            for c in g.x:
+                if not _fw_solid(c, r):
+                    continue
+                if c == g.x - 1:   # ponta livre do piso (esquerda = parede, borda de recorte)
+                    var fill := _edge_fill_tile(solid, c, r)
+                    draw_texture_rect_region(tile_tex,
+                        Rect2(c * _TD, r * _TD, _TD, _TD),
+                        Rect2(fill.x * _TS, fill.y * _TS, _TS, _TS))
+                var t := _fp_tile_for(c, r, solid)
+                draw_texture_rect_region(tile_tex,
+                    Rect2(c * _TD, r * _TD, _TD, _TD),
+                    Rect2(t.x * _TS, t.y * _TS, _TS, _TS))
+
+    # ── Modo "União de Tilesets" ─────────────────────────────────────────────
+    # Mesma forma da Plataforma (marching-squares via _tile_at), só que a
+    # metade esquerda das colunas usa tile_tex e a direita usa tile_tex2 —
+    # pra conferir visualmente se dois tilesets diferentes (ex: zonas
+    # vizinhas) combinam/casam antes de aplicar de verdade num stage.
+    func _draw_tileset_union() -> void:
+        var half := cols / 2
+        var tex2: Texture2D = tile_tex2 if tile_tex2 != null else tile_tex
+        for row in rows:
+            for col in cols:
+                var t := _tile_at(col, cols, row, rows)
+                if t == _EMPTY:
+                    continue
+                var tex := tile_tex if col < half else tex2
+                draw_texture_rect_region(tex,
+                    Rect2(col * _TD, row * _TD, _TD, _TD),
+                    Rect2(t.x * _TS, t.y * _TS, _TS, _TS))
+        # Linha vermelha marcando a costura entre os dois tilesets.
+        if half > 0 and half < cols:
+            var seam_x := float(half) * _TD
+            draw_line(Vector2(seam_x, 0.0), Vector2(seam_x, float(rows) * _TD),
+                Color(1.0, 0.2, 0.2, 0.9), 2.0)
+        if cols >= 2 and rows >= 2:
+            _draw_corner_offsets()
+
+    # ── Modo "Teto+Parede+Piso" ───────────────────────────────────────────────
+    func _cwf_grid() -> Vector2i:
+        return Vector2i(_CWF_OVERHANG + _FW_WALL_COLS + cols + _CWF_OVERHANG,
+                _CWF_CEIL_ROWS + rows + _FW_FLOOR_ROWS)
+
+    func _cwf_solid(c: int, r: int) -> bool:
+        if r < _CWF_CEIL_ROWS:
+            return true          # teto: massa sólida contínua (recorte — sem bordas)
+        # mirror_hole: espelha a coluna — parede vai pra direita, piso passa a
+        # se estender pra esquerda dela (mesma convenção de _fw_solid).
+        var g := _cwf_grid()
+        var mc := c if not mirror_hole else g.x - 1 - c
+        var wr := r - _CWF_CEIL_ROWS
+        var wf_min := _CWF_OVERHANG
+        if wr < rows:
+            return mc >= wf_min and mc < wf_min + _FW_WALL_COLS   # só a parede
+        if wr < rows + _FW_FLOOR_ROWS:
+            return mc >= wf_min and mc < wf_min + _FW_WALL_COLS + cols   # piso
+        return false              # abaixo do piso — vazio
+
+    # Extende _fp_tile_for com os 2 entalhes de baixo (teto descendo pra
+    # parede) — _fp_tile_for só cobre os de cima (piso subindo pra parede).
+    func _cwf_tile_for(c: int, r: int, solid: Callable) -> Vector2i:
+        var eu: bool = not solid.call(c, r - 1)
+        var ed: bool = not solid.call(c, r + 1)
+        var el: bool = not solid.call(c - 1, r)
+        var er: bool = not solid.call(c + 1, r)
+        if eu and el: return Vector2i(1, 3)
+        if eu and er: return Vector2i(0, 0)
+        if ed and el: return Vector2i(0, 2)
+        if ed and er: return Vector2i(3, 3)
+        if eu: return Vector2i(3, 0)
+        if ed: return Vector2i(1, 2)
+        if el: return Vector2i(1, 0)
+        if er: return Vector2i(3, 2)
+        if not (solid.call(c - 1, r - 1) as bool): return Vector2i(1, 1)   # entalhe sup-esq
+        if not (solid.call(c + 1, r - 1) as bool): return Vector2i(2, 0)   # entalhe sup-dir
+        if not (solid.call(c - 1, r + 1) as bool): return Vector2i(2, 2)   # entalhe inf-esq (teto → parede dir)
+        if not (solid.call(c + 1, r + 1) as bool): return Vector2i(3, 1)   # entalhe inf-dir (teto → parede esq)
+        return Vector2i(2, 1)   # FILL
+
+    func _draw_ceil_wall_floor() -> void:
+        var g := _cwf_grid()
+        var solid := func(cc, rr): return _cwf_solid(cc, rr)
+        for r in g.y:
+            for c in g.x:
+                if not _cwf_solid(c, r):
+                    continue
+                var t := _cwf_tile_for(c, r, solid)
                 draw_texture_rect_region(tile_tex,
                     Rect2(c * _TD, r * _TD, _TD, _TD),
                     Rect2(t.x * _TS, t.y * _TS, _TS, _TS))
@@ -1001,10 +1193,16 @@ class _PlatformView extends Control:
 
     func _draw_floor_platform() -> void:
         var g := _fp_grid()
+        var solid := func(cc, rr): return _fp_solid(cc, rr)
         for r in g.y:
             for c in g.x:
                 if not _fp_solid(c, r):
                     continue
+                if c == 0 or c == g.x - 1:   # pontas livres do piso (não a plataforma)
+                    var fill := _edge_fill_tile(solid, c, r)
+                    draw_texture_rect_region(tile_tex,
+                        Rect2(c * _TD, r * _TD, _TD, _TD),
+                        Rect2(fill.x * _TS, fill.y * _TS, _TS, _TS))
                 var t := _fp_tile(c, r)
                 draw_texture_rect_region(tile_tex,
                     Rect2(c * _TD, r * _TD, _TD, _TD),
@@ -1026,6 +1224,177 @@ class _PlatformView extends Control:
             draw_line(Vector2(rx, plat_y), Vector2(rx, floor_y), yellow, 1.5)     # desce (dir)
             draw_line(Vector2(rx, floor_y), Vector2(w, floor_y), yellow, 1.5)     # piso dir
 
+    # Modo "União — Piso+Plat": piso reto (tile_tex) sobe pra uma plataforma
+    # elevada e continua como tile_tex2 dali em diante (sem voltar pro
+    # primeiro tileset) — 1 transição só, tipo mudança de zona numa subida,
+    # não um "ilha" de tileset B cercada por A dos dois lados.
+    func _draw_tileset_union_fp() -> void:
+        var g := _fp_grid()
+        var solid := func(cc, rr): return _fp_solid(cc, rr)
+        var tex2: Texture2D = tile_tex2 if tile_tex2 != null else tile_tex
+        for r in g.y:
+            for c in g.x:
+                if not _fp_solid(c, r):
+                    continue
+                var after_seam: bool = c >= _FP_SIDE
+                var tex := tex2 if after_seam else tile_tex
+                if c == 0 or c == g.x - 1:   # pontas livres do piso
+                    var fill := _edge_fill_tile(solid, c, r)
+                    draw_texture_rect_region(tex,
+                        Rect2(c * _TD, r * _TD, _TD, _TD),
+                        Rect2(fill.x * _TS, fill.y * _TS, _TS, _TS))
+                var t := _fp_tile(c, r)
+                draw_texture_rect_region(tex,
+                    Rect2(c * _TD, r * _TD, _TD, _TD),
+                    Rect2(t.x * _TS, t.y * _TS, _TS, _TS))
+        var lx := float(_FP_SIDE) * _TD
+        var red := Color(1.0, 0.2, 0.2, 0.9)
+        draw_line(Vector2(lx, 0.0), Vector2(lx, float(g.y) * _TD), red, 2.0)
+
+    # Dispatch genérico do grupo "União" pra qualquer modo "union_<original>"
+    # além de floor_platform (que já tem tileset_union/tileset_union_fp
+    # dedicados). Reaproveita a MESMA forma/solidez/tile-picker do modo
+    # original (via _base_mode()) — só decide, por coluna, se usa tile_tex
+    # (antes da costura) ou tile_tex2 (depois), com 1 linha vermelha na
+    # costura. Sem "voltar" pro primeiro tileset (1 transição só).
+    func _draw_union_generic() -> void:
+        var bm := _base_mode()
+        var tex2: Texture2D = tile_tex2 if tile_tex2 != null else tile_tex
+        var red := Color(1.0, 0.2, 0.2, 0.9)
+        match bm:
+            "floor_platform_hole":
+                var g := _fp_grid()
+                var solid := func(cc, rr): return _fp_solid(cc, rr)
+                var seam := _FP_SIDE
+                for r in g.y:
+                    for c in g.x:
+                        if not _fp_solid(c, r):
+                            continue
+                        var tx := tex2 if c >= seam else tile_tex
+                        if c == 0 or c == g.x - 1:   # pontas livres do piso
+                            var fill := _edge_fill_tile(solid, c, r)
+                            draw_texture_rect_region(tx,
+                                Rect2(c * _TD, r * _TD, _TD, _TD),
+                                Rect2(fill.x * _TS, fill.y * _TS, _TS, _TS))
+                        var t := _fp_tile(c, r)
+                        draw_texture_rect_region(tx,
+                            Rect2(c * _TD, r * _TD, _TD, _TD),
+                            Rect2(t.x * _TS, t.y * _TS, _TS, _TS))
+                var sx := float(seam) * _TD
+                draw_line(Vector2(sx, 0.0), Vector2(sx, float(g.y) * _TD), red, 2.0)
+            "floor_hole":
+                var g := _fh_grid()
+                var pit_l := _FH_SIDE
+                var pit_r := _FH_SIDE + 1
+                var seam := _FH_SIDE
+                for r in g.y:
+                    for c in g.x:
+                        var t: Vector2i
+                        if c == pit_l or c == pit_r:
+                            if c == pit_l:
+                                t = Vector2i(0, 0) if r == 0 else (Vector2i(2, 0) if r == 1 else Vector2i(3, 2))
+                            else:
+                                t = Vector2i(1, 3) if r == 0 else (Vector2i(1, 1) if r == 1 else Vector2i(1, 0))
+                        else:
+                            t = Vector2i(3, 0) if r == 0 else Vector2i(2, 1)
+                        draw_texture_rect_region(tex2 if c >= seam else tile_tex,
+                            Rect2(c * _TD, r * _TD, _TD, _TD),
+                            Rect2(t.x * _TS, t.y * _TS, _TS, _TS))
+                var sx := float(seam) * _TD
+                draw_line(Vector2(sx, 0.0), Vector2(sx, float(g.y) * _TD), red, 2.0)
+            "floor_wall":
+                var g := _fw_grid()
+                var solid := func(cc, rr): return _fw_solid(cc, rr)
+                var seam := _FW_WALL_COLS
+                for r in g.y:
+                    for c in g.x:
+                        if not _fw_solid(c, r):
+                            continue
+                        var tx := tex2 if c >= seam else tile_tex
+                        if c == g.x - 1:   # ponta livre do piso
+                            var fill := _edge_fill_tile(solid, c, r)
+                            draw_texture_rect_region(tx,
+                                Rect2(c * _TD, r * _TD, _TD, _TD),
+                                Rect2(fill.x * _TS, fill.y * _TS, _TS, _TS))
+                        var t := _fp_tile_for(c, r, solid)
+                        draw_texture_rect_region(tx,
+                            Rect2(c * _TD, r * _TD, _TD, _TD),
+                            Rect2(t.x * _TS, t.y * _TS, _TS, _TS))
+                var sx := float(seam) * _TD
+                draw_line(Vector2(sx, 0.0), Vector2(sx, float(g.y) * _TD), red, 2.0)
+            "foothold":
+                var g := _fp_grid()
+                var wall_col := 0 if not mirror_hole else g.x - 1
+                var bump_top := _FP_DEPTH
+                var seam := 1 if not mirror_hole else g.x - 2
+                var fsolid := func(c: int, r: int) -> bool:
+                    if c < 0 or r < 0 or c >= g.x or r >= g.y:
+                        return false
+                    if c == wall_col:
+                        return true
+                    var near := (c >= 1 and c <= cols) if not mirror_hole else (c <= g.x - 2 and c >= g.x - 1 - cols)
+                    return near and r >= bump_top and r < bump_top + rows
+                var free_col := cols if not mirror_hole else g.x - 1 - cols   # ponta livre do ressalto
+                for r in g.y:
+                    for c in g.x:
+                        if not fsolid.call(c, r):
+                            continue
+                        var after_seam: bool = c >= seam if not mirror_hole else c < seam
+                        var tx := tex2 if after_seam else tile_tex
+                        if c == free_col:
+                            var fill := _edge_fill_tile(fsolid, c, r)
+                            draw_texture_rect_region(tx,
+                                Rect2(c * _TD, r * _TD, _TD, _TD),
+                                Rect2(fill.x * _TS, fill.y * _TS, _TS, _TS))
+                        var t := _fp_tile_for(c, r, fsolid)
+                        draw_texture_rect_region(tx,
+                            Rect2(c * _TD, r * _TD, _TD, _TD),
+                            Rect2(t.x * _TS, t.y * _TS, _TS, _TS))
+                var sx := float(seam) * _TD
+                draw_line(Vector2(sx, 0.0), Vector2(sx, float(g.y) * _TD), red, 2.0)
+            "ceil_wall_floor":
+                var g := _cwf_grid()
+                var solid := func(cc, rr): return _cwf_solid(cc, rr)
+                var seam := _CWF_OVERHANG + _FW_WALL_COLS
+                for r in g.y:
+                    for c in g.x:
+                        if not _cwf_solid(c, r):
+                            continue
+                        var t := _cwf_tile_for(c, r, solid)
+                        draw_texture_rect_region(tex2 if c >= seam else tile_tex,
+                            Rect2(c * _TD, r * _TD, _TD, _TD),
+                            Rect2(t.x * _TS, t.y * _TS, _TS, _TS))
+                var sx := float(seam) * _TD
+                draw_line(Vector2(sx, 0.0), Vector2(sx, float(g.y) * _TD), red, 2.0)
+            "ceil_flat", "ceil_step", "ceil_hole", "ceil_platform", "ceil_plat_pit":
+                var g := _ceil_combined_grid()
+                var csol := func(cc, rr): return _ceil_solid_c(cc, rr)
+                var fsol := func(cc, rr): return _floor_solid_c(cc, rr)
+                var seam: int
+                match bm:
+                    "ceil_flat":    seam = int(g.x / 2)
+                    "ceil_step":    seam = (_FP_SIDE + cols) if not mirror_hole else _FP_SIDE
+                    "ceil_plat_pit": seam = _FP_SIDE + _BW
+                    _:              seam = _FP_SIDE   # ceil_hole, ceil_platform
+                for r in g.y:
+                    for c in g.x:
+                        var tex := tex2 if c >= seam else tile_tex
+                        if _ceil_solid_c(c, r):
+                            var t := _ceil_tile_for(c, r, csol)
+                            draw_texture_rect_region(tex, Rect2(c * _TD, r * _TD, _TD, _TD),
+                                Rect2(t.x * _TS, t.y * _TS, _TS, _TS))
+                        elif _floor_solid_c(c, r):
+                            if c == 0 or c == g.x - 1:   # pontas livres do piso
+                                var fill := _edge_fill_tile(fsol, c, r)
+                                draw_texture_rect_region(tex, Rect2(c * _TD, r * _TD, _TD, _TD),
+                                    Rect2(fill.x * _TS, fill.y * _TS, _TS, _TS))
+                            var t := _fp_tile_for(c, r, fsol)
+                            draw_texture_rect_region(tex, Rect2(c * _TD, r * _TD, _TD, _TD),
+                                Rect2(t.x * _TS, t.y * _TS, _TS, _TS))
+                _draw_ceil_guide(g)
+                var sx := float(seam) * _TD
+                draw_line(Vector2(sx, 0.0), Vector2(sx, float(g.y) * _TD), red, 2.0)
+
     # Modo "Saliência": parede vertical de 1 tile + ressalto de `cols`×`rows` tiles
     # projetando pra dentro. Mostra as coords de tile do bump (cantos convexos + faces).
     func _draw_foothold() -> void:
@@ -1040,10 +1409,16 @@ class _PlatformView extends Control:
             # ressalto: `cols` colunas a partir da parede, `rows` linhas a partir de bump_top
             var near := (c >= 1 and c <= cols) if not mirror_hole else (c <= g.x - 2 and c >= g.x - 1 - cols)
             return near and r >= bump_top and r < bump_top + rows
+        var free_col := cols if not mirror_hole else g.x - 1 - cols   # ponta livre do ressalto
         for r in g.y:
             for c in g.x:
                 if not _fsolid.call(c, r):
                     continue
+                if c == free_col:
+                    var fill := _edge_fill_tile(_fsolid, c, r)
+                    draw_texture_rect_region(tile_tex,
+                        Rect2(c * _TD, r * _TD, _TD, _TD),
+                        Rect2(fill.x * _TS, fill.y * _TS, _TS, _TS))
                 var t := _fp_tile_for(c, r, _fsolid)
                 draw_texture_rect_region(tile_tex,
                     Rect2(c * _TD, r * _TD, _TD, _TD),
@@ -1183,7 +1558,7 @@ class _PlatformView extends Control:
 
     # Linha da face inferior do teto para cada coluna (-1 = sem teto/gap)
     func _ceil_face_at(c: int) -> int:
-        match mode:
+        match _base_mode():
             "ceil_flat":
                 return rows - 1
             "ceil_step":
@@ -1206,8 +1581,8 @@ class _PlatformView extends Control:
         return -1 if cf < 0 else cf + _CG + 1
 
     func _ceil_combined_grid() -> Vector2i:
-        var w := cols if mode == "ceil_flat" else \
-                 (_FP_SIDE + _BW + cols + _BW + _FP_SIDE) if mode == "ceil_plat_pit" else \
+        var w := cols if _base_mode() == "ceil_flat" else \
+                 (_FP_SIDE + _BW + cols + _BW + _FP_SIDE) if _base_mode() == "ceil_plat_pit" else \
                  (_FP_SIDE + cols + _FP_SIDE)
         var max_h := 0
         for cc in w:
@@ -1224,9 +1599,9 @@ class _PlatformView extends Control:
 
     func _floor_solid_c(c: int, r: int) -> bool:
         if c < 0 or r < 0: return false
-        if mode == "ceil_hole" and c >= _FP_SIDE and c < _FP_SIDE + cols:
+        if _base_mode() == "ceil_hole" and c >= _FP_SIDE and c < _FP_SIDE + cols:
             return false   # buraco no piso (teto continua reto acima)
-        if mode == "ceil_plat_pit":
+        if _base_mode() == "ceil_plat_pit":
             var lb := _FP_SIDE; var rb := _FP_SIDE + _BW + cols
             if (c >= lb and c < lb + _BW) or (c >= rb and c < rb + _BW):
                 return false   # buraco no piso de cada lado da plataforma
@@ -1256,24 +1631,44 @@ class _PlatformView extends Control:
         for r in g.y:
             for c in g.x:
                 if _ceil_solid_c(c, r):
+                    # Teto nunca fecha em cima/nas laterais dentro do grid (massa
+                    # contínua, borda-de-recorte) — sem backing aqui.
                     var t := _ceil_tile_for(c, r, csol)
                     draw_texture_rect_region(tile_tex, Rect2(c * _TD, r * _TD, _TD, _TD),
                         Rect2(t.x * _TS, t.y * _TS, _TS, _TS))
                 elif _floor_solid_c(c, r):
+                    if c == 0 or c == g.x - 1:   # pontas livres do piso
+                        var fill := _edge_fill_tile(fsol, c, r)
+                        draw_texture_rect_region(tile_tex, Rect2(c * _TD, r * _TD, _TD, _TD),
+                            Rect2(fill.x * _TS, fill.y * _TS, _TS, _TS))
                     var t := _fp_tile_for(c, r, fsol)
                     draw_texture_rect_region(tile_tex, Rect2(c * _TD, r * _TD, _TD, _TD),
                         Rect2(t.x * _TS, t.y * _TS, _TS, _TS))
         _draw_ceil_guide(g)
 
+    # Meio tile (em unidades de display _TD) — corresponde aos 32px reais do
+    # _CEIL_FACE_GAP em stage_01_scene.gd::_build_zone_ceilings(): a tile de
+    # face do teto (1,2) só é opaca na metade de CIMA, então a colisão real
+    # do jogo fica meio tile ACIMA da borda nominal do tile (ver memória
+    # reference_ceiling_collision_gap). A linha amarela mostra a borda do
+    # tile (onde a arte termina); a ciano mostra onde a colisão real está.
+    const _CEIL_FACE_GAP_TD := 0.5
+
     func _draw_ceil_guide(g: Vector2i) -> void:
         var yellow := Color(1.0, 0.9, 0.0, 0.9)
+        var cyan := Color(0.25, 0.9, 0.95, 0.9)
         for c in g.x:
             var cf := _ceil_face_at(c)
             var ft := _floor_top_at(c)
             var x0 := float(c) * _TD;  var x1 := float(c + 1) * _TD
-            # Linha da face inferior do teto
+            # Linha da face inferior do teto: amarelo = borda do tile (arte);
+            # ciano = colisão real (_CEIL_FACE_GAP acima — 1,2 só é opaca na
+            # metade de cima, ver reference_ceiling_collision_gap).
             if cf >= 0:
-                draw_line(Vector2(x0, (cf + 1) * _TD), Vector2(x1, (cf + 1) * _TD), yellow, 1.5)
+                var face_y := (cf + 1) * _TD
+                draw_line(Vector2(x0, face_y), Vector2(x1, face_y), yellow, 1.5)
+                draw_line(Vector2(x0, face_y - _CEIL_FACE_GAP_TD * _TD),
+                          Vector2(x1, face_y - _CEIL_FACE_GAP_TD * _TD), cyan, 1.5)
                 if c > 0:
                     var pcf := _ceil_face_at(c - 1)
                     if pcf >= 0 and pcf != cf:
@@ -3730,6 +4125,27 @@ func _refresh_tiles() -> void:
             pview.queue_redraw())
         plat_ts_row.add_child(ts_btn)
 
+    # 2º tileset — só usado no modo "União" (metade direita da forma).
+    var plat_ts2_row := HBoxContainer.new()
+    plat_ts2_row.add_theme_constant_override("separation", 6)
+    plat_ts2_row.visible = false
+    plat_panel.add_child(plat_ts2_row)
+
+    var plat_ts2_lbl := Label.new()
+    plat_ts2_lbl.text = "Tileset B:"
+    plat_ts2_lbl.add_theme_font_size_override("font_size", 24)
+    plat_ts2_row.add_child(plat_ts2_lbl)
+
+    for ts_data3 in _TILESETS:
+        var ts_btn2 := Button.new()
+        ts_btn2.text = ts_data3.name.trim_suffix("T")
+        ts_btn2.add_theme_font_size_override("font_size", 32)
+        var ts_path3: String = ts_data3.path
+        ts_btn2.pressed.connect(func():
+            pview.tile_tex2 = load(ts_path3) as Texture2D
+            pview.queue_redraw())
+        plat_ts2_row.add_child(ts_btn2)
+
     # Modo: Plataforma | Sala
     var mode_row := HBoxContainer.new()
     mode_row.add_theme_constant_override("separation", 6)
@@ -3749,6 +4165,8 @@ func _refresh_tiles() -> void:
     var floor_sub_btns: Array = []     # Array[Button]  — sub-botões do grupo Piso
     var wall_sub_visible: Array = []   # Array[Control] — sub-row do grupo Parede
     var wall_sub_btns: Array = []      # Array[Button]  — sub-botões do grupo Parede
+    var union_sub_visible: Array = []  # Array[Control] — sub-row do grupo União
+    var union_sub_btns: Array = []     # Array[Button]  — sub-botões do grupo União
     var _is_floor_mode := func(mkey: String) -> bool:
         return mkey.begins_with("floor_") or mkey == "foothold"
 
@@ -3764,8 +4182,12 @@ func _refresh_tiles() -> void:
             (floor_sub_visible[0] as Control).visible = _is_floor_mode.call(mkey)
         if wall_sub_visible.size() > 0 and is_instance_valid(wall_sub_visible[0]):
             (wall_sub_visible[0] as Control).visible = mkey.begins_with("wall_")
+        var _is_union_mode: bool = mkey.begins_with("tileset_union") or mkey.begins_with("union_")
+        if union_sub_visible.size() > 0 and is_instance_valid(union_sub_visible[0]):
+            (union_sub_visible[0] as Control).visible = _is_union_mode
+        plat_ts2_row.visible = _is_union_mode
 
-    for me: Array in [["Plataforma", "platform"], ["Sala", "room"], ["Piso", "floor_platform"], ["Parede", "wall_platform"], ["Teto", "ceil_flat"]]:
+    for me: Array in [["Plataforma", "platform"], ["Sala", "room"], ["Piso", "floor_platform"], ["Parede", "wall_platform"], ["Teto", "ceil_flat"], ["União", "tileset_union"]]:
         var mbtn := Button.new()
         mbtn.text = me[0]
         mbtn.add_theme_font_size_override("font_size", 32)
@@ -3781,7 +4203,10 @@ func _refresh_tiles() -> void:
                     sb.modulate = Color(1.0, 1.0, 0.0) if sb.text == "Piso+Plat" else Color(0.6, 0.6, 0.6)
             if mk.begins_with("wall_"):
                 for sb: Button in wall_sub_btns:
-                    sb.modulate = Color(1.0, 1.0, 0.0) if sb.text == "Parede+Plat" else Color(0.6, 0.6, 0.6))
+                    sb.modulate = Color(1.0, 1.0, 0.0) if sb.text == "Parede+Plat" else Color(0.6, 0.6, 0.6)
+            if mk.begins_with("tileset_union"):
+                for sb: Button in union_sub_btns:
+                    sb.modulate = Color(1.0, 1.0, 0.0) if sb.text == "Plataforma" else Color(0.6, 0.6, 0.6))
         mode_row.add_child(mbtn)
         mode_btns.append(mbtn)
     mode_btns[0].modulate = Color(1.0, 1.0, 0.0)
@@ -3798,7 +4223,7 @@ func _refresh_tiles() -> void:
         _sw.call(sk, "Piso")
         for sb: Button in floor_sub_btns:
             sb.modulate = Color(1.0, 1.0, 0.0) if sb.text == sl else Color(0.6, 0.6, 0.6)
-    for sub: Array in [["Piso+Plat", "floor_platform"], ["Piso+Abismo", "floor_platform_hole"], ["Buraco no Piso", "floor_hole"], ["Saliência", "foothold"]]:
+    for sub: Array in [["Piso+Plat", "floor_platform"], ["Piso+Abismo", "floor_platform_hole"], ["Buraco no Piso", "floor_hole"], ["Piso+Parede", "floor_wall"], ["Saliência", "foothold"]]:
         var sbtn := Button.new()
         sbtn.text = sub[0]
         sbtn.add_theme_font_size_override("font_size", 32)
@@ -3846,7 +4271,7 @@ func _refresh_tiles() -> void:
         _sw.call(sk, "Teto")
         for sb: Button in ceil_sub_btns:
             sb.modulate = Color(1.0, 1.0, 0.0) if sb.text == sl else Color(0.6, 0.6, 0.6)
-    for sub: Array in [["Reto", "ceil_flat"], ["Escada", "ceil_step"], ["Buraco", "ceil_hole"], ["Plat", "ceil_platform"], ["Pit+Plat", "ceil_plat_pit"]]:
+    for sub: Array in [["Reto", "ceil_flat"], ["Escada", "ceil_step"], ["Buraco", "ceil_hole"], ["Plat", "ceil_platform"], ["Pit+Plat", "ceil_plat_pit"], ["Parede+Piso", "ceil_wall_floor"]]:
         var sbtn := Button.new()
         sbtn.text = sub[0]
         sbtn.add_theme_font_size_override("font_size", 32)
@@ -3857,6 +4282,37 @@ func _refresh_tiles() -> void:
     ceil_sub_btns[0].modulate = Color(1.0, 1.0, 0.0)
     ceil_sub_visible.append(ceil_sub_row)
     plat_panel.add_child(ceil_sub_row)
+
+    # Sub-row de união de tilesets (escondida até o modo "União" ser activado)
+    var union_sub_row := HBoxContainer.new()
+    union_sub_row.add_theme_constant_override("separation", 6)
+    union_sub_row.visible = false
+    var union_tipo_lbl := Label.new()
+    union_tipo_lbl.text = "Forma:"
+    union_tipo_lbl.add_theme_font_size_override("font_size", 24)
+    union_sub_row.add_child(union_tipo_lbl)
+    var _sw_union_sub := func(sk: String, sl: String) -> void:
+        _sw.call(sk, "União")
+        for sb: Button in union_sub_btns:
+            sb.modulate = Color(1.0, 1.0, 0.0) if sb.text == sl else Color(0.6, 0.6, 0.6)
+    for sub: Array in [
+            ["Plataforma", "tileset_union"], ["Piso+Plat", "tileset_union_fp"],
+            ["Piso+Abismo", "union_floor_platform_hole"], ["Buraco no Piso", "union_floor_hole"],
+            ["Piso+Parede", "union_floor_wall"], ["Saliência", "union_foothold"],
+            ["Teto Reto", "union_ceil_flat"], ["Teto Escada", "union_ceil_step"],
+            ["Teto Buraco", "union_ceil_hole"], ["Teto Plat", "union_ceil_platform"],
+            ["Teto Pit+Plat", "union_ceil_plat_pit"], ["Teto Parede+Piso", "union_ceil_wall_floor"],
+    ]:
+        var sbtn := Button.new()
+        sbtn.text = sub[0]
+        sbtn.add_theme_font_size_override("font_size", 32)
+        var sk: String = sub[1]; var sl: String = sub[0]
+        sbtn.pressed.connect(func(): _sw_union_sub.call(sk, sl))
+        union_sub_row.add_child(sbtn)
+        union_sub_btns.append(sbtn)
+    union_sub_btns[0].modulate = Color(1.0, 1.0, 0.0)
+    union_sub_visible.append(union_sub_row)
+    plat_panel.add_child(union_sub_row)
 
     plat_panel.add_child(ctrl_row)
 

@@ -78,6 +78,7 @@ func _physics_process(delta: float) -> void:
 	if global_position.y > kill_y:
 		_die()
 		return
+	_handle_ability_switch()
 	_tick_timers(delta)
 	_update_wall_slide()
 	_apply_gravity(delta)
@@ -86,6 +87,15 @@ func _physics_process(delta: float) -> void:
 	_handle_jump()
 	move_and_slide()
 	_update_facing()
+
+# Troca de habilidade em tempo real (Q/E, estilo Mega Man X) — não passa pelo
+# menu de pausa. Só roda quando o jogo não está pausado (o próprio menu de
+# pausa trata Q/E enquanto pausado, via _unhandled_input em pause_menu.gd).
+func _handle_ability_switch() -> void:
+	if Input.is_action_just_pressed("ability_prev"):
+		GameManager.cycle_ability(-1)
+	elif Input.is_action_just_pressed("ability_next"):
+		GameManager.cycle_ability(1)
 
 func _tick_timers(delta: float) -> void:
 	if _invincibility_timer > 0.0:

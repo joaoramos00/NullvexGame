@@ -125,6 +125,9 @@ size = Vector2(384, 32)
 [sub_resource type="RectangleShape2D" id="ShapeZ4ShaftCam"]
 size = Vector2(700, 3600)
 
+[sub_resource type="RectangleShape2D" id="ShapeZ4SecretShaftCam"]
+size = Vector2(644, 3400)
+
 [node name="Stage01" type="Node2D"]
 platform_color = Color(0.9, 0.3, 0.1, 1)
 script = ExtResource("1_script")
@@ -923,3 +926,11 @@ collision_mask = 2
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Z4ShaftCamArea"]
 shape = SubResource("ShapeZ4ShaftCam")
+
+[node name="Z4SecretShaftCamArea" type="Area2D" parent="."]
+position = Vector2(17058, 400)
+collision_layer = 0
+collision_mask = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Z4SecretShaftCamArea"]
+shape = SubResource("ShapeZ4SecretShaftCam")
