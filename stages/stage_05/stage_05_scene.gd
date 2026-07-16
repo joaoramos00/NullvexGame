@@ -72,6 +72,7 @@ func _ready() -> void:
 	_setup_corridors()
 	_build_zone1()
 	_build_zone2()
+	_build_zone3()
 	_setup_zone_triggers()
 	_spawn_zone_enemies(1)
 	queue_redraw()
@@ -337,3 +338,43 @@ func _build_zone2() -> void:
 	add_child(armor)
 	# Aterrissagem no topo do shaft — plataforma plana levando pra Z3.
 	_floor_seg("z2", _Z2_SHAFT_L, 4800.0, FLOOR_Y2)
+
+# ── Zona 3 — Plataformas deslizantes sobre abismo ────────────────────────────
+# Piso fixo nas pontas (chegada de Z2 e chegada no corredor CP2), 3
+# plataformas deslizantes no meio cobrindo o abismo — cada uma desliza numa
+# direção diferente pra exigir timing, não só posição estática. Posições
+# recalculadas a partir dos spans de mundo reais de _floor_seg/_sliding_plat
+# (não os valores "de prosa"): o salto plano do jogador alcança ~196px
+# (SPEED=200 × tempo de voo do JUMP_VELOCITY/GRAVITY) e ~118px de altura —
+# ver docs/.../reference_jump_height.md. Cada trecho abaixo fica com folga
+# (~150-172px, margem sob o teto de 196px) medida ponta-a-ponta das
+# collision shapes reais, não dos centros.
+func _build_zone3() -> void:
+	_floor_seg("z3", 4800.0, 5400.0, FLOOR_Y2)
+	# Z3_Slide1: repouso [5552,5648]; desliza +1 até 220 → estende [5772,5868].
+	# Piso1→repouso: 5552-5400=152px. Precisa esperar deslizar pra reduzir o
+	# vão até a Slide2 (152→134px), por isso desliza NA DIREÇÃO da próxima.
+	_sliding_plat("Z3_Slide1", "z3", Vector2(5600.0, FLOOR_Y2 - 16.0), 1.0, 220.0)
+	# Z3_Slide2: repouso [6002,6098]; desliza -1 (PRA LONGE da Slide3) até 220
+	# → mínimo [5782,5878]. Slide1(estendida, 5868)→repouso: 134px — pulo
+	# direto funciona; mas o jogador precisa saltar pra Slide3 sem demorar
+	# (senão ela deriva pra esquerda e o vão cresce) — aqui mora o "timing".
+	_sliding_plat("Z3_Slide2", "z3", Vector2(6050.0, FLOOR_Y2 - 16.0), -1.0, 220.0)
+	# Z3_Slide3: repouso [6252,6348]; desliza +1 até 260 → estende [6512,6608].
+	# Slide2(repouso, 6098)→repouso: 154px. Espera deslizar pra alcançar o
+	# piso2 (172px se saltar da extensão máxima).
+	_sliding_plat("Z3_Slide3", "z3", Vector2(6300.0, FLOOR_Y2 - 16.0), 1.0, 260.0)
+	_floor_seg("z3", 6760.0, _CP2_ENTRY_X, FLOOR_Y2)
+	# Extra de Zara (Garras) + coração num desvio elevado, acessível parando
+	# em cima do Z3_Slide2 no ponto mais à esquerda do curso dele (5830, ~20px
+	# à esquerda da saliência) — 98px acima da superfície da plataforma
+	# (dentro do teto de ~118px de altura de pulo).
+	_fixed_plat("Z3_ExtraLedge", "z3", 5850.0, FLOOR_Y2 - 130.0, 160.0)
+	var claws := preload("res://stages/collectible.tscn").instantiate()
+	claws.set("collectible_type", "extra_zara_claws")
+	claws.global_position = Vector2(5810.0, FLOOR_Y2 - 170.0)
+	add_child(claws)
+	var heart := preload("res://stages/collectible.tscn").instantiate()
+	heart.set("collectible_type", "heart")
+	heart.global_position = Vector2(5890.0, FLOOR_Y2 - 170.0)
+	add_child(heart)
