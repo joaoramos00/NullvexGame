@@ -71,6 +71,7 @@ func _ready() -> void:
 	_glass_tex = load("res://stages/stage_05/stage_05_glass.png") as Texture2D
 	_setup_corridors()
 	_build_zone1()
+	_build_zone2()
 	_setup_zone_triggers()
 	_spawn_zone_enemies(1)
 	queue_redraw()
@@ -295,3 +296,35 @@ func _build_zone1() -> void:
 	# (obriga cronometrar pulo) alternados ao longo da zona.
 	_wind_current("Z1Wind_A", Vector2(900.0, 700.0), Vector2(700.0, 200.0), Vector2(140.0, 0.0))
 	_wind_current("Z1Wind_B", Vector2(2400.0, 700.0), Vector2(700.0, 200.0), Vector2(-160.0, 0.0))
+
+# ── Zona 2 — Coluna de updraft vertical ──────────────────────────────────────
+# Shaft estreito (448px, 7 tiles) subindo de FLOOR_Y (piso) até FLOOR_Y2 (topo,
+# 1600px acima) — câmara de empuxo cobre quase toda a altura, erguendo o
+# jogador. Alcova lateral no meio do shaft guarda a armadura de Braços do Zael.
+
+const _Z2_SHAFT_L := 4032.0
+const _Z2_SHAFT_R := 4480.0
+const _Z2_SHAFT_TOP := FLOOR_Y2
+const _Z2_SHAFT_BOTTOM := FLOOR_Y
+const _Z2_ARMOR_ALCOVE_Y := 0.0
+
+func _build_zone2() -> void:
+	# Paredes do shaft (chão até o topo, 32px de folga acima do topo pra fechar com a Z3).
+	var shaft_h := _Z2_SHAFT_BOTTOM - _Z2_SHAFT_TOP + 64.0
+	var shaft_cy := (_Z2_SHAFT_BOTTOM + _Z2_SHAFT_TOP) * 0.5
+	_solid_block("z2", "Z2_WallL", _Z2_SHAFT_L, shaft_cy, 64.0, shaft_h)
+	_solid_block("z2", "Z2_WallR", _Z2_SHAFT_R, shaft_cy, 64.0, shaft_h)
+	# Câmara de empuxo cobrindo quase toda a coluna (deixa uma folga no topo
+	# pra desacelerar antes de aterrissar na plataforma de Z2->Z3).
+	_updraft_column("Z2_Updraft", Vector2((_Z2_SHAFT_L + _Z2_SHAFT_R) * 0.5, _Z2_SHAFT_BOTTOM - 200.0),
+		Vector2(_Z2_SHAFT_R - _Z2_SHAFT_L - 32.0, _Z2_SHAFT_BOTTOM - _Z2_SHAFT_TOP - 100.0), 700.0)
+	# Alcova lateral pro colectável (armadura Braços do Zael), acessível saindo
+	# um pouco do fluxo principal do updraft no meio do shaft.
+	_solid_block("z2", "Z2_ArmorFloor", _Z2_SHAFT_R + 96.0, _Z2_ARMOR_ALCOVE_Y + 32.0, 192.0, 64.0)
+	_fixed_plat("Z2_ArmorLedge", "z2", _Z2_SHAFT_R + 96.0, _Z2_ARMOR_ALCOVE_Y, 128.0)
+	var armor := preload("res://stages/collectible.tscn").instantiate()
+	armor.set("collectible_type", "armor_zael_arms")
+	armor.global_position = Vector2(_Z2_SHAFT_R + 96.0, _Z2_ARMOR_ALCOVE_Y - 40.0)
+	add_child(armor)
+	# Aterrissagem no topo do shaft — plataforma plana levando pra Z3.
+	_floor_seg("z2", _Z2_SHAFT_L, 4800.0, FLOOR_Y2)
