@@ -81,6 +81,7 @@ func _ready() -> void:
 	_build_zone3()
 	_build_zone4()
 	_build_boss_arena()
+	_build_zone_ceilings05()
 	_setup_zone_triggers()
 	_spawn_zone_enemies(1)
 	queue_redraw()
@@ -442,3 +443,96 @@ func _build_boss_arena() -> void:
 
 func _on_boss_defeated(_ability_id: String) -> void:
 	GameManager.save_game()
+
+# ── Teto por zona ─────────────────────────────────────────────────────────────
+# [x0, x1, y_surface] por zona. Z2 não tem teto próprio (é o shaft vertical,
+# coberto pelas paredes) — Z3/Z4/Boss ficam a 300px acima de FLOOR_Y2.
+# Sem teto nos corredores CP1/CP2 (têm o próprio, ver CorridorSection.ceil_*):
+# Z1 termina em _CP1_ENTRY_X (3136, não _CP1_EXIT_X=4032 — esse trecho é o
+# corredor) e Z3 termina em _CP2_ENTRY_X (8000, não _CP2_EXIT_X=8896, mesmo
+# motivo). Confirmado contra o terreno real construído em _build_zone1/_build_zone3
+# (_floor_seg termina exatamente nesses X), não os números "de prosa" do plano
+# original da Task 10 (que citava 4032/8896, os X de saída do corredor).
+const _CEIL05_SEGS := {
+	"Z1":   [[0.0, _CP1_ENTRY_X, FLOOR_Y - 500.0]],
+	"Z3":   [[4800.0, _CP2_ENTRY_X, FLOOR_Y2 - 300.0]],
+	"Z4":   [[8896.0, 10240.0, FLOOR_Y2 - 300.0]],
+	"Boss": [[10240.0, 11648.0, FLOOR_Y2 - 352.0 - 256.0]],
+}
+const _CEIL05_TEX := { "Z1": "z1", "Z3": "z3", "Z4": "z4", "Boss": "z4" }
+const _CEIL05_TOP := 128.0
+# Tile de face do teto (1,2) só é opaca na metade de CIMA — a colisão nominal
+# (s[2]) fica na borda do tile, onde a arte já é transparente. Sobe só a
+# COLISÃO em meio tile; o visual continua no valor nominal. Ver memória
+# reference_ceiling_collision_gap.
+const _CEIL05_FACE_GAP := 32.0
+
+func _build_zone_ceilings05() -> void:
+	for zk: String in _CEIL05_SEGS:
+		var body := StaticBody2D.new()
+		body.name = "%sCeilSegs" % zk
+		body.collision_layer = 1
+		body.collision_mask = 0
+		add_child(body)
+		for s: Array in _CEIL05_SEGS[zk]:
+			var cs := CollisionShape2D.new()
+			var sh := SegmentShape2D.new()
+			sh.a = Vector2(s[0], (s[2] as float) - _CEIL05_FACE_GAP)
+			sh.b = Vector2(s[1], (s[2] as float) - _CEIL05_FACE_GAP)
+			cs.shape = sh
+			body.add_child(cs)
+
+func _ceil05_surface_at(zk: String, wx: float) -> float:
+	for s: Array in _CEIL05_SEGS[zk]:
+		if wx >= (s[0] as float) and wx < (s[1] as float):
+			return s[2]
+	# Fronteira entre zonas: sem isso, o el/er da coluna de borda acha que a
+	# zona vizinha "não tem teto ali" e desenha face semi-transparente em vez
+	# de preenchimento sólido. Ver memória reference_ceiling_zone_boundary.
+	for zk2: String in _CEIL05_SEGS:
+		if zk2 == zk:
+			continue
+		for s: Array in _CEIL05_SEGS[zk2]:
+			if wx >= (s[0] as float) and wx < (s[1] as float):
+				return s[2]
+	return -1.0
+
+func _ceil05_solid(zk: String, wx: float, y: float) -> bool:
+	var yb := _ceil05_surface_at(zk, wx)
+	return yb > 0.0 and y < yb
+
+func _draw() -> void:
+	super._draw()
+	_draw_zone_ceilings05()
+
+func _draw_zone_ceilings05() -> void:
+	var ts := float(_TS)
+	var sts := float(_SRC_TS)
+	for zk: String in _CEIL05_SEGS:
+		var segs: Array = _CEIL05_SEGS[zk]
+		var tex := _cached_override_tex(_zone_tile_path(_CEIL05_TEX[zk] as String))
+		if tex == null:
+			continue
+		var x0f: float = segs[0][0]
+		var x1f: float = segs[segs.size() - 1][1]
+		var x := x0f
+		while x < x1f:
+			var yb := _ceil05_surface_at(zk, x)
+			var y := _CEIL05_TOP
+			while y < yb:
+				var ed := not _ceil05_solid(zk, x, y + ts)
+				var el := not _ceil05_solid(zk, x - ts, y)
+				var er := not _ceil05_solid(zk, x + ts, y)
+				var tile: Vector2i
+				if   ed and el: tile = Vector2i(0, 2)
+				elif ed and er: tile = Vector2i(3, 3)
+				elif ed:        tile = Vector2i(1, 2)
+				elif el:        tile = Vector2i(1, 0)
+				elif er:        tile = Vector2i(3, 2)
+				elif not _ceil05_solid(zk, x - ts, y + ts): tile = Vector2i(2, 2)
+				elif not _ceil05_solid(zk, x + ts, y + ts): tile = Vector2i(3, 1)
+				else:           tile = Vector2i(2, 1)
+				draw_texture_rect_region(tex, Rect2(x, y - sts, ts, ts),
+					Rect2(float(tile.x) * sts, float(tile.y) * sts, sts, sts))
+				y += ts
+			x += ts
