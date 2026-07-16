@@ -313,7 +313,17 @@ func _build_zone2() -> void:
 	var shaft_h := _Z2_SHAFT_BOTTOM - _Z2_SHAFT_TOP + 64.0
 	var shaft_cy := (_Z2_SHAFT_BOTTOM + _Z2_SHAFT_TOP) * 0.5
 	_solid_block("z2", "Z2_WallL", _Z2_SHAFT_L, shaft_cy, 64.0, shaft_h)
-	_solid_block("z2", "Z2_WallR", _Z2_SHAFT_R, shaft_cy, 64.0, shaft_h)
+	# Z2_WallR fica mais curta que Z2_WallL: ela só precisa conter o jogador
+	# durante a subida (do fundo do shaft até perto do topo), mas NÃO pode
+	# tampar a saída pra Z3, que sai pela direita bem na altura do piso de
+	# aterrissagem (y = FLOOR_Y2 = -800, ver _floor_seg abaixo). Topo da
+	# parede em y = -672 deixa 128px de folga livre acima do piso pra o
+	# jogador atravessar sem prender na borda.
+	var wallr_bottom := _Z2_SHAFT_BOTTOM + 32.0
+	var wallr_top := -672.0
+	var wallr_h := wallr_bottom - wallr_top
+	var wallr_cy := (wallr_bottom + wallr_top) * 0.5
+	_solid_block("z2", "Z2_WallR", _Z2_SHAFT_R, wallr_cy, 64.0, wallr_h)
 	# Câmara de empuxo cobrindo quase toda a coluna (deixa uma folga no topo
 	# pra desacelerar antes de aterrissar na plataforma de Z2->Z3).
 	_updraft_column("Z2_Updraft", Vector2((_Z2_SHAFT_L + _Z2_SHAFT_R) * 0.5, _Z2_SHAFT_BOTTOM - 200.0),
