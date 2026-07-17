@@ -81,4 +81,4 @@ func _draw() -> void:
 	if not active:
 		return
 	for i in points.size() - 1:
-		draw_line(points[i], points[i + 1], beam_color, beam_width * 0.5)
+		draw_line(points[i], points[i + 1], beam_color, beam_width)
