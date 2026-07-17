@@ -21,6 +21,8 @@ func _ready() -> void:
 				_cs = c
 				break
 	assert(_cs != null, "PhasePlatform precisa de um CollisionShape2D filho")
+	solid_time = maxf(solid_time, 0.05)
+	phase_time = maxf(phase_time, 0.05)
 	_timer = phase_offset
 	if not DebugBoot.bot_enabled:
 		_catch_up()
@@ -42,10 +44,10 @@ func _physics_process(delta: float) -> void:
 		_timer -= period
 		_solid = not _solid
 		_apply_state()
-	elif _solid and (period - _timer) <= warn_time:
+	if _solid and (period - _timer) <= warn_time:
 		visible = int(Time.get_ticks_msec() / 80) % 2 == 0
 	else:
-		visible = true
+		visible = _solid
 
 func _apply_state() -> void:
 	if _cs:
