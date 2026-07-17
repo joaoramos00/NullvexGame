@@ -74,6 +74,7 @@ func _ready() -> void:
 	_build_zone3()
 	_build_zone4()
 	_build_boss_arena()
+	_build_zone_ceilings06()
 	_setup_zone_triggers()
 	_spawn_zone_enemies(1)
 	queue_redraw()
@@ -444,6 +445,16 @@ func _build_boss_arena() -> void:
 		umbraex.visible = true
 		umbraex.global_position = Vector2((_BOSS_L + _BOSS_R) * 0.5, FLOOR_Y - 64.0)
 		umbraex.set("auto_aggro", false)
+		# Sem estes três, BossBase mantém os defaults de arena_left/right/floor
+		# (100/1820/500 — coordenadas de outra parte do mapa, ver boss_base.gd:35-37).
+		# Umbraex teleporta (umbraex.gd:76-84) clampando o alvo a
+		# [arena_left+60, arena_right-60]; sem isto o primeiro teleporte joga o
+		# boss ~11000px pra fora da sala, tornando a luta impossível.
+		# Inset de 64px = espessura dos blocos Boss_WallR/Boss_WallL_Top acima
+		# (largura 64 cada), mantendo o alvo do teleporte afastado das paredes.
+		umbraex.set("arena_left", _BOSS_L + 64.0)
+		umbraex.set("arena_right", _BOSS_R - 64.0)
+		umbraex.set("arena_floor", FLOOR_Y)
 		var trig := Area2D.new()
 		trig.name = "BossRoomTrigger"
 		trig.collision_layer = 0
@@ -477,3 +488,93 @@ func _build_boss_arena() -> void:
 
 func _on_boss_defeated(_ability_id: String) -> void:
 	GameManager.save_game()
+
+# ── Teto por zona ─────────────────────────────────────────────────────────────
+# Toda a fase fica numa única elevação (FLOOR_Y = 800.0, sem shaft vertical —
+# ao contrário da Stage 05), então o teto é uma faixa reta cobrindo cada zona
+# com uma folga fixa acima do piso, sem degraus.
+#
+# Cobertura de Z3 (portais, floors reais 8000→10432 escritos em _build_zone3):
+# a entrada "Z2" abaixo cobre [_CP1_EXIT_X, _CP2_ENTRY_X] = [4032, 10432], que
+# contém inteiramente [8000, 10432] — Z3 fica coberta por essa faixa reta sem
+# precisar de entrada própria nem depender do fallback cross-zone (que existe
+# só para fronteiras entre zonas vizinhas, não para substituir cobertura de
+# zona inteira). Confirmado lendo _CP1_EXIT_X/_CP2_ENTRY_X no topo deste
+# arquivo — não mudaram desde a Task 8/9, só os floor_seg internos de Z2/Z3
+# mudaram (Z2 agora termina em 8000.0, Z3 começa em 8000.0).
+const _CEIL06_SEGS := {
+	"Z1":   [[0.0, _CP1_ENTRY_X, FLOOR_Y - 500.0]],
+	"Z2":   [[_CP1_EXIT_X, _CP2_ENTRY_X, FLOOR_Y - 500.0]],
+	"Z4":   [[_CP2_EXIT_X, _BOSS_L, FLOOR_Y - 500.0]],
+	"Boss": [[_BOSS_L, _BOSS_R, FLOOR_Y - 448.0 - 256.0]],
+}
+const _CEIL06_TEX := { "Z1": "z1", "Z2": "z2", "Z4": "z4", "Boss": "z4" }
+const _CEIL06_TOP := 128.0
+const _CEIL06_FACE_GAP := 32.0
+
+func _build_zone_ceilings06() -> void:
+	for zk: String in _CEIL06_SEGS:
+		var body := StaticBody2D.new()
+		body.name = "%sCeilSegs" % zk
+		body.collision_layer = 1
+		body.collision_mask = 0
+		add_child(body)
+		for s: Array in _CEIL06_SEGS[zk]:
+			var cs := CollisionShape2D.new()
+			var sh := SegmentShape2D.new()
+			sh.a = Vector2(s[0], (s[2] as float) - _CEIL06_FACE_GAP)
+			sh.b = Vector2(s[1], (s[2] as float) - _CEIL06_FACE_GAP)
+			cs.shape = sh
+			body.add_child(cs)
+
+func _ceil06_surface_at(zk: String, wx: float) -> float:
+	for s: Array in _CEIL06_SEGS[zk]:
+		if wx >= (s[0] as float) and wx < (s[1] as float):
+			return s[2]
+	for zk2: String in _CEIL06_SEGS:
+		if zk2 == zk:
+			continue
+		for s: Array in _CEIL06_SEGS[zk2]:
+			if wx >= (s[0] as float) and wx < (s[1] as float):
+				return s[2]
+	return -1.0
+
+func _ceil06_solid(zk: String, wx: float, y: float) -> bool:
+	var yb := _ceil06_surface_at(zk, wx)
+	return yb > 0.0 and y < yb
+
+func _draw() -> void:
+	super._draw()
+	_draw_zone_ceilings06()
+
+func _draw_zone_ceilings06() -> void:
+	var ts := float(_TS)
+	var sts := float(_SRC_TS)
+	for zk: String in _CEIL06_SEGS:
+		var segs: Array = _CEIL06_SEGS[zk]
+		var tex := _cached_override_tex(_zone_tile_path(_CEIL06_TEX[zk] as String))
+		if tex == null:
+			continue
+		var x0f: float = segs[0][0]
+		var x1f: float = segs[segs.size() - 1][1]
+		var x := x0f
+		while x < x1f:
+			var yb := _ceil06_surface_at(zk, x)
+			var y := _CEIL06_TOP
+			while y < yb:
+				var ed := not _ceil06_solid(zk, x, y + ts)
+				var el := not _ceil06_solid(zk, x - ts, y)
+				var er := not _ceil06_solid(zk, x + ts, y)
+				var tile: Vector2i
+				if   ed and el: tile = Vector2i(0, 2)
+				elif ed and er: tile = Vector2i(3, 3)
+				elif ed:        tile = Vector2i(1, 2)
+				elif el:        tile = Vector2i(1, 0)
+				elif er:        tile = Vector2i(3, 2)
+				elif not _ceil06_solid(zk, x - ts, y + ts): tile = Vector2i(2, 2)
+				elif not _ceil06_solid(zk, x + ts, y + ts): tile = Vector2i(3, 1)
+				else:           tile = Vector2i(2, 1)
+				draw_texture_rect_region(tex, Rect2(x, y, ts, ts),
+					Rect2(float(tile.x) * sts, float(tile.y) * sts, sts, sts))
+				y += ts
+			x += ts
