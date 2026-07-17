@@ -71,6 +71,7 @@ func _ready() -> void:
 	_setup_corridors()
 	_build_zone1()
 	_build_zone2()
+	_build_zone3()
 	_setup_zone_triggers()
 	_spawn_zone_enemies(1)
 	queue_redraw()
@@ -341,4 +342,73 @@ func _build_zone2() -> void:
 	armor.set("armor_piece", "arms")
 	armor.global_position = Vector2(6800.0, FLOOR_Y - 138.0)
 	add_child(armor)
-	_floor_seg("z2", 7000.0, _CP2_ENTRY_X, FLOOR_Y)
+	# NOTA: o plano original estendia esse segmento até _CP2_ENTRY_X (10432.0),
+	# cobrindo com piso sólido contínuo todo o território que a Zona 3 (ver
+	# _build_zone3) reserva para os abismos entre os pares de portal. Um piso
+	# sólido nesse trecho tornaria os portais decorativos — o jogador
+	# simplesmente andaria por cima do "abismo". Encurtado para terminar em
+	# 8000.0 (= _CP2_ENTRY_X - 2432.0, o início literal da Zona 3 no plano),
+	# deixando o corte real do piso para _build_zone3 desenhar.
+	_floor_seg("z2", 7000.0, 8000.0, FLOOR_Y)
+
+# ── Zona 3 — Portais de sombra ────────────────────────────────────────────────
+# 2 pares de portal cruzando abismos de ~460px (bem além do alcance de pulo —
+# só atravessável via portal). Piso corta de verdade entre os pares (sem
+# ponte alternativa), reforçando que o portal é obrigatório.
+#
+# Checagem de conectividade dos portais (span mundo real, com os números
+# efetivamente escritos abaixo, não os do plano original):
+#   floor1  = [8000, 8300]
+#   PortalA_In  centro=8260 largura=64 → span [8228, 8292] ⊂ floor1 (8292<8300) ✓
+#   abismo A→B  = (8300, 8760) = 460px, muito além do alcance de pulo (~196px)
+#   floor2  = [8760, 9200]
+#   PortalA_Out centro=8800 largura=64 → span [8768, 8832] ⊂ floor2 (8768>8760) ✓
+#   PortalB_In  centro=9160 largura=64 → span [9128, 9192] ⊂ floor2 (9192<9200) ✓
+#   abismo B    = (9200, 9660) = 460px
+#   floor3  = [9660, 10432]
+#   PortalB_Out centro=9700 largura=64 → span [9668, 9732] ⊂ floor3 (9668>9660) ✓
+# Todos os 4 lados de portal ficam inteiramente sobre piso sólido, nunca
+# sobre o abismo.
+func _build_zone3() -> void:
+	_floor_seg("z3", 8000.0, 8300.0, FLOOR_Y)
+	_shadow_portal_pair("Z3_PortalA_In", Vector2(8260.0, FLOOR_Y - 48.0),
+		"Z3_PortalA_Out", Vector2(8800.0, FLOOR_Y - 48.0))
+	_floor_seg("z3", 8760.0, 9200.0, FLOOR_Y)
+	_shadow_portal_pair("Z3_PortalB_In", Vector2(9160.0, FLOOR_Y - 48.0),
+		"Z3_PortalB_Out", Vector2(9700.0, FLOOR_Y - 48.0))
+	_floor_seg("z3", 9660.0, _CP2_ENTRY_X, FLOOR_Y)
+	# Extra de Zael (Laser) + coração + sub-tank num desvio elevado sobre
+	# floor2, entre os dois pares de portal.
+	# Altura: o plano original punha o topo em FLOOR_Y-160 (160px acima do
+	# piso) — acima do alcance vertical máximo de pulo (JUMP_VELOCITY²/
+	# (2×GRAVITY) = 480²/1960 ≈ 117.5px, characters/base/character_base.gd),
+	# tornando a saliência inalcançável a partir do piso logo abaixo (mesmo
+	# defeito encontrado e corrigido pela Task 8 em Z2_ArmorLedge). Ajustado
+	# para FLOOR_Y-98 (mesma margem de segurança ~20px sob o teto de pulo
+	# usada em Z2_ArmorLedge).
+	_fixed_plat("Z3_ExtraLedge", "z3", 8990.0, FLOOR_Y - 98.0, 160.0)
+	# Coletáveis: padrão correto de enum (Collectible.collectible_type é um
+	# enum tipado, não String — ver correção da Task 8 para Z2_ArmorLedge).
+	# Y ajustado para acompanhar a nova altura da saliência (mesmo offset de
+	# 40px acima do topo usado em Z2_ArmorLedge).
+	var laser := preload("res://stages/collectible.tscn").instantiate()
+	laser.set("collectible_type", Collectible.Type.SHOT_ZAEL)
+	laser.set("ability_id", "laser")
+	laser.global_position = Vector2(8950.0, FLOOR_Y - 138.0)
+	add_child(laser)
+	var heart := preload("res://stages/collectible.tscn").instantiate()
+	heart.set("collectible_type", Collectible.Type.HEART)
+	heart.set("stage_id", 6)
+	heart.global_position = Vector2(9020.0, FLOOR_Y - 138.0)
+	add_child(heart)
+	var subtank := preload("res://stages/collectible.tscn").instantiate()
+	subtank.set("collectible_type", Collectible.Type.SUBTANK)
+	# subtank_index=2: confirmado por precedente direto no código, não
+	# suposição — stage_02.tscn usa subtank_index=0, stage_04.tscn usa
+	# subtank_index=1, stage_08.tscn usa subtank_index=3 (grep em
+	# stages/stage_0{2,4,8}/*.tscn). Por CLAUDE.md, as fases com sub-tank
+	# são 02/04/06/08, então a ordem 0/1/_/3 deixa exatamente o índice 2
+	# livre para a Fase 06 — preenche a lacuna sem ambiguidade.
+	subtank.set("subtank_index", 2)
+	subtank.global_position = Vector2(8990.0, FLOOR_Y - 178.0)
+	add_child(subtank)
