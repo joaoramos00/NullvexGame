@@ -14,6 +14,9 @@ concurrency:
   group: pages
   cancel-in-progress: true
 
+env:
+  GODOT_VERSION: "4.6.2-stable"
+
 jobs:
   deploy:
     environment:
@@ -22,8 +25,56 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        # Sem lfs:true — o build web não é mais commitado no repo, é gerado
+        # aqui mesmo no CI a cada push (ver justificativa em
+        # docs/superpowers/specs, referência reference_git_lfs_budget_exceeded
+        # na memória do projeto).
+
+      - name: Cache Godot editor + export templates
+        id: godot-cache
+        uses: actions/cache@v4
         with:
-          lfs: true   # puxa o index.pck real (Git LFS), não o ponteiro
+          path: |
+            ~/godot-bin
+            ~/.local/share/godot/export_templates
+          key: godot-${{ env.GODOT_VERSION }}-linux-x86_64
+
+      - name: Download Godot editor (headless export)
+        if: steps.godot-cache.outputs.cache-hit != 'true'
+        run: |
+          set -euo pipefail
+          mkdir -p ~/godot-bin
+          curl -fsSL -o /tmp/godot.zip \
+            "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}/Godot_v${GODOT_VERSION}_linux.x86_64.zip"
+          unzip -q /tmp/godot.zip -d ~/godot-bin
+          mv ~/godot-bin/Godot_v${GODOT_VERSION}_linux.x86_64 ~/godot-bin/godot
+          chmod +x ~/godot-bin/godot
+
+      - name: Download Godot export templates
+        if: steps.godot-cache.outputs.cache-hit != 'true'
+        run: |
+          set -euo pipefail
+          TEMPLATE_DIR="$HOME/.local/share/godot/export_templates/${GODOT_VERSION//-/.}"
+          mkdir -p "$TEMPLATE_DIR"
+          curl -fsSL -o /tmp/templates.tpz \
+            "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}/Godot_v${GODOT_VERSION}_export_templates.tpz"
+          unzip -q /tmp/templates.tpz -d /tmp/templates
+          mv /tmp/templates/templates/* "$TEMPLATE_DIR"/
+
+      - name: Import project (populate .godot/ cache)
+        run: |
+          set -euo pipefail
+          timeout 300 ~/godot-bin/godot --headless --path . --import || true
+          # O import às vezes sai com código não-zero mesmo tendo terminado
+          # (comportamento conhecido do Godot headless) — o export a seguir
+          # falha alto e claro se o import realmente não funcionou.
+
+      - name: Export web build
+        run: |
+          set -euo pipefail
+          mkdir -p export/web
+          timeout 300 ~/godot-bin/godot --headless --path . --export-release "Web" export/web/index.html
+          test -f export/web/index.pck
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
