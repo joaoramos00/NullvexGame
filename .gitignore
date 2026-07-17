@@ -1,6 +1,5 @@
 .env
 export/
-!export/web/
 *.tmp
 .claude/settings.local.json
 .mcp.json
