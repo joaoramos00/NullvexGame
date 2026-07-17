@@ -70,6 +70,7 @@ func _ready() -> void:
 	_glass_tex = load("res://stages/stage_06/stage_06_glass.png") as Texture2D
 	_setup_corridors()
 	_build_zone1()
+	_build_zone2()
 	_setup_zone_triggers()
 	_spawn_zone_enemies(1)
 	queue_redraw()
@@ -301,3 +302,43 @@ func _build_zone1() -> void:
 	_phase_plat("Z1_Phase1", "z1", 1600.0, FLOOR_Y - 16.0, 2.0, 1.0)
 	_phase_plat("Z1_Phase2", "z1", 1900.0, FLOOR_Y - 16.0, 2.0, 1.0)
 	_floor_seg("z1", 2100.0, _CP1_ENTRY_X, FLOOR_Y)
+
+# ── Zona 2 — Fasing dessincronizado + emboscada ──────────────────────────────
+# 4 plataformas fora de sincronia (offsets diferentes) sobre um vão — o
+# jogador precisa ler o padrão, não só decorar 1 timing. Períodos mais longos
+# que a Z1 (mais tempo sólida, mais tempo vazia) pra dar tempo de observar.
+#
+# offsets 0.0/0.6/1.2/1.8 (não os 0.0/1.2/2.4/0.8 do plano original — ver
+# task-8-report.md: com os offsets originais, Phase2 nunca fica sólida ao
+# mesmo tempo em que Phase3 está alcançável a partir dela, criando uma
+# travessia impossível. A progressão 0.0/0.6/1.2/1.8, com solid_time=2.4 e
+# phase_time=1.6 (período 4.0s), garante overlap solid-solid de 1.8s entre
+# cada par de plataformas vizinhas — dá folga generosa pro jogador ler o
+# padrão sem ficar preso no meio do vão.
+func _build_zone2() -> void:
+	_floor_seg("z2", _CP1_EXIT_X, 4500.0, FLOOR_Y)
+	_phase_plat("Z2_Phase1", "z2", 4700.0, FLOOR_Y - 16.0, 2.4, 1.6, 0.0)
+	_phase_plat("Z2_Phase2", "z2", 4980.0, FLOOR_Y - 16.0, 2.4, 1.6, 0.6)
+	_phase_plat("Z2_Phase3", "z2", 5260.0, FLOOR_Y - 16.0, 2.4, 1.6, 1.2)
+	_phase_plat("Z2_Phase4", "z2", 5540.0, FLOOR_Y - 16.0, 2.4, 1.6, 1.8)
+	_floor_seg("z2", 5720.0, 7000.0, FLOOR_Y)
+	# Armadura de Zara (Braços) num desvio elevado guardado pelo dark_lantern
+	# (já posicionado em Z2_ENEMIES, x=6800).
+	# Altura ajustada: o plano original punha o topo em FLOOR_Y-180 (180px
+	# acima do piso) — acima do alcance vertical máximo de pulo (JUMP_VELOCITY²
+	# /(2×GRAVITY) = 480²/1960 ≈ 117.5px, ver characters/base/character_base.gd
+	# e reference_jump_height.md). FLOOR_Y-98 fica 98px acima do piso, ~20px
+	# de margem sob o teto de 117.5px (mesma margem de segurança usada na
+	# correção análoga de stage_05 Z3_ExtraLedge).
+	_fixed_plat("Z2_ArmorLedge", "z2", 6800.0, FLOOR_Y - 98.0, 160.0)
+	var armor := preload("res://stages/collectible.tscn").instantiate()
+	# NOTA: o plano original usava armor.set("collectible_type", "armor_zara_arms")
+	# (uma String) — Collectible.collectible_type é um enum/int tipado, e esse
+	# set() silenciosamente vira Type.HEART (0) com armor_piece="" (confirmado
+	# via probe headless). Usando o padrão correto (igual a stage_01_scene.gd
+	# linha ~1664: Collectible.Type.* + armor_piece).
+	armor.set("collectible_type", Collectible.Type.ARMOR_ZARA)
+	armor.set("armor_piece", "arms")
+	armor.global_position = Vector2(6800.0, FLOOR_Y - 138.0)
+	add_child(armor)
+	_floor_seg("z2", 7000.0, _CP2_ENTRY_X, FLOOR_Y)
