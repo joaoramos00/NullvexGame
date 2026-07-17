@@ -72,6 +72,8 @@ func _ready() -> void:
 	_build_zone1()
 	_build_zone2()
 	_build_zone3()
+	_build_zone4()
+	_build_boss_arena()
 	_setup_zone_triggers()
 	_spawn_zone_enemies(1)
 	queue_redraw()
@@ -412,3 +414,66 @@ func _build_zone3() -> void:
 	subtank.set("subtank_index", 2)
 	subtank.global_position = Vector2(8990.0, FLOOR_Y - 178.0)
 	add_child(subtank)
+
+# ── Zona 4 — Corredor final com canhões de sombra ────────────────────────────
+# Corredor simples (sem CorridorSection/checkpoint): piso sólido ligando a
+# saída do corredor CP2 (_CP2_EXIT_X) até a entrada da sala do boss (_BOSS_L).
+# Roster de 2 enemy_eclipse_turret já posicionado em Z4_ENEMIES (x=11600/12300,
+# ambos dentro do span [11328, 12672] deste piso).
+
+func _build_zone4() -> void:
+	_floor_seg("z4", _CP2_EXIT_X, _BOSS_L, FLOOR_Y)
+
+# ── Sala do boss (Umbraex) ────────────────────────────────────────────────────
+# Padrão B (porta aberta + trigger, skill new-boss-room): arena aberta,
+# aggro por Area2D de entrada — não por distância.
+#
+# Boss room 64px check (skill new-boss-room): Boss_WallR altura 512 = 8×64 ✓,
+# Boss_WallL_Top altura 256 = 4×64 ✓, largura da sala _BOSS_R-_BOSS_L =
+# 14080-12672 = 1408 = 22×64 ✓. Umbraex já vem posicionado na .tscn (Task 7)
+# em (13376, 736) = ((_BOSS_L+_BOSS_R)*0.5, FLOOR_Y-64) — bate exatamente com
+# o cálculo abaixo, confirmando que o node pré-existente já foi colocado
+# alinhado a estes mesmos números.
+
+func _build_boss_arena() -> void:
+	_floor_seg("boss", _BOSS_L, _BOSS_R, FLOOR_Y)
+	_solid_block("boss", "Boss_WallR", _BOSS_R + 32.0, FLOOR_Y - 256.0, 64.0, 512.0)
+	_solid_block("boss", "Boss_WallL_Top", _BOSS_L + 32.0, FLOOR_Y - 448.0, 64.0, 256.0)
+	var umbraex := get_node_or_null("Umbraex")
+	if umbraex:
+		umbraex.visible = true
+		umbraex.global_position = Vector2((_BOSS_L + _BOSS_R) * 0.5, FLOOR_Y - 64.0)
+		umbraex.set("auto_aggro", false)
+		var trig := Area2D.new()
+		trig.name = "BossRoomTrigger"
+		trig.collision_layer = 0
+		trig.collision_mask = 2
+		trig.position = Vector2((_BOSS_L + _BOSS_R) * 0.5, FLOOR_Y - 150.0)
+		var cs := CollisionShape2D.new()
+		var sh := RectangleShape2D.new()
+		sh.size = Vector2(_BOSS_R - _BOSS_L - 200.0, 300.0)
+		cs.shape = sh
+		trig.add_child(cs)
+		add_child(trig)
+		trig.body_entered.connect(func(b: Node) -> void:
+			if b is CharacterBase:
+				umbraex.call("aggro"))
+		# NÃO chamar $HUD.connect_to_boss(umbraex) aqui: Umbraex já existe como
+		# filho direto da cena (.tscn, Task 7, visible=false) ANTES de
+		# super._ready() rodar — o loop genérico de stage_scene.gd::_ready()
+		# (`for child in get_children(): if child is BossBase: ...`, linhas
+		# 41-48) já pega esse nó e faz esse wiring (player, HUD,
+		# boss_aggro/boss_intro_ended) de graça. Confirmado lendo
+		# stages/stage_scene.gd::_ready() diretamente (mesmo comportamento
+		# usado por stage_05_scene.gd::_build_boss_arena() para Galerix) —
+		# diferente do padrão "boss tardio" do stage_00/stage_01
+		# (Ignarath/IntroBoss só nascem via add_child() em runtime, depois de
+		# super._ready(), por isso PRECISAM de wiring manual — ver memória
+		# reference_late_boss_spawn_hud.md). Repetir connect_to_boss aqui
+		# conectaria hp_changed/boss_aggro/boss_defeated da HUD DUAS vezes no
+		# mesmo callable (erro "already connected" em runtime).
+		if umbraex.has_signal("boss_defeated"):
+			umbraex.connect("boss_defeated", _on_boss_defeated)
+
+func _on_boss_defeated(_ability_id: String) -> void:
+	GameManager.save_game()
