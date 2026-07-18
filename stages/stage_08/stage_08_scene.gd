@@ -68,6 +68,8 @@ func _ready() -> void:
 	_build_zone1()
 	_build_zone2()
 	_build_zone3()
+	_build_zone4()
+	_build_boss_arena()
 	_setup_zone_triggers()
 	_spawn_zone_enemies(1)
 	queue_redraw()
@@ -422,3 +424,77 @@ func _build_zone3() -> void:
 	subtank.set("subtank_index", 3)
 	subtank.global_position = Vector2(8950.0, FLOOR_Y - 138.0)
 	add_child(subtank)
+
+# ── Zona 4 — Corredor final com canhões de pedra ──────────────────────────────
+# Piso contínuo de _CP2_EXIT_X=11392 (saída do corredor CP2, Task 9) até
+# _BOSS_L=12544 (início da sala do boss) — sem gap/overlap, mesmo padrão de
+# Z1/CP1. Roster de 2 enemy_boulder_turret já posicionado por Z4_ENEMIES
+# (Task 7: x=11700/12200, ambos dentro do span 11392-12544).
+
+func _build_zone4() -> void:
+	_floor_seg("z4", _CP2_EXIT_X, _BOSS_L, FLOOR_Y)
+
+# ── Sala do boss (Terragor) ────────────────────────────────────────────────────
+# Padrão B (porta aberta + trigger, skill new-boss-room): arena aberta, aggro
+# por Area2D de entrada — não por distância (mesmo padrão de stage_01/05/06/07).
+#
+# Boss room 64px check (skill new-boss-room): Boss_WallR altura 512 = 8×64 ✓,
+# Boss_WallL_Top altura 256 = 4×64 ✓, largura da sala _BOSS_R-_BOSS_L =
+# 13952-12544 = 1408 = 22×64 ✓. Terragor spawna no centro da sala em
+# (13248, 736) = ((_BOSS_L+_BOSS_R)*0.5, FLOOR_Y-64) — bate exatamente com o
+# offset de _fixed_plat/roster (personagem em pé sobre o piso, base 64px
+# acima da superfície).
+#
+# arena_left/right: inset de 64px = espessura dos blocos Boss_WallR/
+# Boss_WallL_Top acima (_BOSS_L+64=12608, _BOSS_R-64=13888) — o spawn em
+# x=13248 cai dentro desse intervalo com folga (~640px de cada lado).
+#
+# arena_floor: Terragor é walker terrestre (gravity padrão, não voa) — mas
+# verificado em boss_base.gd::_clamp_to_arena() e terragor.gd inteiro (_do_
+# combat/_do_attack/_do_rock_attack/_do_quake_attack) que NENHUM código lê
+# `arena_floor` (só arena_left/arena_right são usados, via _clamp_to_arena,
+# que só restringe velocity.x). O grep global confirma: apenas voltrix.gd e
+# ignarath.gd de fato leem arena_floor (pra posicionar telégrafos/feixes
+# verticais) — terragor.gd não. Mesmo achado da Stage 07 (Luxar, que voa,
+# também não lê). Setado mesmo assim por convenção do projeto (Global
+# Constraints do plano — bug real da Stage 06 foi omitir os 3 campos por
+# completo, não usar um valor "errado" de arena_floor).
+func _build_boss_arena() -> void:
+	_floor_seg("boss", _BOSS_L, _BOSS_R, FLOOR_Y)
+	_solid_block("boss", "Boss_WallR", _BOSS_R + 32.0, FLOOR_Y - 256.0, 64.0, 512.0)
+	_solid_block("boss", "Boss_WallL_Top", _BOSS_L + 32.0, FLOOR_Y - 448.0, 64.0, 256.0)
+	var terragor := get_node_or_null("Terragor")
+	if terragor:
+		terragor.visible = true
+		terragor.global_position = Vector2((_BOSS_L + _BOSS_R) * 0.5, FLOOR_Y - 64.0)
+		terragor.set("auto_aggro", false)
+		# Sem estes três, BossBase mantém os defaults de arena_left/right/floor
+		# (arena_right=1820 default) — bug crítico da Stage 06 (Global Constraints).
+		terragor.set("arena_left", _BOSS_L + 64.0)
+		terragor.set("arena_right", _BOSS_R - 64.0)
+		terragor.set("arena_floor", FLOOR_Y)
+		var trig := Area2D.new()
+		trig.name = "BossRoomTrigger"
+		trig.collision_layer = 0
+		trig.collision_mask = 2
+		trig.position = Vector2((_BOSS_L + _BOSS_R) * 0.5, FLOOR_Y - 150.0)
+		var cs := CollisionShape2D.new()
+		var sh := RectangleShape2D.new()
+		sh.size = Vector2(_BOSS_R - _BOSS_L - 200.0, 300.0)
+		cs.shape = sh
+		trig.add_child(cs)
+		add_child(trig)
+		trig.body_entered.connect(func(b: Node) -> void:
+			if b is CharacterBase:
+				terragor.call("aggro"))
+		# $HUD.connect_to_boss já é chamado pelo loop genérico de stage_scene.gd::
+		# _ready() (roda ANTES de _build_boss_arena, pra qualquer BossBase filho
+		# já presente na .tscn) — não duplicar aqui (mesmo caso já resolvido nas
+		# Stages 06/07, ver reference_late_boss_spawn_hud na memória do projeto:
+		# só se aplica a boss criado DEPOIS do super._ready(), não é o caso aqui
+		# porque Terragor já existe na .tscn desde a Task 7).
+		if terragor.has_signal("boss_defeated"):
+			terragor.connect("boss_defeated", _on_boss_defeated)
+
+func _on_boss_defeated(_ability_id: String) -> void:
+	GameManager.save_game()
