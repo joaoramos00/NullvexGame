@@ -1,61 +1,12 @@
 [gd_scene format=3 uid="uid://stage_08"]
 
-[ext_resource type="Script" path="res://stages/stage_scene.gd" id="1_script"]
+[ext_resource type="Script" path="res://stages/stage_08/stage_08_scene.gd" id="1_script"]
 [ext_resource type="PackedScene" uid="uid://stage_controller" path="res://stages/stage_controller.tscn" id="2_sc"]
-[ext_resource type="PackedScene" uid="uid://checkpoint" path="res://stages/checkpoint.tscn" id="3_cp"]
-[ext_resource type="PackedScene" uid="uid://collectible" path="res://stages/collectible.tscn" id="4_col"]
 [ext_resource type="PackedScene" uid="uid://hud" path="res://ui/hud.tscn" id="5_hud"]
 [ext_resource type="PackedScene" uid="uid://pause_menu" path="res://ui/pause_menu.tscn" id="6_pause"]
 [ext_resource type="PackedScene" uid="uid://game_over" path="res://ui/game_over.tscn" id="7_gameover"]
 [ext_resource type="PackedScene" uid="uid://stage_complete" path="res://ui/stage_complete.tscn" id="8_scom"]
 [ext_resource type="PackedScene" uid="uid://terragor" path="res://characters/bosses/terragor.tscn" id="9_boss"]
-[ext_resource type="PackedScene" uid="uid://enemy_base" path="res://characters/enemies/enemy_base.tscn" id="10_grunt"]
-[ext_resource type="PackedScene" uid="uid://enemy_flyer" path="res://characters/enemies/enemy_flyer.tscn" id="11_flyer"]
-
-[sub_resource type="RectangleShape2D" id="FloorStart"]
-size = Vector2(700, 40)
-
-[sub_resource type="RectangleShape2D" id="CaveFloorA"]
-size = Vector2(800, 40)
-
-[sub_resource type="RectangleShape2D" id="CaveFloorB"]
-size = Vector2(600, 40)
-
-[sub_resource type="RectangleShape2D" id="FloorReturn"]
-size = Vector2(600, 40)
-
-[sub_resource type="RectangleShape2D" id="FloorBoss"]
-size = Vector2(1200, 40)
-
-[sub_resource type="RectangleShape2D" id="CWL1"]
-size = Vector2(40, 200)
-
-[sub_resource type="RectangleShape2D" id="CWR1"]
-size = Vector2(40, 200)
-
-[sub_resource type="RectangleShape2D" id="CDP1"]
-size = Vector2(200, 20)
-
-[sub_resource type="RectangleShape2D" id="CDP2"]
-size = Vector2(180, 20)
-
-[sub_resource type="RectangleShape2D" id="CM1"]
-size = Vector2(220, 20)
-
-[sub_resource type="RectangleShape2D" id="CM2"]
-size = Vector2(200, 20)
-
-[sub_resource type="RectangleShape2D" id="CEP1"]
-size = Vector2(180, 20)
-
-[sub_resource type="RectangleShape2D" id="CEP2"]
-size = Vector2(200, 20)
-
-[sub_resource type="RectangleShape2D" id="PB1"]
-size = Vector2(220, 20)
-
-[sub_resource type="RectangleShape2D" id="PB2"]
-size = Vector2(200, 20)
 
 [node name="Stage08" type="Node2D"]
 platform_color = Color(0.5, 0.35, 0.15, 1)
@@ -66,138 +17,21 @@ position = Vector2(200, 760)
 
 [node name="StageController" parent="." instance=ExtResource("2_sc")]
 
-[node name="Checkpoint1" parent="." instance=ExtResource("3_cp")]
-position = Vector2(1800, 1010)
-checkpoint_index = 1
-
-[node name="Checkpoint2" parent="." instance=ExtResource("3_cp")]
-position = Vector2(3400, 850)
-checkpoint_index = 2
-
-[node name="FloorStart" type="StaticBody2D" parent="."]
-position = Vector2(350, 920)
-[node name="CollisionShape2D" type="CollisionShape2D" parent="FloorStart"]
-shape = SubResource("FloorStart")
-
-[node name="CaveFloorA" type="StaticBody2D" parent="."]
-position = Vector2(1550, 1060)
-[node name="CollisionShape2D" type="CollisionShape2D" parent="CaveFloorA"]
-shape = SubResource("CaveFloorA")
-
-[node name="CaveFloorB" type="StaticBody2D" parent="."]
-position = Vector2(2650, 1060)
-[node name="CollisionShape2D" type="CollisionShape2D" parent="CaveFloorB"]
-shape = SubResource("CaveFloorB")
-
-[node name="FloorReturn" type="StaticBody2D" parent="."]
-position = Vector2(3350, 920)
-[node name="CollisionShape2D" type="CollisionShape2D" parent="FloorReturn"]
-shape = SubResource("FloorReturn")
-
-[node name="FloorBoss" type="StaticBody2D" parent="."]
-position = Vector2(4700, 920)
-[node name="CollisionShape2D" type="CollisionShape2D" parent="FloorBoss"]
-shape = SubResource("FloorBoss")
-
-[node name="CaveWallLeft" type="StaticBody2D" parent="."]
-position = Vector2(730, 990)
-[node name="CollisionShape2D" type="CollisionShape2D" parent="CaveWallLeft"]
-shape = SubResource("CWL1")
-
-[node name="CaveWallRight" type="StaticBody2D" parent="."]
-position = Vector2(3070, 990)
-[node name="CollisionShape2D" type="CollisionShape2D" parent="CaveWallRight"]
-shape = SubResource("CWR1")
-
-[node name="DescentPlat1" type="StaticBody2D" parent="."]
-position = Vector2(800, 960)
-[node name="CollisionShape2D" type="CollisionShape2D" parent="DescentPlat1"]
-shape = SubResource("CDP1")
-
-[node name="DescentPlat2" type="StaticBody2D" parent="."]
-position = Vector2(990, 1020)
-[node name="CollisionShape2D" type="CollisionShape2D" parent="DescentPlat2"]
-shape = SubResource("CDP2")
-
-[node name="CaveMidPlat1" type="StaticBody2D" parent="."]
-position = Vector2(2050, 1030)
-[node name="CollisionShape2D" type="CollisionShape2D" parent="CaveMidPlat1"]
-shape = SubResource("CM1")
-
-[node name="CaveMidPlat2" type="StaticBody2D" parent="."]
-position = Vector2(2250, 1030)
-[node name="CollisionShape2D" type="CollisionShape2D" parent="CaveMidPlat2"]
-shape = SubResource("CM2")
-
-[node name="AscentPlat1" type="StaticBody2D" parent="."]
-position = Vector2(3010, 1010)
-[node name="CollisionShape2D" type="CollisionShape2D" parent="AscentPlat1"]
-shape = SubResource("CEP1")
-
-[node name="AscentPlat2" type="StaticBody2D" parent="."]
-position = Vector2(3200, 950)
-[node name="CollisionShape2D" type="CollisionShape2D" parent="AscentPlat2"]
-shape = SubResource("CEP2")
-
-[node name="PreBossPlat1" type="StaticBody2D" parent="."]
-position = Vector2(3700, 780)
-[node name="CollisionShape2D" type="CollisionShape2D" parent="PreBossPlat1"]
-shape = SubResource("PB1")
-
-[node name="PreBossPlat2" type="StaticBody2D" parent="."]
-position = Vector2(3950, 740)
-[node name="CollisionShape2D" type="CollisionShape2D" parent="PreBossPlat2"]
-shape = SubResource("PB2")
-
-[node name="Heart" parent="." instance=ExtResource("4_col")]
-position = Vector2(2050, 990)
-stage_id = 8
-
-[node name="SubTank" parent="." instance=ExtResource("4_col")]
-position = Vector2(2650, 1010)
-collectible_type = 1
-subtank_index = 3
-
-[node name="ArmorZaraLegs" parent="." instance=ExtResource("4_col")]
-position = Vector2(3200, 910)
-collectible_type = 3
-armor_piece = "legs"
-
-[node name="CannonZael" parent="." instance=ExtResource("4_col")]
-position = Vector2(3500, 850)
-collectible_type = 4
-ability_id = "cannon"
-
-[node name="Terragor" parent="." instance=ExtResource("9_boss")]
-position = Vector2(4600, 760)
-arena_left = 4100.0
-arena_right = 5100.0
-arena_floor = 900.0
-
-[node name="Grunt1" parent="." instance=ExtResource("10_grunt")]
-position = Vector2(300, 850)
-
-[node name="Grunt2" parent="." instance=ExtResource("10_grunt")]
-position = Vector2(1600, 1020)
-
-[node name="Grunt3" parent="." instance=ExtResource("10_grunt")]
-position = Vector2(2700, 1020)
-
-[node name="Grunt4" parent="." instance=ExtResource("10_grunt")]
-position = Vector2(3500, 850)
-
-[node name="Flyer1" parent="." instance=ExtResource("11_flyer")]
-position = Vector2(1900, 960)
-
-[node name="HUD" parent="." instance=ExtResource("5_hud")]
-[node name="PauseMenu" parent="." instance=ExtResource("6_pause")]
-[node name="GameOver" parent="." instance=ExtResource("7_gameover")]
-[node name="StageComplete" parent="." instance=ExtResource("8_scom")]
-
 [node name="Camera2D" type="Camera2D" parent="."]
+zoom = Vector2(2, 2)
 limit_left = 0
 limit_top = 0
-limit_right = 5300
+limit_right = 14500
 limit_bottom = 1300
-position_smoothing_enabled = true
-position_smoothing_speed = 8.0
+
+[node name="HUD" parent="." instance=ExtResource("5_hud")]
+
+[node name="PauseMenu" parent="." instance=ExtResource("6_pause")]
+
+[node name="GameOver" parent="." instance=ExtResource("7_gameover")]
+
+[node name="StageComplete" parent="." instance=ExtResource("8_scom")]
+
+[node name="Terragor" parent="." instance=ExtResource("9_boss")]
+position = Vector2(13248, 736)
+visible = false
