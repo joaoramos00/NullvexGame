@@ -66,6 +66,7 @@ func _ready() -> void:
 	_door_tex = load("res://stages/door_pixellab.png") as Texture2D
 	_setup_corridors()
 	_build_zone1()
+	_build_zone2()
 	_setup_zone_triggers()
 	_spawn_zone_enemies(1)
 	queue_redraw()
@@ -252,3 +253,65 @@ func _build_zone1() -> void:
 	_crumble_ledge("Z1_Crumble2", "z1", 1840.0, FLOOR_Y, 160.0)
 	_crumble_ledge("Z1_Crumble3", "z1", 2000.0, FLOOR_Y, 160.0)
 	_floor_seg("z1", 2080.0, _CP1_ENTRY_X, FLOOR_Y)
+
+# ── Zona 2 — Desabamentos ─────────────────────────────────────────────────────
+# Piso contínuo (_CP1_EXIT_X=4096 → 7296, sem gap, ver Task 9 que retoma o
+# piso em 7296) com 2 crushers (crusher.gd, script genérico de stage_04)
+# embutidos no teto da zona. Convenção de teto do projeto: superfície nominal
+# = FLOOR_Y-500 = 300 (mesmo valor usado em todas as fases anteriores).
+# Bloco 128×96 em repouso com o topo flush nessa superfície → centro de
+# repouso = 300 + 48 (metade da altura) = 348. Travel calculado p/ a base do
+# bloco alcançar o piso real (FLOOR_Y=800) na extensão máxima: centro na
+# extensão máxima = FLOOR_Y - 48 = 752 → travel = 752 - 348 = 404. O script
+# crusher.gd default travel=260 NÃO é suficiente (pararia em y=608, 144px
+# acima do piso) — setado explicitamente abaixo.
+# Clearance de teto p/ Task 11: colisão do teto sobe 32px acima do nominal
+# (FLOOR_Y-500-32 = 268, convenção _CEIL_FACE_GAP do projeto); topo do
+# crusher em repouso fica em 348-48=300, ou seja 32px abaixo da linha de
+# colisão do teto (300 > 268) — sem overlap, margem real de 32px.
+# Timing escalonado (wait_time 1.2/0.9) igual ao padrão de stage_04.
+func _build_zone2() -> void:
+	var rest_y := (FLOOR_Y - 500.0) + 48.0   # 348.0
+	var travel := (FLOOR_Y - 48.0) - rest_y  # 404.0
+	_floor_seg("z2", _CP1_EXIT_X, 4700.0, FLOOR_Y)
+	var c1: AnimatableBody2D = _CRUSHER.new()
+	c1.name = "Z2_Crusher1"
+	c1.set("wait_time", 1.2)
+	c1.set("travel", travel)
+	c1.collision_layer = 1
+	c1.collision_mask = 0
+	c1.position = Vector2(5000.0, rest_y)
+	var cs1 := CollisionShape2D.new()
+	var sh1 := RectangleShape2D.new()
+	sh1.size = Vector2(128.0, 96.0)
+	cs1.shape = sh1
+	c1.add_child(cs1)
+	add_child(c1)
+	_floor_seg("z2", 4700.0, 6000.0, FLOOR_Y)
+	var c2: AnimatableBody2D = _CRUSHER.new()
+	c2.name = "Z2_Crusher2"
+	c2.set("wait_time", 0.9)
+	c2.set("travel", travel)
+	c2.collision_layer = 1
+	c2.collision_mask = 0
+	c2.position = Vector2(6200.0, rest_y)
+	var cs2 := CollisionShape2D.new()
+	var sh2 := RectangleShape2D.new()
+	sh2.size = Vector2(128.0, 96.0)
+	cs2.shape = sh2
+	c2.add_child(cs2)
+	add_child(c2)
+	_floor_seg("z2", 6000.0, 7296.0, FLOOR_Y)
+	# Armadura de Zara (Pernas, cf. tabela do CLAUDE.md p/ Fase 08) num desvio
+	# elevado logo após o segundo crusher — mesma altura/offset usados nas
+	# stages 06/07 (FLOOR_Y-98 = 98px acima do piso, dentro do alcance de
+	# pulo real de ~117.5px [JUMP_VELOCITY=-480/GRAVITY=980 em
+	# character_base.gd → v²/2g ≈ 117.55px]; colecionável 40px acima do topo
+	# da plataforma). Ledge (x=6520-6680) fica bem afastada do crusher 2
+	# (x=6136-6264), sem overlap horizontal.
+	_fixed_plat("Z2_ArmorLedge", "z2", 6600.0, FLOOR_Y - 98.0, 160.0)
+	var armor := preload("res://stages/collectible.tscn").instantiate()
+	armor.set("collectible_type", Collectible.Type.ARMOR_ZARA)
+	armor.set("armor_piece", "legs")
+	armor.global_position = Vector2(6600.0, FLOOR_Y - 138.0)
+	add_child(armor)
