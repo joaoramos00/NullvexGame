@@ -70,6 +70,7 @@ func _ready() -> void:
 	_build_zone3()
 	_build_zone4()
 	_build_boss_arena()
+	_build_zone_ceilings08()
 	_setup_zone_triggers()
 	_spawn_zone_enemies(1)
 	queue_redraw()
@@ -498,3 +499,106 @@ func _build_boss_arena() -> void:
 
 func _on_boss_defeated(_ability_id: String) -> void:
 	GameManager.save_game()
+
+# ── Teto por zona ─────────────────────────────────────────────────────────────
+# Cobertura de Z2+Z3 (desabamentos+armadura / túnel de mineração+entulho): a
+# entrada "Z2" abaixo cobre [_CP1_EXIT_X, _CP2_ENTRY_X] = [4096, 10496].
+# Confirmado contra os _floor_seg REAIS escritos nas Tasks 8/9 (não os números
+# de exemplo do plano):
+#   Z2 (_build_zone2): 4096→4700, 4700→6000, 6000→7296 → piso real 4096→7296.
+#   Z3 (_build_zone3): 7296→8700, 8700→10496          → piso real 7296→10496.
+#   Combinado: 4096→10496 — bate exatamente com [_CP1_EXIT_X, _CP2_ENTRY_X],
+#   sem gap nem overlap. Mesmo padrão de stage_06/07 (sem entrada "Z3" própria).
+const _CEIL08_SEGS := {
+	"Z1":   [[0.0, _CP1_ENTRY_X, FLOOR_Y - 500.0]],
+	"Z2":   [[_CP1_EXIT_X, _CP2_ENTRY_X, FLOOR_Y - 500.0]],
+	"Z4":   [[_CP2_EXIT_X, _BOSS_L, FLOOR_Y - 500.0]],
+	"Boss": [[_BOSS_L, _BOSS_R, FLOOR_Y - 448.0 - 256.0]],
+}
+const _CEIL08_TEX := { "Z1": "z1", "Z2": "z2", "Z4": "z4", "Boss": "z4" }
+const _CEIL08_TOP := 128.0
+const _CEIL08_FACE_GAP := 32.0
+
+# Clearance vs. Z2_Crusher1/2 (_build_zone2, Task 8): superfície nominal do
+# teto de Z2 = FLOOR_Y-500 = 300; linha de colisão sobe FACE_GAP=32px acima =
+# 268. Crusher em repouso: centro rest_y=348.0, altura 96 → topo em repouso =
+# 348-48=300, ou seja 32px ABAIXO (y maior = mais perto do chão) da linha de
+# colisão do teto (268 < 300) — sem overlap, folga real de 32px, confirmado
+# contra os números reais escritos em _build_zone2 (rest_y/travel), não os do
+# plano.
+#
+# Clearance vs. Z3_RubbleWall (_build_zone3, Task 9): parede em x=8700, cai no
+# span da entrada "Z2" acima (7296→10496 faz parte de [4096,10496], sem
+# entrada "Z3" própria — mesmo fallback cross-zone documentado no comentário
+# acima). Topo da parede: wall_cy=640.0, wall_h=320.0 → topo=640-160=480.
+# Linha de colisão do teto nesse trecho = 268 (mesma superfície de Z2, ver
+# acima). 480 > 268 com folga de 212px — bem abaixo da linha de colisão, sem
+# risco de clipar mesmo com a altura não-padrão (320px em vez de 192px) da
+# parede, exigida pela análise de wall-jump encadeado no comentário de
+# _build_zone3.
+func _build_zone_ceilings08() -> void:
+	for zk: String in _CEIL08_SEGS:
+		var body := StaticBody2D.new()
+		body.name = "%sCeilSegs" % zk
+		body.collision_layer = 1
+		body.collision_mask = 0
+		add_child(body)
+		for s: Array in _CEIL08_SEGS[zk]:
+			var cs := CollisionShape2D.new()
+			var sh := SegmentShape2D.new()
+			sh.a = Vector2(s[0], (s[2] as float) - _CEIL08_FACE_GAP)
+			sh.b = Vector2(s[1], (s[2] as float) - _CEIL08_FACE_GAP)
+			cs.shape = sh
+			body.add_child(cs)
+
+func _ceil08_surface_at(zk: String, wx: float) -> float:
+	for s: Array in _CEIL08_SEGS[zk]:
+		if wx >= (s[0] as float) and wx < (s[1] as float):
+			return s[2]
+	for zk2: String in _CEIL08_SEGS:
+		if zk2 == zk:
+			continue
+		for s: Array in _CEIL08_SEGS[zk2]:
+			if wx >= (s[0] as float) and wx < (s[1] as float):
+				return s[2]
+	return -1.0
+
+func _ceil08_solid(zk: String, wx: float, y: float) -> bool:
+	var yb := _ceil08_surface_at(zk, wx)
+	return yb > 0.0 and y < yb
+
+func _draw() -> void:
+	super._draw()
+	_draw_zone_ceilings08()
+
+func _draw_zone_ceilings08() -> void:
+	var ts := float(_TS)
+	var sts := float(_SRC_TS)
+	for zk: String in _CEIL08_SEGS:
+		var segs: Array = _CEIL08_SEGS[zk]
+		var tex := _cached_override_tex(_zone_tile_path(_CEIL08_TEX[zk] as String))
+		if tex == null:
+			continue
+		var x0f: float = segs[0][0]
+		var x1f: float = segs[segs.size() - 1][1]
+		var x := x0f
+		while x < x1f:
+			var yb := _ceil08_surface_at(zk, x)
+			var y := _CEIL08_TOP
+			while y < yb:
+				var ed := not _ceil08_solid(zk, x, y + ts)
+				var el := not _ceil08_solid(zk, x - ts, y)
+				var er := not _ceil08_solid(zk, x + ts, y)
+				var tile: Vector2i
+				if   ed and el: tile = Vector2i(0, 2)
+				elif ed and er: tile = Vector2i(3, 3)
+				elif ed:        tile = Vector2i(1, 2)
+				elif el:        tile = Vector2i(1, 0)
+				elif er:        tile = Vector2i(3, 2)
+				elif not _ceil08_solid(zk, x - ts, y + ts): tile = Vector2i(2, 2)
+				elif not _ceil08_solid(zk, x + ts, y + ts): tile = Vector2i(3, 1)
+				else:           tile = Vector2i(2, 1)
+				draw_texture_rect_region(tex, Rect2(x, y, ts, ts),
+					Rect2(float(tile.x) * sts, float(tile.y) * sts, sts, sts))
+				y += ts
+			x += ts
