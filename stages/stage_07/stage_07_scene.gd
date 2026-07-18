@@ -313,9 +313,11 @@ func _light_gate(n: String, zone: String, cx: float, top_y: float, w: float = 12
 
 func _build_zone1() -> void:
 	_floor_seg("z1", 0.0, _CP1_ENTRY_X, FLOOR_Y)
-	# 2 feixes verticais fixos (chão até o teto nominal da zona), cruzando o
-	# caminho — o jogador precisa cronometrar a passagem por baixo/entre eles.
-	_light_beam("Z1_Beam1", Vector2(1100.0, FLOOR_Y - 260.0),
-		[Vector2(0.0, -260.0), Vector2(0.0, 260.0)])
-	_light_beam("Z1_Beam2", Vector2(2400.0, FLOOR_Y - 260.0),
-		[Vector2(0.0, -260.0), Vector2(0.0, 260.0)])
+	# 2 feixes verticais fixos, rentes ao chão (base em FLOOR_Y, 96px de
+	# altura) — não bloqueiam a passagem, o jogador precisa pular por cima
+	# no timing/posicionamento certo (altura máx. de pulo ≈117.5px, então
+	# 96px deixa margem de segurança sem raspar o teto do pulo).
+	_light_beam("Z1_Beam1", Vector2(1100.0, FLOOR_Y),
+		[Vector2(0.0, 0.0), Vector2(0.0, -96.0)])
+	_light_beam("Z1_Beam2", Vector2(2400.0, FLOOR_Y),
+		[Vector2(0.0, 0.0), Vector2(0.0, -96.0)])
