@@ -67,6 +67,7 @@ func _ready() -> void:
 	_setup_corridors()
 	_build_zone1()
 	_build_zone2()
+	_build_zone3()
 	_setup_zone_triggers()
 	_spawn_zone_enemies(1)
 	queue_redraw()
@@ -237,6 +238,47 @@ func _crumble_ledge(n: String, zone: String, cx: float, top_y: float, w: float =
 	body.add_child(det)
 	add_child(body)
 
+# Parede de entulho (rubble_wall.gd, Task 2): bloco sólido no caminho
+# principal, largura 64, altura passada por `h` (bottom sempre flush com o
+# piso — `center_y` é o CENTRO da CollisionShape2D, não o topo: bottom =
+# center_y + h/2 deve dar FLOOR_Y). Quebra em `hits` hits de qualquer ataque
+# do jogador (HitDetector collision_mask=8 = layer "player_attack", GAME_
+# CONTEXT.md, confirmado independentemente pela Task 2 contra zael_bullet.tscn/
+# zara_hitbox.tscn — mesmo valor de cracked_wall.gd/ice_gate.gd).
+# rubble_wall.gd NÃO declara `class_name` (só `extends StaticBody2D`), então o
+# retorno/var local usam o tipo base StaticBody2D e as propriedades exportadas
+# custom (hits_required) são setadas via .set(), mesmo padrão de crusher.gd em
+# _build_zone2 (c1.set("wait_time", ...)) — tipar como "RubbleWall" (sem
+# class_name) não compilaria.
+# tileset_override (NÃO lava_override): corpo pequeno (<7 tiles de altura) —
+# lava_override força mínimo 7 linhas de tile e transborda abaixo da colisão
+# (reference_lava_mode_min7 na memória do projeto; mesmo bug já mordeu
+# cracked_wall.gd/segredo e os footholds/espinhos do shaft Z4, ambos
+# resolvidos trocando para tileset_override/skip_base_draw).
+func _rubble_wall(n: String, zone: String, cx: float, center_y: float, h: float, hits: int = 3) -> StaticBody2D:
+	var b: StaticBody2D = _RUBBLE.new()
+	b.name = n
+	b.set("hits_required", hits)
+	b.collision_layer = 1
+	b.collision_mask = 0
+	b.position = Vector2(cx, center_y)
+	var cs := CollisionShape2D.new()
+	var sh := RectangleShape2D.new()
+	sh.size = Vector2(64.0, h)
+	cs.shape = sh
+	b.add_child(cs)
+	var det := Area2D.new()
+	det.name = "HitDetector"
+	det.collision_layer = 0
+	det.collision_mask = 8
+	var dcs := CollisionShape2D.new()
+	dcs.shape = sh
+	det.add_child(dcs)
+	b.add_child(det)
+	b.set_meta("tileset_override", _zone_tile_path(zone))
+	add_child(b)
+	return b
+
 # ── Zona 1 — Piso instável ────────────────────────────────────────────────────
 # Pequeno abismo (1600→2080, 480px) atravessado por 3 saliências que
 # desmoronam ~0.5s após o pouso e respawnam em 1.2s (crumbling_ledge.gd) —
@@ -315,3 +357,68 @@ func _build_zone2() -> void:
 	armor.set("armor_piece", "legs")
 	armor.global_position = Vector2(6600.0, FLOOR_Y - 138.0)
 	add_child(armor)
+
+# ── Zona 3 — Túnel de mineração ───────────────────────────────────────────────
+# Piso contínuo de 7296 (fim real da Zona 2, Task 8) até _CP2_ENTRY_X=10496
+# (início do corredor CP2, Task 7 — sem gap/overlap, mesmo padrão de CP1/Z1).
+# Parede de entulho (rubble_wall.gd) trava o caminho ÚNICO em x=8700 — quebra
+# em 3 hits de qualquer ataque do jogador (sem checagem de habilidade, ver
+# comentário no topo de rubble_wall.gd: fase pode ser a primeira jogada).
+#
+# ALTURA (desvio do valor de exemplo do plano, 192px → 320px): o pulo normal
+# alcança só ~117.5px, mas a Zona 3 é ar livre (sem teto físico até o
+# corredor CP2, bem depois do gap) e o wall-slide/wall-jump deste projeto
+# permite AGARRAR a parede ainda subindo (WALL_GRAB_MAX_RISE=160,
+# character_base.gd) e então dar um wall-jump (WALL_JUMP_V=-500) a partir daí
+# — encadeando os dois, o pico teórico é ~117.5 + 500²/(2·980) ≈ 245px acima
+# do piso (bem mais que um pulo só). Um corpo de 192px (top a 192px do piso)
+# ficaria abaixo desse pico teórico e correria risco real de ser saltado por
+# cima via wall-jump (mesmo com o kick inicial jogando o player pra TRÁS —
+# ele recupera controle horizontal já acima do topo da parede, dentro da
+# janela de ~0.66s em que fica acima de 192px, e tem margem de sobra pra
+# atravessar os 64px de largura). 320px (top a 320px do piso) fica ~75px
+# acima desse pico teórico, então nem o wall-jump encadeado ultrapassa.
+# Sem piso/parede oposta próxima pra encadear parede→parede (nada entre
+# 7296 e 10496 além desta própria parede), então não há como ganhar altura
+# além desse teto único de wall-jump.
+# Largura 64 = cobre 100% da passagem (não há desvio elevado nem buraco no
+# piso ao redor — piso contínuo dos dois lados, corpo cravado nele).
+func _build_zone3() -> void:
+	var wall_h := 320.0
+	var wall_cy: float = FLOOR_Y - wall_h * 0.5  # 640.0 — bottom flush no piso (800)
+	_floor_seg("z3", 7296.0, 8700.0, FLOOR_Y)
+	_rubble_wall("Z3_RubbleWall", "z3", 8700.0, wall_cy, wall_h, 3)
+	_floor_seg("z3", 8700.0, _CP2_ENTRY_X, FLOOR_Y)
+	# Saliência com os 3 colecionáveis, só alcançável depois de quebrar a
+	# parede (nenhum desvio/pulo alternativo — piso plano dos dois lados,
+	# única rota é através de x=8700). Ledge x=8800-9000 (200px), início 68px
+	# depois da face direita da parede (8700+32=8732) — sem overlap. Mesmo
+	# offset de altura/alcance de Z2_ArmorLedge (FLOOR_Y-98 = 98px acima do
+	# piso, dentro do alcance de pulo ~117.5px; colecionáveis 40px acima do
+	# topo). Extra do Zael (Cannon, cf. tabela CLAUDE.md Fase 08) + coração +
+	# sub-tank, 50px de espaçamento entre si (colisão raio=12 cada — sem
+	# overlap, mesmo padrão de espaçamento usado em stage_06).
+	_fixed_plat("Z3_ExtraLedge", "z3", 8900.0, FLOOR_Y - 98.0, 200.0)
+	var cannon := preload("res://stages/collectible.tscn").instantiate()
+	cannon.set("collectible_type", Collectible.Type.SHOT_ZAEL)
+	cannon.set("ability_id", "cannon")
+	cannon.global_position = Vector2(8850.0, FLOOR_Y - 138.0)
+	add_child(cannon)
+	var heart := preload("res://stages/collectible.tscn").instantiate()
+	heart.set("collectible_type", Collectible.Type.HEART)
+	heart.set("stage_id", 8)
+	heart.global_position = Vector2(8900.0, FLOOR_Y - 138.0)
+	add_child(heart)
+	var subtank := preload("res://stages/collectible.tscn").instantiate()
+	subtank.set("collectible_type", Collectible.Type.SUBTANK)
+	# subtank_index=3: grep em stages/**/*.tscn + *.gd (todo o projeto) —
+	# stage_02.tscn usa 0, stage_04.tscn usa 1, stage_06_scene.gd usa 2
+	# (comentário lá mesmo já documenta 0/1/2 e reserva 3 pro antigo
+	# stage_08.tscn pré-rework). O stage_08.tscn atual (branch desta rework)
+	# não tem mais collectibles hardcoded — é gerado 100% em código — então 3
+	# está livre e é o valor correto pra fechar a sequência 0/1/2/3 das 4
+	# fases com sub-tank (02/04/06/08 por CLAUDE.md). NÃO usar 4 (placeholder
+	# do plano, não confirmado contra o grep real).
+	subtank.set("subtank_index", 3)
+	subtank.global_position = Vector2(8950.0, FLOOR_Y - 138.0)
+	add_child(subtank)
