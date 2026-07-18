@@ -55,7 +55,8 @@ const _CP2_ENTRY_X := 12400.0
 const _CP2_EXIT_X := 13200.0
 const _CP3_ENTRY_X := 23600.0
 const _CP3_EXIT_X := 24400.0
-const _BOSS_ENTRY_X := 24550.0
+const _BOSS_L := 24400.0
+const _BOSS_R := 25800.0
 
 var _camera_locked := false
 var _camera_target := Vector2.ZERO
@@ -93,6 +94,7 @@ func _ready() -> void:
 	_build_zone2()
 	_build_zone3()
 	_build_zone4()
+	_build_boss_arena()
 	_setup_zone_triggers()
 	_spawn_zone_enemies(1)
 	_build_zone_ceilings02()
@@ -305,6 +307,21 @@ func _floor_seg(zone: String, x0: float, x1: float, surface_y: float, dr: int = 
 	shape.size = Vector2(w, h)
 	cs.shape = shape
 	cs.position = Vector2(x0 + w * 0.5, surface_y + h * 0.5)
+	b.add_child(cs)
+	b.set_meta("lava_override", _zone_tile_path(zone))
+	add_child(b)
+	return b
+
+func _solid_block(zone: String, n: String, cx: float, cy: float, w: float, h: float) -> StaticBody2D:
+	var b := StaticBody2D.new()
+	b.name = n
+	b.collision_layer = 1
+	b.collision_mask = 0
+	b.position = Vector2(cx, cy)
+	var cs := CollisionShape2D.new()
+	var sh := RectangleShape2D.new()
+	sh.size = Vector2(w, h)
+	cs.shape = sh
 	b.add_child(cs)
 	b.set_meta("lava_override", _zone_tile_path(zone))
 	add_child(b)
@@ -557,8 +574,11 @@ const _CEIL02_SEGS := {
 	"Z4": [
 		[18000.0, 23600.0, 448.0],
 	],
+	"Boss": [
+		[_BOSS_L, _BOSS_R, 448.0],
+	],
 }
-const _CEIL02_TEX := { "Z1": "z1", "Z2": "z2", "MB": "z3", "Z3": "z3", "Z4": "z4" }
+const _CEIL02_TEX := { "Z1": "z1", "Z2": "z2", "MB": "z3", "Z3": "z3", "Z4": "z4", "Boss": "z4" }
 const _CEIL02_TOP := 128.0
 # Tile de face do teto (1,2) só é opaca na metade de CIMA — a colisão nominal
 # (s[2]) fica na borda do tile, onde a arte já é transparente. Sobe só a
@@ -722,38 +742,60 @@ func _build_zone4() -> void:
 	_ice_crumble("Z4_Crumble3", 23380.0, FLOOR_Y)
 	_rough_patch("Z4_Rough3a", 23016.0)
 	_rough_patch("Z4_Rough3b", 23544.0)
-	_floor_seg("Z4", 23600.0, 24400.0, FLOOR_Y)          # sob o corredor CP3
-	# FINAL PROVISÓRIO (até o Cryovex entrar): piso de chegada + parede de fundo
-	# + zona que completa a fase (GameManager.complete_stage → UI + auto-save).
-	_floor_seg("Z4", 24400.0, 24800.0, FLOOR_Y)
-	var endwall := StaticBody2D.new()
-	endwall.name = "Z4_EndWall"
-	endwall.collision_layer = 1
-	endwall.collision_mask = 0
-	endwall.position = Vector2(24832.0, 560.0)
-	var ecs := CollisionShape2D.new()
-	var esh := RectangleShape2D.new()
-	esh.size = Vector2(64.0, 480.0)
-	ecs.shape = esh
-	endwall.add_child(ecs)
-	endwall.set_meta("lava_override", _zone_tile_path("z4"))
-	add_child(endwall)
-	var goal := Area2D.new()
-	goal.name = "ProvisionalGoal"
-	goal.collision_layer = 0
-	goal.collision_mask = 2
-	goal.position = Vector2(24700.0, FLOOR_Y - 100.0)
-	var gcs := CollisionShape2D.new()
-	var gsh := RectangleShape2D.new()
-	gsh.size = Vector2(96.0, 200.0)
-	gcs.shape = gsh
-	goal.add_child(gcs)
-	add_child(goal)
-	var goal_done := [false]
-	goal.body_entered.connect(func(b: Node) -> void:
-		if b.is_in_group("player") and not goal_done[0]:
-			goal_done[0] = true
-			GameManager.complete_stage(2))
+	_floor_seg("Z4", 23600.0, _CP3_EXIT_X, FLOOR_Y)      # sob o corredor CP3
+	# Termina exatamente em _BOSS_L (24400.0, = _CP3_EXIT_X): a partir daí o
+	# piso passa a ser responsabilidade de _build_boss_arena(), sem gap/overlap.
+
+# ── Sala do boss (Cryovex) ────────────────────────────────────────────────────
+# Padrão B (porta aberta + trigger, skill new-boss-room): arena aberta,
+# aggro por Area2D de entrada — não por distância. Substitui o antigo
+# "FINAL PROVISÓRIO" (Z4_EndWall + ProvisionalGoal → GameManager.complete_stage
+# direto, sem luta) do spec original de 2026-06-10, que deixou "criar/alterar
+# Cryovex" deliberadamente fora de escopo — achado numa auditoria posterior
+# (o boss nunca era de fato lutado, quebrando a cadeia de fraquezas do jogo,
+# já que a habilidade do Cryovex nunca podia ser desbloqueada).
+
+func _build_boss_arena() -> void:
+	_floor_seg("Z4", _BOSS_L, _BOSS_R, FLOOR_Y)
+	_solid_block("Z4", "Boss_WallR", _BOSS_R + 32.0, FLOOR_Y - 256.0, 64.0, 512.0)
+	_solid_block("Z4", "Boss_WallL_Top", _BOSS_L + 32.0, FLOOR_Y - 448.0, 64.0, 256.0)
+	var cryovex := get_node_or_null("Cryovex")
+	if cryovex:
+		cryovex.visible = true
+		cryovex.global_position = Vector2((_BOSS_L + _BOSS_R) * 0.5, FLOOR_Y - 64.0)
+		cryovex.set("auto_aggro", false)
+		# Sem estes três, BossBase mantém os defaults de arena_left/right/floor
+		# (100/1820/500 — coordenadas de outra parte do mapa, ver boss_base.gd:35-37),
+		# o que quebraria _clamp_to_arena()/o dash de _do_attack() (bug crítico já
+		# visto na Stage 06, ver memória project_stage06_rework).
+		cryovex.set("arena_left", _BOSS_L + 64.0)
+		cryovex.set("arena_right", _BOSS_R - 64.0)
+		cryovex.set("arena_floor", FLOOR_Y)
+		var trig := Area2D.new()
+		trig.name = "BossRoomTrigger"
+		trig.collision_layer = 0
+		trig.collision_mask = 2
+		trig.position = Vector2((_BOSS_L + _BOSS_R) * 0.5, FLOOR_Y - 150.0)
+		var cs := CollisionShape2D.new()
+		var sh := RectangleShape2D.new()
+		sh.size = Vector2(_BOSS_R - _BOSS_L - 200.0, 300.0)
+		cs.shape = sh
+		trig.add_child(cs)
+		add_child(trig)
+		trig.body_entered.connect(func(b: Node) -> void:
+			if b is CharacterBase:
+				cryovex.call("aggro"))
+		# NÃO chamar $HUD.connect_to_boss(cryovex) aqui: Cryovex já existe como
+		# filho direto da cena (.tscn, visible=false) ANTES de super._ready()
+		# rodar — o loop genérico de stage_scene.gd::_ready() já pega esse nó e
+		# faz esse wiring (player, HUD, boss_aggro/boss_intro_ended) de graça.
+		# Repetir connect_to_boss aqui conectaria os sinais da HUD duas vezes no
+		# mesmo callable (erro "already connected" em runtime).
+		if cryovex.has_signal("boss_defeated"):
+			cryovex.connect("boss_defeated", _on_boss_defeated)
+
+func _on_boss_defeated(_ability_id: String) -> void:
+	GameManager.save_game()
 
 # ── POÇO DE GELO (set-piece vertical entre Z3 e Z4) ──────────────────────────
 # "U" de 1280px de profundidade (x17400–18728): DESCE pelo shaft esquerdo
