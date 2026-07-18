@@ -71,6 +71,7 @@ func _ready() -> void:
 	_glass_tex = load("res://stages/stage_07/stage_07_glass.png") as Texture2D
 	_setup_corridors()
 	_build_zone1()
+	_build_zone2()
 	_setup_zone_triggers()
 	_spawn_zone_enemies(1)
 	queue_redraw()
@@ -321,3 +322,31 @@ func _build_zone1() -> void:
 		[Vector2(0.0, 0.0), Vector2(0.0, -96.0)])
 	_light_beam("Z1_Beam2", Vector2(2400.0, FLOOR_Y),
 		[Vector2(0.0, 0.0), Vector2(0.0, -96.0)])
+
+# ── Zona 2 — Feixes espelhados + interruptores ────────────────────────────────
+# Feixe com 1 dobra (vertical do teto até o chão + diagonal até o receptor).
+# A perna vertical tem 260px de altura — bem além do alcance de pulo
+# (~117.5px, JUMP_VELOCITY²/(2×GRAVITY) = 480²/1960, ver character_base.gd),
+# então NÃO é esquivável pulando. Por isso o interruptor Z2_Switch1 fica
+# 144px ANTES do feixe (x=4850 vs início do feixe em x≈4994), sobre piso
+# sólido contínuo desde a saída do corredor CP1 — o jogador sempre alcança e
+# aciona o interruptor sem nunca precisar tocar o feixe primeiro. Desligar o
+# feixe abre a passagem e o desvio elevado com a armadura de Zael (Pernas).
+func _build_zone2() -> void:
+	_floor_seg("z2", _CP1_EXIT_X, 4700.0, FLOOR_Y)
+	var beam1 := _light_beam("Z2_Beam1", Vector2(5000.0, FLOOR_Y),
+		[Vector2(0.0, -260.0), Vector2(0.0, 0.0), Vector2(260.0, -180.0)])
+	_light_switch("Z2_Switch1", Vector2(4850.0, FLOOR_Y - 40.0), Vector2(64.0, 80.0), beam1, false)
+	_floor_seg("z2", 4700.0, 7000.0, FLOOR_Y)
+	# Armadura de Zael (Pernas, cf. tabela do CLAUDE.md p/ Fase 07) num desvio
+	# elevado logo depois da dobra do feixe — mesma altura/offset usados em
+	# stage_06 Z2_ArmorLedge (FLOOR_Y-98 = 98px acima do piso, dentro do
+	# alcance de pulo de ~117.5px; colecionável 40px acima do topo da
+	# plataforma).
+	_fixed_plat("Z2_ArmorLedge", "z2", 5100.0, FLOOR_Y - 98.0, 160.0)
+	var armor := preload("res://stages/collectible.tscn").instantiate()
+	armor.set("collectible_type", Collectible.Type.ARMOR_ZAEL)
+	armor.set("armor_piece", "legs")
+	armor.global_position = Vector2(5100.0, FLOOR_Y - 138.0)
+	add_child(armor)
+	_floor_seg("z2", 7000.0, _CP2_ENTRY_X, FLOOR_Y)
