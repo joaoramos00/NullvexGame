@@ -11,6 +11,7 @@
 [ext_resource type="Script" path="res://stages/stage_02/ice_spikes.gd" id="9_spikes"]
 [ext_resource type="Script" path="res://stages/stage_02/blizzard_zone.gd" id="10_blizzard"]
 [ext_resource type="Script" path="res://stages/stage_02/ice_gate.gd" id="11_gate"]
+[ext_resource type="PackedScene" uid="uid://cryovex" path="res://characters/bosses/cryovex.tscn" id="12_boss"]
 
 [sub_resource type="RectangleShape2D" id="BlockWide"]
 size = Vector2(1000, 360)
@@ -53,7 +54,7 @@ position = Vector2(180, 760)
 position = Vector2(180, 690)
 limit_left = 0
 limit_top = -400
-limit_right = 25000
+limit_right = 26000
 limit_bottom = 1400
 position_smoothing_enabled = true
 position_smoothing_speed = 8.0
@@ -73,8 +74,8 @@ position = Vector2(15000, 760)
 [node name="Z4Marker" type="Node2D" parent="."]
 position = Vector2(20000, 760)
 
-[node name="BossEntryMarker" type="Node2D" parent="."]
-position = Vector2(24550, 760)
+[node name="Cryovex" parent="." instance=ExtResource("12_boss")]
+visible = false
 
 
 [node name="MB02_Floor" type="StaticBody2D" parent="."]

@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bgoomncubv7mv"
-path="res://.godot/imported/cryovex_walk_east_f06.png-2c53ff4f8c904236d8bbc46c62865e84.ctex"
+uid="uid://d6e7xf60l3qh"
+path="res://.godot/imported/cryovex_gather_west.png-5ee12e74b37f1fe7686a645977fb3040.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://characters/bosses/cryovex/cryovex_walk_east_f06.png"
-dest_files=["res://.godot/imported/cryovex_walk_east_f06.png-2c53ff4f8c904236d8bbc46c62865e84.ctex"]
+source_file="res://characters/bosses/cryovex/cryovex_gather_west.png"
+dest_files=["res://.godot/imported/cryovex_gather_west.png-5ee12e74b37f1fe7686a645977fb3040.ctex"]
 
 [params]
 

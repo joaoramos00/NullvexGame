@@ -5,15 +5,45 @@ const _TEX_IDLE_E := preload("res://characters/bosses/cryovex/cryovex_east.png")
 const _TEX_WALK_W := preload("res://characters/bosses/cryovex/cryovex_walk_west.png")
 const _TEX_WALK_E := preload("res://characters/bosses/cryovex/cryovex_walk_east.png")
 const _TEX_ENTRY  := preload("res://characters/bosses/cryovex/cryovex_entry.png")
+const _TEX_GATHER_W := preload("res://characters/bosses/cryovex/cryovex_gather_west.png")
+const _TEX_GATHER_E := preload("res://characters/bosses/cryovex/cryovex_gather_east.png")
+const _TEX_BITE_W := preload("res://characters/bosses/cryovex/cryovex_bite_west.png")
+const _TEX_BITE_E := preload("res://characters/bosses/cryovex/cryovex_bite_east.png")
+const _TEX_ICEBLAST_W := preload("res://characters/bosses/cryovex/cryovex_iceblast_west.png")
+const _TEX_ICEBLAST_E := preload("res://characters/bosses/cryovex/cryovex_iceblast_east.png")
+const _TEX_TAKEHIT_W := preload("res://characters/bosses/cryovex/cryovex_takehit_west.png")
+const _TEX_TAKEHIT_E := preload("res://characters/bosses/cryovex/cryovex_takehit_east.png")
 
 const _WALK_FRAMES  := 9
 const _WALK_FPS     := 8.0
+const _DASH_FPS     := 14.0   # mesmos frames do walk, tocado mais rápido durante o dash
 const _ENTRY_FRAMES := 7
 const _ENTRY_FPS    := 8.0
+const _GATHER_FRAMES  := 5
+const _GATHER_FPS     := 10.0
+const _BITE_FRAMES    := 9
+const _BITE_FPS       := 16.0
+const _ICEBLAST_FRAMES := 9
+const _ICEBLAST_FPS    := 12.0
+const _TAKEHIT_FRAMES  := 9
+const _TAKEHIT_FPS     := 18.0
+
+# Alcance pra decidir qual ramo o ataque toma depois do GatherEnergy: perto
+# vira dash+mordida (melee), longe vira IcyBlast (à distância). Um pouco
+# maior que o raio em que _do_combat() já para de se aproximar (120px),
+# dando espaço real pro dash fechar a distância.
+const _DASH_RANGE  := 260.0
+const _DASH_SPEED  := 420.0
+const _BITE_RANGE  := 100.0
+const _BITE_DAMAGE := 16
+
+enum AttackAnim { NONE, GATHER, DASH, BITE, ICEBLAST }
 
 var _anim_timer : float = 0.0
 var _anim_frame : int   = 0
 var _facing     : float = -1.0
+var _attack_anim: int = AttackAnim.NONE
+var _takehit_timer: float = 0.0
 
 @onready var _sprite: Sprite2D = $Sprite2D
 
@@ -27,7 +57,39 @@ func _face_player() -> void:
 
 func _physics_process(delta: float) -> void:
 	super(delta)
+	if _takehit_timer > 0.0:
+		_takehit_timer = maxf(0.0, _takehit_timer - delta)
 	_update_animation(delta)
+
+func take_damage(amount: int, source_id: String = "") -> void:
+	super.take_damage(amount, source_id)
+	if not is_dead and state == State.COMBAT:
+		_takehit_timer = _TAKEHIT_FRAMES / _TAKEHIT_FPS
+		_anim_frame = 0
+		_anim_timer = 0.0
+
+# Escolhe textura/frames/fps pro estado atual e faz a animação avançar.
+# Centraliza a lógica repetida entre idle/walk/gather/dash/bite/iceblast/takehit.
+# _anim_frame/_anim_timer são resetados no chamador (início de cada ataque/
+# reação a dano) — aqui só troca a textura se o estado mudou por fora
+# (ex.: virou de direção no meio da animação) e avança o ciclo em loop,
+# mesmo padrão já usado pra idle/walk antes desta task.
+func _apply_anim(tex: Texture2D, frames: int, fps: float, delta: float) -> void:
+	if _sprite.texture != tex:
+		_sprite.texture = tex
+		_sprite.hframes = frames
+	if _hit_flash_timer > 0.0:
+		_sprite.modulate = Color(2.0, 2.0, 2.0, 1.0)
+	elif _invincible:
+		var a := 0.35 if int(Time.get_ticks_msec() / 80) % 2 == 0 else 1.0
+		_sprite.modulate = Color(1.0, 1.0, 1.0, a)
+	else:
+		_sprite.modulate = Color.WHITE
+	_anim_timer += delta
+	if frames > 1 and _anim_timer >= 1.0 / fps:
+		_anim_timer -= 1.0 / fps
+		_anim_frame = (_anim_frame + 1) % frames
+	_sprite.frame = _anim_frame
 
 func _update_animation(delta: float) -> void:
 	if state == State.INTRO:
@@ -44,6 +106,31 @@ func _update_animation(delta: float) -> void:
 		return
 	if   velocity.x >  10.0: _facing =  1.0
 	elif velocity.x < -10.0: _facing = -1.0
+
+	# Prioridade: reação a dano > ataque em andamento > locomoção normal.
+	if _takehit_timer > 0.0:
+		var tex := _TEX_TAKEHIT_E if _facing > 0.0 else _TEX_TAKEHIT_W
+		_apply_anim(tex, _TAKEHIT_FRAMES, _TAKEHIT_FPS, delta)
+		return
+
+	match _attack_anim:
+		AttackAnim.GATHER:
+			var tex := _TEX_GATHER_E if _facing > 0.0 else _TEX_GATHER_W
+			_apply_anim(tex, _GATHER_FRAMES, _GATHER_FPS, delta)
+			return
+		AttackAnim.DASH:
+			var tex := _TEX_WALK_E if _facing > 0.0 else _TEX_WALK_W
+			_apply_anim(tex, _WALK_FRAMES, _DASH_FPS, delta)
+			return
+		AttackAnim.BITE:
+			var tex := _TEX_BITE_E if _facing > 0.0 else _TEX_BITE_W
+			_apply_anim(tex, _BITE_FRAMES, _BITE_FPS, delta)
+			return
+		AttackAnim.ICEBLAST:
+			var tex := _TEX_ICEBLAST_E if _facing > 0.0 else _TEX_ICEBLAST_W
+			_apply_anim(tex, _ICEBLAST_FRAMES, _ICEBLAST_FPS, delta)
+			return
+
 	var tex   : Texture2D
 	var frames: int
 	var fps   : float
@@ -53,22 +140,7 @@ func _update_animation(delta: float) -> void:
 	else:
 		tex = _TEX_IDLE_E if _facing > 0.0 else _TEX_IDLE_W
 		frames = 1; fps = 4.0
-	if _sprite.texture != tex:
-		_sprite.texture = tex
-		_sprite.hframes = frames
-		_anim_frame = 0; _anim_timer = 0.0
-	if _hit_flash_timer > 0.0:
-		_sprite.modulate = Color(2.0, 2.0, 2.0, 1.0)
-	elif _invincible:
-		var a := 0.35 if int(Time.get_ticks_msec() / 80) % 2 == 0 else 1.0
-		_sprite.modulate = Color(1.0, 1.0, 1.0, a)
-	else:
-		_sprite.modulate = Color.WHITE
-	_anim_timer += delta
-	if frames > 1 and _anim_timer >= 1.0 / fps:
-		_anim_timer -= 1.0 / fps
-		_anim_frame = (_anim_frame + 1) % frames
-	_sprite.frame = _anim_frame
+	_apply_anim(tex, frames, fps, delta)
 
 func _do_combat(delta: float) -> void:
 	if player == null:
@@ -83,23 +155,68 @@ func _do_combat(delta: float) -> void:
 func _do_attack() -> void:
 	_is_attacking = true
 	velocity.x = 0.0
-	await get_tree().create_timer(0.25).timeout
+	_attack_anim = AttackAnim.GATHER
+	_anim_frame = 0; _anim_timer = 0.0
+	await get_tree().create_timer(_GATHER_FRAMES / _GATHER_FPS).timeout
 	if is_dead:
+		_attack_anim = AttackAnim.NONE
 		_is_attacking = false
 		return
 	if player == null:
+		_attack_anim = AttackAnim.NONE
 		_is_attacking = false
 		return
-	var dir: float = sign(player.global_position.x - global_position.x)
+	var dx := player.global_position.x - global_position.x
+	if abs(dx) <= _DASH_RANGE:
+		await _do_dash_bite(dx)
+	else:
+		await _do_iceblast(dx)
+	_attack_anim = AttackAnim.NONE
+	_is_attacking = false
+
+func _do_dash_bite(dx: float) -> void:
+	_attack_anim = AttackAnim.DASH
+	_anim_frame = 0; _anim_timer = 0.0
+	var dir: float = sign(dx)
 	if dir == 0.0:
-		dir = 1.0
+		dir = _facing
+	var dash_time := 0.35
+	var elapsed := 0.0
+	while elapsed < dash_time:
+		if is_dead:
+			return
+		velocity.x = dir * _DASH_SPEED
+		await get_tree().physics_frame
+		elapsed += get_physics_process_delta_time()
+	velocity.x = 0.0
+	_attack_anim = AttackAnim.BITE
+	_anim_frame = 0; _anim_timer = 0.0
+	var bite_total := _BITE_FRAMES / _BITE_FPS
+	await get_tree().create_timer(bite_total * 0.6).timeout
+	if is_dead:
+		return
+	if player != null and global_position.distance_to(player.global_position) < _BITE_RANGE:
+		if player.has_method("take_damage"):
+			player.take_damage(_BITE_DAMAGE)
+	await get_tree().create_timer(bite_total * 0.4).timeout
+
+func _do_iceblast(dx: float) -> void:
+	_attack_anim = AttackAnim.ICEBLAST
+	_anim_frame = 0; _anim_timer = 0.0
+	var dir: float = sign(dx)
+	if dir == 0.0:
+		dir = _facing
+	var blast_total := _ICEBLAST_FRAMES / _ICEBLAST_FPS
+	await get_tree().create_timer(blast_total * 0.7).timeout
+	if is_dead:
+		return
 	var shots := 3 if phase == 2 else 2
 	# low angle, high angle, straight
 	var shard_angles: Array[float] = [-0.35, 0.35, 0.0]
 	for i in shots:
 		var vel := Vector2(dir * 240.0, 0.0).rotated(shard_angles[i])
 		_spawn_projectile(global_position, vel, 12, "cryovex", Color(0.4, 0.8, 1.0))
-	_is_attacking = false
+	await get_tree().create_timer(blast_total * 0.3).timeout
 
 func _enter_phase_2() -> void:
 	attack_interval_p2 = 1.2

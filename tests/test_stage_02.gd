@@ -39,7 +39,7 @@ func _test_required_nodes_exist() -> void:
 		return
 	for node_name in [
 		"PlayerSpawn", "StageController", "HUD", "PauseMenu", "GameOver", "StageComplete", "Camera2D",
-		"Z1Marker", "Z2Marker", "MB02Marker", "Z3Marker", "Z4Marker", "BossEntryMarker",
+		"Z1Marker", "Z2Marker", "MB02Marker", "Z3Marker", "Z4Marker", "Cryovex",
 		"Heart", "SubTank", "ArmorZaraHelmet", "SpreadZael"
 	]:
 		_assert(inst.get_node_or_null(node_name) != null, "%s exists" % node_name)
