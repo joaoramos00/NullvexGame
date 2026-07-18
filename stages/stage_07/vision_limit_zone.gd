@@ -46,7 +46,7 @@ func _activate() -> void:
 	_point_light = PointLight2D.new()
 	_point_light.energy = light_energy
 	_point_light.texture = _radial_gradient_texture()
-	_point_light.texture_scale = light_radius / 256.0
+	_point_light.texture_scale = light_radius / 128.0
 	if _player:
 		_player.add_child(_point_light)
 
