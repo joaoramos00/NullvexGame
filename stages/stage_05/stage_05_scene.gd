@@ -350,7 +350,8 @@ func _build_zone2() -> void:
 	# um pouco do fluxo principal do updraft no meio do shaft.
 	_fixed_plat("Z2_ArmorLedge", "z2", _Z2_SHAFT_R + 96.0, _Z2_ARMOR_ALCOVE_Y, 128.0)
 	var armor := preload("res://stages/collectible.tscn").instantiate()
-	armor.set("collectible_type", "armor_zael_arms")
+	armor.set("collectible_type", Collectible.Type.ARMOR_ZAEL)
+	armor.set("armor_piece", "arms")
 	armor.global_position = Vector2(_Z2_SHAFT_R + 96.0, _Z2_ARMOR_ALCOVE_Y - 40.0)
 	add_child(armor)
 	# Aterrissagem no topo do shaft — plataforma plana levando pra Z3. Começa
@@ -394,11 +395,13 @@ func _build_zone3() -> void:
 	# Slide1 é rápida) e segue a sequência normal Slide2→Slide3.
 	_fixed_plat("Z3_ExtraLedge", "z3", 5850.0, FLOOR_Y2 - 130.0, 160.0)
 	var claws := preload("res://stages/collectible.tscn").instantiate()
-	claws.set("collectible_type", "extra_zara_claws")
+	claws.set("collectible_type", Collectible.Type.WEAPON_ZARA)
+	claws.set("ability_id", "claws")
 	claws.global_position = Vector2(5810.0, FLOOR_Y2 - 170.0)
 	add_child(claws)
 	var heart := preload("res://stages/collectible.tscn").instantiate()
-	heart.set("collectible_type", "heart")
+	heart.set("collectible_type", Collectible.Type.HEART)
+	heart.set("stage_id", 5)
 	heart.global_position = Vector2(5890.0, FLOOR_Y2 - 170.0)
 	add_child(heart)
 
@@ -424,6 +427,15 @@ func _build_boss_arena() -> void:
 		galerix.visible = true
 		galerix.global_position = Vector2((_BOSS_L + _BOSS_R) * 0.5, FLOOR_Y2 - 64.0)
 		galerix.set("auto_aggro", false)
+		# Sem estes três, BossBase mantém os defaults de arena_left/right/floor
+		# (100/1820/500 — coordenadas de outra parte do mapa, ver boss_base.gd:35-37),
+		# deixando _clamp_to_arena()/os limites de _do_combat() como código morto
+		# (bug crítico da Stage 06, ver memória project_stage06_rework — aqui o
+		# dash de Galerix só não escapava por coincidência de timing, não por
+		# estar de fato contido pela arena).
+		galerix.set("arena_left", _BOSS_L + 64.0)
+		galerix.set("arena_right", _BOSS_R - 64.0)
+		galerix.set("arena_floor", FLOOR_Y2)
 		var trig := Area2D.new()
 		trig.name = "BossRoomTrigger"
 		trig.collision_layer = 0
