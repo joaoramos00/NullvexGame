@@ -1,5 +1,7 @@
 extends BossBase
 
+const _QUAKE_SCENE := preload("res://characters/bosses/quake_wave.tscn")
+
 const _TEX_IDLE_W := preload("res://characters/bosses/terragor/terragor_west.png")
 const _TEX_IDLE_E := preload("res://characters/bosses/terragor/terragor_east.png")
 const _TEX_WALK_W := preload("res://characters/bosses/terragor/terragor_walk_west.png")
@@ -14,6 +16,7 @@ const _ENTRY_FPS    := 8.0
 var _anim_timer : float = 0.0
 var _anim_frame : int   = 0
 var _facing     : float = -1.0
+var _phase2_attack_count : int = 0
 
 @onready var _sprite: Sprite2D = $Sprite2D
 
@@ -87,6 +90,15 @@ func _do_attack() -> void:
 	if is_dead:
 		_is_attacking = false
 		return
+	if phase == 2 and _phase2_attack_count % 2 == 1:
+		_do_quake_attack()
+	else:
+		_do_rock_attack()
+	if phase == 2:
+		_phase2_attack_count += 1
+	_is_attacking = false
+
+func _do_rock_attack() -> void:
 	var count := 4 if phase == 2 else 2
 	for i in count:
 		var dir := 1.0 if i % 2 == 0 else -1.0
@@ -96,7 +108,14 @@ func _do_attack() -> void:
 			global_position, Vector2(dir * 180.0, vy),
 			15, "terragor", Color(0.5, 0.35, 0.1)
 		)
-	_is_attacking = false
+
+func _do_quake_attack() -> void:
+	for dir in [1.0, -1.0]:
+		var wave: QuakeWave = _QUAKE_SCENE.instantiate()
+		wave.global_position = global_position + Vector2(0.0, -20.0)
+		wave.direction = dir
+		get_parent().add_child(wave)
 
 func _enter_phase_2() -> void:
 	attack_interval_p2 = 1.2
+	_phase2_attack_count = 0
