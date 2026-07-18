@@ -386,9 +386,17 @@ func _build_zone3() -> void:
 	_floor_seg("z3", 8000.0, _CP2_ENTRY_X, FLOOR_Y)
 	_vision_zone("Z3_Dark", Vector2(9200.0, FLOOR_Y - 200.0), Vector2(2400.0, 700.0))
 	var gate := _light_gate("Z3_Gate", "z3", 9700.0, FLOOR_Y - 96.0, 64.0, 192.0)
-	var gate_cs := gate.get_child(0) as CollisionShape2D
-	gate_cs.disabled = false          # começa TRANCADO/sólido (ver nota acima)
-	gate.remove_meta("skip_base_draw")  # e visível, desenhado com o tile "z3"
+	# Sob DebugBoot.bot_enabled o interruptor Z3_Switch1 fica inerte
+	# (light_switch.gd ignora o toque do bot), então o portão NUNCA abriria —
+	# um portão sólido de 192px (> pulo máx.) travaria a travessia do StageBot
+	# em x=9700 permanentemente. Mesmo motivo pelo qual stage_02/ice_gate.gd faz
+	# queue_free() no bot ("bot não tem as habilidades; abre os gates pra validar
+	# a travessia"). Deixa o portão aberto (disabled=true/invisível, estado
+	# inicial de _light_gate) só no modo bot.
+	if not DebugBoot.bot_enabled:
+		var gate_cs := gate.get_child(0) as CollisionShape2D
+		gate_cs.disabled = false          # começa TRANCADO/sólido (ver nota acima)
+		gate.remove_meta("skip_base_draw")  # e visível, desenhado com o tile "z3"
 	_light_switch("Z3_Switch1", Vector2(9300.0, FLOOR_Y - 40.0), Vector2(64.0, 80.0), gate, false)
 	# Extra de Zara (Machado de Guerra) + coração num desvio depois do portão.
 	_fixed_plat("Z3_ExtraLedge", "z3", 9900.0, FLOOR_Y - 98.0, 160.0)
