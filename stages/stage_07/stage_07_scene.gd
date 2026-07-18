@@ -72,6 +72,7 @@ func _ready() -> void:
 	_setup_corridors()
 	_build_zone1()
 	_build_zone2()
+	_build_zone3()
 	_setup_zone_triggers()
 	_spawn_zone_enemies(1)
 	queue_redraw()
@@ -349,4 +350,52 @@ func _build_zone2() -> void:
 	armor.set("armor_piece", "legs")
 	armor.global_position = Vector2(5100.0, FLOOR_Y - 138.0)
 	add_child(armor)
-	_floor_seg("z2", 7000.0, _CP2_ENTRY_X, FLOOR_Y)
+	# Termina em x=8000 (não em _CP2_ENTRY_X=10432): a partir daí o piso passa
+	# a ser responsabilidade da Zona 3 (_build_zone3, tileset "z3"). Encurtado
+	# nesta task (10) porque a versão original ia até _CP2_ENTRY_X e duplicava
+	# fisicamente o piso da Zona 3 inteira (8000-10432): dois StaticBody2D
+	# sobrepostos no mesmo retângulo, cada um com override de textura de zona
+	# diferente (z2 vs z3) — mesma classe de bug de piso invadindo território
+	# da zona seguinte já visto na Stage 06 (Zona 2→3).
+	_floor_seg("z2", 7000.0, 8000.0, FLOOR_Y)
+
+# ── Zona 3 — Visão limitada + portões ─────────────────────────────────────────
+# Trecho com CanvasModulate escurecido (vision_limit_zone) cobrindo o piso
+# inteiro da zona (8000-10400, vs. piso 8000-10432); um interruptor (dentro
+# da zona escura, mas alcançado ANDANDO no piso — não precisa de visão) abre
+# um portão logo depois, guardando o extra de Zara + coração.
+#
+# IMPORTANTE — polaridade do portão (achado nesta task, não no brief
+# original): _light_gate() sempre cria o portão DESTRANCADO por padrão
+# (disabled=true, invisível) para SÓ o interruptor travá-lo/destravá-lo.
+# Se o portão começasse destrancado e o interruptor o ATIVASSE (trancasse)
+# depois — como o rascunho original desta task escrevia
+# (`_light_switch(..., gate, true)`) — o resultado seria um portão sólido de
+# 192px de altura (> pulo máx. ~117.5px) se fechando NO CAMINHO à frente do
+# jogador assim que ele pisasse no interruptor (que fica ANTES do portão, no
+# único caminho possível): softlock permanente e incondicional, já que o
+# interruptor é toggle único (não rearma). Por isso aqui o portão é montado
+# manualmente para começar TRANCADO/sólido (mesmo padrão de Z1_Beam/Z2_Beam1,
+# que também começam ativos por padrão) e o interruptor o DESTRANCA
+# (`target_active_value = false`, mesma semântica usada em Z2_Switch1 pra
+# desligar o feixe) — abrindo a passagem depois de encontrado.
+func _build_zone3() -> void:
+	_floor_seg("z3", 8000.0, _CP2_ENTRY_X, FLOOR_Y)
+	_vision_zone("Z3_Dark", Vector2(9200.0, FLOOR_Y - 200.0), Vector2(2400.0, 700.0))
+	var gate := _light_gate("Z3_Gate", "z3", 9700.0, FLOOR_Y - 96.0, 64.0, 192.0)
+	var gate_cs := gate.get_child(0) as CollisionShape2D
+	gate_cs.disabled = false          # começa TRANCADO/sólido (ver nota acima)
+	gate.remove_meta("skip_base_draw")  # e visível, desenhado com o tile "z3"
+	_light_switch("Z3_Switch1", Vector2(9300.0, FLOOR_Y - 40.0), Vector2(64.0, 80.0), gate, false)
+	# Extra de Zara (Machado de Guerra) + coração num desvio depois do portão.
+	_fixed_plat("Z3_ExtraLedge", "z3", 9900.0, FLOOR_Y - 98.0, 160.0)
+	var axe := preload("res://stages/collectible.tscn").instantiate()
+	axe.set("collectible_type", Collectible.Type.WEAPON_ZARA)
+	axe.set("ability_id", "war_axe")
+	axe.global_position = Vector2(9900.0, FLOOR_Y - 138.0)
+	add_child(axe)
+	var heart := preload("res://stages/collectible.tscn").instantiate()
+	heart.set("collectible_type", Collectible.Type.HEART)
+	heart.set("stage_id", 7)
+	heart.global_position = Vector2(9970.0, FLOOR_Y - 138.0)
+	add_child(heart)
