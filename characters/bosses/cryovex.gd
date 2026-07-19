@@ -13,6 +13,13 @@ const _TEX_ICEBLAST_W := preload("res://characters/bosses/cryovex/cryovex_icebla
 const _TEX_ICEBLAST_E := preload("res://characters/bosses/cryovex/cryovex_iceblast_east.png")
 const _TEX_TAKEHIT_W := preload("res://characters/bosses/cryovex/cryovex_takehit_west.png")
 const _TEX_TAKEHIT_E := preload("res://characters/bosses/cryovex/cryovex_takehit_east.png")
+const _TEX_GROUNDBURST_W := preload("res://characters/bosses/cryovex/cryovex_groundburst_west.png")
+const _TEX_GROUNDBURST_E := preload("res://characters/bosses/cryovex/cryovex_groundburst_east.png")
+const _ICE_SHARD_SCENE := preload("res://characters/bosses/ice_shard.tscn")
+const _FROST_IMPACT_SCENE := preload("res://characters/bosses/frost_impact.tscn")
+const _ICE_ORB_CHARGE_SCENE := preload("res://characters/bosses/ice_orb_charge.tscn")
+const _ICE_ORB_SCENE := preload("res://characters/bosses/ice_orb.tscn")
+const _ICE_TOOTH_SCENE := preload("res://characters/bosses/ice_tooth.tscn")
 
 const _WALK_FRAMES  := 9
 const _WALK_FPS     := 8.0
@@ -27,6 +34,16 @@ const _ICEBLAST_FRAMES := 9
 const _ICEBLAST_FPS    := 12.0
 const _TAKEHIT_FRAMES  := 9
 const _TAKEHIT_FPS     := 18.0
+const _ICE_ORB_CHARGE_FRAMES := 17
+const _ICE_ORB_CHARGE_FPS    := 18.0
+const _ICE_ORB_SPEED   := 200.0
+const _ICE_ORB_DAMAGE  := 14
+const _GROUNDBURST_FRAMES := 9
+const _GROUNDBURST_FPS    := 14.0
+const _ICE_TOOTH_SPACING   := 48.0
+const _ICE_TOOTH_STAGGER   := 0.1
+const _ICE_TOOTH_DAMAGE    := 6
+const _ICE_TOOTH_MAX_COUNT := 8
 
 # Alcance pra decidir qual ramo o ataque toma depois do GatherEnergy: perto
 # vira dash+mordida (melee), longe vira IcyBlast (à distância). Um pouco
@@ -37,7 +54,7 @@ const _DASH_SPEED  := 420.0
 const _BITE_RANGE  := 100.0
 const _BITE_DAMAGE := 16
 
-enum AttackAnim { NONE, GATHER, DASH, BITE, ICEBLAST }
+enum AttackAnim { NONE, GATHER, DASH, BITE, ICEBLAST, GROUNDBURST }
 
 var _anim_timer : float = 0.0
 var _anim_frame : int   = 0
@@ -130,6 +147,10 @@ func _update_animation(delta: float) -> void:
 			var tex := _TEX_ICEBLAST_E if _facing > 0.0 else _TEX_ICEBLAST_W
 			_apply_anim(tex, _ICEBLAST_FRAMES, _ICEBLAST_FPS, delta)
 			return
+		AttackAnim.GROUNDBURST:
+			var tex := _TEX_GROUNDBURST_E if _facing > 0.0 else _TEX_GROUNDBURST_W
+			_apply_anim(tex, _GROUNDBURST_FRAMES, _GROUNDBURST_FPS, delta)
+			return
 
 	var tex   : Texture2D
 	var frames: int
@@ -170,7 +191,13 @@ func _do_attack() -> void:
 	if abs(dx) <= _DASH_RANGE:
 		await _do_dash_bite(dx)
 	else:
-		await _do_iceblast(dx)
+		var roll := randf()
+		if roll < 1.0 / 3.0:
+			await _do_iceblast(dx)
+		elif roll < 2.0 / 3.0:
+			await _do_ice_orb(dx)
+		else:
+			await _do_ground_burst(dx)
 	_attack_anim = AttackAnim.NONE
 	_is_attacking = false
 
@@ -196,6 +223,9 @@ func _do_dash_bite(dx: float) -> void:
 	if is_dead:
 		return
 	if player != null and global_position.distance_to(player.global_position) < _BITE_RANGE:
+		var impact: Node2D = _FROST_IMPACT_SCENE.instantiate()
+		impact.global_position = player.global_position
+		get_parent().add_child(impact)
 		if player.has_method("take_damage"):
 			player.take_damage(_BITE_DAMAGE)
 	await get_tree().create_timer(bite_total * 0.4).timeout
@@ -204,19 +234,87 @@ func _do_iceblast(dx: float) -> void:
 	_attack_anim = AttackAnim.ICEBLAST
 	_anim_frame = 0; _anim_timer = 0.0
 	var dir: float = sign(dx)
-	if dir == 0.0:
-		dir = _facing
+	if dir != 0.0:
+		_facing = dir   # vira de frente pro player durante o windup, mesmo a rajada saindo pros dois lados
 	var blast_total := _ICEBLAST_FRAMES / _ICEBLAST_FPS
 	await get_tree().create_timer(blast_total * 0.7).timeout
 	if is_dead:
 		return
-	var shots := 3 if phase == 2 else 2
-	# low angle, high angle, straight
-	var shard_angles: Array[float] = [-0.35, 0.35, 0.0]
+	# Ice Spike Blast: rajada radial de estilhaços saindo em várias direções
+	# ao redor do boss (360°, ângulos igualmente espaçados) — ataque de área
+	# à distância, não um tiro único mirado no player.
+	var shots := 12 if phase == 2 else 8
 	for i in shots:
-		var vel := Vector2(dir * 240.0, 0.0).rotated(shard_angles[i])
-		_spawn_projectile(global_position, vel, 12, "cryovex", Color(0.4, 0.8, 1.0))
+		var angle: float = (TAU / shots) * i
+		var vel := Vector2(220.0, 0.0).rotated(angle)
+		var shard: Area2D = _ICE_SHARD_SCENE.instantiate()
+		shard.global_position = global_position
+		shard.projectile_velocity = vel
+		shard.damage = 10
+		shard.source_id = "cryovex"
+		get_parent().add_child(shard)
 	await get_tree().create_timer(blast_total * 0.3).timeout
+
+# 3º ataque à distância: reaproveita a animação Bite (boca aberta) parado no
+# lugar — sem dash — enquanto uma esfera espinhosa de gelo se forma na boca
+# (ice_orb_charge.tscn) e depois é lançada em linha reta mirada no player
+# (ice_orb.tscn).
+func _do_ice_orb(dx: float) -> void:
+	_attack_anim = AttackAnim.BITE
+	_anim_frame = 0; _anim_timer = 0.0
+	var dir: float = sign(dx)
+	if dir != 0.0:
+		_facing = dir
+	var mouth_offset := Vector2(_facing * 18.0, -38.0)
+	var charge: Node2D = _ICE_ORB_CHARGE_SCENE.instantiate()
+	charge.global_position = global_position + mouth_offset
+	get_parent().add_child(charge)
+	var charge_total := _ICE_ORB_CHARGE_FRAMES / _ICE_ORB_CHARGE_FPS
+	await get_tree().create_timer(charge_total).timeout
+	if is_dead:
+		return
+	if player != null:
+		var launch_pos := global_position + mouth_offset
+		var target_dir := (player.global_position - launch_pos).normalized()
+		if target_dir == Vector2.ZERO:
+			target_dir = Vector2(_facing, 0.0)
+		var orb: Area2D = _ICE_ORB_SCENE.instantiate()
+		orb.global_position = launch_pos
+		orb.projectile_velocity = target_dir * _ICE_ORB_SPEED
+		orb.damage = _ICE_ORB_DAMAGE
+		orb.source_id = "cryovex"
+		get_parent().add_child(orb)
+	await get_tree().create_timer(0.2).timeout
+
+# 4º ataque à distância: o boss se ergue no lugar, como se estivesse saindo
+# do chão e rasgando o piso (animação GroundBurst, gerada via
+# animate_character no PixelLab), enquanto uma fileira de dentes de gelo
+# nasce em sequência (ice_tooth.tscn) marchando em direção ao player, até
+# alcançá-lo ou atingir o limite de _ICE_TOOTH_MAX_COUNT.
+func _do_ground_burst(dx: float) -> void:
+	_attack_anim = AttackAnim.GROUNDBURST
+	_anim_frame = 0; _anim_timer = 0.0
+	var dir: float = sign(dx)
+	if dir != 0.0:
+		_facing = dir
+	velocity.x = 0.0
+	var total := _GROUNDBURST_FRAMES / _GROUNDBURST_FPS
+	await get_tree().create_timer(total * 0.5).timeout
+	if is_dead:
+		return
+	var count := _ICE_TOOTH_MAX_COUNT
+	if player != null:
+		count = clampi(int(abs(dx) / _ICE_TOOTH_SPACING), 2, _ICE_TOOTH_MAX_COUNT)
+	for i in count:
+		if is_dead:
+			return
+		var tooth: Area2D = _ICE_TOOTH_SCENE.instantiate()
+		tooth.global_position = global_position + Vector2(dir * _ICE_TOOTH_SPACING * (i + 1), 0.0)
+		tooth.damage = _ICE_TOOTH_DAMAGE
+		tooth.source_id = "cryovex"
+		get_parent().add_child(tooth)
+		await get_tree().create_timer(_ICE_TOOTH_STAGGER).timeout
+	await get_tree().create_timer(total * 0.3).timeout
 
 func _enter_phase_2() -> void:
 	attack_interval_p2 = 1.2
