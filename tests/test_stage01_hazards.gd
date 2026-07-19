@@ -136,10 +136,12 @@ func _test_cracked_wall_with_galerix() -> void:
 	var destroyed := [false]
 	wall.wall_destroyed.connect(func(): destroyed[0] = true)
 	wall.try_destroy()
-	# wall_destroyed dispara sincronamente antes do queue_free
+	# wall_destroyed dispara sincronamente, antes da animação de quebra tocar
 	_assert(destroyed[0], "parede emite wall_destroyed com habilidade Galerix")
-	# queue_free só libera no fim do frame — checar via is_queued_for_deletion
-	_assert(wall.is_queued_for_deletion(), "parede marcada para queue_free após destruição")
+	# queue_free só acontece no fim da animação de quebra (~13 frames); logo após
+	# try_destroy() a parede está em processo de quebra, ainda não foi liberada
+	_assert(wall._breaking, "parede entra em estado de quebra após destruição")
+	_assert(not wall.is_queued_for_deletion(), "parede só libera após a animação de quebra terminar")
 	GameManager.boss_abilities_unlocked.clear()
 
 # ── MovingPlatform ─────────────────────────────────────────────────────────────
