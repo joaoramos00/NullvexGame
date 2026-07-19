@@ -1,0 +1,18 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://characters/bosses/ice_tooth.gd" id="1_script"]
+
+[sub_resource type="RectangleShape2D" id="Rect_1"]
+size = Vector2(20, 40)
+
+[node name="IceTooth" type="Area2D"]
+collision_layer = 16
+collision_mask = 2
+script = ExtResource("1_script")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0, -20)
+shape = SubResource("Rect_1")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+position = Vector2(0, -32)
