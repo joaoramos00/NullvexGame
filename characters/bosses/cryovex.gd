@@ -13,6 +13,8 @@ const _TEX_ICEBLAST_W := preload("res://characters/bosses/cryovex/cryovex_icebla
 const _TEX_ICEBLAST_E := preload("res://characters/bosses/cryovex/cryovex_iceblast_east.png")
 const _TEX_TAKEHIT_W := preload("res://characters/bosses/cryovex/cryovex_takehit_west.png")
 const _TEX_TAKEHIT_E := preload("res://characters/bosses/cryovex/cryovex_takehit_east.png")
+const _ICE_SHARD_SCENE := preload("res://characters/bosses/ice_shard.tscn")
+const _FROST_IMPACT_SCENE := preload("res://characters/bosses/frost_impact.tscn")
 
 const _WALK_FRAMES  := 9
 const _WALK_FPS     := 8.0
@@ -196,6 +198,9 @@ func _do_dash_bite(dx: float) -> void:
 	if is_dead:
 		return
 	if player != null and global_position.distance_to(player.global_position) < _BITE_RANGE:
+		var impact: Node2D = _FROST_IMPACT_SCENE.instantiate()
+		impact.global_position = player.global_position
+		get_parent().add_child(impact)
 		if player.has_method("take_damage"):
 			player.take_damage(_BITE_DAMAGE)
 	await get_tree().create_timer(bite_total * 0.4).timeout
@@ -204,18 +209,25 @@ func _do_iceblast(dx: float) -> void:
 	_attack_anim = AttackAnim.ICEBLAST
 	_anim_frame = 0; _anim_timer = 0.0
 	var dir: float = sign(dx)
-	if dir == 0.0:
-		dir = _facing
+	if dir != 0.0:
+		_facing = dir   # vira de frente pro player durante o windup, mesmo a rajada saindo pros dois lados
 	var blast_total := _ICEBLAST_FRAMES / _ICEBLAST_FPS
 	await get_tree().create_timer(blast_total * 0.7).timeout
 	if is_dead:
 		return
-	var shots := 3 if phase == 2 else 2
-	# low angle, high angle, straight
-	var shard_angles: Array[float] = [-0.35, 0.35, 0.0]
+	# Ice Spike Blast: rajada radial de estilhaços saindo em várias direções
+	# ao redor do boss (360°, ângulos igualmente espaçados) — ataque de área
+	# à distância, não um tiro único mirado no player.
+	var shots := 12 if phase == 2 else 8
 	for i in shots:
-		var vel := Vector2(dir * 240.0, 0.0).rotated(shard_angles[i])
-		_spawn_projectile(global_position, vel, 12, "cryovex", Color(0.4, 0.8, 1.0))
+		var angle: float = (TAU / shots) * i
+		var vel := Vector2(220.0, 0.0).rotated(angle)
+		var shard: Area2D = _ICE_SHARD_SCENE.instantiate()
+		shard.global_position = global_position
+		shard.projectile_velocity = vel
+		shard.damage = 10
+		shard.source_id = "cryovex"
+		get_parent().add_child(shard)
 	await get_tree().create_timer(blast_total * 0.3).timeout
 
 func _enter_phase_2() -> void:
