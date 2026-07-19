@@ -15,6 +15,7 @@ const BULLET_SCALE := [
 const _BULLET_SCENE := preload("res://characters/ranged/zael_bullet.tscn")
 const _FIRE_WAVE    := preload("res://characters/ranged/player_fire_wave.gd")
 const _WIND_GUST    := preload("res://characters/ranged/player_wind_gust.gd")
+const _ICE_ARROW    := preload("res://characters/ranged/player_ice_arrow.gd")
 
 const _FRAME_W := 68
 const _FRAME_H := 68
@@ -455,6 +456,9 @@ func _use_special_ability() -> bool:
     if bid == "galerix" and GameManager.use_ability_ammo("galerix"):
         _fire_wind_gust()
         return true
+    if bid == "cryovex" and GameManager.use_ability_ammo("cryovex"):
+        _fire_ice_arrow()
+        return true
     return false
 
 func _fire_wind_gust() -> void:
@@ -465,6 +469,13 @@ func _fire_wind_gust() -> void:
     # a rajada saía perto do centro do corpo em vez de na altura do braço.
     gust.global_position = global_position + Vector2(dir_f * _SPAWN_OFFSET_X[1], _SPAWN_OFFSET_Y)
     get_parent().add_child(gust)
+
+func _fire_ice_arrow() -> void:
+    var dir_f: float = 1.0 if facing_right else -1.0
+    var arrow: Area2D = _ICE_ARROW.new()
+    arrow.set("dir", dir_f)
+    arrow.global_position = global_position + Vector2(dir_f * _SPAWN_OFFSET_X[1], _SPAWN_OFFSET_Y)
+    get_parent().add_child(arrow)
 
 func _fire_walk() -> void:
     var dir_f: float = 1.0 if facing_right else -1.0
