@@ -3,11 +3,11 @@
 [ext_resource type="Script" path="res://characters/bosses/ice_shard.gd" id="1_script"]
 
 [sub_resource type="CircleShape2D" id="Circ_1"]
-radius = 12.0
+radius = 8.0
 
 [node name="IceShard" type="Area2D"]
 collision_layer = 16
-collision_mask = 2
+collision_mask = 3
 script = ExtResource("1_script")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
