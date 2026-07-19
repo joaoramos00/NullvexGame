@@ -1723,10 +1723,6 @@ func _z4_cracked(n: String, center: Vector2, size: Vector2, break_side: String, 
 	w.collision_layer = 1
 	w.collision_mask = 0
 	w.position = center
-	# Render em modo FILL com tile z1 (escuro), em vez do default "lava" — senão o
-	# _draw_lava_tiles desenha min. 7 linhas e o visual transborda ~448px pra baixo da
-	# parede (a "parede passável" laranja abaixo do piso). Fill = exatamente o rect.
-	w.set_meta("tileset_override", _Z1_TILE_PATH)
 	w.add_child(_z2_shape(size))
 	var det := Area2D.new()
 	det.name = "HitDetector" + det_side
