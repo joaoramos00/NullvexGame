@@ -23,6 +23,9 @@ var _cam_y: float  = 0.0   # posição Y actual da câmera
 var _floor_y: float = 0.0  # nível de piso actual (actualizado ao pousar)
 var _lock_target: Vector2 = Vector2.ZERO
 var _shaft: bool = false
+var _shake_strength: float = 0.0
+var _shake_duration: float = 0.0
+var _shake_time_left: float = 0.0
 
 # ── API pública ───────────────────────────────────────────────────────────────
 
@@ -44,6 +47,7 @@ func update(delta: float) -> void:
 		_cam_y = lerpf(_cam_y, _lock_target.y, LOCK_SPEED)
 		target_x = _cam_x
 		target_y = _cam_y
+		_apply_shake(delta)
 		return
 
 	# reset _cam_x para o player quando não está locked
@@ -55,6 +59,7 @@ func update(delta: float) -> void:
 		var ty: float = _player.global_position.y - _CAM_RISE
 		_cam_y = lerpf(_cam_y, ty, minf(SHAFT_SPEED * delta, 1.0))
 		target_y = _cam_y
+		_apply_shake(delta)
 		return
 
 	# ── Nível 2: Default MMX ──────────────────────────────────────────────────
@@ -69,6 +74,24 @@ func update(delta: float) -> void:
 	# a subir (pulo): _cam_y congela
 
 	target_y = _cam_y
+	_apply_shake(delta)
+
+# Tremor de câmera (impacto do Smash do Terragor, etc.) — offset aleatório
+# decrescente somado direto em target_x/target_y, aplicado em todo ponto de
+# retorno de update() pra funcionar independente do modo de câmera actual.
+func shake(strength: float, duration: float) -> void:
+	_shake_strength = strength
+	_shake_duration = duration
+	_shake_time_left = duration
+
+func _apply_shake(delta: float) -> void:
+	if _shake_time_left <= 0.0:
+		return
+	_shake_time_left = maxf(0.0, _shake_time_left - delta)
+	var t: float = _shake_time_left / _shake_duration if _shake_duration > 0.0 else 0.0
+	var mag: float = _shake_strength * t
+	target_x += randf_range(-mag, mag)
+	target_y += randf_range(-mag, mag)
 
 func lock_to(target: Vector2, zoom: float) -> void:
 	is_locked  = true

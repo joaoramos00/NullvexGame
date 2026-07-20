@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bf3iy61sae3f8"
-path="res://.godot/imported/terragor_east.png-a3792e068c2f897e3c1f3dae84ddc905.ctex"
+uid="uid://gg7jxdb1r301"
+path="res://.godot/imported/fx_rock_fragment_shatter.png-cdbae76865e40b80df7ecfa2a790592e.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://characters/bosses/terragor/terragor_east.png"
-dest_files=["res://.godot/imported/terragor_east.png-a3792e068c2f897e3c1f3dae84ddc905.ctex"]
+source_file="res://characters/bosses/terragor/fx_rock_fragment_shatter.png"
+dest_files=["res://.godot/imported/fx_rock_fragment_shatter.png-cdbae76865e40b80df7ecfa2a790592e.ctex"]
 
 [params]
 
