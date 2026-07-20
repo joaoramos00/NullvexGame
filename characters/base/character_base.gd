@@ -66,6 +66,8 @@ var _stage_ice_contacts: int = 0
 var _stage_on_ice: bool = false
 var door_walk_speed: float = 0.0
 var door_locked: bool = false
+var is_stunned: bool = false
+var _stun_timer: float = 0.0
 
 func _ready() -> void:
 	max_hp = GameManager.max_hp
@@ -97,7 +99,18 @@ func _handle_ability_switch() -> void:
 	elif Input.is_action_just_pressed("ability_next"):
 		GameManager.cycle_ability(1)
 
+# Paralisa o player (sem mover/pular/dashar) por `duration` segundos — usado
+# pelo Smash do Terragor quando o impacto pega o player no chão/na parede.
+func stun(duration: float) -> void:
+	is_stunned = true
+	_stun_timer = duration
+	velocity = Vector2.ZERO
+
 func _tick_timers(delta: float) -> void:
+	if _stun_timer > 0.0:
+		_stun_timer -= delta
+		if _stun_timer <= 0.0:
+			is_stunned = false
 	if _invincibility_timer > 0.0:
 		_invincibility_timer -= delta
 		if _invincibility_timer <= 0.0:
@@ -175,7 +188,7 @@ func _apply_gravity(delta: float) -> void:
 			velocity.y = WALL_SLIDE_SPEED
 
 func _handle_movement(delta: float) -> void:
-	if door_locked:
+	if door_locked or is_stunned:
 		_is_dashing = false
 		velocity.x = 0.0
 		return
@@ -245,7 +258,7 @@ func _can_wall_jump() -> bool:
 	return _is_wall_sliding or (_wall_coyote_timer > 0.0 and not is_on_floor())
 
 func _handle_jump() -> void:
-	if _is_dashing or door_walk_speed != 0.0 or door_locked:
+	if _is_dashing or door_walk_speed != 0.0 or door_locked or is_stunned:
 		return
 	if Input.is_action_just_pressed("jump"):
 		_jump_buffer_timer = JUMP_BUFFER_TIME
@@ -261,7 +274,7 @@ func _handle_jump() -> void:
 		AudioManager.play_sfx(AudioLibrary.sfx_jump)
 
 func _handle_dash(delta: float) -> void:
-	if door_walk_speed != 0.0 or door_locked:
+	if door_walk_speed != 0.0 or door_locked or is_stunned:
 		return
 	if _is_dashing:
 		_dash_timer -= delta
