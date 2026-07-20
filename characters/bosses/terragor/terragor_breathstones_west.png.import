@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bf3iy61sae3f8"
-path="res://.godot/imported/terragor_east.png-a3792e068c2f897e3c1f3dae84ddc905.ctex"
+uid="uid://4cv7brrgm6nu"
+path="res://.godot/imported/terragor_breathstones_west.png-63775b13e016c812c8c0a4272bd2de84.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://characters/bosses/terragor/terragor_east.png"
-dest_files=["res://.godot/imported/terragor_east.png-a3792e068c2f897e3c1f3dae84ddc905.ctex"]
+source_file="res://characters/bosses/terragor/terragor_breathstones_west.png"
+dest_files=["res://.godot/imported/terragor_breathstones_west.png-63775b13e016c812c8c0a4272bd2de84.ctex"]
 
 [params]
 

@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bf3iy61sae3f8"
-path="res://.godot/imported/terragor_east.png-a3792e068c2f897e3c1f3dae84ddc905.ctex"
+uid="uid://d2xfdiw6q763c"
+path="res://.godot/imported/terragor_grabstone_east.png-3118431769de5c4945e37a576d5a0c38.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://characters/bosses/terragor/terragor_east.png"
-dest_files=["res://.godot/imported/terragor_east.png-a3792e068c2f897e3c1f3dae84ddc905.ctex"]
+source_file="res://characters/bosses/terragor/terragor_grabstone_east.png"
+dest_files=["res://.godot/imported/terragor_grabstone_east.png-3118431769de5c4945e37a576d5a0c38.ctex"]
 
 [params]
 

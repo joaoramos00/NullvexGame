@@ -496,9 +496,15 @@ func _build_boss_arena() -> void:
 		# porque Terragor já existe na .tscn desde a Task 7).
 		if terragor.has_signal("boss_defeated"):
 			terragor.connect("boss_defeated", _on_boss_defeated)
+		if terragor.has_signal("ground_smash"):
+			terragor.connect("ground_smash", _on_terragor_ground_smash)
 
 func _on_boss_defeated(_ability_id: String) -> void:
 	GameManager.save_game()
+
+func _on_terragor_ground_smash() -> void:
+	if _cam_ctrl != null:
+		_cam_ctrl.shake(12.0, 0.35)
 
 # ── Teto por zona ─────────────────────────────────────────────────────────────
 # Cobertura de Z2+Z3 (desabamentos+armadura / túnel de mineração+entulho): a
