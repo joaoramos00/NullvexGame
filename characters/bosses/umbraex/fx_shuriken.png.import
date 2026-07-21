@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://c35bpx58tm6ls"
-path="res://.godot/imported/umbraex_walk_east.png-30624a8b5d5a83066c5a4d9265e3609e.ctex"
+uid="uid://b1fjjev0coa7b"
+path="res://.godot/imported/fx_shuriken.png-83a581f0592d61694cd81c360c9cdad0.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://characters/bosses/umbraex/umbraex_walk_east.png"
-dest_files=["res://.godot/imported/umbraex_walk_east.png-30624a8b5d5a83066c5a4d9265e3609e.ctex"]
+source_file="res://characters/bosses/umbraex/fx_shuriken.png"
+dest_files=["res://.godot/imported/fx_shuriken.png-83a581f0592d61694cd81c360c9cdad0.ctex"]
 
 [params]
 
