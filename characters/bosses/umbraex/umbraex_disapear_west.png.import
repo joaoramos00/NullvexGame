@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://c35bpx58tm6ls"
-path="res://.godot/imported/umbraex_walk_east.png-30624a8b5d5a83066c5a4d9265e3609e.ctex"
+uid="uid://cuyug2gdponnt"
+path="res://.godot/imported/umbraex_disapear_west.png-90a775f9c8f1fe693ee695e06b4e8b92.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://characters/bosses/umbraex/umbraex_walk_east.png"
-dest_files=["res://.godot/imported/umbraex_walk_east.png-30624a8b5d5a83066c5a4d9265e3609e.ctex"]
+source_file="res://characters/bosses/umbraex/umbraex_disapear_west.png"
+dest_files=["res://.godot/imported/umbraex_disapear_west.png-90a775f9c8f1fe693ee695e06b4e8b92.ctex"]
 
 [params]
 
