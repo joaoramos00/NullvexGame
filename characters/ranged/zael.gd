@@ -17,6 +17,7 @@ const _FIRE_WAVE    := preload("res://characters/ranged/player_fire_wave.gd")
 const _WIND_GUST    := preload("res://characters/ranged/player_wind_gust.gd")
 const _ICE_ARROW    := preload("res://characters/ranged/player_ice_arrow.gd")
 const _SHADOW_KUNAI := preload("res://characters/ranged/player_shadow_kunai.gd")
+const _STONE_SHARD  := preload("res://characters/ranged/player_stone_shard.gd")
 
 const _FRAME_W := 68
 const _FRAME_H := 68
@@ -463,6 +464,9 @@ func _use_special_ability() -> bool:
     if bid == "umbraex" and GameManager.use_ability_ammo("umbraex"):
         _fire_shadow_kunai()
         return true
+    if bid == "terragor" and GameManager.use_ability_ammo("terragor"):
+        _fire_stone_shard()
+        return true
     return false
 
 func _fire_wind_gust() -> void:
@@ -487,6 +491,13 @@ func _fire_shadow_kunai() -> void:
     kunai.set("dir", dir_f)
     kunai.global_position = global_position + Vector2(dir_f * _SPAWN_OFFSET_X[1], _SPAWN_OFFSET_Y)
     get_parent().add_child(kunai)
+
+func _fire_stone_shard() -> void:
+    var dir_f: float = 1.0 if facing_right else -1.0
+    var shard: Area2D = _STONE_SHARD.new()
+    shard.set("dir", dir_f)
+    shard.global_position = global_position + Vector2(dir_f * _SPAWN_OFFSET_X[1], _SPAWN_OFFSET_Y)
+    get_parent().add_child(shard)
 
 func _fire_walk() -> void:
     var dir_f: float = 1.0 if facing_right else -1.0
