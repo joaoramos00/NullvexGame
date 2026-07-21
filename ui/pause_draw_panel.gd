@@ -64,6 +64,7 @@ var _card_frame_tex: Texture2D = null
 var _fire_wave_tex: Texture2D = null
 var _wind_slash_tex: Texture2D = null
 var _ice_arrow_tex: Texture2D = null
+var _shadow_kunai_tex: Texture2D = null
 
 func _ready() -> void:
 	_placeholder_tex = load("res://assets/buster/buster_L1.png")
@@ -72,6 +73,7 @@ func _ready() -> void:
 	_fire_wave_tex = load("res://characters/bosses/ignarath/fx_ground_burst.png")
 	_wind_slash_tex = load("res://characters/bosses/galerix/fx_wind_slash.png")
 	_ice_arrow_tex = load("res://characters/bosses/cryovex/fx_ice_arrow_idle.png")
+	_shadow_kunai_tex = load("res://characters/bosses/umbraex/fx_kunai.png")
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	focus_mode = Control.FOCUS_NONE
@@ -233,6 +235,8 @@ func _draw_power_grid(fnt: Font) -> void:
 				draw_texture_rect_region(_wind_slash_tex, spr_dest, Rect2(0, 0, 64, 64))
 			elif bid == "cryovex" and _ice_arrow_tex != null:
 				draw_texture_rect_region(_ice_arrow_tex, spr_dest, Rect2(0, 0, 48, 48))
+			elif bid == "umbraex" and _shadow_kunai_tex != null:
+				draw_texture_rect_region(_shadow_kunai_tex, spr_dest, Rect2(0, 0, 56, 56))
 			elif _placeholder_tex != null:
 				var pivot := Vector2(spr_dest.get_center())
 				draw_set_transform(pivot, -PI * 0.5, Vector2.ONE)
