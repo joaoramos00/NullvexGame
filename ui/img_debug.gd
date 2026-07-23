@@ -78,7 +78,17 @@ const _HITBOX_ENTITIES: Array = [
         {"label": "GroundBurst", "path": "res://characters/bosses/cryovex/cryovex_groundburst_east.png","frames": 9},
     ]},
     {"name": "Galerix", "path": "res://characters/bosses/galerix.tscn", "group": "Bosses", "kind": "Bosses", "stage": ""},
-    {"name": "Gravitus", "path": "res://characters/bosses/gravitus.tscn", "group": "Bosses", "kind": "Bosses", "stage": ""},
+    {"name": "Gravitus", "path": "res://characters/bosses/gravitus.tscn", "group": "Bosses", "kind": "Bosses", "stage": "", "anims": [
+        {"label": "Walk1",         "path": "res://characters/bosses/gravitus/gravitus_walk1_east.png",         "frames": 7},
+        {"label": "Walk2",         "path": "res://characters/bosses/gravitus/gravitus_walk2_east.png",         "frames": 7},
+        {"label": "Enter",         "path": "res://characters/bosses/gravitus/gravitus_entry_east.png",         "frames": 9},
+        {"label": "Preparo",       "path": "res://characters/bosses/gravitus/gravitus_preparo_east.png",       "frames": 9},
+        {"label": "GravitySlam",   "path": "res://characters/bosses/gravitus/gravitus_slam_east.png",          "frames": 9},
+        {"label": "MissileBarrage","path": "res://characters/bosses/gravitus/gravitus_missile_east.png",       "frames": 9},
+        {"label": "SingPunchPrep", "path": "res://characters/bosses/gravitus/gravitus_singpunch_prep_east.png","frames": 9},
+        {"label": "SingPunch",     "path": "res://characters/bosses/gravitus/gravitus_singpunch_east.png",     "frames": 9},
+        {"label": "TakeHit",       "path": "res://characters/bosses/gravitus/gravitus_takehit_east.png",       "frames": 9},
+    ]},
     {"name": "Ignarath", "path": "res://characters/bosses/ignarath.tscn", "group": "Bosses", "kind": "Bosses", "stage": "", "anims": [
         {"label": "Walk",       "path": "res://characters/bosses/ignarath/ignarath_walking.png",   "frames": 9},
         {"label": "Enter",      "path": "res://characters/bosses/ignarath/ignarath_enter.png",      "frames": 9},
