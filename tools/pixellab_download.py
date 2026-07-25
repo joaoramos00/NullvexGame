@@ -207,7 +207,7 @@ def main() -> None:
     p_anim.add_argument("job_id", help="background_job_id from animate-character response")
     p_anim.add_argument("dest", help="Destination folder, e.g. characters/enemies/grunt")
     p_anim.add_argument("--direction", required=True, choices=["west", "east", "south", "north"])
-    p_anim.add_argument("--action", required=True, choices=["walk", "idle", "attack", "death", "hit", "dash", "shoot"])
+    p_anim.add_argument("--action", required=True, choices=["walk", "idle", "attack", "death", "hit", "dash", "shoot", "entrada", "preparacao", "thunderbolt"])
 
     p_tile = sub.add_parser("tileset", help="Poll and download sidescroller tileset")
     p_tile.add_argument("tileset_id", help="Tileset ID from create_sidescroller_tileset")
