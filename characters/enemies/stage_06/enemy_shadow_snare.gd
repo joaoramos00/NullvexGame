@@ -5,8 +5,8 @@ class_name EnemyShadowSnare
 # contato pesado, HP alto.
 func _ready() -> void:
 	super._ready()
-	max_hp = 16
-	contact_damage = 13
+	max_hp = 3
+	contact_damage = 2
 	current_hp = max_hp
 	detect_radius = 320.0
 	dive_speed = 130.0
