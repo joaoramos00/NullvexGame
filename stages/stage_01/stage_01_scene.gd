@@ -22,7 +22,6 @@ const _FIRE := {
 	"grunt":   preload("res://characters/enemies/stage_01/enemy_magma_grunt.tscn"),
 	"ram":     preload("res://characters/enemies/stage_01/enemy_molten_ram.tscn"),
 	"hopper":  preload("res://characters/enemies/stage_01/enemy_ash_hopper.tscn"),
-	"orbiter": preload("res://characters/enemies/stage_01/enemy_ember_orbiter.tscn"),
 	"skimmer": preload("res://characters/enemies/stage_01/enemy_flame_skimmer.tscn"),
 	"cinder":  preload("res://characters/enemies/stage_01/enemy_cinder_flyer.tscn"),
 	"mortar":  preload("res://characters/enemies/stage_01/enemy_heat_mortar.tscn"),
@@ -1372,9 +1371,6 @@ func _spawn_fire_roster() -> void:
 	_spawn_fire("turret", "F_Z2Tur1", Vector2(5350, 2560), 1.0)   # vira p/ direita: pega o player depois que passa
 	_spawn_fire("turret", "F_Z2Tur2", Vector2(6600, 2560), -1.0)  # vira p/ esquerda: pega na aproximação
 	_spawn_fire("turret", "F_Z2Tur3", Vector2(8300, 2560), 1.0)   # vira p/ direita: cobre a saída
-	_spawn_fire("orbiter", "F_Z2Orb1", Vector2(5000, 2380))
-	_spawn_fire("orbiter", "F_Z2Orb2", Vector2(6300, 2380))
-	_spawn_fire("orbiter", "F_Z2Orb3", Vector2(7900, 2380))
 	_spawn_fire("serpent", "F_Z2Ser1", Vector2(4250, 2700))
 	_spawn_fire("serpent", "F_Z2Ser2", Vector2(7100, 2700))
 	# Z3 — maré (passes topo y2624; maré topo y2748)
@@ -1395,7 +1391,6 @@ func _spawn_fire_roster() -> void:
 	# lava-chase + espinhos instant-kill; densidade alta virava morte barata por knockback).
 	# 5 no shaft + 2 na base/entrada. Um por trecho, guardando um ponto da rota.
 	_spawn_fire("cinder",  "F_Z4Cin1",  Vector2(17560, 1284))   # junto ao WallPlat2 (guarda a montaria)
-	_spawn_fire("orbiter", "F_Z4Orb1",  Vector2(17648, 1044))   # entre WallPlat2 e WallPlat3
 	_spawn_fire("skimmer", "F_Z4Ski1",  Vector2(17700, 890))    # vão da direita, sob o WallPlat3
 	_spawn_fire("cinder",  "F_Z4Cin2",  Vector2(17660, 150))    # entre WallPlat4 e o Z4Crumble1
 	_spawn_fire("grunt",   "F_Z4Grunt3", Vector2(17520, -192))  # sobre o WallPlat5 (top -160)
