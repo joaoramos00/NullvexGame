@@ -18,7 +18,7 @@ func run_tests() -> void:
 func test_initial_state() -> void:
     GameManager.reset()
     assert(GameManager.lives == 3, "lives should start at 3")
-    assert(GameManager.max_hp == 50, "max_hp should start at 50")
+    assert(GameManager.max_hp == 14, "max_hp should start at 14")
     assert(GameManager.active_character == "zael", "default character is zael")
     assert(GameManager.completed_stages.size() == 0, "no stages completed")
     assert(GameManager.zael_shot_types == ["single"], "zael starts with single only")
@@ -29,14 +29,14 @@ func test_initial_state() -> void:
 func test_heart_increases_max_hp() -> void:
     GameManager.reset()
     GameManager.collect_heart(1)
-    assert(GameManager.max_hp == 70, "heart adds 20 to max_hp")
+    assert(GameManager.max_hp == 16, "heart adds 2 to max_hp")
     print("PASS: test_heart_increases_max_hp")
 
 func test_duplicate_heart_ignored() -> void:
     GameManager.reset()
     GameManager.collect_heart(1)
     GameManager.collect_heart(1)
-    assert(GameManager.max_hp == 70, "duplicate heart must not stack")
+    assert(GameManager.max_hp == 16, "duplicate heart must not stack")
     assert(GameManager.collected_hearts.size() == 1, "heart recorded once only")
     print("PASS: test_duplicate_heart_ignored")
 
@@ -90,7 +90,7 @@ func test_save_and_load() -> void:
     assert(GameManager.active_character == "zara", "active_character loaded")
     assert(GameManager.lives == 2, "lives loaded")
     assert(GameManager.collected_hearts.has(5), "heart loaded")
-    assert(GameManager.max_hp == 70, "max_hp restored from heart")
+    assert(GameManager.max_hp == 16, "max_hp restored from heart")
     assert(GameManager.completed_stages.has(2), "completed_stages loaded")
     assert(GameManager.boss_abilities_unlocked.has("ice_shot"), "ability loaded")
     assert(GameManager.zael_shot_types.has("rapid"), "zael shot type loaded")

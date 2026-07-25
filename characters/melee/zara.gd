@@ -3,7 +3,7 @@ class_name Zara
 
 const COMBO_WINDOW := 0.5
 const HITBOX_OFFSET := Vector2(30, -8)
-const COMBO_DAMAGE := [0, 8, 12, 20]
+const COMBO_DAMAGE := [0, 1, 1, 3]
 
 const _HITBOX_SCENE := preload("res://characters/melee/zara_hitbox.tscn")
 
