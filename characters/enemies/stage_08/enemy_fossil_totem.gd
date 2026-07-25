@@ -10,19 +10,19 @@ const SHOOT_RANGE := 520.0
 const AIM_Y := 110.0
 const SHOOT_INTERVAL := 1.4
 const BOLT_SPEED := 290.0
-const BOLT_DAMAGE := 7
+const BOLT_DAMAGE := 2
 
 @export var face_dir: float = -1.0
 
 var _shoot_timer := 0.4
 
 func _init() -> void:
-	max_hp = 16
-	contact_damage = 0
+	max_hp = 5
+	contact_damage = 1
 
 func _ready() -> void:
-	max_hp = 16
-	contact_damage = 0
+	max_hp = 5
+	contact_damage = 1
 	super._ready()
 	_direction = face_dir
 	_sprite.flip_h = _direction < 0.0

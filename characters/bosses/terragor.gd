@@ -44,9 +44,9 @@ const _TAKEHIT_FPS    := 14.0
 # Alcance pra decidir corpo-a-corpo (ThrowSoneLegal/Smash) vs à distância
 # (StoneShatter/BreathStones) depois do GrabStone.
 const _MELEE_RANGE     := 150.0
-const _BOULDER_DAMAGE    := 18
+const _BOULDER_DAMAGE    := 4
 const _SMASH_STUN_DURATION := 2.0
-const _BREATH_DAMAGE     := 7
+const _BREATH_DAMAGE     := 3
 const _BREATH_COUNT      := 5
 
 enum AttackAnim { NONE, GRABSTONE, STONESHATTER, THROWLEGAL, SMASH, BREATHSTONES }

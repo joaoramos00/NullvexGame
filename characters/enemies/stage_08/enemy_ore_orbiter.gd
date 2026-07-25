@@ -5,8 +5,8 @@ class_name EnemyOreOrbiter
 # detecta — contato pesado, HP alto (arquétipo "elite").
 func _ready() -> void:
 	super._ready()
-	max_hp = 12
-	contact_damage = 8
+	max_hp = 3
+	contact_damage = 2
 	current_hp = max_hp
 	detect_radius = 320.0
 	dive_speed = 130.0
