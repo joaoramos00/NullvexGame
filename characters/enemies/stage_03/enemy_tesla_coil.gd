@@ -14,12 +14,12 @@ const BOLT_DAMAGE := 8
 var _shoot_timer := 0.8
 
 func _init() -> void:
-	max_hp = 16
-	contact_damage = 9
+	max_hp = 4
+	contact_damage = 3
 
 func _ready() -> void:
-	max_hp = 16
-	contact_damage = 9
+	max_hp = 4
+	contact_damage = 3
 	super._ready()
 
 func _physics_process(delta: float) -> void:
