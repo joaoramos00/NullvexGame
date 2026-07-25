@@ -17,12 +17,12 @@ const BOLT_DAMAGE := 8
 var _shoot_timer := 0.4
 
 func _init() -> void:
-	max_hp = 18
-	contact_damage = 9
+	max_hp = 4
+	contact_damage = 1
 
 func _ready() -> void:
-	max_hp = 18
-	contact_damage = 9
+	max_hp = 4
+	contact_damage = 1
 	super._ready()
 	_direction = face_dir
 	_sprite.flip_h = _direction < 0.0
