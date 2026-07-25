@@ -19,6 +19,10 @@ const _STATIC_PULSE_DAMAGE   := 2
 const _STORM_BARRAGE_DAMAGE  := 3
 const _MELEE_RANGE           := 200.0
 
+const _THUNDER_ORB_SCENE := preload("res://characters/bosses/voltrix_thunder_orb.tscn")
+const _STATIC_PULSE_FX_SCENE := preload("res://characters/bosses/voltrix_static_pulse_fx.tscn")
+const _TALON_IMPACT_FX_SCENE := preload("res://characters/bosses/voltrix_talon_impact_fx.tscn")
+
 # Cada anim eh uma sequencia de sprites individuais (nao um spritesheet horizontal
 # como os outros bosses) -- carregamos os frames num Array e trocamos a textura
 # do Sprite2D a cada tick, em vez de usar hframes/frame.
@@ -168,6 +172,14 @@ func _do_attack() -> void:
 			await _do_static_pulse()
 	_is_attacking = false
 
+func _spawn_thunder_orb(pos: Vector2, vel: Vector2, dmg: int) -> void:
+	var orb: VoltrixThunderOrb = _THUNDER_ORB_SCENE.instantiate()
+	orb.global_position = pos
+	orb.projectile_velocity = vel
+	orb.damage = dmg
+	orb.source_id = "voltrix"
+	get_parent().add_child(orb)
+
 func _do_thunder_bolt() -> void:
 	_play_state(AnimState.THUNDERBOLT)
 	await get_tree().create_timer(float(_THUNDERBOLT_FRAMES) / _ANIM_FPS).timeout
@@ -177,10 +189,7 @@ func _do_thunder_bolt() -> void:
 		var dir: float = sign(player.global_position.x - global_position.x)
 		if dir == 0.0:
 			dir = 1.0
-		_spawn_projectile(
-			global_position, Vector2(dir * 620.0, 0.0),
-			_THUNDER_BOLT_DAMAGE, "voltrix", Color(1.0, 0.95, 0.0)
-		)
+		_spawn_thunder_orb(global_position, Vector2(dir * 620.0, 0.0), _THUNDER_BOLT_DAMAGE)
 	_play_state(AnimState.HOVER1)
 
 func _do_storm_barrage() -> void:
@@ -196,7 +205,7 @@ func _do_storm_barrage() -> void:
 		for i in 3:
 			var angle: float = (float(i) - 1.0) * spread
 			var vel := Vector2(dir * 620.0, 0.0).rotated(angle)
-			_spawn_projectile(global_position, vel, _STORM_BARRAGE_DAMAGE, "voltrix", Color(0.6, 0.9, 1.0))
+			_spawn_thunder_orb(global_position, vel, _STORM_BARRAGE_DAMAGE)
 	_play_state(AnimState.HOVER1)
 
 func _do_talon_dive() -> void:
@@ -225,6 +234,9 @@ func _do_talon_dive() -> void:
 			return
 		if player != null and global_position.distance_to(player.global_position) < 60.0:
 			player.take_damage(_TALON_DIVE_DAMAGE, "voltrix")
+			var impact: Sprite2D = _TALON_IMPACT_FX_SCENE.instantiate()
+			impact.global_position = player.global_position
+			get_parent().add_child(impact)
 		velocity = Vector2.ZERO
 	_sprite.rotation = 0.0
 	_play_state(AnimState.HOVER1)
@@ -234,6 +246,9 @@ func _do_static_pulse() -> void:
 	await get_tree().create_timer(float(_STATIC_PULSE_FRAMES) / _ANIM_FPS).timeout
 	if is_dead:
 		return
+	var pulse: Sprite2D = _STATIC_PULSE_FX_SCENE.instantiate()
+	pulse.global_position = global_position
+	get_parent().add_child(pulse)
 	if player != null and global_position.distance_to(player.global_position) < 140.0:
 		player.take_damage(_STATIC_PULSE_DAMAGE, "voltrix")
 	_play_state(AnimState.HOVER1)
