@@ -15,12 +15,12 @@ var _snared: Array[Node] = []
 var _tick_timer := 0.0
 
 func _init() -> void:
-	max_hp = 14
-	contact_damage = 10
+	max_hp = 4
+	contact_damage = 2
 
 func _ready() -> void:
-	max_hp = 14
-	contact_damage = 10
+	max_hp = 4
+	contact_damage = 2
 	super._ready()
 	_aura = Area2D.new()
 	_aura.collision_layer = 0

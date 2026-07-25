@@ -18,7 +18,7 @@ const _FRAGMENT_COUNT := 6
 
 var dir: float = 1.0
 var speed: float = 160.0
-var damage: int = 16
+var damage: int = 4
 var source_id: String = "terragor"
 # false = quebra "muda" sem espalhar estilhaços (usado no ThrowSoneLegal,
 # que só quebra ao bater numa parede no meio do trajeto). true = usado no
@@ -105,6 +105,6 @@ func _spawn_fragments() -> void:
 		var frag: Area2D = _FRAGMENT_SCENE.instantiate()
 		frag.global_position = global_position
 		frag.velocity = vel
-		frag.damage = 6
+		frag.damage = 2
 		frag.source_id = source_id
 		get_parent().add_child(frag)
