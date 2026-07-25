@@ -15,12 +15,12 @@ var _charge_timer := 0.0
 var _cooldown := 0.6
 
 func _init() -> void:
-	max_hp = 24
-	contact_damage = 13
+	max_hp = 3
+	contact_damage = 4
 
 func _ready() -> void:
-	max_hp = 24
-	contact_damage = 13
+	max_hp = 3
+	contact_damage = 4
 	super._ready()
 
 func _physics_process(delta: float) -> void:
