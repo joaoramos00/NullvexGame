@@ -17,7 +17,7 @@ const _TAKINGHIT_FRAMES  := 9;  const _TAKINGHIT_FPS  := 12.0
 # ── Combat constants ──────────────────────────────────────────────────────────
 const WALK_SPEED_P1        := 80.0
 const WALK_SPEED_P2        := 130.0
-const FIRE_DAMAGE          := 12
+const FIRE_DAMAGE          := 4
 # Firebreath = beam que sai da boca e varre da vertical pra fora (estilo Godzilla).
 const BEAM_SWEEP_TIME_P1   := 1.0
 const BEAM_SWEEP_TIME_P2   := 0.7
@@ -28,7 +28,7 @@ const MOUTH_DY             := -15.0
 const FIREBREATH_STATIC_FRAME := 8   # frame 9 (1-idx): sprite travado durante a varredura
 const FIRE_WINDUP_P1       := 0.5    # telegraph antes de cuspir (tempo de ir pra parede)
 const FIRE_WINDUP_P2       := 0.35
-const CLAW_DAMAGE          := 18
+const CLAW_DAMAGE          := 5
 const CLAW_RANGE           := 130.0    # alcance do corpo-a-corpo (se o player estiver colado)
 const CLAW_INVULN_WINDOW   := 0.25     # janela de INVULNERABILIDADE no instante do golpe
 # Fogo rasteiro da garra: onda BAIXA que viaja até a parede (dá pra pular por cima).
@@ -36,7 +36,7 @@ const CLAW_WAVE_H          := 56.0
 const CLAW_WAVE_W          := 90.0
 const CLAW_WAVE_SPEED_P1   := 300.0
 const CLAW_WAVE_SPEED_P2   := 400.0
-const CLAW_WAVE_DAMAGE     := 12
+const CLAW_WAVE_DAMAGE     := 2
 const RAGE_FLASH_DURATION  := 0.6
 const _FIRE_WAVE  := preload("res://characters/bosses/ignarath/fire_wave.gd")
 const _FIRE_BEAM  := preload("res://characters/bosses/ignarath/fire_beam.gd")
@@ -66,7 +66,7 @@ var _active_beam    : Node  = null  # beam do firebreath em andamento (liberado 
 func _ready() -> void:
 	stage_id           = 1
 	ability_id         = "ignarath"
-	max_hp             = 180
+	max_hp             = 40
 	boss_color         = Color(0.8, 0.2, 0.0, 1)
 	attack_interval_p1 = 2.5
 	attack_interval_p2 = 1.6

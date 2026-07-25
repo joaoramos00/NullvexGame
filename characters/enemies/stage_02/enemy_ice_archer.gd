@@ -19,12 +19,12 @@ var _shot_frame_timer := 0.0
 var _shot_released := false
 
 func _init() -> void:
-	max_hp = 12
-	contact_damage = 7
+	max_hp = 2
+	contact_damage = 1
 
 func _ready() -> void:
-	max_hp = 12
-	contact_damage = 7
+	max_hp = 2
+	contact_damage = 1
 	super._ready()
 
 func _physics_process(delta: float) -> void:

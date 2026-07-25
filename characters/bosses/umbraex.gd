@@ -24,12 +24,12 @@ const _THROWSHURIKEN_FRAMES := 9
 const _THROWSHURIKEN_FPS    := 14.0
 
 const _TELEPORT_OFFSET := 120.0
-const _PUNCH_DAMAGE := 16
-const _SHURIKEN_DAMAGE := 8
+const _PUNCH_DAMAGE := 3
+const _SHURIKEN_DAMAGE := 3
 const _SHURIKEN_UP_ANGLE := -0.6    # rad, ~34° pra cima
 const _SHURIKEN_DOWN_ANGLE := 0.6   # rad, ~34° pra baixo
 
-const _KUNAI_DAMAGE := 10
+const _KUNAI_DAMAGE := 4
 
 const _SHURIKEN_SCENE := preload("res://characters/bosses/shuriken_projectile.tscn")
 const _KUNAI_SCENE := preload("res://characters/bosses/kunai_projectile.tscn")

@@ -4,8 +4,8 @@ class_name EnemyThunderHawklet
 # Gavião-trovão: mergulhador agressivo, sem tiro — pressão por contato.
 func _ready() -> void:
 	super._ready()
-	max_hp = 7
-	contact_damage = 9
+	max_hp = 1
+	contact_damage = 1
 	current_hp = max_hp
 	detect_radius = 250.0
 	dive_speed = 360.0

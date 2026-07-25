@@ -14,7 +14,7 @@ const _EMBED_DURATION := 0.5
 const _LIFETIME := 2.0
 
 var dir: float = 1.0
-var damage: int = 10
+var damage: int = 3
 var source_id: String = "umbraex"
 var _embedded := false
 var _embed_timer := 0.0

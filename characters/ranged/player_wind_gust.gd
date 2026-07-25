@@ -11,7 +11,7 @@ const _LIFETIME    := 1.2
 
 var dir: float = 1.0
 var speed: float = 420.0
-var damage: int = 8
+var damage: int = 1
 var source_id: String = "galerix"
 
 var _hit_bodies: Array = []

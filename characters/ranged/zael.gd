@@ -4,7 +4,7 @@ class_name Zael
 const CHARGE_L2_THRESHOLD := 0.4
 const CHARGE_L3_THRESHOLD := 1.2
 
-const BULLET_DAMAGE := [0, 5, 12, 25]
+const BULLET_DAMAGE := [0, 1, 2, 3]
 const BULLET_SCALE := [
     Vector2.ZERO,
     Vector2(1.0, 1.0),

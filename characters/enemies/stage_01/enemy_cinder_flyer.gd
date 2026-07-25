@@ -12,8 +12,8 @@ var _shoot_timer := 1.2
 
 func _ready() -> void:
 	super._ready()
-	max_hp = 8
-	contact_damage = 7
+	max_hp = 2
+	contact_damage = 1
 	current_hp = max_hp
 	detect_radius = 220.0
 	dive_speed = 300.0

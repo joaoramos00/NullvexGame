@@ -54,9 +54,9 @@ const _TAKEHIT_FPS    := 14.0
 const _MELEE_RANGE  := 150.0
 const _SLAM_RANGE   := 160.0
 const _PUNCH_RANGE  := 110.0
-const _SLAM_DAMAGE  := 14
-const _PUNCH_DAMAGE := 16
-const _MISSILE_DAMAGE := 8
+const _SLAM_DAMAGE  := 3
+const _PUNCH_DAMAGE := 4
+const _MISSILE_DAMAGE := 2
 const _MISSILE_COUNT  := 3
 
 enum AttackAnim { NONE, PREPARO, SLAM, MISSILE, SINGPUNCH_PREP, SINGPUNCH }

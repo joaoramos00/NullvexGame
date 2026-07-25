@@ -12,12 +12,12 @@ const DETECT_RANGE := 420.0
 var _jump_timer := JUMP_INTERVAL
 
 func _init() -> void:
-	max_hp = 9
-	contact_damage = 8
+	max_hp = 2
+	contact_damage = 1
 
 func _ready() -> void:
-	max_hp = 9
-	contact_damage = 8
+	max_hp = 2
+	contact_damage = 1
 	super._ready()
 
 func _physics_process(delta: float) -> void:

@@ -30,7 +30,7 @@ const _LAUNCH_SPEED  := 320.0
 const _CORNER_MARGIN := 90.0
 const _LASER_COUNT   := 3
 const _LASER_GAP     := 0.35
-const _STRIKE_DAMAGE := 18
+const _STRIKE_DAMAGE := 1
 const _STRIKE_RADIUS := 90.0
 
 const _MAX_HP := 24

@@ -15,7 +15,7 @@ const _ANIM_FPS := 10.0
 
 @export var direction: float = 1.0
 @export var speed: float = 260.0
-@export var damage: int = 12
+@export var damage: int = 3
 @export var max_distance: float = 900.0
 
 var source_id: String = "terragor"
