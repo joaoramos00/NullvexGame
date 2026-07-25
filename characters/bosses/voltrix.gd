@@ -117,6 +117,8 @@ func _play_state(new_state: AnimState) -> void:
 	_anim_timer = 0.0
 
 func _do_combat(delta: float) -> void:
+	if _is_attacking:
+		return
 	if player == null:
 		return
 	var dx := player.global_position.x - global_position.x
