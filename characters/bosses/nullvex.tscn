@@ -9,5 +9,5 @@ boss_id = "nullvex"
 weakness_id = ""
 ability_id = "nullvex"
 stage_id = 10
-max_hp = 400
+max_hp = 40
 boss_color = Color(0.4, 0.0, 0.8, 1)
