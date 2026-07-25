@@ -10,12 +10,12 @@ const HOP_VX := 150.0
 var _hop_timer := 0.6
 
 func _init() -> void:
-	max_hp = 7
-	contact_damage = 7
+	max_hp = 2
+	contact_damage = 1
 
 func _ready() -> void:
-	max_hp = 7
-	contact_damage = 7
+	max_hp = 2
+	contact_damage = 1
 	super._ready()
 
 func _physics_process(delta: float) -> void:

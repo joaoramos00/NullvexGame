@@ -20,12 +20,12 @@ var _base_captured := false
 var _spat := false
 
 func _init() -> void:
-	max_hp = 14
-	contact_damage = 11
+	max_hp = 2
+	contact_damage = 2
 
 func _ready() -> void:
-	max_hp = 14
-	contact_damage = 11
+	max_hp = 2
+	contact_damage = 2
 	super._ready()
 	# _base_y é capturado no 1º frame de física (a posição pode ser setada após add_child).
 	# Já entra escondida/invulnerável p/ não piscar 1 frame antes da captura.
