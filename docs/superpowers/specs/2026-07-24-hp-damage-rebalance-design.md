@@ -21,14 +21,15 @@ Esta revisão substitui essa escala por uma régua pequena e deliberada — HP e
 | HP máximo | 30 |
 | Incremento por coração | +2 (8 corações nas fases 01-08, tabela de colectáveis existente) |
 | Zael — nível de carga 1 (sem carga) | 1 |
-| Zael — nível de carga 2 | 2 |
-| Zael — nível de carga 3 (carga total) | 3 |
-| Zael — nível de carga 4 (só com armadura de braço) | 5 |
+| Zael — nível de carga 2 (carga média) | 2 |
+| Zael — nível de carga 3 (carga total, hoje só acessível com armadura de braço) | 3 |
 | Zara — golpe 1 do combo | 1 |
 | Zara — golpe 2 do combo | 1 |
 | Zara — finisher | 3 |
 
 Os valores de carga/combo se aplicam de forma compartilhada a todos os 5 tipos de tiro do Zael e todas as 5 armas da Zara (o código atual já usa um array de dano único indexado por nível de carga / força do golpe, reaproveitado por todos os tipos — a diferenciação entre tipos é visual/de padrão de disparo, não de dano base).
+
+**Nota sobre carga e armadura:** o código hoje tem só 3 níveis de carga reais (`get_charge_level()` retorna 1/2/3). Sem a armadura de braço, o nível fica travado em 2 (`_charge_level()` aplica `mini(level, 2)`); com a armadura, o nível 3 fica acessível. Não existe um "nível 4" separado — a ideia de um tiro ainda mais forte desbloqueado por uma armadura melhorada (dano 5) fica para um projeto futuro de melhorias de armadura (fora de escopo desta revisão, que ainda não mexeu nas armaduras). Esta revisão usa só os 3 valores acima, sem alterar a lógica de desbloqueio por armadura existente.
 
 ### Habilidades de Boss (Zael)
 
