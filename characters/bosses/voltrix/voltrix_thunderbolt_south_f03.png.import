@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bisot38nkmx6v"
-path="res://.godot/imported/voltrix_south.png-dd94f6ad39e3e692d12537a77a639585.ctex"
+uid="uid://dpnwxtpxxgy3t"
+path="res://.godot/imported/voltrix_thunderbolt_south_f03.png-0977f03ebf7da8e53841b404268c57d6.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://characters/bosses/voltrix/voltrix_south.png"
-dest_files=["res://.godot/imported/voltrix_south.png-dd94f6ad39e3e692d12537a77a639585.ctex"]
+source_file="res://characters/bosses/voltrix/voltrix_thunderbolt_south_f03.png"
+dest_files=["res://.godot/imported/voltrix_thunderbolt_south_f03.png-0977f03ebf7da8e53841b404268c57d6.ctex"]
 
 [params]
 
