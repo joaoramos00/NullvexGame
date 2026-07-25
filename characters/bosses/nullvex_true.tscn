@@ -9,6 +9,6 @@ boss_id = "nullvex_true"
 weakness_id = ""
 ability_id = "nullvex_true"
 stage_id = 11
-max_hp = 600
+max_hp = 70
 boss_color = Color(0.0, 0.0, 0.6, 1)
 phase2_threshold = 0.67
