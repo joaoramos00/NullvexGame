@@ -14,7 +14,7 @@ const _DUST_INTERVAL := 0.07
 
 var dir: float = 1.0
 var speed: float = 480.0
-var damage: int = 8
+var damage: int = 2
 var source_id: String = "zael_ice_arrow"
 var _lifetime: float = 2.0
 var _hit := false
