@@ -12,12 +12,12 @@ var _aura: Area2D = null
 var _pulled: Array[Node] = []
 
 func _init() -> void:
-	max_hp = 14
-	contact_damage = 10
+	max_hp = 4
+	contact_damage = 1
 
 func _ready() -> void:
-	max_hp = 14
-	contact_damage = 10
+	max_hp = 4
+	contact_damage = 1
 	super._ready()
 	_aura = Area2D.new()
 	_aura.collision_layer = 0
