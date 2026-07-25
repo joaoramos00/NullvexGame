@@ -122,7 +122,7 @@ const _DROP_POOL_TO_TYPE: Dictionary = {
 @export var max_hp:         int = 2
 @export var contact_damage: int = 1
 
-var current_hp:           int   = 8
+var current_hp:           int   = 2
 var is_dead:              bool  = false
 var _direction:           float = 1.0
 var _invincible:          bool  = false
