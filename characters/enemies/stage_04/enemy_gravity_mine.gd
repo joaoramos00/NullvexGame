@@ -5,8 +5,8 @@ class_name EnemyGravityMine
 # contato forte, HP baixo. (Dive lento contínuo do EnemyFlyer faz a perseguição.)
 func _ready() -> void:
 	super._ready()
-	max_hp = 6
-	contact_damage = 12
+	max_hp = 1
+	contact_damage = 5
 	current_hp = max_hp
 	detect_radius = 340.0
 	dive_speed = 150.0

@@ -5,8 +5,8 @@ class_name EnemyGaleGrappler
 # contato pesado, HP alto (arquétipo "heavy" do _DROP_TABLE).
 func _ready() -> void:
 	super._ready()
-	max_hp = 16
-	contact_damage = 13
+	max_hp = 4
+	contact_damage = 3
 	current_hp = max_hp
 	detect_radius = 320.0
 	dive_speed = 130.0

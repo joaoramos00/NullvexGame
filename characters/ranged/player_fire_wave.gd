@@ -13,7 +13,7 @@ const _WAVE_W           := 90.0
 
 var dir: float = 1.0
 var speed: float = 300.0
-var damage: int = 8
+var damage: int = 3
 var source_id: String = "ignarath"
 
 var _burst_count: int = 0

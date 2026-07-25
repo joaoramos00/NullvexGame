@@ -4,8 +4,8 @@ class_name EnemyGemWasp
 # Vespa-gema patrulheira: mergulhador padrão, dive rápido quando detecta o player.
 func _ready() -> void:
 	super._ready()
-	max_hp = 6
-	contact_damage = 6
+	max_hp = 2
+	contact_damage = 1
 	current_hp = max_hp
 	detect_radius = 260.0
 	dive_speed = 370.0

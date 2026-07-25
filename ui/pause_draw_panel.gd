@@ -266,7 +266,7 @@ func _draw_power_grid(fnt: Font) -> void:
 			# Barra de energia horizontal — base interna do card
 			if bid != "":
 				var ammo: int         = GameManager.get_ability_ammo(bid)
-				var max_ammo: int     = GameManager.ABILITY_MAX_AMMO
+				var max_ammo: int     = int(GameManager.ABILITY_MAX_AMMO.get(bid, 10))
 				var ammo_ratio: float = float(ammo) / float(max(max_ammo, 1))
 				var bar_x: float = cx + _PADH
 				var bar_y: float = cy + _CH - _PADV - 20.0

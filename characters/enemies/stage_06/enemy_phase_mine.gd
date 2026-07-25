@@ -5,8 +5,8 @@ class_name EnemyPhaseMine
 # quando detecta — HP baixo, contato forte.
 func _ready() -> void:
 	super._ready()
-	max_hp = 6
-	contact_damage = 12
+	max_hp = 1
+	contact_damage = 3
 	current_hp = max_hp
 	detect_radius = 340.0
 	dive_speed = 150.0

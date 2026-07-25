@@ -24,7 +24,7 @@ func test_boss_stats() -> void:
 	add_child(boss)
 	_assert(boss.stage_id == 0, "stage_id == 0")
 	_assert(boss.ability_id == "", "ability_id vazio")
-	_assert(boss.max_hp == 28, "max_hp == 28")
+	_assert(boss.max_hp == 20, "max_hp == 20")
 	_assert(boss.has_method("_do_dash"), "_do_dash existe")
 	_assert(boss.has_method("_do_shoot"), "_do_shoot existe")
 	boss.queue_free()
@@ -33,8 +33,10 @@ func test_boss_has_patterns() -> void:
 	var scene := load("res://characters/bosses/intro_boss.tscn") as PackedScene
 	var boss := scene.instantiate()
 	add_child(boss)
-	_assert(boss.DASH_SPEED > 0.0, "DASH_SPEED positivo")
-	_assert(boss.SHOOT_COOLDOWN > 0.0, "SHOOT_COOLDOWN positivo")
+	_assert(boss.DASH_SPEED_P1 > 0.0, "DASH_SPEED_P1 positivo")
+	_assert(boss.DASH_SPEED_P2 > 0.0, "DASH_SPEED_P2 positivo")
+	_assert(boss.SHOOT_SPEED_P1 > 0.0, "SHOOT_SPEED_P1 positivo")
+	_assert(boss.SHOOT_SPEED_P2 > 0.0, "SHOOT_SPEED_P2 positivo")
 	boss.queue_free()
 
 var _defeated_flag := false

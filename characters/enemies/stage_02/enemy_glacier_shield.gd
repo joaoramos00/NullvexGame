@@ -22,12 +22,12 @@ var _shot_released := false
 @onready var _shield_barrier := get_node_or_null("ShieldBarrier") as Area2D
 
 func _init() -> void:
-	max_hp = 18
-	contact_damage = 10
+	max_hp = 2
+	contact_damage = 2
 
 func _ready() -> void:
-	max_hp = 18
-	contact_damage = 10
+	max_hp = 2
+	contact_damage = 2
 	super._ready()
 
 func _physics_process(delta: float) -> void:

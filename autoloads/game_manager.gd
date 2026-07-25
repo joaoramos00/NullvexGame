@@ -10,8 +10,8 @@ signal game_over
 
 const SAVE_PATH := "user://savegame.json"
 const DEFAULT_LIVES := 3
-const BASE_HP := 50
-const HEART_HP_BONUS := 20
+const BASE_HP := 14
+const HEART_HP_BONUS := 2
 
 var active_character: String = "zael"
 var lives: int = DEFAULT_LIVES
@@ -20,7 +20,16 @@ var completed_stages: Array[int] = []
 var collected_hearts: Array[int] = []
 var collected_subtanks: Array[int] = []
 var subtank_charges: Array[float] = [0.0, 0.0, 0.0, 0.0]
-const ABILITY_MAX_AMMO: int = 30
+const ABILITY_MAX_AMMO: Dictionary = {
+	"ignarath": 8,
+	"cryovex": 15,
+	"voltrix": 8,
+	"gravitus": 12,
+	"galerix": 20,
+	"umbraex": 10,
+	"luxar": 20,
+	"terragor": 8,
+}
 # Ordem fixa de navegação: primária ("" = Buster/Espada) primeiro, depois os
 # bosses 01-08 nessa ordem. Espelha _SLOTS em ui/pause_draw_panel.gd.
 const ABILITY_ORDER: Array[String] = [
@@ -99,7 +108,7 @@ func complete_stage(stage_id: int) -> void:
 func unlock_ability(ability_id: String) -> void:
     if not boss_abilities_unlocked.has(ability_id):
         boss_abilities_unlocked.append(ability_id)
-        boss_ability_ammo[ability_id] = ABILITY_MAX_AMMO
+        boss_ability_ammo[ability_id] = ABILITY_MAX_AMMO.get(ability_id, 10)
         ability_unlocked.emit(ability_id)
 
 # Habilidades disponíveis pra navegação: primária ("") sempre + bosses
@@ -126,7 +135,7 @@ func cycle_ability(dir: int) -> void:
     ability_changed.emit(selected_boss_ability)
 
 func get_ability_ammo(ability_id: String) -> int:
-    return int(boss_ability_ammo.get(ability_id, ABILITY_MAX_AMMO))
+    return int(boss_ability_ammo.get(ability_id, ABILITY_MAX_AMMO.get(ability_id, 10)))
 
 func use_ability_ammo(ability_id: String, amount: int = 1) -> bool:
     # Habilidade nunca desbloqueada não tem munição — sem isso o default de
@@ -140,7 +149,7 @@ func use_ability_ammo(ability_id: String, amount: int = 1) -> bool:
     return true
 
 func refill_ability_ammo(ability_id: String) -> void:
-    boss_ability_ammo[ability_id] = ABILITY_MAX_AMMO
+    boss_ability_ammo[ability_id] = ABILITY_MAX_AMMO.get(ability_id, 10)
 
 func unlock_zael_shot(shot_type: String) -> void:
     if not zael_shot_types.has(shot_type):

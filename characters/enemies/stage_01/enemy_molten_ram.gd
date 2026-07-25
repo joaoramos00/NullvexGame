@@ -15,12 +15,12 @@ var _state: S = S.PATROL
 var _timer := 0.0
 
 func _init() -> void:
-	max_hp = 22
-	contact_damage = 14
+	max_hp = 15
+	contact_damage = 3
 
 func _ready() -> void:
-	max_hp = 22
-	contact_damage = 14
+	max_hp = 15
+	contact_damage = 3
 	super._ready()
 
 func _physics_process(delta: float) -> void:

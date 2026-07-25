@@ -3,8 +3,8 @@ class_name EnemyFlameSkimmer
 
 func _ready() -> void:
 	super._ready()
-	max_hp = 9
-	contact_damage = 10
+	max_hp = 2
+	contact_damage = 1
 	current_hp = max_hp
 	dive_speed = 340.0
 	retreat_speed = 170.0
