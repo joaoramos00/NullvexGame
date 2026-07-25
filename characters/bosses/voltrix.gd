@@ -1,21 +1,46 @@
 extends BossBase
 
-const _TEX_IDLE_W := preload("res://characters/bosses/voltrix/voltrix_west.png")
-const _TEX_IDLE_E := preload("res://characters/bosses/voltrix/voltrix_east.png")
-const _TEX_WALK_W := preload("res://characters/bosses/voltrix/voltrix_walk_west.png")
-const _TEX_WALK_E := preload("res://characters/bosses/voltrix/voltrix_walk_east.png")
-const _TEX_ENTRY  := preload("res://characters/bosses/voltrix/voltrix_entry.png")
+enum AnimState { HOVER1, HOVER2, ENTRADA, PREPARACAO, THUNDERBOLT }
 
-const _WALK_FRAMES  := 8
-const _WALK_FPS     := 8.0
-const _ENTRY_FRAMES := 6
-const _ENTRY_FPS    := 8.0
+const _HOVER1_FRAMES      := 9
+const _HOVER2_FRAMES      := 9
+const _ENTRADA_FRAMES     := 9
+const _PREPARACAO_FRAMES  := 9
+const _THUNDERBOLT_FRAMES := 7
+const _ANIM_FPS := 10.0
 
-var _anim_timer : float = 0.0
-var _anim_frame : int   = 0
-var _facing     : float = -1.0
+# Cada anim eh uma sequencia de sprites individuais (nao um spritesheet horizontal
+# como os outros bosses) -- carregamos os frames num Array e trocamos a textura
+# do Sprite2D a cada tick, em vez de usar hframes/frame.
+var _hover1_frames: Array[Texture2D] = []
+var _hover2_frames: Array[Texture2D] = []
+var _entrada_frames: Array[Texture2D] = []
+var _preparacao_frames: Array[Texture2D] = []
+var _thunderbolt_frames: Array[Texture2D] = []
+
+var _anim_state: AnimState = AnimState.HOVER1
+var _anim_frame: int = 0
+var _anim_timer: float = 0.0
+var _facing: float = -1.0
 
 @onready var _sprite: Sprite2D = $Sprite2D
+
+func _ready() -> void:
+	super._ready()
+	gravity_scale = 0.0
+	_load_frame_arrays()
+
+func _load_frame_arrays() -> void:
+	for i in _HOVER1_FRAMES:
+		_hover1_frames.append(load("res://characters/bosses/voltrix/voltrix_hover1_south_f%02d.png" % i))
+	for i in _HOVER2_FRAMES:
+		_hover2_frames.append(load("res://characters/bosses/voltrix/voltrix_hover2_south_f%02d.png" % i))
+	for i in _ENTRADA_FRAMES:
+		_entrada_frames.append(load("res://characters/bosses/voltrix/voltrix_entrada_south_f%02d.png" % i))
+	for i in _PREPARACAO_FRAMES:
+		_preparacao_frames.append(load("res://characters/bosses/voltrix/voltrix_preparacao_south_f%02d.png" % i))
+	for i in _THUNDERBOLT_FRAMES:
+		_thunderbolt_frames.append(load("res://characters/bosses/voltrix/voltrix_thunderbolt_south_f%02d.png" % i))
 
 func _draw() -> void:
 	var pct := float(current_hp) / float(max_hp) if max_hp > 0 else 0.0
@@ -29,34 +54,31 @@ func _physics_process(delta: float) -> void:
 	super(delta)
 	_update_animation(delta)
 
+func _current_frame_array() -> Array[Texture2D]:
+	match _anim_state:
+		AnimState.HOVER2:      return _hover2_frames
+		AnimState.ENTRADA:     return _entrada_frames
+		AnimState.PREPARACAO:  return _preparacao_frames
+		AnimState.THUNDERBOLT: return _thunderbolt_frames
+		_:                     return _hover1_frames
+
 func _update_animation(delta: float) -> void:
 	if state == State.INTRO:
-		_sprite.texture = _TEX_ENTRY
-		_sprite.hframes = _ENTRY_FRAMES
-		_anim_timer += delta
-		if _anim_timer >= 1.0 / _ENTRY_FPS:
-			_anim_timer -= 1.0 / _ENTRY_FPS
-			_anim_frame = mini(_anim_frame + 1, _ENTRY_FRAMES - 1)
-		_sprite.frame    = _anim_frame
-		_sprite.modulate = Color.WHITE
+		_play_state(AnimState.ENTRADA)
+	elif state in [State.DYING, State.DEAD]:
 		return
-	if state in [State.DYING, State.DEAD]:
-		return
-	if   velocity.x >  10.0: _facing =  1.0
-	elif velocity.x < -10.0: _facing = -1.0
-	var tex   : Texture2D
-	var frames: int
-	var fps   : float
-	if absf(velocity.x) > 10.0:
-		tex = _TEX_WALK_E if _facing > 0.0 else _TEX_WALK_W
-		frames = _WALK_FRAMES; fps = _WALK_FPS
+	elif _anim_state == AnimState.ENTRADA:
+		# Intro acabou (state saiu de INTRO) mas a entrada ainda nao foi trocada
+		# de volta -- acontece uma vez, na primeira _update_animation em COMBAT.
+		_play_state(AnimState.HOVER1)
+	elif _anim_state in [AnimState.PREPARACAO, AnimState.THUNDERBOLT]:
+		pass  # ataque em andamento, deixa terminar (ver _play_state)
 	else:
-		tex = _TEX_IDLE_E if _facing > 0.0 else _TEX_IDLE_W
-		frames = 1; fps = 4.0
-	if _sprite.texture != tex:
-		_sprite.texture = tex
-		_sprite.hframes = frames
-		_anim_frame = 0; _anim_timer = 0.0
+		# Sem asas/pernas de andar -- so alterna HOVER1<->HOVER2 (loop continuo),
+		# nunca ha "parado" vs "andando" como nos outros bosses.
+		if velocity.x >  10.0: _facing =  1.0
+		elif velocity.x < -10.0: _facing = -1.0
+	_sprite.scale.x = absf(_sprite.scale.x) * (1.0 if _facing > 0.0 else -1.0)
 	if _hit_flash_timer > 0.0:
 		_sprite.modulate = Color(2.0, 2.0, 2.0, 1.0)
 	elif _invincible:
@@ -64,36 +86,39 @@ func _update_animation(delta: float) -> void:
 		_sprite.modulate = Color(1.0, 1.0, 1.0, a)
 	else:
 		_sprite.modulate = Color.WHITE
-	_anim_timer += delta
-	if frames > 1 and _anim_timer >= 1.0 / fps:
-		_anim_timer -= 1.0 / fps
-		_anim_frame = (_anim_frame + 1) % frames
-	_sprite.frame = _anim_frame
-
-func _do_combat(_delta: float) -> void:
-	velocity.x = 0.0
-
-func _do_attack() -> void:
-	_is_attacking = true
-	if player != null:
-		var tx: float = clamp(
-			player.global_position.x + randf_range(-250.0, 250.0),
-			arena_left + 60.0, arena_right - 60.0
-		)
-		global_position = Vector2(tx, arena_floor - 60.0)
-		queue_redraw()
-	await get_tree().create_timer(0.4).timeout
-	if is_dead:
-		_is_attacking = false
+	var frames := _current_frame_array()
+	if frames.is_empty():
 		return
-	var count := 3 if phase == 2 else 1
-	for i in count:
-		var ox := (i - (count - 1) * 0.5) * 80.0
-		_spawn_projectile(
-			global_position + Vector2(ox, 0.0),
-			Vector2(0.0, 700.0), 18, "voltrix", Color(1.0, 0.95, 0.0)
-		)
-	_is_attacking = false
+	_anim_timer += delta
+	if _anim_timer >= 1.0 / _ANIM_FPS:
+		_anim_timer -= 1.0 / _ANIM_FPS
+		_anim_frame += 1
+		if _anim_frame >= frames.size():
+			if _anim_state in [AnimState.ENTRADA, AnimState.PREPARACAO, AnimState.THUNDERBOLT]:
+				_anim_frame = frames.size() - 1  # segura no ultimo frame, quem chamou decide quando voltar pro hover
+			else:
+				_anim_frame = 0
+				_anim_state = AnimState.HOVER2 if _anim_state == AnimState.HOVER1 else AnimState.HOVER1
+				frames = _current_frame_array()
+	_sprite.texture = frames[_anim_frame]
+
+# Toca uma animacao nao-hover do inicio (chamado pelo intro e pelos ataques).
+func _play_state(new_state: AnimState) -> void:
+	if _anim_state == new_state:
+		return
+	_anim_state = new_state
+	_anim_frame = 0
+	_anim_timer = 0.0
+
+func _do_combat(delta: float) -> void:
+	if player == null:
+		return
+	var dx := player.global_position.x - global_position.x
+	var target_y := player.global_position.y - 120.0
+	var dy := target_y - global_position.y
+	velocity.x = sign(dx) * 90.0 if abs(dx) > 220.0 else 0.0
+	velocity.y = sign(dy) * 70.0 if abs(dy) > 30.0 else 0.0
+	_clamp_to_arena()
 
 func _enter_phase_2() -> void:
-	attack_interval_p2 = 1.1
+	attack_interval_p2 = 1.2
