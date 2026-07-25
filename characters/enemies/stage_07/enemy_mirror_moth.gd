@@ -12,8 +12,8 @@ var _shoot_timer := 0.5
 
 func _ready() -> void:
 	super._ready()
-	max_hp = 6
-	contact_damage = 6
+	max_hp = 1
+	contact_damage = 1
 	current_hp = max_hp
 	dive_speed = 0.0
 	detect_radius = 0.0
