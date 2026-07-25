@@ -17,12 +17,12 @@ var _hover_time := 0.0
 var _shoot_timer := 0.45
 
 func _init() -> void:
-	max_hp = 8
-	contact_damage = 6
+	max_hp = 1
+	contact_damage = 1
 
 func _ready() -> void:
-	max_hp = 8
-	contact_damage = 6
+	max_hp = 1
+	contact_damage = 1
 	super._ready()
 	_spawn_position = global_position
 

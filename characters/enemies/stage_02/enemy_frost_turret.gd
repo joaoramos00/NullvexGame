@@ -19,12 +19,12 @@ var _shot_released := false
 var _queued_shot_velocity := Vector2.RIGHT
 
 func _init() -> void:
-	max_hp = 14
-	contact_damage = 6
+	max_hp = 4
+	contact_damage = 1
 
 func _ready() -> void:
-	max_hp = 14
-	contact_damage = 6
+	max_hp = 4
+	contact_damage = 1
 	super._ready()
 
 func _physics_process(delta: float) -> void:

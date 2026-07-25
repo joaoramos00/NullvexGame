@@ -37,12 +37,12 @@ const _TAKEHIT_FPS     := 18.0
 const _ICE_ORB_CHARGE_FRAMES := 17
 const _ICE_ORB_CHARGE_FPS    := 18.0
 const _ICE_ORB_SPEED   := 200.0
-const _ICE_ORB_DAMAGE  := 14
+const _ICE_ORB_DAMAGE  := 4
 const _GROUNDBURST_FRAMES := 9
 const _GROUNDBURST_FPS    := 14.0
 const _ICE_TOOTH_SPACING   := 48.0
 const _ICE_TOOTH_STAGGER   := 0.1
-const _ICE_TOOTH_DAMAGE    := 6
+const _ICE_TOOTH_DAMAGE    := 3
 const _ICE_TOOTH_MAX_COUNT := 8
 
 # Alcance pra decidir qual ramo o ataque toma depois do GatherEnergy: perto
@@ -52,7 +52,7 @@ const _ICE_TOOTH_MAX_COUNT := 8
 const _DASH_RANGE  := 260.0
 const _DASH_SPEED  := 420.0
 const _BITE_RANGE  := 100.0
-const _BITE_DAMAGE := 16
+const _BITE_DAMAGE := 3
 
 enum AttackAnim { NONE, GATHER, DASH, BITE, ICEBLAST, GROUNDBURST }
 
