@@ -119,8 +119,8 @@ const _DROP_POOL_TO_TYPE: Dictionary = {
 	"one_up":   DropPickup.Type.ONE_UP,
 }
 
-@export var max_hp:         int = 8
-@export var contact_damage: int = 8
+@export var max_hp:         int = 2
+@export var contact_damage: int = 1
 
 var current_hp:           int   = 8
 var is_dead:              bool  = false
