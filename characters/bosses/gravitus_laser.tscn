@@ -1,0 +1,6 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://characters/bosses/gravitus_laser.gd" id="1_script"]
+
+[node name="GravitusLaser" type="Node2D"]
+script = ExtResource("1_script")

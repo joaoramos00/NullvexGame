@@ -5,9 +5,9 @@ extends BossBase
 # Walk1/Walk2 (mesmo padrão do Terragor). Combate: Preparo compartilhado
 # (agachar, garras cravadas) antes de Gravity Slam e Missile Barrage — o
 # agachamento também expõe os lançadores nas costas —, e Singularity Punch
-# tem seu próprio wind-up dedicado. FX (mísseis, impacto do soco, satélite)
-# ainda usam placeholder genérico (_spawn_projectile / dano por proximidade);
-# arte dedicada vem numa etapa seguinte.
+# tem seu próprio wind-up dedicado. Missile Barrage usa GravitusMissile
+# (fly + explosion, arte PixelLab dedicada); Slam/Punch ainda usam dano por
+# proximidade (sem FX próprio ainda).
 const _TEX_IDLE_W := preload("res://characters/bosses/gravitus/gravitus_west.png")
 const _TEX_IDLE_E := preload("res://characters/bosses/gravitus/gravitus_east.png")
 const _TEX_WALK1_W := preload("res://characters/bosses/gravitus/gravitus_walk1_west.png")
@@ -28,6 +28,11 @@ const _TEX_SINGPUNCH_W := preload("res://characters/bosses/gravitus/gravitus_sin
 const _TEX_SINGPUNCH_E := preload("res://characters/bosses/gravitus/gravitus_singpunch_east.png")
 const _TEX_TAKEHIT_W := preload("res://characters/bosses/gravitus/gravitus_takehit_west.png")
 const _TEX_TAKEHIT_E := preload("res://characters/bosses/gravitus/gravitus_takehit_east.png")
+
+const _MISSILE_SCENE := preload("res://characters/bosses/gravitus_missile.tscn")
+const _SINGULARITY_FX_SCENE := preload("res://characters/bosses/gravitus_singularity_fx.tscn")
+const _FIST_OFFSET := Vector2(60.0, -20.0)
+const _SATELLITE_SCENE := preload("res://characters/bosses/gravitus_satellite.tscn")
 
 const _WALK_FRAMES  := 7
 const _WALK_FPS     := 8.0
@@ -206,7 +211,10 @@ func _do_attack() -> void:
 		else:
 			await _do_singularity_punch()
 	else:
-		await _do_missile_barrage()
+		if randf() < 0.5:
+			await _do_missile_barrage()
+		else:
+			await _do_satellite_strike()
 	_attack_anim = AttackAnim.NONE
 	_is_attacking = false
 
@@ -231,6 +239,7 @@ func _do_gravity_slam() -> void:
 func _do_singularity_punch() -> void:
 	_attack_anim = AttackAnim.SINGPUNCH_PREP
 	_anim_frame = 0; _anim_timer = 0.0
+	_spawn_singularity_fx("shrink")
 	await get_tree().create_timer(_SINGPUNCH_PREP_FRAMES / _SINGPUNCH_PREP_FPS).timeout
 	if is_dead:
 		return
@@ -240,12 +249,19 @@ func _do_singularity_punch() -> void:
 	await get_tree().create_timer(total * 0.6).timeout
 	if is_dead:
 		return
+	_spawn_singularity_fx("explode")
 	if player != null and global_position.distance_to(player.global_position) <= _PUNCH_RANGE:
 		player.take_damage(_PUNCH_DAMAGE, "gravitus")
 	await get_tree().create_timer(total * 0.4).timeout
 
+func _spawn_singularity_fx(mode: String) -> void:
+	var fx: GravitusSingularityFX = _SINGULARITY_FX_SCENE.instantiate()
+	fx.mode = mode
+	fx.global_position = global_position + Vector2(_FIST_OFFSET.x * _facing, _FIST_OFFSET.y)
+	get_parent().add_child(fx)
+
 # Mesmo preparo (agachar expõe os lançadores nas costas) -> saraivada de
-# projéteis genéricos (placeholder até a arte dedicada de FX).
+# mísseis com arte dedicada (GravitusMissile).
 func _do_missile_barrage() -> void:
 	_attack_anim = AttackAnim.PREPARO
 	_anim_frame = 0; _anim_timer = 0.0
@@ -264,8 +280,42 @@ func _do_missile_barrage() -> void:
 			dir = _facing
 		for i in _MISSILE_COUNT:
 			var vy := (float(i) - float(_MISSILE_COUNT - 1) * 0.5) * 40.0
-			_spawn_projectile(global_position, Vector2(dir * 260.0, vy), _MISSILE_DAMAGE, "gravitus", Color(0.6, 0.2, 0.8))
+			var m: GravitusMissile = _MISSILE_SCENE.instantiate()
+			m.global_position = global_position
+			m.velocity = Vector2(dir * 260.0, vy)
+			m.damage = _MISSILE_DAMAGE
+			m.source_id = "gravitus"
+			get_parent().add_child(m)
 	await get_tree().create_timer(total * 0.6).timeout
+
+# Mesmo preparo/pose do Missile Barrage (agachar expõe os lançadores) ->
+# lança o satélite orbital, que age de forma autônoma (voa pro canto, dispara
+# 3 lasers, se autodestrói) sem travar o Gravitus no meio do combate.
+func _do_satellite_strike() -> void:
+	_attack_anim = AttackAnim.PREPARO
+	_anim_frame = 0; _anim_timer = 0.0
+	await get_tree().create_timer(_PREPARO_FRAMES / _PREPARO_FPS).timeout
+	if is_dead:
+		return
+	_attack_anim = AttackAnim.MISSILE
+	_anim_frame = 0; _anim_timer = 0.0
+	var total := _MISSILE_FRAMES / _MISSILE_FPS
+	await get_tree().create_timer(total * 0.4).timeout
+	if is_dead:
+		return
+	_spawn_satellite()
+	await get_tree().create_timer(total * 0.6).timeout
+
+func _spawn_satellite() -> void:
+	var sat: GravitusSatellite = _SATELLITE_SCENE.instantiate()
+	sat.global_position = global_position
+	sat.player = player
+	sat.arena_left = arena_left
+	sat.arena_right = arena_right
+	sat.arena_top = arena_top
+	sat.arena_floor = arena_floor
+	sat.source_id = "gravitus"
+	get_parent().add_child(sat)
 
 func _enter_phase_2() -> void:
 	attack_interval_p2 = 1.3
