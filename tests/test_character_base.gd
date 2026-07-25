@@ -21,7 +21,7 @@ func run_tests() -> void:
 func test_initial_hp() -> void:
     var cb := CharacterBase.new()
     add_child(cb)
-    cb.max_hp = 100
+    GameManager.max_hp = 100
     cb._ready()
     assert(cb.current_hp == 100, "current_hp equals max_hp on ready")
     assert(cb.is_dead == false, "not dead on init")
@@ -31,7 +31,7 @@ func test_initial_hp() -> void:
 func test_take_damage_reduces_hp() -> void:
     var cb := CharacterBase.new()
     add_child(cb)
-    cb.max_hp = 100
+    GameManager.max_hp = 100
     cb._ready()
     cb.take_damage(30)
     assert(cb.current_hp == 70, "hp is 70 after 30 damage")
@@ -41,7 +41,7 @@ func test_take_damage_reduces_hp() -> void:
 func test_damage_triggers_invincibility() -> void:
     var cb := CharacterBase.new()
     add_child(cb)
-    cb.max_hp = 100
+    GameManager.max_hp = 100
     cb._ready()
     cb.take_damage(10)
     assert(cb.is_invincible == true, "invincible after first hit")
@@ -51,7 +51,7 @@ func test_damage_triggers_invincibility() -> void:
 func test_invincibility_blocks_second_hit() -> void:
     var cb := CharacterBase.new()
     add_child(cb)
-    cb.max_hp = 100
+    GameManager.max_hp = 100
     cb._ready()
     cb.take_damage(10)
     cb.take_damage(10)
@@ -62,7 +62,7 @@ func test_invincibility_blocks_second_hit() -> void:
 func test_death_signal_on_lethal_damage() -> void:
     var cb := CharacterBase.new()
     add_child(cb)
-    cb.max_hp = 50
+    GameManager.max_hp = 50
     cb._ready()
     var died_received := [false]
     cb.died.connect(func(): died_received[0] = true)
@@ -74,7 +74,7 @@ func test_death_signal_on_lethal_damage() -> void:
 func test_is_dead_flag_set() -> void:
     var cb := CharacterBase.new()
     add_child(cb)
-    cb.max_hp = 50
+    GameManager.max_hp = 50
     cb._ready()
     cb.take_damage(999)
     assert(cb.is_dead == true, "is_dead true after lethal damage")
@@ -84,7 +84,7 @@ func test_is_dead_flag_set() -> void:
 func test_no_grab_wall_returns_false_with_no_collisions() -> void:
     var cb := CharacterBase.new()
     add_child(cb)
-    cb.max_hp = 100
+    GameManager.max_hp = 100
     cb._ready()
     # Sem nenhum move_and_slide chamado, get_slide_collision_count() == 0
     # _touching_no_grab_wall() deve retornar false (nenhuma colisão).
@@ -95,7 +95,7 @@ func test_no_grab_wall_returns_false_with_no_collisions() -> void:
 func test_stage_ice_hook_tracks_contacts() -> void:
     var cb := CharacterBase.new()
     add_child(cb)
-    cb.max_hp = 100
+    GameManager.max_hp = 100
     cb._ready()
     assert(cb.has_method("set_stage_ice"), "CharacterBase expõe set_stage_ice")
     if cb.has_method("set_stage_ice"):
@@ -112,7 +112,7 @@ func test_stage_ice_hook_tracks_contacts() -> void:
 func test_ice_horizontal_movement_slides_after_input_release() -> void:
     var cb := CharacterBase.new()
     add_child(cb)
-    cb.max_hp = 100
+    GameManager.max_hp = 100
     cb._ready()
     assert(cb.has_method("_apply_horizontal_movement"), "CharacterBase expõe helper de movimento horizontal")
     if cb.has_method("set_stage_ice") and cb.has_method("_apply_horizontal_movement"):
@@ -127,7 +127,7 @@ func test_ice_horizontal_movement_slides_after_input_release() -> void:
 func test_ice_dash_starts_slower_than_normal_dash() -> void:
     var cb := CharacterBase.new()
     add_child(cb)
-    cb.max_hp = 100
+    GameManager.max_hp = 100
     cb._ready()
     if cb.has_method("set_stage_ice"):
         cb.call("set_stage_ice", true)
@@ -141,7 +141,7 @@ func test_ice_dash_starts_slower_than_normal_dash() -> void:
 func test_ice_dash_accelerates_after_start() -> void:
     var cb := CharacterBase.new()
     add_child(cb)
-    cb.max_hp = 100
+    GameManager.max_hp = 100
     cb._ready()
     if cb.has_method("set_stage_ice"):
         cb.call("set_stage_ice", true)
