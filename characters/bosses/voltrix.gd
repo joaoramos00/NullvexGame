@@ -9,6 +9,12 @@ const _PREPARACAO_FRAMES  := 9
 const _THUNDERBOLT_FRAMES := 7
 const _ANIM_FPS := 10.0
 
+const _THUNDER_BOLT_DAMAGE   := 3
+const _TALON_DIVE_DAMAGE     := 4
+const _STATIC_PULSE_DAMAGE   := 2
+const _STORM_BARRAGE_DAMAGE  := 3
+const _MELEE_RANGE           := 200.0
+
 # Cada anim eh uma sequencia de sprites individuais (nao um spritesheet horizontal
 # como os outros bosses) -- carregamos os frames num Array e trocamos a textura
 # do Sprite2D a cada tick, em vez de usar hframes/frame.
@@ -122,3 +128,82 @@ func _do_combat(delta: float) -> void:
 
 func _enter_phase_2() -> void:
 	attack_interval_p2 = 1.2
+
+var _last_close_attack_was_dive: bool = false
+
+func _do_attack() -> void:
+	_is_attacking = true
+	if player == null:
+		_is_attacking = false
+		return
+	var dist := global_position.distance_to(player.global_position)
+	if dist > _MELEE_RANGE:
+		if phase >= 2:
+			await _do_storm_barrage()
+		else:
+			await _do_thunder_bolt()
+	else:
+		_last_close_attack_was_dive = not _last_close_attack_was_dive
+		if _last_close_attack_was_dive:
+			await _do_talon_dive()
+		else:
+			await _do_static_pulse()
+	_is_attacking = false
+
+func _do_thunder_bolt() -> void:
+	_play_state(AnimState.THUNDERBOLT)
+	await get_tree().create_timer(float(_THUNDERBOLT_FRAMES) / _ANIM_FPS).timeout
+	if is_dead:
+		return
+	if player != null:
+		var dir: float = sign(player.global_position.x - global_position.x)
+		if dir == 0.0:
+			dir = 1.0
+		_spawn_projectile(
+			global_position, Vector2(dir * 620.0, 0.0),
+			_THUNDER_BOLT_DAMAGE, "voltrix", Color(1.0, 0.95, 0.0)
+		)
+	_play_state(AnimState.HOVER1)
+
+func _do_storm_barrage() -> void:
+	_play_state(AnimState.THUNDERBOLT)
+	await get_tree().create_timer(float(_THUNDERBOLT_FRAMES) / _ANIM_FPS).timeout
+	if is_dead:
+		return
+	if player != null:
+		var dir: float = sign(player.global_position.x - global_position.x)
+		if dir == 0.0:
+			dir = 1.0
+		var spread := 0.3
+		for i in 3:
+			var angle: float = (float(i) - 1.0) * spread
+			var vel := Vector2(dir * 620.0, 0.0).rotated(angle)
+			_spawn_projectile(global_position, vel, _STORM_BARRAGE_DAMAGE, "voltrix", Color(0.6, 0.9, 1.0))
+	_play_state(AnimState.HOVER1)
+
+func _do_talon_dive() -> void:
+	_play_state(AnimState.PREPARACAO)
+	await get_tree().create_timer(float(_PREPARACAO_FRAMES) / _ANIM_FPS).timeout
+	if is_dead:
+		return
+	if player != null:
+		var dir: float = sign(player.global_position.x - global_position.x)
+		if dir == 0.0:
+			dir = 1.0
+		velocity = Vector2(dir * 500.0, (player.global_position.y - global_position.y) * 2.0)
+		await get_tree().create_timer(0.35).timeout
+		if is_dead:
+			return
+		if player != null and global_position.distance_to(player.global_position) < 60.0:
+			player.take_damage(_TALON_DIVE_DAMAGE, "voltrix")
+		velocity = Vector2.ZERO
+	_play_state(AnimState.HOVER1)
+
+func _do_static_pulse() -> void:
+	_play_state(AnimState.PREPARACAO)
+	await get_tree().create_timer(float(_PREPARACAO_FRAMES) / _ANIM_FPS).timeout
+	if is_dead:
+		return
+	if player != null and global_position.distance_to(player.global_position) < 140.0:
+		player.take_damage(_STATIC_PULSE_DAMAGE, "voltrix")
+	_play_state(AnimState.HOVER1)
