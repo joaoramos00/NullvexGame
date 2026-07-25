@@ -1,13 +1,17 @@
 extends BossBase
 
-enum AnimState { HOVER1, HOVER2, ENTRADA, PREPARACAO, THUNDERBOLT }
+enum AnimState { HOVER1, HOVER2, ENTRADA, PREPARACAO, THUNDERBOLT, STATIC_PULSE, DIVE_CROUCH, DIVE_LUNGE }
 
 const _HOVER1_FRAMES      := 9
 const _HOVER2_FRAMES      := 9
 const _ENTRADA_FRAMES     := 9
 const _PREPARACAO_FRAMES  := 9
 const _THUNDERBOLT_FRAMES := 7
+const _STATIC_PULSE_FRAMES := 9
+const _DIVE_CROUCH_FRAMES  := 9
+const _DIVE_LUNGE_FRAMES   := 9
 const _ANIM_FPS := 10.0
+const _DIVE_TILT_DEG := 25.0
 
 const _THUNDER_BOLT_DAMAGE   := 3
 const _TALON_DIVE_DAMAGE     := 4
@@ -23,6 +27,9 @@ var _hover2_frames: Array[Texture2D] = []
 var _entrada_frames: Array[Texture2D] = []
 var _preparacao_frames: Array[Texture2D] = []
 var _thunderbolt_frames: Array[Texture2D] = []
+var _static_pulse_frames: Array[Texture2D] = []
+var _dive_crouch_frames: Array[Texture2D] = []
+var _dive_lunge_frames: Array[Texture2D] = []
 
 var _anim_state: AnimState = AnimState.HOVER1
 var _anim_frame: int = 0
@@ -47,6 +54,12 @@ func _load_frame_arrays() -> void:
 		_preparacao_frames.append(load("res://characters/bosses/voltrix/voltrix_preparacao_south_f%02d.png" % i))
 	for i in _THUNDERBOLT_FRAMES:
 		_thunderbolt_frames.append(load("res://characters/bosses/voltrix/voltrix_thunderbolt_south_f%02d.png" % i))
+	for i in _STATIC_PULSE_FRAMES:
+		_static_pulse_frames.append(load("res://characters/bosses/voltrix/voltrix_static_pulse_south_f%02d.png" % i))
+	for i in _DIVE_CROUCH_FRAMES:
+		_dive_crouch_frames.append(load("res://characters/bosses/voltrix/voltrix_dive_crouch_south_f%02d.png" % i))
+	for i in _DIVE_LUNGE_FRAMES:
+		_dive_lunge_frames.append(load("res://characters/bosses/voltrix/voltrix_dive_lunge_south_f%02d.png" % i))
 
 func _draw() -> void:
 	var pct := float(current_hp) / float(max_hp) if max_hp > 0 else 0.0
@@ -62,11 +75,14 @@ func _physics_process(delta: float) -> void:
 
 func _current_frame_array() -> Array[Texture2D]:
 	match _anim_state:
-		AnimState.HOVER2:      return _hover2_frames
-		AnimState.ENTRADA:     return _entrada_frames
-		AnimState.PREPARACAO:  return _preparacao_frames
-		AnimState.THUNDERBOLT: return _thunderbolt_frames
-		_:                     return _hover1_frames
+		AnimState.HOVER2:       return _hover2_frames
+		AnimState.ENTRADA:      return _entrada_frames
+		AnimState.PREPARACAO:   return _preparacao_frames
+		AnimState.THUNDERBOLT:  return _thunderbolt_frames
+		AnimState.STATIC_PULSE: return _static_pulse_frames
+		AnimState.DIVE_CROUCH:  return _dive_crouch_frames
+		AnimState.DIVE_LUNGE:   return _dive_lunge_frames
+		_:                      return _hover1_frames
 
 func _update_animation(delta: float) -> void:
 	if state == State.INTRO:
@@ -77,7 +93,7 @@ func _update_animation(delta: float) -> void:
 		# Intro acabou (state saiu de INTRO) mas a entrada ainda nao foi trocada
 		# de volta -- acontece uma vez, na primeira _update_animation em COMBAT.
 		_play_state(AnimState.HOVER1)
-	elif _anim_state in [AnimState.PREPARACAO, AnimState.THUNDERBOLT]:
+	elif _anim_state in [AnimState.PREPARACAO, AnimState.THUNDERBOLT, AnimState.STATIC_PULSE, AnimState.DIVE_CROUCH, AnimState.DIVE_LUNGE]:
 		pass  # ataque em andamento, deixa terminar (ver _play_state)
 	else:
 		# Sem asas/pernas de andar -- so alterna HOVER1<->HOVER2 (loop continuo),
@@ -100,7 +116,7 @@ func _update_animation(delta: float) -> void:
 		_anim_timer -= 1.0 / _ANIM_FPS
 		_anim_frame += 1
 		if _anim_frame >= frames.size():
-			if _anim_state in [AnimState.ENTRADA, AnimState.PREPARACAO, AnimState.THUNDERBOLT]:
+			if _anim_state in [AnimState.ENTRADA, AnimState.PREPARACAO, AnimState.THUNDERBOLT, AnimState.STATIC_PULSE, AnimState.DIVE_CROUCH, AnimState.DIVE_LUNGE]:
 				_anim_frame = frames.size() - 1  # segura no ultimo frame, quem chamou decide quando voltar pro hover
 			else:
 				_anim_frame = 0
@@ -187,23 +203,35 @@ func _do_talon_dive() -> void:
 	_play_state(AnimState.PREPARACAO)
 	await get_tree().create_timer(float(_PREPARACAO_FRAMES) / _ANIM_FPS).timeout
 	if is_dead:
+		_sprite.rotation = 0.0
+		return
+	_play_state(AnimState.DIVE_CROUCH)
+	await get_tree().create_timer(float(_DIVE_CROUCH_FRAMES) / _ANIM_FPS).timeout
+	if is_dead:
+		_sprite.rotation = 0.0
 		return
 	if player != null:
 		var dir: float = sign(player.global_position.x - global_position.x)
 		if dir == 0.0:
 			dir = 1.0
+		# Inclina o sprite na direcao do mergulho -- a arte ja mostra o corpo
+		# esticado, a rotacao reforca o angulo diagonal da investida.
+		_sprite.rotation = deg_to_rad(-_DIVE_TILT_DEG) if dir > 0.0 else deg_to_rad(_DIVE_TILT_DEG)
+		_play_state(AnimState.DIVE_LUNGE)
 		velocity = Vector2(dir * 500.0, (player.global_position.y - global_position.y) * 2.0)
-		await get_tree().create_timer(0.35).timeout
+		await get_tree().create_timer(float(_DIVE_LUNGE_FRAMES) / _ANIM_FPS).timeout
 		if is_dead:
+			_sprite.rotation = 0.0
 			return
 		if player != null and global_position.distance_to(player.global_position) < 60.0:
 			player.take_damage(_TALON_DIVE_DAMAGE, "voltrix")
 		velocity = Vector2.ZERO
+	_sprite.rotation = 0.0
 	_play_state(AnimState.HOVER1)
 
 func _do_static_pulse() -> void:
-	_play_state(AnimState.PREPARACAO)
-	await get_tree().create_timer(float(_PREPARACAO_FRAMES) / _ANIM_FPS).timeout
+	_play_state(AnimState.STATIC_PULSE)
+	await get_tree().create_timer(float(_STATIC_PULSE_FRAMES) / _ANIM_FPS).timeout
 	if is_dead:
 		return
 	if player != null and global_position.distance_to(player.global_position) < 140.0:
