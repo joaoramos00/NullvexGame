@@ -16,7 +16,7 @@ const _SPEED := 440.0
 const _LIFETIME := 2.0
 
 var dir: float = 1.0
-var damage: int = 8
+var damage: int = 4
 var source_id: String = "terragor"
 var _lifetime := _LIFETIME
 var _hit := false
