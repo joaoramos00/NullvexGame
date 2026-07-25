@@ -15,12 +15,12 @@ var _column: Area2D = null
 var _pushed: Array[Node] = []
 
 func _init() -> void:
-	max_hp = 12
-	contact_damage = 6
+	max_hp = 4
+	contact_damage = 1
 
 func _ready() -> void:
-	max_hp = 12
-	contact_damage = 6
+	max_hp = 4
+	contact_damage = 1
 	super._ready()
 	_column = Area2D.new()
 	_column.collision_layer = 0
