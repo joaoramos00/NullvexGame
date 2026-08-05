@@ -89,6 +89,48 @@ Salva:
 - PNGs: `<nome>_walk_west_f00.png` … `<nome>_walk_west_f08.png`
 - GIF preview: `<nome>_walk_west.gif`
 
+## Workflow: Gerar Portrait (bust) de um Personagem
+
+Usar quando precisar de um **retrato bust** (peito pra cima) de um personagem — típico caso: face da caixa de diálogo, tela de derrota do boss, portrait no HUD. A tool também faz o inverso (bust → sprite full-body) se você começar por um retrato.
+
+### Passo 1 — Submeter geração
+
+Chamar `mcp__pixellab__create_portrait_character`:
+```json
+{
+  "character_id": "<id do personagem existente>",
+  "direction": "character_to_portrait",
+  "view": "side",
+  "result_size": 64
+}
+```
+
+Parâmetros:
+- `direction`: `"character_to_portrait"` (sprite → bust) ou `"portrait_to_character"` (bust → sprite full-body)
+- `view`: `"side"` (padrão pro nosso side-scroller), `"low top-down"`, ou `"high top-down"`
+- `result_size`: 16, 32, 48 ou 64 (custa 20 gerações) — ou 128, 160 (25 gerações)
+
+Retorna `job_id`.
+
+### Passo 2 — Poll até completar
+
+Chamar `mcp__pixellab__get_portrait_character` com `{"job_id": "<id>"}` até `status == "completed"`. Retorna a URL final da imagem.
+
+### Passo 3 — Baixar
+
+O portrait fica publicado em:
+```
+https://backblaze.pixellab.ai/file/pixellab-characters/<user_id>/<character_id>/portrait/portrait.png
+```
+(URL pública do Backblaze, sem Bearer token). Baixar direto via `Invoke-WebRequest` ou `urllib.request`.
+
+Salvar como `characters/bosses/<boss>/<boss>_portrait.png` (ou `characters/enemies/...` conforme o caso).
+
+**Notas técnicas:**
+- Portrait é asset opt-in: só existe se você chamou `create_portrait_character` — não é gerado automaticamente junto com o character
+- É separado das rotations (não substitui `<boss>_south.png` etc.) — é um render dedicado, com framing bust
+- URL do Backblaze pode ter `?t=<timestamp>` como token de expiração; re-fetch via `mcp__pixellab__get_character` se o token estiver stale
+
 ## Workflow: Gerar Tileset de Fase
 
 ### Passo 1 — Submeter tileset base (primeira zona)
@@ -179,6 +221,8 @@ Se o MCP não estiver disponível (ex: sessão sem tools carregadas), os mesmos 
 | `create_character` | `POST /v2/create-character-with-4-directions` (body igual, sem `name` obrigatório) |
 | `get_character` | `GET /v2/characters/{id}` |
 | `animate_character` | `POST /v2/animate-character` |
+| `create_portrait_character` | `POST /v2/create-portrait-character` (a confirmar) |
+| `get_portrait_character` | `GET /v2/portrait-character/{job_id}` (a confirmar) |
 | `create_sidescroller_tileset` | `POST /v2/tilesets-sidescroller` |
 | `get_sidescroller_tileset` | `GET /v2/tilesets-sidescroller/{id}` |
 
