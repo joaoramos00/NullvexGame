@@ -8,7 +8,7 @@ const _SLOTS: Array = [
 	{"boss_id": "ignarath",  "label": "IGNARATH", "elem": "FIRE WALK", "color": Color(1.00, 0.35, 0.10)},
 	{"boss_id": "cryovex",   "label": "CRYOVEX",  "elem": "GELO",   "color": Color(0.30, 0.85, 1.00)},
 	{"boss_id": "voltrix",   "label": "VOLTRIX",  "elem": "RAIO",   "color": Color(1.00, 1.00, 0.20)},
-	{"boss_id": "gravitus",  "label": "GRAVITUS", "elem": "GRAV.",  "color": Color(0.75, 0.30, 1.00)},
+	{"boss_id": "gravitus",  "label": "GRAVITUS", "elem": "GRAVITY MISSILE", "color": Color(0.75, 0.30, 1.00)},
 	{"boss_id": "galerix",   "label": "GALERIX",  "elem": "WIND SLICE", "color": Color(0.30, 1.00, 0.50)},
 	{"boss_id": "umbraex",   "label": "UMBRAEX",  "elem": "SOMBRA", "color": Color(0.60, 0.20, 0.90)},
 	{"boss_id": "luxar",     "label": "LUXAR",    "elem": "SOLAR CORONA", "color": Color(1.00, 0.95, 0.30)},
@@ -67,6 +67,7 @@ var _ice_arrow_tex: Texture2D = null
 var _shadow_kunai_tex: Texture2D = null
 var _stone_shard_tex: Texture2D = null
 var _solar_corona_tex: Texture2D = null
+var _gravity_missile_tex: Texture2D = null
 
 func _ready() -> void:
 	_placeholder_tex = load("res://assets/buster/buster_L1.png")
@@ -78,6 +79,7 @@ func _ready() -> void:
 	_shadow_kunai_tex = load("res://characters/bosses/umbraex/fx_kunai.png")
 	_stone_shard_tex = load("res://characters/bosses/terragor/fx_rock_fragment_idle.png")
 	_solar_corona_tex = load("res://characters/bosses/luxar/luxar_solar_orb_f00.png")
+	_gravity_missile_tex = load("res://characters/bosses/gravitus/fx_missile_fly.png")
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	focus_mode = Control.FOCUS_NONE
@@ -245,6 +247,8 @@ func _draw_power_grid(fnt: Font) -> void:
 				draw_texture_rect_region(_stone_shard_tex, spr_dest, Rect2(0, 0, 32, 32))
 			elif bid == "luxar" and _solar_corona_tex != null:
 				draw_texture_rect_region(_solar_corona_tex, spr_dest, Rect2(0, 0, 64, 64))
+			elif bid == "gravitus" and _gravity_missile_tex != null:
+				draw_texture_rect_region(_gravity_missile_tex, spr_dest, Rect2(0, 0, 64, 64))
 			elif _placeholder_tex != null:
 				var pivot := Vector2(spr_dest.get_center())
 				draw_set_transform(pivot, -PI * 0.5, Vector2.ONE)
