@@ -19,6 +19,7 @@ const _ICE_ARROW    := preload("res://characters/ranged/player_ice_arrow.gd")
 const _SHADOW_KUNAI := preload("res://characters/ranged/player_shadow_kunai.gd")
 const _STONE_SHARD  := preload("res://characters/ranged/player_stone_shard.gd")
 const _SOLAR_CORONA := preload("res://characters/ranged/player_solar_corona.gd")
+const _GRAVITY_MISSILE := preload("res://characters/ranged/player_gravity_missile.gd")
 
 const _FRAME_W := 68
 const _FRAME_H := 68
@@ -471,6 +472,9 @@ func _use_special_ability() -> bool:
     if bid == "luxar" and GameManager.use_ability_ammo("luxar"):
         _fire_solar_corona()
         return true
+    if bid == "gravitus" and GameManager.use_ability_ammo("gravitus"):
+        _fire_gravity_missile()
+        return true
     return false
 
 func _fire_wind_gust() -> void:
@@ -509,6 +513,13 @@ func _fire_solar_corona() -> void:
     orb.set("dir", dir_f)
     orb.global_position = global_position + Vector2(dir_f * _SPAWN_OFFSET_X[1], _SPAWN_OFFSET_Y)
     get_parent().add_child(orb)
+
+func _fire_gravity_missile() -> void:
+    var dir_f: float = 1.0 if facing_right else -1.0
+    var missile: Area2D = _GRAVITY_MISSILE.new()
+    missile.set("dir", dir_f)
+    missile.global_position = global_position + Vector2(dir_f * _SPAWN_OFFSET_X[1], _SPAWN_OFFSET_Y)
+    get_parent().add_child(missile)
 
 func _fire_walk() -> void:
     var dir_f: float = 1.0 if facing_right else -1.0
