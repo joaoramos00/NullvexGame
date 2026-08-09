@@ -20,6 +20,7 @@ const _SHADOW_KUNAI := preload("res://characters/ranged/player_shadow_kunai.gd")
 const _STONE_SHARD  := preload("res://characters/ranged/player_stone_shard.gd")
 const _SOLAR_CORONA := preload("res://characters/ranged/player_solar_corona.gd")
 const _GRAVITY_MISSILE := preload("res://characters/ranged/player_gravity_missile.gd")
+const _THUNDER_BOLT := preload("res://characters/ranged/player_thunder_bolt.gd")
 
 const _FRAME_W := 68
 const _FRAME_H := 68
@@ -475,6 +476,9 @@ func _use_special_ability() -> bool:
     if bid == "gravitus" and GameManager.use_ability_ammo("gravitus"):
         _fire_gravity_missile()
         return true
+    if bid == "voltrix" and GameManager.use_ability_ammo("voltrix"):
+        _fire_thunder_bolt()
+        return true
     return false
 
 func _fire_wind_gust() -> void:
@@ -520,6 +524,13 @@ func _fire_gravity_missile() -> void:
     missile.set("dir", dir_f)
     missile.global_position = global_position + Vector2(dir_f * _SPAWN_OFFSET_X[1], _SPAWN_OFFSET_Y)
     get_parent().add_child(missile)
+
+func _fire_thunder_bolt() -> void:
+    var dir_f: float = 1.0 if facing_right else -1.0
+    var bolt: Area2D = _THUNDER_BOLT.new()
+    bolt.set("dir", dir_f)
+    bolt.global_position = global_position + Vector2(dir_f * _SPAWN_OFFSET_X[1], _SPAWN_OFFSET_Y)
+    get_parent().add_child(bolt)
 
 func _fire_walk() -> void:
     var dir_f: float = 1.0 if facing_right else -1.0
