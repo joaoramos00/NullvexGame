@@ -2,6 +2,8 @@ extends BossBase
 
 const _TEX_IDLE_W := preload("res://characters/bosses/cryovex/cryovex_west.png")
 const _TEX_IDLE_E := preload("res://characters/bosses/cryovex/cryovex_east.png")
+const _TEX_IDLE_NEW_E := preload("res://characters/bosses/cryovex/cryovex_idle_east.png")
+const _TEX_DEATH_NEW_E := preload("res://characters/bosses/cryovex/cryovex_death_east.png")
 const _TEX_WALK_W := preload("res://characters/bosses/cryovex/cryovex_walk_west.png")
 const _TEX_WALK_E := preload("res://characters/bosses/cryovex/cryovex_walk_east.png")
 const _TEX_ENTRY  := preload("res://characters/bosses/cryovex/cryovex_entry.png")
@@ -40,6 +42,10 @@ const _ICE_ORB_SPEED   := 200.0
 const _ICE_ORB_DAMAGE  := 4
 const _GROUNDBURST_FRAMES := 9
 const _GROUNDBURST_FPS    := 14.0
+const _IDLE_NEW_FRAMES  := 9
+const _IDLE_NEW_FPS     := 10.0
+const _DEATH_NEW_FRAMES := 9
+const _DEATH_NEW_FPS    := 10.0
 const _ICE_TOOTH_SPACING   := 48.0
 const _ICE_TOOTH_STAGGER   := 0.1
 const _ICE_TOOTH_DAMAGE    := 3
@@ -61,6 +67,7 @@ var _anim_frame : int   = 0
 var _facing     : float = -1.0
 var _attack_anim: int = AttackAnim.NONE
 var _takehit_timer: float = 0.0
+var _dying_anim_done: bool = false
 
 @onready var _sprite: Sprite2D = $Sprite2D
 
@@ -109,17 +116,21 @@ func _apply_anim(tex: Texture2D, frames: int, fps: float, delta: float) -> void:
 	_sprite.frame = _anim_frame
 
 func _update_animation(delta: float) -> void:
+	# DEATH override — toca a anim de morte uma vez e segura no ultimo frame.
+	# Ganha prioridade sobre INTRO e sobre qualquer outro estado.
+	if state in [State.DYING, State.DEAD]:
+		_apply_new_anim_east(_TEX_DEATH_NEW_E, _DEATH_NEW_FRAMES, _DEATH_NEW_FPS, delta, true)
+		return
 	if state == State.INTRO:
 		_sprite.texture = _TEX_ENTRY
 		_sprite.hframes = _ENTRY_FRAMES
+		_sprite.flip_h = false
 		_anim_timer += delta
 		if _anim_timer >= 1.0 / _ENTRY_FPS:
 			_anim_timer -= 1.0 / _ENTRY_FPS
 			_anim_frame = mini(_anim_frame + 1, _ENTRY_FRAMES - 1)
 		_sprite.frame    = _anim_frame
 		_sprite.modulate = Color.WHITE
-		return
-	if state in [State.DYING, State.DEAD]:
 		return
 	if   velocity.x >  10.0: _facing =  1.0
 	elif velocity.x < -10.0: _facing = -1.0
@@ -152,16 +163,45 @@ func _update_animation(delta: float) -> void:
 			_apply_anim(tex, _GROUNDBURST_FRAMES, _GROUNDBURST_FPS, delta)
 			return
 
-	var tex   : Texture2D
-	var frames: int
-	var fps   : float
 	if absf(velocity.x) > 10.0:
-		tex = _TEX_WALK_E if _facing > 0.0 else _TEX_WALK_W
-		frames = _WALK_FRAMES; fps = _WALK_FPS
+		var tex := _TEX_WALK_E if _facing > 0.0 else _TEX_WALK_W
+		_apply_anim(tex, _WALK_FRAMES, _WALK_FPS, delta)
 	else:
-		tex = _TEX_IDLE_E if _facing > 0.0 else _TEX_IDLE_W
-		frames = 1; fps = 4.0
-	_apply_anim(tex, frames, fps, delta)
+		# IDLE novo animado (substitui o static frame antigo). East-only + flip_h.
+		_apply_new_anim_east(_TEX_IDLE_NEW_E, _IDLE_NEW_FRAMES, _IDLE_NEW_FPS, delta, false)
+
+# Helper pras anims novas (east + flip_h). hold_last=true segura no ultimo
+# frame apos completar uma volta (usado por death).
+func _apply_new_anim_east(tex: Texture2D, frames: int, fps: float, delta: float, hold_last: bool) -> void:
+	if _sprite.texture != tex:
+		_sprite.texture = tex
+		_sprite.hframes = frames
+		_anim_frame = 0
+		_anim_timer = 0.0
+		if hold_last:
+			_dying_anim_done = false
+	_sprite.flip_h = _facing < 0.0
+	if _hit_flash_timer > 0.0:
+		_sprite.modulate = Color(2.0, 2.0, 2.0, 1.0)
+	elif _invincible:
+		var a := 0.35 if int(Time.get_ticks_msec() / 80) % 2 == 0 else 1.0
+		_sprite.modulate = Color(1.0, 1.0, 1.0, a)
+	else:
+		_sprite.modulate = Color.WHITE
+	if hold_last and _dying_anim_done:
+		_sprite.frame = frames - 1
+		return
+	_anim_timer += delta
+	if frames > 1 and _anim_timer >= 1.0 / fps:
+		_anim_timer -= 1.0 / fps
+		if hold_last:
+			_anim_frame += 1
+			if _anim_frame >= frames:
+				_anim_frame = frames - 1
+				_dying_anim_done = true
+		else:
+			_anim_frame = (_anim_frame + 1) % frames
+	_sprite.frame = _anim_frame
 
 func _do_combat(delta: float) -> void:
 	if player == null:
