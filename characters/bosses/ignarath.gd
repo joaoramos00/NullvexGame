@@ -6,13 +6,19 @@ const _TEX_ENTER     := preload("res://characters/bosses/ignarath/ignarath_enter
 const _TEX_WALKING   := preload("res://characters/bosses/ignarath/ignarath_walking.png")
 const _TEX_FIREBREATH := preload("res://characters/bosses/ignarath/ignarath_firebreath.png")
 const _TEX_CLAW      := preload("res://characters/bosses/ignarath/ignarath_claw.png")
-const _TEX_TAKINGHIT := preload("res://characters/bosses/ignarath/ignarath_takinghit.png")
+const _TEX_TAKINGHIT := preload("res://characters/bosses/ignarath/ignarath_takinghit.png")  # reused as phase-2 rage
+const _TEX_IDLE      := preload("res://characters/bosses/ignarath/ignarath_idle_south.png")
+const _TEX_HURT      := preload("res://characters/bosses/ignarath/ignarath_hurt_south.png")
+const _TEX_DEATH     := preload("res://characters/bosses/ignarath/ignarath_death_south.png")
 
 const _ENTER_FRAMES      := 9;  const _ENTER_FPS      := 8.0
 const _WALKING_FRAMES    := 9;  const _WALKING_FPS    := 10.0
 const _FIREBREATH_FRAMES := 9;  const _FIREBREATH_FPS := 10.0
 const _CLAW_FRAMES       := 9;  const _CLAW_FPS       := 12.0
 const _TAKINGHIT_FRAMES  := 9;  const _TAKINGHIT_FPS  := 12.0
+const _IDLE_FRAMES       := 9;  const _IDLE_FPS       := 10.0
+const _HURT_FRAMES       := 7;  const _HURT_FPS       := 14.0  # snappier reaction
+const _DEATH_FRAMES      := 9;  const _DEATH_FPS      := 10.0
 
 # ── Combat constants ──────────────────────────────────────────────────────────
 const WALK_SPEED_P1        := 80.0
@@ -60,6 +66,9 @@ var _block_flash_timer  : float = 0.0   # flash cinza ao bloquear dano (invulner
 var _attack_gen     : int   = 0     # token p/ cancelar a coroutine de ataque ao ser interrompido
 var _static_anim    : bool  = false # trava o frame do sprite (varredura do firebreath)
 var _active_beam    : Node  = null  # beam do firebreath em andamento (liberado ao interromper)
+var _hurt_timer     : float = 0.0   # tempo restante da anim de hurt (reação de dano)
+var _dying_anim_done : bool = false # true quando death anim terminou (segura no último frame)
+var _rage_timer     : float = 0.0   # tempo restante da anim de rage (transição pra phase 2)
 
 @onready var _sprite: Sprite2D = $Sprite2D
 
@@ -90,8 +99,8 @@ func _draw() -> void:
 
 func _physics_process(delta: float) -> void:
 	super._physics_process(delta)
-	if not is_dead:
-		_update_animation(delta)
+	# Continua atualizando anim mesmo após morrer, pra o death anim tocar até o fim.
+	_update_animation(delta)
 	if DebugBoot.hitbox_debug:
 		queue_redraw()
 
@@ -308,9 +317,13 @@ func _end_attack_anim() -> void:
 
 # ── Phase 2 ───────────────────────────────────────────────────────────────────
 func _enter_phase_2() -> void:
+	# Toca a anim de takinghit (que na verdade é rage/transformação, ver
+	# ignarath_takinghit.png — chamas crescendo, garras estendendo) durante
+	# a transição pra phase 2. Substitui o antigo hit_flash branco de 0.6s.
 	_hit_flash_timer = RAGE_FLASH_DURATION
+	_rage_timer = float(_TAKINGHIT_FRAMES) / _TAKINGHIT_FPS
 	_is_attacking    = true
-	await get_tree().create_timer(RAGE_FLASH_DURATION).timeout
+	await get_tree().create_timer(_rage_timer).timeout
 	if not is_dead:
 		_is_attacking = false
 
@@ -323,10 +336,23 @@ func take_damage(amount: int, source_id: String = "") -> void:
 		if source_id != "" and source_id == weakness_id:
 			super.take_damage(amount, source_id)
 			_break_action()
+			_trigger_hurt()
 			return
 		_block_flash_timer = 0.12
 		return
+	var hp_before := current_hp
 	super.take_damage(amount, source_id)
+	# Só toca hurt se dano realmente entrou (super pode ignorar por invincibility).
+	if current_hp < hp_before and current_hp > 0:
+		_trigger_hurt()
+
+# Dispara a anim curta de reação de dano. Não trava input/attack, só sobrescreve
+# o sprite por ~0.5s (HURT_FRAMES / HURT_FPS = 7/14 = 0.5s).
+func _trigger_hurt() -> void:
+	# Não sobrescreve rage (transformação de phase 2 tem prioridade visual).
+	if _rage_timer > 0.0:
+		return
+	_hurt_timer = float(_HURT_FRAMES) / _HURT_FPS
 
 # Interrompe o ataque em andamento (chamado quando a fraqueza fura o escudo).
 func _break_action() -> void:
@@ -354,6 +380,27 @@ func _die() -> void:
 
 # ── Animation ─────────────────────────────────────────────────────────────────
 func _update_animation(delta: float) -> void:
+	# DEATH override — trava tudo (attack anim, hurt, rage). Toca uma vez, segura
+	# no último frame até queue_free do BossBase.
+	if state in [State.DYING, State.DEAD]:
+		if _sprite.texture != _TEX_DEATH:
+			_sprite.texture = _TEX_DEATH
+			_sprite.hframes = _DEATH_FRAMES
+			_anim_frame = 0
+			_anim_timer = 0.0
+			_dying_anim_done = false
+		_sprite.modulate = Color.WHITE
+		if not _dying_anim_done:
+			_anim_timer += delta
+			if _anim_timer >= 1.0 / _DEATH_FPS:
+				_anim_timer -= 1.0 / _DEATH_FPS
+				_anim_frame += 1
+				if _anim_frame >= _DEATH_FRAMES:
+					_anim_frame = _DEATH_FRAMES - 1
+					_dying_anim_done = true
+		_sprite.frame = _anim_frame
+		return
+
 	if _is_entering:
 		_sprite.modulate = Color.WHITE
 		_anim_timer += delta
@@ -373,6 +420,10 @@ func _update_animation(delta: float) -> void:
 		_telegraph_timer = maxf(0.0, _telegraph_timer - delta)
 	if _block_flash_timer > 0.0:
 		_block_flash_timer = maxf(0.0, _block_flash_timer - delta)
+	if _hurt_timer > 0.0:
+		_hurt_timer = maxf(0.0, _hurt_timer - delta)
+	if _rage_timer > 0.0:
+		_rage_timer = maxf(0.0, _rage_timer - delta)
 
 	# Modulate
 	if _block_flash_timer > 0.0:
@@ -393,17 +444,24 @@ func _update_animation(delta: float) -> void:
 	var frames : int
 	var fps    : float
 
-	if _is_attacking_anim and _attack_anim_tex != null:
+	# Prioridade das anims (alta -> baixa):
+	#   1. Rage (phase 2 transition) — trava input
+	#   2. Attack anim em andamento (firebreath / claw)
+	#   3. Hurt (reação de dano) — não trava, toca por cima brevemente
+	#   4. Walking (velocity > 10)
+	#   5. Idle (parado)
+	if _rage_timer > 0.0:
+		tex = _TEX_TAKINGHIT; frames = _TAKINGHIT_FRAMES; fps = _TAKINGHIT_FPS
+	elif _is_attacking_anim and _attack_anim_tex != null:
 		tex    = _attack_anim_tex
 		frames = _attack_anim_frames
 		fps    = _attack_anim_fps
-	elif _is_attacking_anim and _attack_anim_tex == null and _anim_frame > 0:
-		# takinghit
-		tex = _TEX_TAKINGHIT; frames = _TAKINGHIT_FRAMES; fps = _TAKINGHIT_FPS
+	elif _hurt_timer > 0.0:
+		tex = _TEX_HURT; frames = _HURT_FRAMES; fps = _HURT_FPS
 	elif absf(velocity.x) > 10.0:
 		tex = _TEX_WALKING; frames = _WALKING_FRAMES; fps = _WALKING_FPS
 	else:
-		tex = _TEX_WALKING; frames = _WALKING_FRAMES; fps = 4.0  # slow idle
+		tex = _TEX_IDLE; frames = _IDLE_FRAMES; fps = _IDLE_FPS
 
 	_sprite.flip_h = _facing > 0.0
 	if _sprite.texture != tex:
