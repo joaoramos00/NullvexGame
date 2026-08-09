@@ -1,6 +1,6 @@
 extends BossBase
 
-enum AnimState { HOVER1, HOVER2, ENTRADA, PREPARACAO, THUNDERBOLT, STATIC_PULSE, DIVE_CROUCH, DIVE_LUNGE }
+enum AnimState { HOVER1, HOVER2, ENTRADA, PREPARACAO, THUNDERBOLT, STATIC_PULSE, DIVE_CROUCH, DIVE_LUNGE, HURT, DEATH }
 
 const _HOVER1_FRAMES      := 9
 const _HOVER2_FRAMES      := 9
@@ -10,7 +10,10 @@ const _THUNDERBOLT_FRAMES := 7
 const _STATIC_PULSE_FRAMES := 9
 const _DIVE_CROUCH_FRAMES  := 9
 const _DIVE_LUNGE_FRAMES   := 9
+const _HURT_FRAMES        := 7
+const _DEATH_FRAMES       := 9
 const _ANIM_FPS := 10.0
+const _HURT_FPS := 14.0
 const _DIVE_TILT_DEG := 25.0
 
 const _THUNDER_BOLT_DAMAGE   := 3
@@ -34,11 +37,15 @@ var _thunderbolt_frames: Array[Texture2D] = []
 var _static_pulse_frames: Array[Texture2D] = []
 var _dive_crouch_frames: Array[Texture2D] = []
 var _dive_lunge_frames: Array[Texture2D] = []
+var _hurt_frames: Array[Texture2D] = []
+var _death_frames: Array[Texture2D] = []
 
 var _anim_state: AnimState = AnimState.HOVER1
 var _anim_frame: int = 0
 var _anim_timer: float = 0.0
 var _facing: float = -1.0
+var _hurt_timer: float = 0.0
+var _dying_anim_done: bool = false
 
 @onready var _sprite: Sprite2D = $Sprite2D
 
@@ -64,6 +71,10 @@ func _load_frame_arrays() -> void:
 		_dive_crouch_frames.append(load("res://characters/bosses/voltrix/voltrix_dive_crouch_south_f%02d.png" % i))
 	for i in _DIVE_LUNGE_FRAMES:
 		_dive_lunge_frames.append(load("res://characters/bosses/voltrix/voltrix_dive_lunge_south_f%02d.png" % i))
+	for i in _HURT_FRAMES:
+		_hurt_frames.append(load("res://characters/bosses/voltrix/voltrix_hurt_south_f%02d.png" % i))
+	for i in _DEATH_FRAMES:
+		_death_frames.append(load("res://characters/bosses/voltrix/voltrix_death_south_f%02d.png" % i))
 
 func _draw() -> void:
 	var pct := float(current_hp) / float(max_hp) if max_hp > 0 else 0.0
@@ -86,19 +97,45 @@ func _current_frame_array() -> Array[Texture2D]:
 		AnimState.STATIC_PULSE: return _static_pulse_frames
 		AnimState.DIVE_CROUCH:  return _dive_crouch_frames
 		AnimState.DIVE_LUNGE:   return _dive_lunge_frames
+		AnimState.HURT:         return _hurt_frames
+		AnimState.DEATH:        return _death_frames
 		_:                      return _hover1_frames
 
 func _update_animation(delta: float) -> void:
+	# DEATH override — trava tudo (priority mais alta), toca uma vez, segura no ultimo frame.
+	if state in [State.DYING, State.DEAD]:
+		if _anim_state != AnimState.DEATH:
+			_play_state(AnimState.DEATH)
+			_dying_anim_done = false
+		var death_arr := _death_frames
+		if not death_arr.is_empty():
+			_sprite.modulate = Color.WHITE
+			if not _dying_anim_done:
+				_anim_timer += delta
+				if _anim_timer >= 1.0 / _ANIM_FPS:
+					_anim_timer -= 1.0 / _ANIM_FPS
+					_anim_frame += 1
+					if _anim_frame >= death_arr.size():
+						_anim_frame = death_arr.size() - 1
+						_dying_anim_done = true
+			_sprite.texture = death_arr[_anim_frame]
+		return
+	if _hurt_timer > 0.0:
+		_hurt_timer = maxf(0.0, _hurt_timer - delta)
 	if state == State.INTRO:
 		_play_state(AnimState.ENTRADA)
-	elif state in [State.DYING, State.DEAD]:
-		return
 	elif _anim_state == AnimState.ENTRADA:
 		# Intro acabou (state saiu de INTRO) mas a entrada ainda nao foi trocada
 		# de volta -- acontece uma vez, na primeira _update_animation em COMBAT.
 		_play_state(AnimState.HOVER1)
 	elif _anim_state in [AnimState.PREPARACAO, AnimState.THUNDERBOLT, AnimState.STATIC_PULSE, AnimState.DIVE_CROUCH, AnimState.DIVE_LUNGE]:
 		pass  # ataque em andamento, deixa terminar (ver _play_state)
+	elif _hurt_timer > 0.0 and _anim_state != AnimState.HURT:
+		# Hurt reaction — toca por cima do hover brevemente.
+		_play_state(AnimState.HURT)
+	elif _anim_state == AnimState.HURT and _hurt_timer <= 0.0:
+		# Fim da hurt reaction, volta pro hover.
+		_play_state(AnimState.HOVER1)
 	else:
 		# Sem asas/pernas de andar -- so alterna HOVER1<->HOVER2 (loop continuo),
 		# nunca ha "parado" vs "andando" como nos outros bosses.
@@ -115,18 +152,26 @@ func _update_animation(delta: float) -> void:
 	var frames := _current_frame_array()
 	if frames.is_empty():
 		return
+	var fps: float = _HURT_FPS if _anim_state == AnimState.HURT else _ANIM_FPS
 	_anim_timer += delta
-	if _anim_timer >= 1.0 / _ANIM_FPS:
-		_anim_timer -= 1.0 / _ANIM_FPS
+	if _anim_timer >= 1.0 / fps:
+		_anim_timer -= 1.0 / fps
 		_anim_frame += 1
 		if _anim_frame >= frames.size():
-			if _anim_state in [AnimState.ENTRADA, AnimState.PREPARACAO, AnimState.THUNDERBOLT, AnimState.STATIC_PULSE, AnimState.DIVE_CROUCH, AnimState.DIVE_LUNGE]:
+			if _anim_state in [AnimState.ENTRADA, AnimState.PREPARACAO, AnimState.THUNDERBOLT, AnimState.STATIC_PULSE, AnimState.DIVE_CROUCH, AnimState.DIVE_LUNGE, AnimState.HURT]:
 				_anim_frame = frames.size() - 1  # segura no ultimo frame, quem chamou decide quando voltar pro hover
 			else:
 				_anim_frame = 0
 				_anim_state = AnimState.HOVER2 if _anim_state == AnimState.HOVER1 else AnimState.HOVER1
 				frames = _current_frame_array()
 	_sprite.texture = frames[_anim_frame]
+
+# Wire pra BossBase.take_damage: seta timer da hurt anim quando dano REAL entra.
+func take_damage(amount: int, source_id: String = "") -> void:
+	var hp_before := current_hp
+	super.take_damage(amount, source_id)
+	if current_hp < hp_before and current_hp > 0:
+		_hurt_timer = float(_HURT_FRAMES) / _HURT_FPS
 
 # Toca uma animacao nao-hover do inicio (chamado pelo intro e pelos ataques).
 func _play_state(new_state: AnimState) -> void:
