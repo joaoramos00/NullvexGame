@@ -75,6 +75,7 @@ var _boss_spawned := false
 var _boss_trigger_added := false
 var _miniboss: Node = null
 var _miniboss_spawned := false
+var _miniboss_defeated := false
 var _corr3: CorridorSection = null
 var _cam_ctrl: CameraController = null
 var _camera_zoom_tgt := 2.0
@@ -325,6 +326,17 @@ func _on_player_died_reset() -> void:
 	for child in get_children():
 		if child is BossProjectile:
 			child.queue_free()
+	# Miniboss (só se ainda não derrotado): destrói a instância viva, reseta o
+	# spawn e re-abre a LWall — senão o player respawna atrás dela e não consegue
+	# voltar à sala, e o trigger de entrada faria early-return sem re-spawnar.
+	if not _miniboss_defeated:
+		if is_instance_valid(_miniboss):
+			_miniboss.queue_free()
+		_miniboss = null
+		_miniboss_spawned = false
+		var mb_lwall := get_node_or_null("MiniBoss_LWall")
+		if mb_lwall:
+			mb_lwall.get_node("CollisionShape2D").set_deferred("disabled", true)
 
 # ─── Corredor 2 (Corr2) ──────────────────────────────────────────────────────
 
@@ -378,8 +390,11 @@ func _setup_miniboss_trigger() -> void:
 func _on_miniboss_room_entered(body: Node2D) -> void:
 	if not body.is_in_group("player"):
 		return
-	# Guard antes da criação: após a morte o GDScript auto-nulifica _miniboss,
-	# fazendo o `== null` retornar true numa re-entrada — o que causaria respawn.
+	# Miniboss já derrotado (jogador voltou pela sala após vitória): não re-spawna
+	# nem re-sela (RWall foi desabilitada em _on_miniboss_defeated e assim deve ficar).
+	if _miniboss_defeated:
+		return
+	# Guard: instância ainda ativa (o player entrou e saiu do trigger).
 	if _miniboss_spawned:
 		return
 	if _miniboss == null:
@@ -422,6 +437,7 @@ func _open_miniboss_gate_for_debug() -> void:
 		rwall.get_node("CollisionShape2D").set_deferred("disabled", true)
 
 func _on_miniboss_defeated() -> void:
+	_miniboss_defeated = true
 	var rwall := get_node_or_null("MiniBoss_RWall")
 	if rwall:
 		rwall.get_node("CollisionShape2D").set_deferred("disabled", true)
