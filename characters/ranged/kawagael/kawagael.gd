@@ -4,6 +4,40 @@ class_name Kawagael
 const _ZAEL_DIR := "res://characters/ranged/"
 const _KAWA_DIR := "res://characters/ranged/kawagael/"
 
+## Carrega todos os *.png de `dir` (ordem alfabética) como frames de `anim_name`
+## em `frames`. Formato PixelLab: um Texture2D completo por frame (sem stitching).
+## Se `dir` não existir, emite push_warning e retorna anim vazia (0 frames).
+func _add_anim_from_frames(frames: SpriteFrames, anim_name: String,
+        dir: String, speed: float, loop: bool) -> void:
+    frames.add_animation(anim_name)
+    frames.set_animation_loop(anim_name, loop)
+    frames.set_animation_speed(anim_name, speed)
+    var da := DirAccess.open(dir)
+    if da == null:
+        push_warning("kawagael: missing anim dir %s" % dir)
+        return
+    var files: Array[String] = []
+    for f in da.get_files():
+        if f.ends_with(".png"):
+            files.append(f)
+    files.sort()  # f00.png, f01.png, ..., fNN.png ordenam alfabeticamente
+    for f in files:
+        var tex := _load_frame_texture(dir + f)
+        if tex:
+            frames.add_frame(anim_name, tex)
+
+## `load()` requer asset importado (res://). Este helper aceita res:// e user://,
+## caindo em Image.load para paths runtime — necessário pra testes com fixtures
+## geradas em user://.
+static func _load_frame_texture(path: String) -> Texture2D:
+    if path.begins_with("res://"):
+        var t := load(path) as Texture2D
+        if t: return t
+    var img := Image.new()
+    if img.load(path) == OK:
+        return ImageTexture.create_from_image(img)
+    return null
+
 func _add_anim(frames: SpriteFrames, anim: String, tex: Texture2D,
         start: int, count: int, speed: float, loop: bool) -> void:
     frames.add_animation(anim)
