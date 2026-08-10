@@ -1,0 +1,20 @@
+{
+  "_notes": "Kawagael PixelLab animation groups. Character bc1bd784-bffa-417e-905a-56e5aac35f67. All directions=east, mode=v3, keep_first_frame=false.",
+  "groups": {
+    "kawa_idle":       {"group": "b1336da7-6470-4459-a319-b69c8036e7d1", "frames": 8},
+    "kawa_run_start":  {"group": "0e5c8047-cd6d-4fa9-a2aa-b226ee5b7d53", "frames": 4},
+    "kawa_run":        {"group": "062d7298-ab67-4100-bf96-32e382a354e6", "frames": 6},
+    "kawa_run_stop":   {"group": "610a3909-23ae-494e-a581-7bf95e2b6512", "frames": 4},
+    "kawa_jump":       {"group": "fdac61c5-4a0c-4a8b-9328-1b7d03cca909", "frames": 4},
+    "kawa_shoot_1":    {"group": "c57a88db-55cd-49c5-8fb8-66714b0c5670", "frames": 4},
+    "kawa_shoot_2":    {"group": "6c57d322-82b5-43a7-bd8d-5722d531accf", "frames": 4},
+    "kawa_shoot_3":    {"group": "1083ccdb-2310-4d13-b87e-54599d87dcd2", "frames": 4},
+    "kawa_dash":       {"group": "cd0fc78b-4b94-4386-8c4f-1456dd21cb0f", "frames": 4},
+    "kawa_wall_slide": {"group": "ae5c860c-92de-4138-a05e-20d072f689e0", "frames": 4},
+    "kawa_hurt":       {"group": "01b683e1-a1fc-4f1c-9379-7f246cc49e0b", "frames": 4},
+    "kawa_death":      {"group": "abb6e882-4140-4cd3-9700-57b5827d2990", "frames": 6},
+    "kawa_run_shoot":  {"group": "bdced70e-e1e2-4866-b254-101fd49dff40", "frames": 6},
+    "kawa_jump_shoot": {"group": "2119a7c4-3d85-4e3f-b37e-d017edeb0c77", "frames": 4},
+    "kawa_dash_shoot": {"group": "fc160e22-b8de-418a-87ae-28bf15d25267", "frames": 4}
+  }
+}
