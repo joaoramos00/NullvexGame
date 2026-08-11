@@ -56,6 +56,16 @@ func _setup_previews() -> void:
     _zael_preview.texture = _zael_frames[0]
     _zara_preview.texture = _zara_frames[0]
 
+func _unhandled_key_input(event: InputEvent) -> void:
+    # Atalho de validação: K seleciona Kawagael (personagem experimental
+    # que vai substituir o Zael no futuro). Sem botão UI dedicado por hora.
+    if not visible:
+        return
+    if event is InputEventKey and event.pressed and not event.echo \
+            and event.keycode == KEY_K:
+        _choose("kawa")
+        accept_event()
+
 func _process(delta: float) -> void:
     if not visible or _zael_frames.is_empty():
         return
