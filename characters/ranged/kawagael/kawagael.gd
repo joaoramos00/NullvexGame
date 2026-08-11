@@ -3,24 +3,29 @@ class_name Kawagael
 
 const _ANIMS_DIR := "res://characters/ranged/kawagael/anims/"
 
-# (anim_name, speed_fps, loop) — configuração de todas as anims do Kawagael.
-# Cada anim é carregada de _ANIMS_DIR + name + "/" (todos os *.png do dir).
+# (anim_name, speed_fps, loop, frame_count) — configuração de todas as anims.
+# frame_count é EXPLÍCITO (não descoberto via DirAccess) porque em builds
+# exportadas o Godot não expõe get_files() em res:// — retorna vazio no PCK.
+# Ordem dos frames: f00.png, f01.png, ..., f{count-1:02d}.png.
 const _ANIM_SPECS := [
-    ["idle",        8.0,  true],
-    ["run_start",  10.0, false],
-    ["run",        10.0,  true],
-    ["run_stop",   10.0, false],
-    ["jump",       10.0, false],
-    ["shoot_1",    10.0, false],
-    ["shoot_2",    10.0, false],
-    ["shoot_3",    10.0, false],
-    ["dash",       12.0, false],
-    ["wall_slide",  6.0,  true],
-    ["hurt",       15.0, false],
-    ["death",      10.0, false],
-    ["run_shoot",  10.0,  true],
-    ["jump_shoot", 10.0,  true],
-    ["dash_shoot", 12.0,  true],
+    ["idle",        8.0,  true,   8],
+    # run_start em 20fps: 4f / 20 = 200ms — pernas engatam junto com movimento.
+    ["run_start",  20.0, false,   4],
+    # run em 16fps: leg cycle mais rápido, sensação de pé firme no chão.
+    ["run",        16.0,  true,  12],
+    # run_stop em 18fps: freada rápida, sem enrolar.
+    ["run_stop",   18.0, false,   4],
+    ["jump",       10.0, false,   4],
+    ["shoot_1",    12.0, false,   4],
+    ["shoot_2",    12.0, false,   4],
+    ["shoot_3",    12.0, false,   4],
+    ["dash",       12.0, false,   1],
+    ["wall_slide",  6.0,  true,   4],
+    ["hurt",       15.0, false,   4],
+    ["death",      10.0, false,   6],
+    ["run_shoot",  16.0,  true,   6],
+    ["jump_shoot", 10.0,  true,   4],
+    ["dash_shoot", 12.0,  true,   1],
 ]
 
 # FSM de run: idle → starting → cycle → stopping → idle
@@ -104,9 +109,26 @@ func _update_animation() -> void:
             if _sprite.animation != "idle":
                 _sprite.play("idle")
 
+## Carrega N frames de `dir` como `dir/f{i:02d}.png` — usado em produção.
+## Explicit-count porque DirAccess.get_files() em res:// retorna vazio em
+## builds exportadas do Godot (o PCK não expõe listagem de arquivos).
+func _add_anim_by_count(frames: SpriteFrames, anim_name: String,
+        dir: String, count: int, speed: float, loop: bool) -> void:
+    frames.add_animation(anim_name)
+    frames.set_animation_loop(anim_name, loop)
+    frames.set_animation_speed(anim_name, speed)
+    for i in count:
+        var path := dir + "f%02d.png" % i
+        var tex := _load_frame_texture(path)
+        if tex:
+            frames.add_frame(anim_name, tex)
+        else:
+            push_warning("kawagael: frame missing %s" % path)
+
 ## Carrega todos os *.png de `dir` (ordem alfabética) como frames de `anim_name`
 ## em `frames`. Formato PixelLab: um Texture2D completo por frame (sem stitching).
-## Se `dir` não existir, emite push_warning e retorna anim vazia (0 frames).
+## Usado só em TESTES com fixtures em user:// (onde DirAccess funciona).
+## Em produção, prefira _add_anim_by_count — DirAccess retorna vazio no PCK.
 func _add_anim_from_frames(frames: SpriteFrames, anim_name: String,
         dir: String, speed: float, loop: bool) -> void:
     frames.add_animation(anim_name)
@@ -148,7 +170,9 @@ func _setup_sprite_frames() -> void:
         var anim_name: String = spec[0]
         var speed: float      = spec[1]
         var loop: bool        = spec[2]
-        _add_anim_from_frames(frames, anim_name, _ANIMS_DIR + anim_name + "/", speed, loop)
+        var count: int        = spec[3]
+        _add_anim_by_count(frames, anim_name, _ANIMS_DIR + anim_name + "/",
+                count, speed, loop)
     _sprite.sprite_frames = frames
     _sprite.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
     _sprite.play("idle")
