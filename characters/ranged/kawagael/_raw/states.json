@@ -1,0 +1,22 @@
+{
+  "_notes": "Poses/states criadas via create_character_state (grupo c3a99df8-dca3-471a-b179-326212cd3023). Cada uma tem 8 rotations completas. Usadas como átomos para gerar variantes de animação (start/end frame de interpolações).",
+  "base_character": "bc1bd784-bffa-417e-905a-56e5aac35f67",
+  "group_id": "c3a99df8-dca3-471a-b179-326212cd3023",
+  "states": {
+    "DashMid": {
+      "id": "a9c05d5d-976e-4f51-9fd3-197402c74b41",
+      "used_in": ["dash_shoot"],
+      "description": "Mid-dash horizontal com braços braced FORWARD across chest (aim)"
+    },
+    "DashBase": {
+      "id": "97325813-5547-4cb4-8e3e-e235ba8b40cc",
+      "used_in": ["dash"],
+      "description": "Mid-dash horizontal com braços trailing back (streamlined, sem tiro)"
+    },
+    "ArmExtended": {
+      "id": "9b583f86-62c6-43f9-868f-461e9c6d21e8",
+      "used_in": [],
+      "description": "Standing shooting stance, ONE arm extended forward. Reservado como átomo pra combinar com run/jump cycles."
+    }
+  }
+}
