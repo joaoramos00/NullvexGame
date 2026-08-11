@@ -8,6 +8,12 @@ $anims = @(
   "hurt", "death", "run_shoot", "jump_shoot", "dash_shoot"
 )
 
+# Anims que têm uma continuação "_b" no _raw (concatenadas no anims/ final).
+# Ex: run + run_b -> anims/run/f00.png .. fNN.png (contínuos)
+$continuations = @{
+    "run" = "run_b"
+}
+
 $totalFrames = 0
 foreach ($anim in $anims) {
     $srcDir = "$root/_raw/animations/kawa_$anim/east"
@@ -18,19 +24,40 @@ foreach ($anim in $anims) {
     }
     New-Item -ItemType Directory -Force -Path $dstDir | Out-Null
 
-    # Limpa PNGs antigos no destino (não .gitkeep)
+    # Limpa PNGs + .import antigos no destino (não .gitkeep)
     Get-ChildItem "$dstDir/*.png" -ErrorAction SilentlyContinue | Remove-Item -Force
+    Get-ChildItem "$dstDir/*.png.import" -ErrorAction SilentlyContinue | Remove-Item -Force
 
-    # Ordena por número (0.png, 1.png, ..., 10.png)
+    # Fase 1: copia frames principais
     $files = Get-ChildItem "$srcDir/*.png" | Sort-Object {
         [int]([IO.Path]::GetFileNameWithoutExtension($_.Name))
     }
-    for ($i = 0; $i -lt $files.Count; $i++) {
-        $dst = "$dstDir/f{0:D2}.png" -f $i
-        Copy-Item -Force $files[$i].FullName $dst
+    $frameIdx = 0
+    foreach ($f in $files) {
+        Copy-Item -Force $f.FullName ("$dstDir/f{0:D2}.png" -f $frameIdx)
+        $frameIdx++
     }
-    $totalFrames += $files.Count
-    "  $anim -> $($files.Count) frames"
+
+    # Fase 2: se houver continuação, anexa em sequência
+    if ($continuations.ContainsKey($anim)) {
+        $contName = $continuations[$anim]
+        $contDir  = "$root/_raw/animations/kawa_$contName/east"
+        if (Test-Path $contDir) {
+            $contFiles = Get-ChildItem "$contDir/*.png" | Sort-Object {
+                [int]([IO.Path]::GetFileNameWithoutExtension($_.Name))
+            }
+            foreach ($f in $contFiles) {
+                Copy-Item -Force $f.FullName ("$dstDir/f{0:D2}.png" -f $frameIdx)
+                $frameIdx++
+            }
+            "  $anim -> $frameIdx frames (base $($files.Count) + $contName $($contFiles.Count))"
+        } else {
+            "  $anim -> $frameIdx frames (WARN: expected continuation $contName not found)"
+        }
+    } else {
+        "  $anim -> $frameIdx frames"
+    }
+    $totalFrames += $frameIdx
 }
 ""
 "Total frames curated: $totalFrames"

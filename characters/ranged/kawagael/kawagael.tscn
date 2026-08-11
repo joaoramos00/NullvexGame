@@ -16,4 +16,4 @@ shape = SubResource("CapsuleShape2D_kawa")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 position = Vector2(0, 35)
-scale = Vector2(2, 2)
+scale = Vector2(0.55, 0.55)

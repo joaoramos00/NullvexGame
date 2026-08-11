@@ -10,9 +10,10 @@ const EXPECTED_ANIMS := [
 # com o que o PixelLab devolveu. Se anim vier com 1 frame a mais/menos,
 # ajustar aqui, não no loader (loader carrega o que existe).
 const EXPECTED_FRAMES := {
-	"idle": 8, "run_start": 4, "run": 6, "run_stop": 4, "jump": 4,
-	"shoot_1": 4, "shoot_2": 4, "shoot_3": 4, "dash": 4, "wall_slide": 4,
-	"hurt": 4, "death": 6, "run_shoot": 6, "jump_shoot": 4, "dash_shoot": 4,
+	# run = 6 (run gen) + 6 (run_b continuation) = 12 frames pra loop suave
+	"idle": 8, "run_start": 4, "run": 12, "run_stop": 4, "jump": 4,
+	"shoot_1": 4, "shoot_2": 4, "shoot_3": 4, "dash": 1, "wall_slide": 4,
+	"hurt": 4, "death": 6, "run_shoot": 6, "jump_shoot": 4, "dash_shoot": 1,
 }
 
 func _ready() -> void:
