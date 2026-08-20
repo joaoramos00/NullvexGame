@@ -3,6 +3,7 @@ extends Node2D
 
 const ZAEL_SCENE   := preload("res://characters/ranged/zael.tscn")
 const ZARA_SCENE   := preload("res://characters/melee/zara.tscn")
+const KAWA_SCENE   := preload("res://characters/ranged/kawagael/kawagael.tscn")
 const _TILESET     := preload("res://stages/stage_00/Stage_00T.png")
 const _GLASS_TEX   := preload("res://stages/stage_00/stage_00_glass.png")
 const _TS          := 64  # tamanho de destino no mundo
@@ -167,7 +168,11 @@ func _unhandled_input(event: InputEvent) -> void:
 # ─── Player Spawn ────────────────────────────────────────────────────────────
 
 func _spawn_player() -> void:
-	var scene := ZARA_SCENE if GameManager.active_character == "zara" else ZAEL_SCENE
+	var scene: PackedScene
+	match GameManager.active_character:
+		"zara": scene = ZARA_SCENE
+		"kawa": scene = KAWA_SCENE
+		_:      scene = ZAEL_SCENE
 	_player = scene.instantiate() as CharacterBase
 	_player.add_to_group("player")
 	_player.global_position = StageManager.get_respawn_position()

@@ -74,7 +74,9 @@ func reset() -> void:
     zara_selected_weapon = "sword"
 
 func set_active_character(character: String) -> void:
-    assert(character in ["zael", "zara"], "invalid character: " + character)
+    # "kawa" é o Kawagael (novo personagem que vai substituir o Zael no futuro).
+    # Compartilha savedata/habilidades do Zael (Kawagael extends Zael).
+    assert(character in ["zael", "zara", "kawa"], "invalid character: " + character)
     active_character = character
     character_changed.emit(character)
 

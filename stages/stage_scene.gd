@@ -2,6 +2,7 @@ extends Node2D
 
 const ZAEL_SCENE := preload("res://characters/ranged/zael.tscn")
 const ZARA_SCENE := preload("res://characters/melee/zara.tscn")
+const KAWA_SCENE := preload("res://characters/ranged/kawagael/kawagael.tscn")
 
 const _TS     := 64   # tamanho de destino no mundo (game units)
 const _SRC_TS := 32   # tamanho do tile no PNG (pixels)
@@ -85,7 +86,11 @@ func _unhandled_input(event: InputEvent) -> void:
 		$PauseMenu.toggle_pause()
 
 func _spawn_player() -> CharacterBase:
-	var scene := ZARA_SCENE if GameManager.active_character == "zara" else ZAEL_SCENE
+	var scene: PackedScene
+	match GameManager.active_character:
+		"zara": scene = ZARA_SCENE
+		"kawa": scene = KAWA_SCENE
+		_:      scene = ZAEL_SCENE
 	var p: CharacterBase = scene.instantiate()
 	p.global_position = $PlayerSpawn.global_position
 	add_child(p)

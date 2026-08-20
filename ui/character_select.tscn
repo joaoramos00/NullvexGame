@@ -26,6 +26,18 @@ corner_radius_top_right = 8
 corner_radius_bottom_right = 8
 corner_radius_bottom_left = 8
 
+[sub_resource type="StyleBoxFlat" id="BtnKawa"]
+bg_color = Color(0.06, 0.28, 0.12, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.35, 0.85, 0.4, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
 [sub_resource type="StyleBoxFlat" id="BtnCancel"]
 bg_color = Color(0.13, 0.13, 0.18, 1)
 border_width_left = 2
@@ -53,9 +65,9 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -380.0
+offset_left = -520.0
 offset_top = -260.0
-offset_right = 380.0
+offset_right = 520.0
 offset_bottom = 260.0
 
 [node name="VBox" type="VBoxContainer" parent="Panel"]
@@ -122,6 +134,25 @@ text = "Zara  (Melee)"
 theme_override_font_sizes/font_size = 24
 theme_override_colors/font_color = Color(1.0, 0.84, 0.72, 1)
 theme_override_styles/normal = SubResource("BtnZara")
+
+[node name="KawaCol" type="VBoxContainer" parent="Panel/VBox/HBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 10
+
+[node name="KawaPreview" type="TextureRect" parent="Panel/VBox/HBox/KawaCol"]
+layout_mode = 2
+custom_minimum_size = Vector2(192, 192)
+size_flags_horizontal = 4
+texture_filter = 1
+stretch_mode = 5
+
+[node name="KawaButton" type="Button" parent="Panel/VBox/HBox/KawaCol"]
+layout_mode = 2
+text = "Kawa  (Ranged*)"
+theme_override_font_sizes/font_size = 24
+theme_override_colors/font_color = Color(0.75, 1.0, 0.82, 1)
+theme_override_styles/normal = SubResource("BtnKawa")
 
 [node name="CancelButton" type="Button" parent="Panel/VBox"]
 layout_mode = 2

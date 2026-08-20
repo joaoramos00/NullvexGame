@@ -8,15 +8,18 @@ const _ROW_RIGHT := 0
 const _ANIM_SPEED := 8.0
 
 var _standalone: bool = false
-var _zael_frames: Array[AtlasTexture] = []
-var _zara_frames: Array[AtlasTexture] = []
+var _zael_frames: Array[Texture2D] = []
+var _zara_frames: Array[Texture2D] = []
+var _kawa_frames: Array[Texture2D] = []
 var _frame_timer: float = 0.0
 var _zael_frame: int = 0
 var _zara_frame: int = 0
+var _kawa_frame: int = 0
 
 @onready var _stage_label: Label = $Panel/VBox/StageLabel
 @onready var _zael_preview: TextureRect = $Panel/VBox/HBox/ZaelCol/ZaelPreview
 @onready var _zara_preview: TextureRect = $Panel/VBox/HBox/ZaraCol/ZaraPreview
+@onready var _kawa_preview: TextureRect = $Panel/VBox/HBox/KawaCol/KawaPreview
 
 func _ready() -> void:
     _standalone = get_parent() == get_tree().root
@@ -28,11 +31,16 @@ func _ready() -> void:
         visible = false
     var zael_btn: Button = $Panel/VBox/HBox/ZaelCol/ZaelButton
     var zara_btn: Button = $Panel/VBox/HBox/ZaraCol/ZaraButton
+    var kawa_btn: Button = $Panel/VBox/HBox/KawaCol/KawaButton
     zael_btn.pressed.connect(func(): _choose("zael"))
     zara_btn.pressed.connect(func(): _choose("zara"))
+    kawa_btn.pressed.connect(func(): _choose("kawa"))
     $Panel/VBox/CancelButton.pressed.connect(_on_cancel)
+    # Focus order: Zael ← → Zara ← → Kawa (3 colunas em sequência)
     zael_btn.focus_neighbor_right = zara_btn.get_path()
-    zara_btn.focus_neighbor_left = zael_btn.get_path()
+    zara_btn.focus_neighbor_left  = zael_btn.get_path()
+    zara_btn.focus_neighbor_right = kawa_btn.get_path()
+    kawa_btn.focus_neighbor_left  = zara_btn.get_path()
     if _standalone:
         zael_btn.grab_focus()
     _setup_previews()
@@ -53,8 +61,14 @@ func _setup_previews() -> void:
         at2.filter_clip = true
         at2.region = Rect2(i * _FRAME_W, ry, _FRAME_W, _FRAME_H)
         _zara_frames.append(at2)
+    # Kawa: 8 idle frames como PNGs individuais 256x256 (formato PixelLab).
+    for i in 8:
+        var t := load("res://characters/ranged/kawagael/anims/idle/f%02d.png" % i) as Texture2D
+        if t: _kawa_frames.append(t)
     _zael_preview.texture = _zael_frames[0]
     _zara_preview.texture = _zara_frames[0]
+    if not _kawa_frames.is_empty():
+        _kawa_preview.texture = _kawa_frames[0]
 
 func _process(delta: float) -> void:
     if not visible or _zael_frames.is_empty():
@@ -66,6 +80,9 @@ func _process(delta: float) -> void:
         _zara_frame = (_zara_frame + 1) % _zara_frames.size()
         _zael_preview.texture = _zael_frames[_zael_frame]
         _zara_preview.texture = _zara_frames[_zara_frame]
+        if not _kawa_frames.is_empty():
+            _kawa_frame = (_kawa_frame + 1) % _kawa_frames.size()
+            _kawa_preview.texture = _kawa_frames[_kawa_frame]
 
 func show_for_stage(stage_id: int, boss_name: String) -> void:
     _stage_label.text = "Stage %d — %s" % [stage_id, boss_name]

@@ -11,6 +11,21 @@ func _ready() -> void:
     $VBox/QuitButton.pressed.connect(_on_quit_pressed)
     $VBox/ImgDebugButton.pressed.connect(_on_img_debug_pressed)
     $VBox/NewGameButton.grab_focus()
+    _maybe_deeplink()
+
+## Deeplink de debug via URL query (só no build web).
+## - ?stage_select  → pula direto pra res://ui/stage_select.tscn
+## Limpa a query depois de consumir pra evitar loop se o usuário voltar.
+func _maybe_deeplink() -> void:
+    if not OS.has_feature("web"):
+        return
+    var search := str(JavaScriptBridge.eval("window.location.search", true))
+    if search.is_empty():
+        return
+    if search.contains("stage_select"):
+        JavaScriptBridge.eval("window.history.replaceState({}, '', window.location.pathname)", true)
+        GameManager.reset()
+        get_tree().change_scene_to_file.call_deferred("res://ui/stage_select.tscn")
 
 func _on_img_debug_pressed() -> void:
     if is_instance_valid(_debug_panel):
