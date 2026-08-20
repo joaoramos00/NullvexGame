@@ -38,5 +38,8 @@ tests/bot/node_modules/
 # Build web exportado na pasta errada (o correto é export/web/)
 exports/
 
+# Build web antigo committed por engano — agora gerado pelo CI (.github/workflows/deploy.yml)
+/docs/web/
+
 # Python cache
 __pycache__/
