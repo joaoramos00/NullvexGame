@@ -3,6 +3,30 @@
 [ext_resource type="Script" path="res://ui/stage_select.gd" id="1_script"]
 [ext_resource type="PackedScene" uid="uid://character_select" path="res://ui/character_select.tscn" id="2_charsel"]
 
+[sub_resource type="StyleBoxFlat" id="CardNormal"]
+bg_color = Color(0.09, 0.10, 0.14, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.20, 0.25, 0.35, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_left = 4
+corner_radius_bottom_right = 4
+
+[sub_resource type="StyleBoxFlat" id="CenterPanel"]
+bg_color = Color(0.05, 0.07, 0.11, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.25, 0.40, 0.55, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_left = 6
+corner_radius_bottom_right = 6
+
 [node name="StageSelect" type="Control"]
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -11,230 +35,205 @@ script = ExtResource("1_script")
 [node name="Background" type="ColorRect" parent="."]
 anchor_right = 1.0
 anchor_bottom = 1.0
-color = Color(0.06, 0.06, 0.1, 1)
-
-[node name="TitleLabel" type="Label" parent="."]
-anchor_left = 0.5
-anchor_right = 0.5
-offset_left = -200.0
-offset_top = 30.0
-offset_right = 200.0
-offset_bottom = 70.0
-text = "SELECT STAGE"
-horizontal_alignment = 1
-theme_override_font_sizes/font_size = 32
+color = Color(0.03, 0.04, 0.07, 1)
 
 [node name="Grid" type="GridContainer" parent="."]
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -420.0
-offset_top = -240.0
-offset_right = 420.0
-offset_bottom = 260.0
-columns = 4
-theme_override_constants/h_separation = 16
-theme_override_constants/v_separation = 16
+offset_left = -920.0
+offset_top = -418.0
+offset_right = 920.0
+offset_bottom = 418.0
+columns = 6
+theme_override_constants/h_separation = 8
+theme_override_constants/v_separation = 8
+
+[node name="Card0" type="PanelContainer" parent="Grid"]
+custom_minimum_size = Vector2(300, 160)
+focus_mode = 2
+theme_override_styles/panel = SubResource("CardNormal")
 
 [node name="Card1" type="PanelContainer" parent="Grid"]
-custom_minimum_size = Vector2(190, 220)
+custom_minimum_size = Vector2(300, 160)
+focus_mode = 2
+theme_override_styles/panel = SubResource("CardNormal")
 
-[node name="VBox" type="VBoxContainer" parent="Grid/Card1"]
+[node name="Portrait" type="TextureRect" parent="Grid/Card1"]
 layout_mode = 2
-theme_override_constants/separation = 6
-
-[node name="Portrait" type="TextureButton" parent="Grid/Card1/VBox"]
-layout_mode = 2
-custom_minimum_size = Vector2(128, 128)
 stretch_mode = 5
-ignore_texture_size = true
 texture_filter = 1
-
-[node name="NameLabel" type="Label" parent="Grid/Card1/VBox"]
-layout_mode = 2
-text = "Ignarath"
-horizontal_alignment = 1
-theme_override_font_sizes/font_size = 18
-
-[node name="ThemeLabel" type="Label" parent="Grid/Card1/VBox"]
-layout_mode = 2
-text = "Fire"
-horizontal_alignment = 1
 
 [node name="Card2" type="PanelContainer" parent="Grid"]
-custom_minimum_size = Vector2(190, 220)
+custom_minimum_size = Vector2(300, 160)
+focus_mode = 2
+theme_override_styles/panel = SubResource("CardNormal")
 
-[node name="VBox" type="VBoxContainer" parent="Grid/Card2"]
+[node name="Portrait" type="TextureRect" parent="Grid/Card2"]
 layout_mode = 2
-theme_override_constants/separation = 6
-
-[node name="Portrait" type="TextureButton" parent="Grid/Card2/VBox"]
-layout_mode = 2
-custom_minimum_size = Vector2(128, 128)
 stretch_mode = 5
-ignore_texture_size = true
 texture_filter = 1
-
-[node name="NameLabel" type="Label" parent="Grid/Card2/VBox"]
-layout_mode = 2
-text = "Cryovex"
-horizontal_alignment = 1
-theme_override_font_sizes/font_size = 18
-
-[node name="ThemeLabel" type="Label" parent="Grid/Card2/VBox"]
-layout_mode = 2
-text = "Ice"
-horizontal_alignment = 1
 
 [node name="Card3" type="PanelContainer" parent="Grid"]
-custom_minimum_size = Vector2(190, 220)
+custom_minimum_size = Vector2(300, 160)
+focus_mode = 2
+theme_override_styles/panel = SubResource("CardNormal")
 
-[node name="VBox" type="VBoxContainer" parent="Grid/Card3"]
+[node name="Portrait" type="TextureRect" parent="Grid/Card3"]
 layout_mode = 2
-theme_override_constants/separation = 6
-
-[node name="Portrait" type="TextureButton" parent="Grid/Card3/VBox"]
-layout_mode = 2
-custom_minimum_size = Vector2(128, 128)
 stretch_mode = 5
-ignore_texture_size = true
 texture_filter = 1
-
-[node name="NameLabel" type="Label" parent="Grid/Card3/VBox"]
-layout_mode = 2
-text = "Voltrix"
-horizontal_alignment = 1
-theme_override_font_sizes/font_size = 18
-
-[node name="ThemeLabel" type="Label" parent="Grid/Card3/VBox"]
-layout_mode = 2
-text = "Lightning"
-horizontal_alignment = 1
 
 [node name="Card4" type="PanelContainer" parent="Grid"]
-custom_minimum_size = Vector2(190, 220)
+custom_minimum_size = Vector2(300, 160)
+focus_mode = 2
+theme_override_styles/panel = SubResource("CardNormal")
 
-[node name="VBox" type="VBoxContainer" parent="Grid/Card4"]
+[node name="Portrait" type="TextureRect" parent="Grid/Card4"]
 layout_mode = 2
-theme_override_constants/separation = 6
-
-[node name="Portrait" type="TextureButton" parent="Grid/Card4/VBox"]
-layout_mode = 2
-custom_minimum_size = Vector2(128, 128)
 stretch_mode = 5
-ignore_texture_size = true
 texture_filter = 1
-
-[node name="NameLabel" type="Label" parent="Grid/Card4/VBox"]
-layout_mode = 2
-text = "Gravitus"
-horizontal_alignment = 1
-theme_override_font_sizes/font_size = 18
-
-[node name="ThemeLabel" type="Label" parent="Grid/Card4/VBox"]
-layout_mode = 2
-text = "Gravity"
-horizontal_alignment = 1
 
 [node name="Card5" type="PanelContainer" parent="Grid"]
-custom_minimum_size = Vector2(190, 220)
+custom_minimum_size = Vector2(300, 160)
+focus_mode = 2
+theme_override_styles/panel = SubResource("CardNormal")
 
-[node name="VBox" type="VBoxContainer" parent="Grid/Card5"]
-layout_mode = 2
-theme_override_constants/separation = 6
+[node name="Card6" type="Control" parent="Grid"]
+custom_minimum_size = Vector2(300, 500)
 
-[node name="Portrait" type="TextureButton" parent="Grid/Card5/VBox"]
+[node name="Card7" type="Control" parent="Grid"]
+custom_minimum_size = Vector2(300, 500)
+
+[node name="Card8" type="Control" parent="Grid"]
+custom_minimum_size = Vector2(300, 500)
+
+[node name="Card9" type="Control" parent="Grid"]
+custom_minimum_size = Vector2(300, 500)
+
+[node name="Card10" type="Control" parent="Grid"]
+custom_minimum_size = Vector2(300, 500)
+
+[node name="Card11" type="Control" parent="Grid"]
+custom_minimum_size = Vector2(300, 500)
+
+[node name="Card12" type="PanelContainer" parent="Grid"]
+custom_minimum_size = Vector2(300, 160)
+focus_mode = 2
+theme_override_styles/panel = SubResource("CardNormal")
+
+[node name="Card13" type="PanelContainer" parent="Grid"]
+custom_minimum_size = Vector2(300, 160)
+focus_mode = 2
+theme_override_styles/panel = SubResource("CardNormal")
+
+[node name="Portrait" type="TextureRect" parent="Grid/Card13"]
 layout_mode = 2
-custom_minimum_size = Vector2(128, 128)
 stretch_mode = 5
-ignore_texture_size = true
 texture_filter = 1
 
-[node name="NameLabel" type="Label" parent="Grid/Card5/VBox"]
-layout_mode = 2
-text = "Galerix"
-horizontal_alignment = 1
-theme_override_font_sizes/font_size = 18
+[node name="Card14" type="PanelContainer" parent="Grid"]
+custom_minimum_size = Vector2(300, 160)
+focus_mode = 2
+theme_override_styles/panel = SubResource("CardNormal")
 
-[node name="ThemeLabel" type="Label" parent="Grid/Card5/VBox"]
+[node name="Portrait" type="TextureRect" parent="Grid/Card14"]
 layout_mode = 2
-text = "Wind"
-horizontal_alignment = 1
-
-[node name="Card6" type="PanelContainer" parent="Grid"]
-custom_minimum_size = Vector2(190, 220)
-
-[node name="VBox" type="VBoxContainer" parent="Grid/Card6"]
-layout_mode = 2
-theme_override_constants/separation = 6
-
-[node name="Portrait" type="TextureButton" parent="Grid/Card6/VBox"]
-layout_mode = 2
-custom_minimum_size = Vector2(128, 128)
 stretch_mode = 5
-ignore_texture_size = true
 texture_filter = 1
 
-[node name="NameLabel" type="Label" parent="Grid/Card6/VBox"]
-layout_mode = 2
-text = "Umbraex"
-horizontal_alignment = 1
-theme_override_font_sizes/font_size = 18
+[node name="Card15" type="PanelContainer" parent="Grid"]
+custom_minimum_size = Vector2(300, 160)
+focus_mode = 2
+theme_override_styles/panel = SubResource("CardNormal")
 
-[node name="ThemeLabel" type="Label" parent="Grid/Card6/VBox"]
+[node name="Portrait" type="TextureRect" parent="Grid/Card15"]
 layout_mode = 2
-text = "Shadow"
-horizontal_alignment = 1
-
-[node name="Card7" type="PanelContainer" parent="Grid"]
-custom_minimum_size = Vector2(190, 220)
-
-[node name="VBox" type="VBoxContainer" parent="Grid/Card7"]
-layout_mode = 2
-theme_override_constants/separation = 6
-
-[node name="Portrait" type="TextureButton" parent="Grid/Card7/VBox"]
-layout_mode = 2
-custom_minimum_size = Vector2(128, 128)
 stretch_mode = 5
-ignore_texture_size = true
 texture_filter = 1
 
-[node name="NameLabel" type="Label" parent="Grid/Card7/VBox"]
-layout_mode = 2
-text = "Luxar"
-horizontal_alignment = 1
-theme_override_font_sizes/font_size = 18
+[node name="Card16" type="PanelContainer" parent="Grid"]
+custom_minimum_size = Vector2(300, 160)
+focus_mode = 2
+theme_override_styles/panel = SubResource("CardNormal")
 
-[node name="ThemeLabel" type="Label" parent="Grid/Card7/VBox"]
+[node name="Portrait" type="TextureRect" parent="Grid/Card16"]
 layout_mode = 2
-text = "Light"
-horizontal_alignment = 1
-
-[node name="Card8" type="PanelContainer" parent="Grid"]
-custom_minimum_size = Vector2(190, 220)
-
-[node name="VBox" type="VBoxContainer" parent="Grid/Card8"]
-layout_mode = 2
-theme_override_constants/separation = 6
-
-[node name="Portrait" type="TextureButton" parent="Grid/Card8/VBox"]
-layout_mode = 2
-custom_minimum_size = Vector2(128, 128)
 stretch_mode = 5
-ignore_texture_size = true
 texture_filter = 1
 
-[node name="NameLabel" type="Label" parent="Grid/Card8/VBox"]
-layout_mode = 2
-text = "Terragor"
-horizontal_alignment = 1
-theme_override_font_sizes/font_size = 18
+[node name="Card17" type="PanelContainer" parent="Grid"]
+custom_minimum_size = Vector2(300, 160)
+focus_mode = 2
+theme_override_styles/panel = SubResource("CardNormal")
 
-[node name="ThemeLabel" type="Label" parent="Grid/Card8/VBox"]
+[node name="CenterInfo" type="PanelContainer" parent="."]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -920.0
+offset_top = -250.0
+offset_right = 920.0
+offset_bottom = 250.0
+theme_override_styles/panel = SubResource("CenterPanel")
+
+[node name="Margin" type="MarginContainer" parent="CenterInfo"]
 layout_mode = 2
-text = "Earth"
-horizontal_alignment = 1
+theme_override_constants/margin_left = 32
+theme_override_constants/margin_top = 24
+theme_override_constants/margin_right = 32
+theme_override_constants/margin_bottom = 24
+
+[node name="HBox" type="HBoxContainer" parent="CenterInfo/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 40
+
+[node name="SpriteSlot" type="TextureRect" parent="CenterInfo/Margin/HBox"]
+layout_mode = 2
+custom_minimum_size = Vector2(420, 420)
+expand_mode = 1
+stretch_mode = 5
+texture_filter = 1
+size_flags_vertical = 4
+
+[node name="TextVBox" type="VBoxContainer" parent="CenterInfo/Margin/HBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+alignment = 1
+theme_override_constants/separation = 10
+
+[node name="InfoTitle" type="Label" parent="CenterInfo/Margin/HBox/TextVBox"]
+layout_mode = 2
+text = "SELECT STAGE"
+autowrap_mode = 3
+theme_override_font_sizes/font_size = 48
+theme_override_colors/font_color = Color(0.35, 0.85, 1.0, 1)
+
+[node name="InfoSubtitle" type="Label" parent="CenterInfo/Margin/HBox/TextVBox"]
+layout_mode = 2
+text = "↑↓←→ to navigate  ·  ENTER to confirm"
+autowrap_mode = 3
+theme_override_font_sizes/font_size = 20
+theme_override_colors/font_color = Color(0.55, 0.65, 0.75, 1)
+
+[node name="Separator" type="HSeparator" parent="CenterInfo/Margin/HBox/TextVBox"]
+layout_mode = 2
+
+[node name="InfoBody" type="Label" parent="CenterInfo/Margin/HBox/TextVBox"]
+layout_mode = 2
+text = ""
+autowrap_mode = 3
+theme_override_font_sizes/font_size = 22
+theme_override_colors/font_color = Color(0.80, 0.85, 0.92, 1)
+
+[node name="InfoFooter" type="Label" parent="CenterInfo/Margin/HBox/TextVBox"]
+layout_mode = 2
+text = ""
+autowrap_mode = 3
+theme_override_font_sizes/font_size = 18
+theme_override_colors/font_color = Color(0.55, 0.75, 0.95, 1)
 
 [node name="CharacterSelect" parent="." instance=ExtResource("2_charsel")]
