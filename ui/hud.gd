@@ -6,7 +6,8 @@ extends CanvasLayer
 @onready var _boss_bar:   Control = $Control/BossHPBar
 @onready var _boss_label: Label   = $Control/BossLabel
 
-const _HP_PER_PIXEL := 4.0
+# Mantido em sync com ui/hp_bar.gd::HP_PER_PIXEL (não dá pra preload().CONST em GDScript).
+const _HP_PER_PIXEL := 12.0
 const _BAR_BOTTOM   := 462.0
 
 func _ready() -> void:

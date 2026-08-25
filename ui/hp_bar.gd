@@ -2,6 +2,8 @@ extends Control
 
 const _SEG_H := 13.0  # altura fixa de cada segmento (px) — não estica com a barra
 const _GAP   :=  3.0  # espaço entre segmentos
+# NOTA: pixels-por-HP fica em ui/hud.gd::_HP_PER_PIXEL e
+# ui/stage_select.gd::_HP_PER_PIXEL — precisam ficar em sync (ambos 12.0).
 
 var current_hp: int = 50
 var max_hp: int     = 50
