@@ -32,7 +32,7 @@ Endpoint imagem genérica (Pixflux): `POST https://api.pixellab.ai/v1/generate-i
 ## Como Rodar Testes
 
 ```bash
-# A partir de D:\SnesGame
+# A partir da raiz do projeto (NullvexGame)
 "D:/Godot_v4.6.2-stable_win64/Godot_v4.6.2-stable_win64.exe" --headless --path . res://tests/test_game_manager.tscn
 "D:/Godot_v4.6.2-stable_win64/Godot_v4.6.2-stable_win64.exe" --headless --path . res://tests/test_stage_manager.tscn
 "D:/Godot_v4.6.2-stable_win64/Godot_v4.6.2-stable_win64.exe" --headless --path . res://tests/test_character_base.tscn

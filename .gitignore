@@ -19,6 +19,7 @@ tests/bot/shots/
 tests/bot/results/
 tests/bot/node_modules/
 .worktrees/
+.claude/worktrees/
 
 # Caches do Godot (regerados na importação)
 .godot/
