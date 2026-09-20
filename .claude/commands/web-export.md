@@ -6,26 +6,35 @@ Use quando o usuário quiser exportar o build web, publicar no GitHub Pages e te
 
 ### 1. Export Godot (headless)
 
+A partir da raiz do projeto (NullvexGame):
+
 ```bash
-"D:/Godot_v4.6.2-stable_win64/Godot_v4.6.2-stable_win64.exe" --headless --path "C:\Users\Usuário\SnesGame" --export-release "Web" "C:\Users\Usuário\SnesGame\export\web\index.html" 2>&1
+"D:/Godot_v4.6.2-stable_win64/Godot_v4.6.2-stable_win64.exe" --headless --path . --export-release "Web" "export/web/index.html" 2>&1
 ```
 
 ### 2. Verificar PCK atualizado
 
 ```powershell
-powershell -Command "Get-Item 'C:\Users\Usuário\SnesGame\export\web\index.pck' | Select-Object LastWriteTime, Length"
+powershell -Command "Get-Item 'export\web\index.pck' | Select-Object LastWriteTime, Length"
 ```
 
 `LastWriteTime` deve ser recente. Se não mudou → erro no export, parar.
 
-### 3. Commit e push
+### 3. NÃO commitar `export/web/`
 
-```bash
-# export/web/ está no .gitignore mas com exceção — usar -f para garantir
-git add -f export/web/ <outros arquivos modificados>
-git commit -m "chore: web export — <descrição da mudança>"
-git push
-```
+Desde 2026-07-17 (commit `28154305`) o export web **não é mais versionado
+no git** — `export/` está inteiro no `.gitignore`, sem exceção. O
+`.github/workflows/deploy.yml` baixa o Godot headless + export templates e
+roda o export release direto no runner a cada push na `master`, publicando
+no GitHub Pages. Isso existe porque commitar o `.pck` via Git LFS estourava
+a cota da conta a cada reexportação (622 versões históricas já tinham
+estourado — ver `reference_git_lfs_budget_exceeded` na memória). O export
+local do passo 1 serve só pra testar localmente (passo 4); dar merge/push do
+código na `master` já é suficiente para o Pages atualizar sozinho via CI.
+
+**Nunca usar `git add -f` em `export/web/`** — se algum arquivo já estiver
+sendo trackeado por engano, rode `git rm -r --cached export/web/` para
+destrackear (sem apagar do disco).
 
 ### 4. Reiniciar servidor local (port 8080)
 
@@ -33,7 +42,7 @@ git push
 powershell -Command "
   \$pids = (netstat -ano | findstr ':8080' | ForEach-Object { (\$_ -split '\s+')[-1] } | Sort-Object -Unique);
   foreach (\$p in \$pids) { Stop-Process -Id \$p -Force -ErrorAction SilentlyContinue };
-  Start-Process python -ArgumentList 'C:\Users\Usuário\SnesGame\serve_web.py' -WindowStyle Hidden;
+  Start-Process python -ArgumentList 'serve_web.py' -WindowStyle Hidden;
   Start-Sleep 2;
   (Invoke-WebRequest http://localhost:8080 -UseBasicParsing).StatusCode
 "
@@ -49,7 +58,8 @@ Deve retornar `200`. Se não → checar se `serve_web.py` existe.
 ## Observações
 
 - Export preset "Web" já configurado em `export_presets.cfg`
-- `export/` está no `.gitignore` mas `!export/web/` está excluído — `git add -f` é necessário
+- `export/` está inteiro no `.gitignore` (sem exceção) — nunca commitar `export/web/`, é build artifact local/CI
 - Usar sempre `--export-release` (não `--export-debug`)
 - O export leva 30–60 s; normal
 - O servidor usa COOP/COEP headers (necessário para SharedArrayBuffer do Godot web)
+- Publicação real (GitHub Pages) acontece via `.github/workflows/deploy.yml` a cada push na `master` — não depende deste passo local

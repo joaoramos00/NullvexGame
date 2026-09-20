@@ -1,5 +1,10 @@
 # Design — Kawagael (reskin do Zael) — Iteração 1: Corrida
 
+> **⚠️ SUPERADO:** ver `docs/superpowers/specs/2026-08-10-kawagael-pixellab-swap-design.md`
+> — o Kawagael final não é mais um reskin com fallback pro Zael, tem loader
+> e FSM próprios com as 15 animações completas. Mantido apenas como registro
+> histórico.
+
 **Data:** 2026-06-08
 **Status:** Aprovado (design) — aguardando spec review
 **Personagem-fonte PixelLab:** `bc1bd784-bffa-417e-905a-56e5aac35f67` (robô esmeralda, 256×256, 8 direções, side view)

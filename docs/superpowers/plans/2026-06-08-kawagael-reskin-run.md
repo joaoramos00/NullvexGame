@@ -1,5 +1,12 @@
 # Kawagael Reskin — Iteração 1 (Corrida) Implementation Plan
 
+> **⚠️ SUPERADO:** esta abordagem (Kawagael como reskin que `extends Zael` e
+> cai de volta nas texturas do Zael para estados não gerados) foi totalmente
+> substituída pelo plano `docs/superpowers/plans/2026-08-10-kawagael-pixellab-swap.md`,
+> que implementou loader (`_add_anim_from_frames`) e FSM próprios do
+> Kawagael, com as 15 animações completas, sem depender do Zael. Mantido
+> apenas como registro histórico.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Gerar o ciclo de corrida (8 frames) do Kawagael via PixelLab character states e integrá-lo como reskin jogável do Zael, sem tocar em nenhum asset do Zael.

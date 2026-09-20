@@ -6,14 +6,16 @@ Use quando o usuário quiser exportar o build web, publicar no GitHub Pages e te
 
 ### 1. Export Godot (headless)
 
+A partir da raiz do projeto (NullvexGame):
+
 ```bash
-"D:/Godot_v4.6.2-stable_win64/Godot_v4.6.2-stable_win64.exe" --headless --path "D:\SnesGame" --export-release "Web" "D:\SnesGame\export\web\index.html" 2>&1
+"D:/Godot_v4.6.2-stable_win64/Godot_v4.6.2-stable_win64.exe" --headless --path . --export-release "Web" "export/web/index.html" 2>&1
 ```
 
 ### 2. Verificar PCK atualizado
 
 ```powershell
-powershell -Command "Get-Item 'D:\SnesGame\export\web\index.pck' | Select-Object LastWriteTime, Length"
+powershell -Command "Get-Item 'export\web\index.pck' | Select-Object LastWriteTime, Length"
 ```
 
 `LastWriteTime` deve ser recente. Se não mudou → erro no export, parar.
@@ -30,13 +32,17 @@ estourado — ver `reference_git_lfs_budget_exceeded` na memória). O export
 local do passo 1 serve só pra testar localmente (passo 4); dar merge/push do
 código na `master` já é suficiente para o Pages atualizar sozinho via CI.
 
+**Nunca usar `git add -f` em `export/web/`** — se algum arquivo já estiver
+sendo trackeado por engano, rode `git rm -r --cached export/web/` para
+destrackear (sem apagar do disco).
+
 ### 4. Reiniciar servidor local (port 8080)
 
 ```powershell
 powershell -Command "
   \$pids = (netstat -ano | findstr ':8080' | ForEach-Object { (\$_ -split '\s+')[-1] } | Sort-Object -Unique);
   foreach (\$p in \$pids) { Stop-Process -Id \$p -Force -ErrorAction SilentlyContinue };
-  Start-Process python -ArgumentList 'D:\SnesGame\serve_web.py' -WindowStyle Hidden;
+  Start-Process python -ArgumentList 'serve_web.py' -WindowStyle Hidden;
   Start-Sleep 2;
   (Invoke-WebRequest http://localhost:8080 -UseBasicParsing).StatusCode
 "
