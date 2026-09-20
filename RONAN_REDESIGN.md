@@ -1,4 +1,9 @@
-# Kawagael "Ronin" — Redesign (rodar em sessão LOCAL)
+# Ronan — Redesign visual do 3º personagem (rodar em sessão LOCAL)
+
+> **Nome definido:** o novo personagem se chama **Ronan** — não é "Kawagael
+> Ronin" nem uma variação do nome Kawagael. Onde este documento cita
+> "Kawagael" sozinho, é o personagem atual (robô verde) já existente em
+> `characters/ranged/kawagael/`, mantido como referência/prior art.
 
 > **Por que esse arquivo existe:** esta sessão começou no Claude Code na nuvem
 > (claude.ai/code), que roda num container remoto sem acesso ao MCP do
@@ -6,7 +11,7 @@
 > máquina. Este documento junta tudo que foi decidido pra você (ou uma nova
 > sessão do Claude Code rodando localmente) executar sem precisar repetir a
 > conversa. Basta abrir uma sessão local e dizer: **"segue o plano em
-> KAWAGAEL_RONIN_REDESIGN.md"**.
+> RONAN_REDESIGN.md"**.
 
 ## Contexto
 
@@ -17,16 +22,17 @@ Ele reusa 100% do kit de gameplay do Zael (5 tipos de tiro, carga, dash,
 wall-jump) — só a aparência muda.
 
 Este documento propõe um **redesign visual completo** (novo character
-PixelLab, não um ajuste do atual) com o tema **"Ronin"**: um gunslinger
-esguio e elegante, decidido em `docs/superpowers/plans/` como a direção
-escolhida entre 5 opções (Heavy Vanguard, Ronin, Corsair, Wraith, Aurora).
+PixelLab, não um ajuste do atual): **Ronan**, um gunslinger esguio e
+elegante com tema "ronin", decidido como a direção escolhida entre 5
+opções (Heavy Vanguard, Ronin/Ronan, Corsair, Wraith, Aurora).
 
 **Não-objetivo:** mudar código de gameplay. O loader (`_add_anim_from_frames`)
 e a FSM já existentes em `characters/ranged/kawagael/kawagael.gd` continuam
-valendo — só as pastas de sprite em `characters/ranged/kawagael/anims/`
-seriam substituídas ao final, depois de aprovado visualmente.
+valendo — só as pastas de sprite seriam usadas/substituídas ao final,
+depois de aprovado visualmente (ver Passo 5 sobre virar classe própria ou
+substituir o Kawagael atual).
 
-## Conceito — Kawagael Ronin
+## Conceito — Ronan
 
 - **Silhueta:** humanoide esguio (mais magro que o Kawagael verde atual),
   postura ereta de gunslinger, não um "mecha bruto".
@@ -43,7 +49,7 @@ seriam substituídas ao final, depois de aprovado visualmente.
   cano do canhão.
 - **Tom geral:** mais ágil e refinado que o Kawagael atual, contrasta com o
   visual "tosco" dos inimigos e dá uma identidade própria dentro do elenco
-  (Zael = herói clássico, Zara = melee, Kawagael Ronin = atirador elegante).
+  (Zael = herói clássico, Zara = melee, Ronan = atirador elegante).
 
 ## Pré-requisitos (checar antes de começar)
 
@@ -68,7 +74,7 @@ Usar `mcp__pixellab__create_character`:
 
 ```json
 {
-  "name": "KawagaelRonin",
+  "name": "Ronan",
   "description": "Sleek humanoid combat robot, samurai-inspired gunslinger silhouette, slim build, upright posture. Deep indigo/petrol-blue chassis plating with warm gold metallic trim on joints and edges. Smooth featureless helmet with a small fan-shaped crest/fin on the back of the head, single soft cyan glowing visor slit. Forearm-mounted cannon gauntlet on the right arm (not a full arm-cannon) — the cannon is a compact attachment over the forearm, hand and fingers still visible/articulated. Left arm free and unarmed. A thin cloth sash or scarf hangs from one shoulder for movement flair. HD pixel art style, side view, dark background, clean single-color outline.",
   "size": 256,
   "view": "side",
@@ -88,18 +94,19 @@ padrão do Kawagael atual — `west` é `flip_h` em runtime).
 com/sem sash, tamanho do canhão) antes de comprometer com uma — mesmo
 processo de "escolher entre candidatos" usado pra efeitos visuais
 (`pixellab-effect`). Baixar as rotações de cada candidato pra
-`assets/generated/kawagael_ronin/candidates/<n>/` antes de decidir.
+`assets/generated/ronan/candidates/<n>/` antes de decidir.
 
 ## Passo 2 — Aprovar o candidato e baixar sprite base
 
 ```powershell
-python tools/pixellab_download.py character <character_id> assets/generated/kawagael_ronin/
+python tools/pixellab_download.py character <character_id> assets/generated/ronan/
 ```
 
 ## Passo 3 — Animações (mesmas 15 do Kawagael atual, pra drop-in direto)
 
 Reusar exatamente os nomes de estado que `kawagael.gd` já espera em
-`characters/ranged/kawagael/anims/<nome>/`:
+`characters/ranged/kawagael/anims/<nome>/` (ou `characters/ranged/ronan/anims/<nome>/`
+se virar classe própria — ver Passo 5):
 
 | Estado | Frames aprox. | Descrição de ação sugerida |
 |---|---|---|
@@ -119,34 +126,40 @@ Reusar exatamente os nomes de estado que `kawagael.gd` já espera em
 
 Submeter via `mcp__pixellab__animate_character` (`mode: "v3"`, direção
 `east` apenas) e baixar com `tools/pixellab_download.py animation ...`
-pra `assets/generated/kawagael_ronin/<estado>/`.
+pra `assets/generated/ronan/<estado>/`.
 
 ## Passo 4 — Curadoria
 
 Mesmo processo do Kawagael atual: recortar/alinhar pés, downscale pra
 68×68px, remover fundo, exportar `f00.png…fNN.png` por estado. Usar
 `tools/kawagael_curate.ps1` como referência de script (adaptar nomes de
-pasta) ou o helper Python equivalente já usado no swap original.
+pasta pra "ronan") ou o helper Python equivalente já usado no swap original.
 
 ## Passo 5 — Integração (sem mudar código)
 
-1. Depois de aprovado visualmente, copiar os frames curados por cima de
-   `characters/ranged/kawagael/anims/<estado>/` (substituindo o Kawagael
-   verde atual) — **ou** criar uma nova classe irmã (`kawagael_ronin.gd`
-   extends `Zael`, copiando `kawagael.gd`) se quiser manter os dois como
-   personagens separados em vez de substituir.
-2. Reajustar `AnimatedSprite2D.scale` e `position.y` em `kawagael.tscn` se a
-   nova arte tiver proporções/pés em posição diferente da atual.
-3. Rodar a suite de testes do Kawagael (`test_kawagael`, `test_kawagael_loader`,
-   `test_kawagael_fsm`) — skill `run-tests`.
+1. Decidir a estrutura final antes de copiar os frames curados (ver
+   "Decisão em aberto" abaixo):
+   - **Substituir** o Kawagael atual: copiar os frames por cima de
+     `characters/ranged/kawagael/anims/<estado>/`, sem mudar nome de
+     classe/arquivo.
+   - **Personagem novo separado**: criar `characters/ranged/ronan/ronan.gd`
+     (cópia de `kawagael.gd`, extends `Zael`, ajustando `class_name` e o
+     diretório base de `anims/`) + `ronan.tscn`, e adicionar o 4º slot em
+     `stage_scene.gd`/seleção de personagem (mesmo padrão usado quando o
+     Kawagael foi adicionado como 3º personagem).
+2. Reajustar `AnimatedSprite2D.scale` e `position.y` na `.tscn` se a nova
+   arte tiver proporções/pés em posição diferente da atual.
+3. Rodar a suite de testes correspondente (`test_kawagael*` ou os
+   equivalentes `test_ronan*` se virar classe própria) — skill `run-tests`.
 4. Fazer o smoke playthrough visual (a mesma Task 11 pendente registrada em
    `STATUS.md`): idle/run/jump/dash/hurt/shoot/wall_slide/death num stage
    real, via skill `run`.
 
 ## Decisão em aberto
 
-- **Substituir** o Kawagael verde atual ou **manter os dois** como skins
-  alternativas? Isso muda se o Passo 5.1 sobrescreve `anims/` ou cria uma
-  pasta/classe nova. Decidir antes de rodar a curadoria final (o candidate
-  staging em `assets/generated/kawagael_ronin/` não compromete nada, pode
-  gerar e comparar sem decidir isso ainda).
+- **Substituir** o Kawagael verde atual pelo Ronan ou **manter os dois**
+  como personagens/skins separados (Kawagael + Ronan)? Isso muda se o
+  Passo 5.1 sobrescreve `characters/ranged/kawagael/anims/` ou cria uma
+  pasta/classe nova em `characters/ranged/ronan/`. Decidir antes de rodar a
+  curadoria final — o candidate staging em `assets/generated/ronan/` não
+  compromete nada, pode gerar e comparar sem decidir isso ainda.
