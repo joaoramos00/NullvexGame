@@ -39,7 +39,7 @@
 
 ## 3. Itens obsoletos / candidatos a limpeza
 
-> **Atualização 2026-09-20:** itens 1–5 e 7 corrigidos no commit `chore: limpeza de itens obsoletos identificados no STATUS.md`. Item 6 (`.opencastle/`) ainda em aberto — aguardando decisão do usuário.
+> **Atualização 2026-09-20:** todos os 7 itens corrigidos. Itens 1–5 e 7 no commit `chore: limpeza de itens obsoletos identificados no STATUS.md`; item 6 (`.opencastle/`) removido em seguida, por decisão do usuário (nunca foi de fato usado).
 
 Achados concretos, do mais para o menos impactante:
 
@@ -68,9 +68,9 @@ Achados concretos, do mais para o menos impactante:
 - `assets/generated/kawagael_jump_v2/` e `assets/generated/kawagael_run_v2/` (~4 MB) são saída bruta do PixelLab de uma geração v2 já substituída pelas v3/v4 (que foram commitadas direto em `anims/`, sem pasta própria em `assets/generated/`).
 - **Ação recomendada:** confirmar que nada carrega esses arquivos e removê-los (ou movê-los para `_raw/`, que já está no `.gitignore` do diretório).
 
-### 🟢 6. `.opencastle/` — scaffolding nunca preenchido
-- Instalado em 2026-06-01 e commitado (`!.opencastle/` força inclusão no `.gitignore`), mas `roadmap.md`, `decisions.md`, `KNOWN-ISSUES.md`, `DISPUTES.md` continuam com o conteúdo-molde de exemplo — nenhum agente populou de fato em ~3,5 meses de trabalho subsequente.
-- **Ação recomendada:** decidir entre adotar o framework de verdade (preencher os arquivos) ou remover o tracking (`git rm -r --cached .opencastle/`) já que hoje é peso morto no repo.
+### ✅ 6. `.opencastle/` — scaffolding nunca preenchido (removido)
+- Instalado em 2026-06-01 e commitado (`!.opencastle/` força inclusão no `.gitignore`), mas `roadmap.md`, `decisions.md`, `KNOWN-ISSUES.md`, `DISPUTES.md` continuavam com o conteúdo-molde de exemplo — nenhum agente populou de fato em ~3,5 meses de trabalho subsequente.
+- **Ação tomada:** usuário optou por remover (`git rm -r .opencastle/`, tracking + disco). O bloco "OpenCastle managed" no `.gitignore` foi mantido intacto (marcado como gerenciado pela própria ferramenta) — não afeta nada, já que os arquivos que ele referencia (`CLAUDE.md`, `.claude/skills/` etc.) continuam trackeados normalmente.
 
 ### ✅ 7. Scratch files na raiz do repositório
 - `Tasks.txt` — checklist manual de 2026-05-26, com a esmagadora maioria dos itens já marcados ✅; redundante com a tabela "Planos Completos" do `CLAUDE.md`.
