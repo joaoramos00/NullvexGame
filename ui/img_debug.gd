@@ -11,9 +11,7 @@ const _SPRITES: Array = [
     {"char": "ZAEL", "anim": "RunShoot",  "path": "res://characters/ranged/ZaelRunShoot.png",  "frames": 9, "fps": 10.0},
     {"char": "ZAEL", "anim": "JumpShoot", "path": "res://characters/ranged/ZaelJumpShoot.png", "frames": 2, "fps": 10.0},
     {"char": "ZAEL", "anim": "DashShoot", "path": "res://characters/ranged/ZaelDashShoot.png", "frames": 2, "fps": 12.0},
-    # Kawagael (reskin do Zael) — corrida placeholder 5/8 frames. Atualizar "frames" p/ 8 ao completar f5-f7.
-    {"char": "KAWAGAEL", "anim": "Run",   "path": "res://characters/ranged/kawagael/KawagaelRun.png", "frames": 4, "fps": 10.0},
-    {"char": "ZARA", "anim": "Walk",      "path": "res://characters/melee/ZaraAndando.png",    "frames": 5, "fps": 8.0},
+    {"char": "ZARA", "anim": "Walk",     "path": "res://characters/melee/ZaraAndando.png",    "frames": 5, "fps": 8.0},
     {"char": "ZARA", "anim": "Run",       "path": "res://characters/melee/ZaraCorrendo.png",   "frames": 3, "fps": 10.0},
     {"char": "MINIBOSS", "anim": "Walk",  "path": "res://characters/enemies/miniboss/stage_00/miniboss_walk.png",  "frames": 6, "fps": 8.0,  "frame_w": 240},
     {"char": "MINIBOSS", "anim": "Idle",  "path": "res://characters/enemies/miniboss/stage_00/miniboss_idle.png",  "frames": 4, "fps": 6.0,  "frame_w": 240},
@@ -3368,7 +3366,7 @@ func _build_ui() -> void:
     char_row.add_theme_constant_override("separation", 6)
     _sprites_box.add_child(char_row)
 
-    for c in ["ZAEL", "KAWAGAEL", "ZARA", "MINIBOSS"]:
+    for c in ["ZAEL", "ZARA", "MINIBOSS"]:
         var btn := Button.new()
         btn.text = c
         btn.add_theme_font_size_override("font_size", 36)

@@ -12,7 +12,9 @@ const _ANIM_SPECS := [
     # run_start em 20fps: 4f / 20 = 200ms — pernas engatam junto com movimento.
     ["run_start",  20.0, false,   4],
     # run em 16fps: leg cycle mais rápido, sensação de pé firme no chão.
-    ["run",        16.0,  true,  12],
+    # 11 frames (não 12): o f11 gerado era ≈ f00 (pernas iguais) e criava um
+    # "hold" no fechamento do loop — personagem deslizava sem mexer as pernas.
+    ["run",        16.0,  true,  11],
     # run_stop em 18fps: freada rápida, sem enrolar.
     ["run_stop",   18.0, false,   4],
     ["jump",       10.0, false,   4],
