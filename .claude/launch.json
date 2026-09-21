@@ -3,9 +3,15 @@
   "configurations": [
     {
       "name": "web",
-      "runtimeExecutable": "python",
+      "runtimeExecutable": "python3",
       "runtimeArgs": ["serve_web.py"],
       "port": 8080
+    },
+    {
+      "name": "kawa-preview",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["-m", "http.server", "8791"],
+      "port": 8791
     }
   ]
 }
